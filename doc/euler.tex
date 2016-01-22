@@ -1,0 +1,177 @@
+% section — subsection — subsubsection — paragraph — subparagraph
+
+\section{欧拉角与方向余弦}
+本节先分析二维旋转推广到三维空间,然后分析欧拉角转换方向余弦阵的公式
+\subsection{二维方向余弦阵}
+首先分析二维位旋转.
+\begin{figure}[!hbp]
+    \begin{center}
+        \includegraphics[height=5cm, width=5cm]{fig/2dRotate.pdf}
+        \caption{二维旋转}\label{二维旋转}
+    \end{center}
+\end{figure}
+
+根据图\ref{二维旋转}容易得出:
+\begin{equation*}
+    \bfx{p}=x\bfi+y\bfj,
+    \bfx{p}=x'\bfxd{i}+y'\bfxd{j}
+\end{equation*} 
+
+进行如下变换
+\begin{equation*}
+    \begin{split}
+                    & \bfx{p}=x\bfi+y\bfj, \bfx{p}=x'\bfxd{i}+y'\bfxd{j} \\
+        \Rightarrow & x\bfi+y\bfj=x'\bfxd{i}+y'\bfxd{j} \\
+        \Rightarrow & x\bfi\cdot\bfi+y\bfi\cdot\bfj=x'\bfi\cdot\bfxd{i}+y'\bfi\cdot\bfxd{j} \\
+        \Rightarrow & x=\bfi\cdot\bfxd{i}x'+\bfi\cdot\bfxd{j}y'
+    \end{split}
+\end{equation*} 
+
+同理:
+\begin{equation*}
+    \begin{split}
+                    & x\bfi+y\bfj=x'\bfxd{i}+y'\bfxd{j} \\
+        \Rightarrow & x\bfj\cdot\bfi+y\bfj\cdot\bfj=x'\bfj\cdot\bfxd{i}+y'\bfj\cdot\bfxd{j} \\
+        \Rightarrow & y=\bfj\cdot\bfxd{i}x'+\bfj\cdot\bfxd{j}y'
+    \end{split}
+\end{equation*} 
+
+综合以上推导可以得出:
+\begin{equation}\label{二维方向余弦阵}
+    \begin{split}
+        \left[\begin{matrix}
+                x' \\
+                y'
+        \end{matrix}\right]
+        =
+        \left[\begin{matrix}
+                \bfi\bfid & \bfj\bfid \\
+                \bfi\bfjd & \bfj\bfjd
+        \end{matrix}\right]
+        \left[\begin{matrix}
+                x \\
+                y
+        \end{matrix}\right]
+    \end{split}
+\end{equation}
+
+其中$x$,$y$     表示$\bfx{p}$在原坐标系坐标;
+$\bfi$,$\bfj$   表示在原坐标系坐标轴方向单位向量;
+$\bfid$,$\bfjd$ 表示在旋转后坐标系坐标轴方向单位向量;
+$x'$,$y'$       表示$\bfx{p}$在旋转后坐标系坐标.
+\subsection{三维方向余弦阵}
+类似二维旋转，三维旋转方向余弦阵可以表示为:
+\begin{equation}\label{三维方向余弦阵}
+    \begin{split}
+        \left[\begin{matrix}
+                x' \\
+                y' \\
+                z'
+        \end{matrix}\right]
+        =
+        \left[\begin{matrix}
+                \bfi\bfid & \bfj\bfid & \bfk\bfid \\
+                \bfi\bfjd & \bfj\bfjd & \bfk\bfjd \\
+                \bfi\bfkd & \bfj\bfkd & \bfk\bfkd
+        \end{matrix}\right]
+        \left[\begin{matrix}
+                x \\
+                y \\
+                z
+        \end{matrix}\right]
+    \end{split}
+\end{equation}
+
+其中$x$,$y$,$z$         表示$\bfx{p}$在原坐标系坐标;
+$\bfi$,$\bfj$,$\bfk$    表示在原坐标系坐标轴方向单位向量;
+$\bfid$,$\bfjd$,$\bfkd$ 表示在旋转后坐标系坐标轴方向单位向量;
+$x'$,$y'$,$z'$          表示$\bfx{p}$在旋转后坐标系坐标. 这里有一点需要强调,本文坐标系统一采用\textcolor[rgb]{1,0,0}{右手坐标系},结合绘图的美观性,所有旋转轴\footnote{旋转所绕的轴，而非旋转的轴}指向读者.
+
+\subsection{三次旋转}
+本文绕坐标轴旋转的顺序为$z$-$y$-$x$,首先绕$z$轴旋转偏航角$\psi$:
+\begin{figure}[!hbp]
+    \begin{center}
+        \includegraphics[height=5cm, width=5cm]{fig/3dRotateByZ.pdf}
+        \caption{偏航例}\label{偏航例}
+    \end{center}
+\end{figure}
+
+有以下三角公式:
+\begin{equation}\label{三角公式}
+    \begin{split}
+        & \cos(\pidtwo-\theta)=\sin\theta \\
+        & \cos(\pidtwo+\theta)=-\sin\theta
+    \end{split}
+\end{equation} 
+
+根据图\ref{偏航角}和式\ref{三角公式}易得:
+\begin{equation}\label{基向量运算}
+    \begin{split}
+        & \bfi \cdot \bfid=\cospsi \\
+        & \bfj \cdot \bfid=\sinpsi \\
+        & \bfk \cdot \bfid=0 \\
+        & \bfi \cdot \bfjd=-\sinpsi \\
+        & \bfj \cdot \bfjd=\cospsi \\
+        & \bfk \cdot \bfjd=0 \\
+        & \bfi \cdot \bfkd=0 \\
+        & \bfj \cdot \bfkd=0 \\
+        & \bfk \cdot \bfkd=1
+    \end{split}
+\end{equation} 
+
+带入\ref{三维方向余弦阵},可得绕$z$轴单次旋转偏航角$\psi$的方向余弦阵为:
+\begin{equation}\label{偏航单次旋转方向余弦阵}
+    \begin{split}
+        R_z=
+        \left[\begin{matrix}
+                \cospsi & \sinpsi & 0 \\
+               -\sinpsi & \cospsi & 0 \\
+                0       &     0   & 1
+        \end{matrix}\right]
+    \end{split}
+\end{equation}
+
+类似,可得绕$y$轴单次旋转俯仰角$\phi$的方向余弦阵为:
+\begin{equation}\label{俯仰单次旋转方向余弦阵}
+    \begin{split}
+        R_y=
+        \left[\begin{matrix}
+                \cosphi & 0 & -\sinpsi \\
+                0 & 1 & 0 \\
+                \sinphi & \cosphi & 0 \\
+        \end{matrix}\right]
+    \end{split}
+\end{equation}
+
+绕$x$轴单次旋转横滚角$\theta$的方向余弦阵为:
+\begin{equation}\label{横滚单次旋转方向余弦阵}
+    \begin{split}
+        R_x=
+        \left[\begin{matrix}
+                1 & 0 & 0 \\
+                0 & \costheta & \sintheta \\
+                0 & -\sintheta & \costheta
+        \end{matrix}\right]
+    \end{split}
+\end{equation}
+
+令坐标系依次以$z$-$y$-$x$的顺序旋转.则三次旋转后不变矢量在旋转后的坐标系下的坐标值可由以下公式求得:
+\begin{equation}\label{矩阵连续旋转}
+    \bfxd{p} = R_x \cdot R_y \cdot R_z \cdot \bfx{p}
+\end{equation} 
+
+矩阵左乘的顺序与旋转顺序相关,先转先乘,不可更换顺序.
+
+\subsection{欧拉角转方向余弦阵}
+将式\ref{偏航单次旋转方向余弦阵},\ref{俯仰单次旋转方向余弦阵},\ref{横滚单次旋转方向余弦阵}带入式\ref{矩阵连续旋转}展开后可以得出欧拉角表示的方向余弦阵:
+\begin{equation}\label{欧拉角转方向余弦阵}
+    \begin{split}
+        R_{xyz}=
+        \left[\begin{matrix}
+                \cosphi\cospsi & \cosphi\sinpsi & -\sinphi \\
+                \sintheta\sinphi\cospsi-\costheta\sinpsi & \sintheta\sinphi\sinpsi+\costheta\cospsi & \sintheta\cosphi \\
+                \costheta\sinphi\cospsi+\sintheta\sinpsi & \costheta\sinphi\sinpsi-\sintheta\cospsi & \costheta\cosphi
+        \end{matrix}\right]
+    \end{split}
+\end{equation}
+
