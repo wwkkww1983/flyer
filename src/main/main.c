@@ -104,14 +104,17 @@ static void init(void)
     debug_log("参数设置完成.\r\n");
 
     /* 融合算法初始化 */
+    debug_log("融合算法初始化完成.\r\n");
     fusion_init();
 
     /* step2: 启动心跳中触发imu模块读取 */
-    imu_start(); 
+    debug_log("imu i2c中断读启动.\r\n");
+    imu_start(); /* TODO:中断读还是有BUG 性能问题? */
     
-    /* 计算10ms 融合算法需要时间 */
+    /* 计算一个融合周期(默认10ms) 融合算法需要时间 */
     /* 测试融合性能达标 */
-    fusion_test_10ms_time();
+    debug_log("融合算法测试启动启动.\r\n");
+    fusion_test_a_fusion_period();
 
     /* step3: 启动任务 */
 }

@@ -28,9 +28,9 @@ Stack_Size      EQU     0x00000400
 Stack_Mem       SPACE   Stack_Size
 __initial_sp
 
-; 堆 16kB
+; 堆 1kB
 ; 对比.map文件中
-Heap_Size       EQU     0x00004000
+Heap_Size       EQU     0x00000400
 
                 AREA    HEAP, NOINIT, READWRITE, ALIGN=3
 __heap_base

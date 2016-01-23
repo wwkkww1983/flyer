@@ -40,7 +40,7 @@
 /*********************************** 接口函数 **********************************/
 void fusion_init(void);
 void fusion(void);
-void fusion_test_10ms_time(void);
+void fusion_test_a_fusion_period(void);
 
 #endif
 

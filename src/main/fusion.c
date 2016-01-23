@@ -204,7 +204,7 @@ void fusion_init(void)
     debug_log("%.4f,%.4f,%.4f,%.4f\r\n", q[0], q[1], q[2], q[3]); 
 }
 
-void fusion_test_10ms_time(void)
+void fusion_test_a_fusion_period(void)
 {
     uint32_T start = 0;
     uint32_T end = 0;
@@ -224,9 +224,9 @@ void fusion_test_10ms_time(void)
     end = HAL_GetTick();
     cost = end - start;
 
-    debug_log("融合1次耗时: %ums.\r\n", cost);
+    debug_log("融合1次耗时: %ums, 时间门限(融合周期):%ums.\r\n", cost, 10);
 
-    if(cost > (10 / 3) ) /* stm32f401性能比stm32f429 低3倍 */
+    if(cost > 10 - 1) /* stm32f401re 融合算法时间必须<周期(10ms) 留1ms余量 */
     {
         imu_stop(); /* 避免imu持续度调用串口输出报错 */
         debug_log("融合算法性能不达标(移除数据打印110ms > 3ms).\r\n"); 
@@ -345,6 +345,7 @@ static void accel_fusion(accel_T *accel_v)
     math_euler2quaternion(q, euler);
     set_quaternion(q);
 
+#if 1
     static int32_T pp = 0;
     if(50 == pp)
     {
@@ -353,6 +354,7 @@ static void accel_fusion(accel_T *accel_v)
         pp = 0;
     }
     pp++;
+#endif
 
 #if 0
     static int pp = 0;
