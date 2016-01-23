@@ -42,26 +42,28 @@
 /* I2C个数 MPU9250+功能板 */
 #define I2C_NUMS                                (2)
 /* IMU I2C定义 FIXME:使用I2C1 */
-#define IMU_I2C                                 I2C3
-#define IMU_I2C_CLOCK_ENABLE()                  __I2C3_CLK_ENABLE()
-#define IMU_I2C_FORCE_RESET()                   __I2C3_FORCE_RESET()
-#define IMU_I2C_RELEASE_RESET()                 __I2C3_RELEASE_RESET()
-#define IMU_I2C_SDA_GPIO_CLK_ENABLE()           __GPIOC_CLK_ENABLE()
-#define IMU_I2C_SCL_GPIO_CLK_ENABLE()           __GPIOA_CLK_ENABLE() 
-#define IMU_I2C_SDA_GPIO_CLK_DISABLE()          __GPIOC_CLK_DISABLE()
-#define IMU_I2C_SCL_GPIO_CLK_DISABLE()          __GPIOA_CLK_DISABLE() 
+#define IMU_I2C                                 I2C1
+#define IMU_I2C_CLOCK_ENABLE()                  __I2C1_CLK_ENABLE()
+#define IMU_I2C_FORCE_RESET()                   __I2C1_FORCE_RESET()
+#define IMU_I2C_RELEASE_RESET()                 __I2C1_RELEASE_RESET()
+#define IMU_I2C_SDA_GPIO_CLK_ENABLE()           __GPIOB_CLK_ENABLE()
+#define IMU_I2C_SCL_GPIO_CLK_ENABLE()           __GPIOB_CLK_ENABLE() 
+#define IMU_I2C_SDA_GPIO_CLK_DISABLE()          __GPIOB_CLK_DISABLE()
+#define IMU_I2C_SCL_GPIO_CLK_DISABLE()          __GPIOB_CLK_DISABLE() 
 #define IMU_I2C_SCL_PIN                         GPIO_PIN_8
-#define IMU_I2C_SCL_GPIO_PORT                   GPIOA
-#define IMU_I2C_SCL_SDA_AF                      GPIO_AF4_I2C3
+#define IMU_I2C_SCL_GPIO_PORT                   GPIOB
+#define IMU_I2C_SCL_SDA_AF                      GPIO_AF4_I2C1
 #define IMU_I2C_SDA_PIN                         GPIO_PIN_9
-#define IMU_I2C_SDA_GPIO_PORT                   GPIOC
-#define IMU_I2C_EV_IRQn                         I2C3_EV_IRQn
-#define IMU_I2C_ER_IRQn                         I2C3_ER_IRQn
+#define IMU_I2C_SDA_GPIO_PORT                   GPIOB
+#define IMU_I2C_EV_IRQn                         I2C1_EV_IRQn
+#define IMU_I2C_ER_IRQn                         I2C1_ER_IRQn
+
 #define IMU_INT_PIN                             GPIO_PIN_15
 #define IMU_INT_GPIO_PORT                       GPIOA
 #define IMU_INT_CLK_ENABLE()                    __GPIOA_CLK_ENABLE()
 #define IMU_INT_CLK_DISABLE()                   __GPIOA_CLK_DISABLE()
 #define IMU_INT_EXTI                            EXTI15_10_IRQn
+
 /* TODO:功能板 I2C定义 */
 
 

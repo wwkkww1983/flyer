@@ -161,6 +161,15 @@ inline static unsigned char addr_convert(unsigned char addr)
 void mpu9250_init(void)
 {
     unsigned char dev_status = 0;
+    unsigned char who_am_i = 0;
+
+    /* 测试i2c是否正常工作 */
+    debug_log("测试I2C总线挂载芯片...\r\n");
+    imu_read_poll(MPU9250_DEV_ADDR, MPU9250_WHO_AM_I_REG_ADDR, &who_am_i, 1); 
+    if(MPU9250_WHO_AM_I_REG_VALUE == who_am_i)
+    {
+        debug_log("MPU9250数据可以通过i2c正常读取,who_am_i:0x%02x.\r\n", who_am_i);
+    }
 
     /* invensence 初始化 */
     debug_log("初始化MPU...\r\n");

@@ -21,6 +21,8 @@
 /************************************ 宏定义 ***********************************/
 /*********************************** 板级定义 **********************************/
 #define MPU9250_DEV_ADDR                    (0xD0)
+#define MPU9250_WHO_AM_I_REG_ADDR           (0x75)
+#define MPU9250_WHO_AM_I_REG_VALUE          (0x71)
 #define MPU9250_COMPASS_DEV_ADDR            (MPU9250_DEV_ADDR)
 #define MPU9250_ACCEL_DATA_ADDR             (0x3B)
 #define MPU9250_GYRO_DATA_ADDR              (0x43)
