@@ -28,6 +28,7 @@
 #include "pid.h"
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_conf.h"
+#include "board.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
 
@@ -35,8 +36,6 @@
 
 /********************************** 函数声明区 *********************************/
 static void init(void);
-static void clock_init(void);
-
 
 /********************************** 函数实现区 *********************************/
 /*******************************************************************************
@@ -115,43 +114,5 @@ static void init(void)
     fusion_test_10ms_time();
 
     /* step3: 启动任务 */
-}
-
-static void clock_init(void)
-{
-    RCC_ClkInitTypeDef RCC_ClkInitStruct;
-    RCC_OscInitTypeDef RCC_OscInitStruct;
-
-    __HAL_RCC_PWR_CLK_ENABLE();
-
-    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-    RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-    RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLM = 8;
-    RCC_OscInitStruct.PLL.PLLN = 360;
-    RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-    RCC_OscInitStruct.PLL.PLLQ = 7;
-    if(HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-    {
-        while(1);
-    }
-
-    HAL_PWREx_EnableOverDrive();
-
-    RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK
-            | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;  
-    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;  
-    if(HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
-    {
-        while(1);
-    }
-
-    return;
 }
 
