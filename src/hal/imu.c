@@ -20,7 +20,7 @@
 #include "mpu9250.h"
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_conf.h"
-#include "stm32f429idiscovery_hardware.h"
+#include "board.h"
 #include "misc.h"
 #include "console.h"
 

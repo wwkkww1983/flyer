@@ -21,7 +21,7 @@
 #include "typedef.h"
 #include "console.h"
 #include "stm32f4xx_hal_conf.h"
-#include "stm32f429idiscovery_hardware.h"
+#include "board.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
 

@@ -53,7 +53,7 @@
           <CreateLib>0</CreateLib>
           <CreateHexFile>0</CreateHexFile>
           <DebugInformation>1</DebugInformation>
-          <BrowseInformation>1</BrowseInformation>
+          <BrowseInformation>0</BrowseInformation>
           <ListingPath>.\lst\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
@@ -199,7 +199,7 @@
             <ldmm>1</ldmm>
             <ldXref>1</ldXref>
             <BigEnd>0</BigEnd>
-            <AdsALst>1</AdsALst>
+            <AdsALst>0</AdsALst>
             <AdsACrf>1</AdsACrf>
             <AdsANop>0</AdsANop>
             <AdsANot>0</AdsANot>
@@ -207,8 +207,8 @@
             <AdsLmap>1</AdsLmap>
             <AdsLcgr>0</AdsLcgr>
             <AdsLsym>0</AdsLsym>
-            <AdsLszi>0</AdsLszi>
-            <AdsLtoi>0</AdsLtoi>
+            <AdsLszi>1</AdsLszi>
+            <AdsLtoi>1</AdsLtoi>
             <AdsLsun>0</AdsLsun>
             <AdsLven>0</AdsLven>
             <AdsLsxf>0</AdsLsxf>
@@ -373,7 +373,7 @@
               <MiscControls></MiscControls>
               <Define>EMPL_TARGET_STM32F4,MPU9250,EMPL_TARGET_STM32F4,ARM_MATH_CM4,__FPU_PRESENT</Define>
               <Undefine></Undefine>
-              <IncludePath>..\src\hal;E:\Keil_v5\STM32Cube_FW_F4\Drivers\STM32F4xx_HAL_Driver\Inc;..\src\main;..\src\eMD6.12\core\driver\eMPL;E:\Keil_v5\STM32Cube_FW_F4\Drivers\CMSIS\Include</IncludePath>
+              <IncludePath>E:\Keil_v5\STM32Cube_FW_F4\Drivers\CMSIS\Include;E:\Keil_v5\STM32Cube_FW_F4\Drivers\STM32F4xx_HAL_Driver\Inc;..\src\eMD6.12\core\driver\eMPL;..\src\hal;..\src\main</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -532,14 +532,14 @@
               <FilePath>..\src\hal\mpu9250.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f429idiscovery_hardware.c</FileName>
+              <FileName>board.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\src\hal\stm32f429idiscovery_hardware.c</FilePath>
+              <FilePath>..\src\hal\board.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f429xx.s</FileName>
+              <FileName>stm32f4xx.s</FileName>
               <FileType>2</FileType>
-              <FilePath>..\src\hal\stm32f429xx.s</FilePath>
+              <FilePath>..\src\hal\stm32f4xx.s</FilePath>
             </File>
           </Files>
         </Group>
