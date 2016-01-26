@@ -24,6 +24,74 @@
 /********************************** 函数实现区 *********************************/
 /*******************************************************************************
 *
+* 函数名  : HAL_TIM_PWM_MspInit
+* 负责人  : 彭鹏
+* 创建日期: 20160126
+* 函数功能: stm32f4 hal timer pwm初始化回调
+*
+* 输入参数: stm32 hal timer句柄
+* 输出参数: 无
+* 返回值  : 无
+* 调用关系: 无
+* 其 它   : 无
+*
+******************************************************************************/
+void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef *htim)
+{
+    GPIO_InitTypeDef   GPIO_InitStruct;
+   
+    TIMx_CLK_ENABLE(); 
+    TIMx_CHANNEL_GPIO_PORT(); 
+    
+    /* Configure 
+     * PB.04 (pin 19 in CN7 connector)  (TIM3_Channel1), 
+     * PB.05 (pin 13 in CN7 connector)  (TIM3_Channel2), 
+     * PB.00 (pin 31 in CN10 connector) (TIM3_Channel3),
+     * PB.01 (pin 7  in CN10 connector) (TIM3_Channel4) 
+     * in output, push-pull, alternate function mode */
+   
+    /* Common configuration for all channels */
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+
+    GPIO_InitStruct.Alternate = TIMx_GPIO_AF_CHANNEL1;
+    GPIO_InitStruct.Pin = TIMx_GPIO_PIN_CHANNEL1;
+    HAL_GPIO_Init(TIMx_GPIO_PORT_CHANNEL1, &GPIO_InitStruct);
+
+    GPIO_InitStruct.Alternate = TIMx_GPIO_AF_CHANNEL2;
+    GPIO_InitStruct.Pin = TIMx_GPIO_PIN_CHANNEL2;
+    HAL_GPIO_Init(TIMx_GPIO_PORT_CHANNEL2, &GPIO_InitStruct);
+
+    GPIO_InitStruct.Alternate = TIMx_GPIO_AF_CHANNEL3;
+    GPIO_InitStruct.Pin = TIMx_GPIO_PIN_CHANNEL3;
+    HAL_GPIO_Init(TIMx_GPIO_PORT_CHANNEL3, &GPIO_InitStruct);
+
+    GPIO_InitStruct.Alternate = TIMx_GPIO_AF_CHANNEL4;
+    GPIO_InitStruct.Pin = TIMx_GPIO_PIN_CHANNEL4;
+    HAL_GPIO_Init(TIMx_GPIO_PORT_CHANNEL4, &GPIO_InitStruct);
+}
+
+/*******************************************************************************
+*
+* 函数名  : HAL_TIM_PWM_MspDeInit
+* 负责人  : 彭鹏
+* 创建日期: 20160126
+* 函数功能: stm32f4 hal timer pwm解初始化回调
+*
+* 输入参数: stm32 hal timer句柄
+* 输出参数: 无
+* 返回值  : 无
+* 调用关系: 无
+* 其 它   : 无
+*
+******************************************************************************/
+void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef *htim)
+{
+}
+
+/*******************************************************************************
+*
 * 函数名  : HAL_UART_MspInit
 * 负责人  : 彭鹏
 * 创建日期: 20150615

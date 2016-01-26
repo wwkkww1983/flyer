@@ -20,6 +20,7 @@
 #include "misc.h"
 #include "data.h"
 #include "console.h"
+#include "pwm.h"
 #include "imu.h"
 #include "mpu9250.h"
 #include "main.h"
@@ -90,6 +91,10 @@ static void init(void)
     /* 串口 */
     console_init(); /* 此后可以开始打印 */ 
     debug_log("串口初始化完成.\r\n");
+
+    /* pwm */
+    pwm_init();
+    debug_log("pwm初始化完成.\r\n");
 
     /* imu i2c */
     imu_init();
