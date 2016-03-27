@@ -85,6 +85,10 @@
  #define LSE_VALUE  ((uint32_t)32768) 
 #endif /* LSE_VALUE */
 
+#if !defined  (LSE_STARTUP_TIMEOUT)
+  #define LSE_STARTUP_TIMEOUT    ((uint32_t)5000U)   /*!< Time out for LSE start up, in ms */
+#endif /* LSE_STARTUP_TIMEOUT */
+
 /************************************ HAL配置 **********************************/
 #define  VDD_VALUE                    ((uint32_t)3300) /* VDD电压(mv) */
 #define  USE_RTOS                     0     
@@ -170,7 +174,7 @@
   
 #ifdef HAL_SDRAM_MODULE_ENABLED
   #include "stm32f4xx_hal_sdram.h"
-#endif /* HAL_SDRAM_MODULE_ENABLED */      
+#endif /* HAL_SDRAM_MODULE_ENABLED */
 
 #ifdef HAL_HASH_MODULE_ENABLED
  #include "stm32f4xx_hal_hash.h"
