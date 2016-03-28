@@ -90,6 +90,10 @@
       (DisplayName "pstchip.dat")))
   (Folder "Referenced Projects")
   (PartMRUSelector
+    (STM32F401RBT6_FLYER
+      (FullPartName "STM32F401RBT6_FLYERA.Normal")
+      (LibraryName "E:\WORKSPACE\FLYER\PCB\LIB\FLYER.OLB")
+      (DeviceIndex "1"))
     (SI2302DS
       (FullPartName "SI2302DS.Normal")
       (LibraryName "E:\WORKSPACE\FLYER\PCB\LIB\FLYER.OLB")
@@ -172,10 +176,6 @@
       (FullPartName "HEADER 2.Normal")
       (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\CONNECTOR.OLB")
       (DeviceIndex "0"))
-    (STM32F401RBT6_FLYER
-      (FullPartName "STM32F401RBT6_FLYERA.Normal")
-      (LibraryName "E:\WORKSPACE\FLYER\PCB\LIB\FLYER.OLB")
-      (DeviceIndex "1"))
     ("MOSFET N"
       (FullPartName "MOSFET N.Normal")
       (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
@@ -194,21 +194,19 @@
       (Path "Design Resources" ".\flyer.dsn")
       (Path "Design Resources" ".\flyer.dsn" "sch")
       (Path "Design Resources" "Library")
-      (Path "Design Resources" "Library" ".\lib\flyer.olb")
-      (Path "Outputs")
-      (Select "Design Resources" ".\flyer.dsn" "sch" "flyer"))
+      (Path "Outputs"))
     (HierarchyView)
     (Doc
       (Type "COrCapturePMDoc")
       (Frame
-        (Placement "44 0 1 -1 -1 -8 -30 0 250 0 937"))
+        (Placement "44 0 1 -1 -1 -8 -30 0 250 0 757"))
       (Tab 0))
     (Doc
       (Type "COrSchematicDoc")
       (Frame
-        (Placement "44 2 3 -1 -1 -8 -30 25 1667 25 535")
-        (Scroll "-335 119")
-        (Zoom "100")
+        (Placement "44 2 3 -1 -1 -8 -30 25 1481 25 535")
+        (Scroll "0 46")
+        (Zoom "126")
         (Occurrence "/"))
       (Path "E:\WORKSPACE\FLYER\PCB\FLYER.DSN")
       (Schematic "sch")
