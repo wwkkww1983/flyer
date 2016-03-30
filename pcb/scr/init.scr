@@ -11,23 +11,6 @@ trapsize 1362
 trapsize 1362
 generaledit 
 
-#å¯¼å…¥ç½‘è¡¨
-setwindow pcb
-trapsize 12821
-generaledit
-netin 
-setwindow form.niparams
-FORM niparams capture_netlist YES 
-FORM niparams browse  
-fillin "ALLEGRO"
-FORM niparams import  
-setwindow pcb
-trapsize 12821
-generaledit 
-setwindow text
-close 
-setwindow pcb
-
 pop dyn_option_select 'Quick Utilities@:@Design Parameters...' 
 prmed 
 setwindow form.prmedit
@@ -58,8 +41,8 @@ FORM grid done
 setwindow pcb
 
 
-# å¼€å§‹ç»˜åˆ¶
-# å®‰è£…å­”
+# ¿ªÊ¼»æÖÆ
+# °²×°¿×
 # 1
 add circle 
 pick -69 -69
@@ -85,7 +68,7 @@ pick -69 75
 pick -69 69
 pick -69 64.7
 
-# è¾¹æ¡†
+# ±ß¿ò
 add line
 pick -69 -75
 pick  69 -75
@@ -103,7 +86,7 @@ pick -75  69
 pick -75 -69
 done
 
-# å¸ƒçº¿åŒº
+# ²¼ÏßÇø
 setwindow pcb
 trapsize 12821
 generaledit
@@ -124,6 +107,22 @@ prepopup -61.5385 -57.1795
 done 
 generaledit 
 
+#µ¼ÈëÍø±í
+setwindow pcb
+trapsize 12821
+generaledit
+netin 
+setwindow form.niparams
+FORM niparams capture_netlist YES 
+FORM niparams browse  
+fillin "ALLEGRO"
+FORM niparams import  
+setwindow pcb
+trapsize 12821
+generaledit 
+setwindow text
+close 
+setwindow pcb
 
 #save 
 generaledit 
