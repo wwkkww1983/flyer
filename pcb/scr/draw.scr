@@ -1,0 +1,51 @@
+# Allegro script
+#	file: E:/workspace/flyer/pcb/scr/draw.scr
+#	start time: Wed Mar 30 10:09:56 2016
+#	Version: 16.5 P003 (v16-5-13C) i86
+version 16.5
+
+setwindow pcb
+trapsize 13622
+generaledit
+trapsize 18162
+
+
+# 边框
+# 中心点 (75,75)
+add rect 
+pick 0 0 
+pick 150 150 
+
+# 安装孔
+# 1
+add circle 
+pick 6 6 
+pick 6 12 
+pick 6 6 
+pick 6 10.3 
+# 2
+pick 144 6 
+pick 144 12 
+pick 144 6 
+pick 144 10.3 
+# 3
+pick 6 144 
+pick 6 138 
+pick 6 144 
+pick 6 139.7 
+# 4
+pick 144 144 
+pick 144 138 
+pick 144 144 
+pick 144 139.7 
+
+# 圆弧形边框
+add arc
+pick 12 6
+pick 138 6
+pick 75 35
+
+done 
+generaledit 
+
+#	stop time: Wed Mar 30 10:17:27 2016
