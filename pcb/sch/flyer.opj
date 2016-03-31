@@ -59,7 +59,7 @@
     (DRC_Report_Unused_Part_Packages "TRUE")
     (DRC_Check_Name_Prop_For_HierBlocks "TRUE")
     ("Create Allegro Netlist" "TRUE")
-    ("Allegro Netlist Directory" "E:\WORKSPACE\FLYER\PCB\ALLEGRO")
+    ("Allegro Netlist Directory" "E:\WORKSPACE\FLYER\PCB\NETLIST")
     ("View Allegro Netlist Files" "FALSE")
     ("Update Allegro Board" "FALSE")
     ("Allegro Netlist Output Board File" "allegro\flyer.brd")
@@ -87,20 +87,7 @@
     (BOM_One_Part_Per_Line "FALSE")
     (Open_BOM_in_Excel "FALSE")
     (BOM_View_Output "FALSE"))
-  (Folder "Outputs"
-    (File ".\flyer.drc"
-      (Type "Report"))
-    (File ".\allegro\pstxnet.dat"
-      (Type "Report")
-      (DisplayName "pstxnet.dat"))
-    (File ".\allegro\pstxprt.dat"
-      (Type "Report")
-      (DisplayName "pstxprt.dat"))
-    (File ".\allegro\pstchip.dat"
-      (Type "Report")
-      (DisplayName "pstchip.dat"))
-    (File ".\flyer.bom"
-      (Type "Report")))
+  (Folder "Outputs")
   (Folder "Referenced Projects")
   (PartMRUSelector
     ("SW KEY-SPDT"
@@ -205,6 +192,7 @@
     (FileView
       (Path "Design Resources")
       (Path "Design Resources" ".\flyer.dsn")
+      (Path "Design Resources" ".\flyer.dsn" "sch")
       (Path "Outputs"))
     (HierarchyView)
     (Doc
@@ -215,11 +203,11 @@
     (Doc
       (Type "COrSchematicDoc")
       (Frame
-        (Placement "44 0 1 -1 -1 -8 -30 50 906 50 434")
-        (Scroll "825 0")
-        (Zoom "432")
+        (Placement "44 0 1 -1 -1 -8 -30 50 1200 50 434")
+        (Scroll "0 119")
+        (Zoom "100")
         (Occurrence "/"))
-      (Path "E:\WORKSPACE\FLYER\PCB\FLYER.DSN")
+      (Path "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.DSN")
       (Schematic "sch")
       (Page "flyer")))
   (LastUsedLibraryBrowseDirectory "D:\Cadence\SPB_16.5\tools\capture\library")
