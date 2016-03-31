@@ -71,69 +71,71 @@ pick -73.24  64.76
 pick -75     69
 done
 
-# route area
-add line
-pick  67.25  62.26
-pick  62.26  67.25
-done
-add line
-pick  67.25 -62.26
-pick  62.26 -67.25
-done
-add line
-pick  -67.25 -62.26
-pick  -62.26 -67.25
-done
-add line
-pick  -67.25 62.26
-pick  -62.26 67.25
-done
-add arc
-pick  67.25  62.26
-pick  67.25 -62.26
-pick  36     0
-pick  62.26 -67.25
-pick -62.26 -67.25
-pick  0     -36
-pick -67.25  62.26
-pick -67.25 -62.26
-pick -36     0
-pick  62.26  67.25
-pick -62.26  67.25
-pick  0      36
-done
 
-# package area
-add line
-pick  65.95  62.56
-pick  62.56  65.95
-done
-add line
-pick  65.95 -62.56
-pick  62.56 -65.95
-done
-add line
-pick -65.95 -62.56
-pick -62.56 -65.95
-done
-add line
-pick -65.95  62.56
-pick -62.56  65.95
-done
-add arc
-pick  65.95  62.56
-pick  65.95 -62.56
-pick     35  0
-pick  62.56 -65.95
-pick -62.56 -65.95
-pick      0 -35
-pick -65.95  62.56
-pick -65.95 -62.56
-pick    -35  0
-pick  62.56  65.95
-pick -62.56  65.95
-pick      0  35
-done
+# 布局区 和 布放封装区 作为辅助线(用于生成package_keepin.scr,router_keepin) 实际不画
+# route area
+#add line
+#pick  67.25  62.26
+#pick  62.26  67.25
+#done
+#add line
+#pick  67.25 -62.26
+#pick  62.26 -67.25
+#done
+#add line
+#pick  -67.25 -62.26
+#pick  -62.26 -67.25
+#done
+#add line
+#pick  -67.25 62.26
+#pick  -62.26 67.25
+#done
+#add arc
+#pick  67.25  62.26
+#pick  67.25 -62.26
+#pick  36     0
+#pick  62.26 -67.25
+#pick -62.26 -67.25
+#pick  0     -36
+#pick -67.25  62.26
+#pick -67.25 -62.26
+#pick -36     0
+#pick  62.26  67.25
+#pick -62.26  67.25
+#pick  0      36
+#done
+
+## package area
+#add line
+#pick  65.95  62.56
+#pick  62.56  65.95
+#done
+#add line
+#pick  65.95 -62.56
+#pick  62.56 -65.95
+#done
+#add line
+#pick -65.95 -62.56
+#pick -62.56 -65.95
+#done
+#add line
+#pick -65.95  62.56
+#pick -62.56  65.95
+#done
+#add arc
+#pick  65.95  62.56
+#pick  65.95 -62.56
+#pick     35  0
+#pick  62.56 -65.95
+#pick -62.56 -65.95
+#pick      0 -35
+#pick -65.95  62.56
+#pick -65.95 -62.56
+#pick    -35  0
+#pick  62.56  65.95
+#pick -62.56  65.95
+#pick      0  35
+#done
 
 # 空心杯孔
 add pin 

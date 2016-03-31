@@ -1,0 +1,1183 @@
+# Allegro script
+#	file: E:/workspace/flyer/pcb/script/temp.scr
+#	start time: Thu Mar 31 21:56:16 2016
+#	Version: 16.5 P003 (v16-5-13C) i86
+version 16.5
+
+setwindow pcb
+trapsize 12821
+generaledit
+keepin package 
+setwindow pcb
+zoom in 63.3334 66.6667
+trapsize 6410
+setwindow pcb
+zoom in 65.6410 66.2821
+trapsize 3205
+setwindow pcb
+zoom in 65.0000 66.2822
+trapsize 1603
+setwindow pcb
+zoom in 63.6539 65.8335
+trapsize 801
+setwindow pcb
+zoom in 63.5257 65.8335
+trapsize 401
+setwindow pcb
+zoom in 62.5402 65.9457
+trapsize 200
+setwindow pcb
+zoom in 62.5843 65.9377
+trapsize 100
+setwindow pcb
+zoom in 62.5843 65.9377
+trapsize 50
+setwindow pcb
+zoom in 62.5633 65.9507
+trapsize 25
+setwindow pcb
+zoom in 62.5634 65.9508
+trapsize 13
+pick grid 62.5604 65.9498
+setwindow pcb
+zoom out 62.5784 65.9165
+trapsize 25
+setwindow pcb
+zoom out 62.5854 65.9115
+trapsize 50
+setwindow pcb
+zoom out 62.5935 65.9066
+trapsize 100
+setwindow pcb
+zoom out 62.6315 65.7623
+trapsize 200
+setwindow pcb
+zoom out 62.6435 65.7464
+trapsize 401
+setwindow pcb
+zoom out 62.6675 65.7063
+trapsize 801
+setwindow pcb
+zoom out 62.7316 65.6421
+trapsize 1603
+setwindow pcb
+zoom out 64.3022 62.2126
+trapsize 3205
+setwindow pcb
+zoom in 65.9615 62.4358
+trapsize 1603
+setwindow pcb
+zoom in 65.9615 62.4358
+trapsize 801
+setwindow pcb
+zoom in 65.9134 62.6281
+trapsize 401
+setwindow pcb
+zoom in 65.9134 62.6282
+trapsize 200
+setwindow pcb
+zoom in 65.9575 62.5882
+trapsize 100
+setwindow pcb
+zoom in 65.9615 62.5562
+trapsize 50
+setwindow pcb
+zoom in 65.9596 62.5552
+trapsize 25
+setwindow pcb
+zoom in 65.9596 62.5553
+trapsize 13
+setwindow pcb
+zoom in 65.9483 62.5598
+trapsize 6
+pick grid 65.9484 62.5598
+setwindow pcb
+zoom out 65.9249 62.5580
+trapsize 13
+setwindow pcb
+zoom out 65.9260 62.5578
+trapsize 25
+setwindow pcb
+zoom out 65.9274 62.5574
+trapsize 50
+setwindow pcb
+zoom out 65.9275 62.5573
+trapsize 100
+setwindow pcb
+zoom out 65.9275 62.5574
+trapsize 200
+setwindow pcb
+zoom out 65.9275 62.5574
+trapsize 401
+setwindow pcb
+zoom out 65.9275 62.5573
+trapsize 801
+setwindow pcb
+zoom out 65.9916 62.4452
+trapsize 1603
+setwindow pcb
+zoom out 65.9916 62.4452
+trapsize 3205
+setwindow form.mini
+FORM mini dyns_lock_mode Arc 
+setwindow pcb
+setwindow pcb
+zoom out 50.5127 49.9999
+trapsize 6410
+setwindow pcb
+zoom out 37.0519 18.9741
+trapsize 12821
+setwindow pcb
+zoom out 154.3590 -42.5641
+trapsize 12821
+setwindow pcb
+zoom in 65.6410 -61.7949
+trapsize 6410
+setwindow pcb
+zoom in -6.4103 -62.3077
+trapsize 3205
+setwindow pcb
+zoom out 40.5128 -58.6538
+trapsize 6410
+setwindow pcb
+zoom out 87.4359 -58.6538
+trapsize 12821
+setwindow pcb
+zoom out 253.8462 -47.9487
+trapsize 12821
+setwindow pcb
+zoom in 56.1539 -61.7949
+trapsize 6410
+setwindow pcb
+zoom in 65.8974 -63.2051
+trapsize 3205
+setwindow pcb
+zoom in 66.0897 -62.6922
+trapsize 1603
+setwindow pcb
+zoom in 66.0257 -62.6922
+trapsize 801
+setwindow pcb
+zoom in 66.0257 -62.6922
+trapsize 401
+setwindow pcb
+zoom in 65.9056 -62.6200
+trapsize 200
+setwindow pcb
+zoom in 65.9016 -62.6200
+trapsize 100
+setwindow pcb
+zoom in 65.9036 -62.6200
+trapsize 50
+setwindow pcb
+zoom in 65.9477 -62.5619
+trapsize 25
+setwindow pcb
+zoom in 65.9477 -62.5619
+trapsize 13
+setwindow pcb
+zoom in 65.9480 -62.5611
+trapsize 6
+pick grid 65.9480 -62.5611
+setwindow pcb
+zoom out 65.9036 -62.5450
+trapsize 13
+setwindow pcb
+zoom out 65.9036 -62.5450
+trapsize 25
+setwindow pcb
+zoom out 65.9036 -62.5449
+trapsize 50
+setwindow pcb
+zoom out 65.9035 -62.5449
+trapsize 100
+setwindow pcb
+zoom out 65.4929 -62.4507
+trapsize 200
+setwindow pcb
+zoom out 65.4769 -62.4427
+trapsize 401
+setwindow pcb
+zoom out 65.4528 -62.4266
+trapsize 801
+setwindow pcb
+zoom out 65.4207 -62.3465
+trapsize 1603
+setwindow pcb
+zoom out 54.1986 -58.9811
+trapsize 3205
+setwindow pcb
+zoom out 33.0126 -52.3075
+trapsize 6410
+setwindow pcb
+zoom out 4.1030 -24.6151
+trapsize 12821
+setwindow pcb
+zoom in 38.2051 5.8974
+trapsize 6410
+setwindow pcb
+zoom in -20.8974 5.8974
+trapsize 3205
+setwindow pcb
+zoom out 32.8846 -1.2820
+trapsize 6410
+setwindow pcb
+zoom in 39.1025 1.1538
+trapsize 3205
+setwindow pcb
+zoom in 39.4872 1.1538
+trapsize 1603
+setwindow pcb
+zoom in 35.0001 1.4102
+trapsize 801
+setwindow pcb
+zoom out 35.0161 -0.6250
+trapsize 1603
+setwindow pcb
+zoom out 34.9200 -1.3623
+trapsize 3205
+setwindow pcb
+zoom in 34.6636 -0.2725
+trapsize 1603
+setwindow pcb
+zoom out 34.6636 -0.2725
+trapsize 3205
+setwindow pcb
+zoom in 34.5995 -0.7212
+trapsize 1603
+setwindow pcb
+zoom in 34.5995 -0.7212
+trapsize 801
+setwindow pcb
+zoom in 35.1764 0.3365
+trapsize 401
+setwindow pcb
+zoom in 34.9762 -0.1282
+trapsize 200
+setwindow pcb
+zoom in 34.9762 -0.1281
+trapsize 100
+setwindow pcb
+zoom in 34.9763 -0.1281
+trapsize 50
+setwindow pcb
+zoom in 35.0003 -0.0149
+trapsize 25
+setwindow pcb
+zoom in 35.0004 -0.0149
+trapsize 13
+pick grid 35.0049 -0.0049
+setwindow pcb
+zoom out 34.9731 -0.0179
+trapsize 25
+setwindow pcb
+zoom out 34.9730 -0.0178
+trapsize 50
+setwindow pcb
+zoom out 34.9729 -0.0178
+trapsize 100
+setwindow pcb
+zoom out 34.9730 -0.0179
+trapsize 200
+setwindow pcb
+zoom out 34.9489 -0.0259
+trapsize 401
+setwindow pcb
+zoom out 34.8609 -0.0660
+trapsize 801
+setwindow pcb
+zoom out 34.7326 -0.1301
+trapsize 1603
+setwindow pcb
+zoom out 34.5723 -0.1620
+trapsize 3205
+setwindow pcb
+zoom out 34.5082 -0.1621
+trapsize 6410
+setwindow pcb
+zoom out 0.6415 -4.3929
+trapsize 12821
+setwindow pcb
+zoom out 81.2821 -35.3846
+trapsize 12821
+setwindow pcb
+zoom out 81.2821 -35.3846
+trapsize 12821
+setwindow pcb
+zoom out 81.2821 -35.3846
+trapsize 12821
+setwindow pcb
+zoom in 63.8462 -66.9231
+trapsize 6410
+setwindow pcb
+zoom in -8.0769 -66.9230
+trapsize 3205
+setwindow pcb
+zoom out 35.9616 -65.5127
+trapsize 6410
+setwindow pcb
+zoom out 80.0000 -65.5127
+trapsize 12821
+setwindow pcb
+zoom in 75.1282 -68.2051
+trapsize 6410
+setwindow pcb
+zoom in 61.9231 -66.0256
+trapsize 3205
+setwindow pcb
+zoom in 63.5898 -66.3461
+trapsize 1603
+setwindow pcb
+zoom in 62.8527 -65.4806
+trapsize 801
+setwindow pcb
+zoom in 62.8526 -65.5287
+trapsize 401
+setwindow pcb
+zoom in 62.5482 -65.9854
+trapsize 200
+setwindow pcb
+zoom in 62.5682 -65.9853
+trapsize 100
+setwindow pcb
+zoom in 62.5683 -65.9853
+trapsize 50
+setwindow pcb
+zoom in 62.5683 -65.9462
+trapsize 25
+setwindow pcb
+zoom in 62.5684 -65.9461
+trapsize 13
+pick grid 62.5648 -65.9466
+setwindow pcb
+zoom out 62.4705 -65.8935
+trapsize 25
+setwindow pcb
+zoom out 62.4698 -65.8965
+trapsize 50
+setwindow pcb
+zoom out 62.4689 -65.9015
+trapsize 100
+setwindow pcb
+zoom out 62.4609 -65.9175
+trapsize 200
+setwindow pcb
+zoom out 60.9264 -66.1298
+trapsize 401
+setwindow pcb
+zoom out 60.6620 -66.1619
+trapsize 801
+setwindow pcb
+zoom out 59.9729 -66.1939
+trapsize 1603
+setwindow pcb
+zoom out 42.2754 -66.1938
+trapsize 3205
+setwindow pcb
+zoom out -3.3979 -64.5913
+trapsize 6410
+setwindow pcb
+zoom out -71.1538 -51.6665
+trapsize 12821
+setwindow pcb
+zoom out -61.0256 -22.8205
+trapsize 12821
+setwindow pcb
+zoom in -61.2820 -65.3846
+trapsize 6410
+setwindow pcb
+zoom in -70.6410 -65.3846
+trapsize 3205
+setwindow pcb
+zoom in -62.2436 -65.9615
+trapsize 1603
+setwindow pcb
+zoom in -62.2435 -65.9614
+trapsize 801
+setwindow pcb
+zoom in -62.6281 -65.8492
+trapsize 401
+setwindow pcb
+zoom in -62.6281 -65.8492
+trapsize 200
+setwindow pcb
+zoom in -62.5760 -65.9493
+trapsize 100
+setwindow pcb
+zoom in -62.5760 -65.9493
+trapsize 50
+setwindow pcb
+zoom in -62.5570 -65.9513
+trapsize 25
+setwindow pcb
+zoom in -62.5569 -65.9513
+trapsize 13
+setwindow pcb
+zoom in -62.5582 -65.9508
+trapsize 6
+setwindow pcb
+zoom in -62.5584 -65.9505
+trapsize 3
+setwindow pcb
+zoom in -62.5596 -65.9497
+trapsize 2
+setwindow pcb
+zoom in -62.5599 -65.9500
+trapsize 1
+pick grid -62.5599 -65.9500
+setwindow pcb
+zoom out -62.5560 -65.9478
+trapsize 2
+setwindow pcb
+zoom out -62.5560 -65.9476
+trapsize 3
+setwindow pcb
+zoom out -62.5557 -65.9476
+trapsize 6
+setwindow pcb
+zoom out -62.5554 -65.9473
+trapsize 12
+setwindow pcb
+zoom out -62.5310 -65.9302
+trapsize 25
+setwindow pcb
+zoom out -62.5226 -65.9247
+trapsize 50
+setwindow pcb
+zoom out -62.5086 -65.9117
+trapsize 100
+setwindow pcb
+zoom out -62.4866 -65.9017
+trapsize 200
+setwindow pcb
+zoom out -61.1306 -65.0217
+trapsize 400
+setwindow pcb
+zoom out -61.0106 -65.2377
+trapsize 800
+setwindow pcb
+zoom out -60.9946 -65.2537
+trapsize 1600
+setwindow pcb
+zoom out -51.3600 -64.8640
+trapsize 3200
+setwindow pcb
+zoom out -22.7200 -49.7280
+trapsize 6400
+setwindow pcb
+zoom out 34.5600 -19.4560
+trapsize 12821
+setwindow pcb
+zoom out 149.4872 41.2821
+trapsize 12821
+prepopup 17.1795 -53.0769
+oops 
+setwindow form.mini
+FORM mini dyns_lock_mode Arc 
+setwindow pcb
+setwindow pcb
+zoom in -60.2564 -66.4103
+trapsize 6410
+setwindow pcb
+zoom in -69.6154 -66.9230
+trapsize 3205
+setwindow pcb
+zoom in -61.4744 -67.0512
+trapsize 1603
+setwindow pcb
+zoom in -61.4743 -67.0512
+trapsize 801
+setwindow pcb
+zoom in -62.3557 -66.0897
+trapsize 401
+setwindow pcb
+zoom in -62.3717 -66.0095
+trapsize 200
+setwindow pcb
+zoom in -62.5279 -65.9253
+trapsize 100
+setwindow pcb
+zoom in -62.5278 -65.9253
+trapsize 50
+setwindow pcb
+zoom in -62.5589 -65.9513
+trapsize 25
+setwindow pcb
+zoom in -62.5588 -65.9513
+trapsize 13
+setwindow pcb
+zoom in -62.5588 -65.9510
+trapsize 6
+pick grid -62.5588 -65.9510
+setwindow pcb
+zoom out -62.4953 -65.9299
+trapsize 13
+setwindow pcb
+zoom out -62.4953 -65.9299
+trapsize 25
+setwindow pcb
+zoom out -62.4953 -65.9300
+trapsize 50
+setwindow pcb
+zoom out -62.4954 -65.9299
+trapsize 100
+setwindow pcb
+zoom out -62.4953 -65.9300
+trapsize 200
+setwindow pcb
+zoom out -62.4913 -65.9300
+trapsize 401
+setwindow pcb
+zoom out -62.3792 -65.8899
+trapsize 801
+setwindow pcb
+zoom out -57.2028 -61.9957
+trapsize 1603
+setwindow pcb
+zoom out -50.3203 -61.9957
+trapsize 3205
+setwindow pcb
+zoom out -20.6407 -46.0896
+trapsize 6410
+setwindow pcb
+zoom in 3.5902 -34.6151
+trapsize 3205
+setwindow pcb
+zoom in 3.9107 -34.6151
+trapsize 1603
+setwindow pcb
+zoom in 3.9748 -34.6151
+trapsize 801
+setwindow pcb
+zoom in -0.3201 -34.9036
+trapsize 401
+setwindow pcb
+zoom in 1.0661 -34.9677
+trapsize 200
+setwindow pcb
+zoom in 1.0661 -34.9677
+trapsize 100
+setwindow pcb
+zoom out 0.0485 -35.0157
+trapsize 200
+setwindow pcb
+zoom out 0.0284 -34.9997
+trapsize 401
+setwindow pcb
+zoom in 0.0285 -34.9997
+trapsize 200
+setwindow pcb
+zoom in 0.0285 -34.9997
+trapsize 100
+setwindow pcb
+zoom out -0.0716 -34.9797
+trapsize 200
+setwindow pcb
+zoom out -0.0716 -34.9797
+trapsize 401
+setwindow pcb
+zoom out -0.0075 -34.9956
+trapsize 801
+setwindow pcb
+zoom out 0.0887 -34.9957
+trapsize 1603
+setwindow pcb
+zoom out 0.2488 -35.0277
+trapsize 3205
+setwindow pcb
+zoom out -5.3851 -35.0918
+trapsize 6410
+setwindow pcb
+zoom in -5.5124 -35.4764
+trapsize 3205
+setwindow pcb
+zoom in 2.2440 -35.1559
+trapsize 1603
+setwindow pcb
+zoom in 2.3081 -35.1558
+trapsize 801
+setwindow pcb
+zoom in 2.0837 -35.0596
+trapsize 401
+setwindow pcb
+zoom in 1.4988 -34.9955
+trapsize 200
+setwindow pcb
+zoom in 1.3506 -34.9514
+trapsize 100
+setwindow pcb
+zoom out 0.2930 -35.0115
+trapsize 200
+setwindow pcb
+zoom out 0.3130 -35.0115
+trapsize 401
+setwindow pcb
+zoom out 0.3209 -34.9875
+trapsize 801
+setwindow pcb
+zoom out 0.2889 -34.9714
+trapsize 1603
+setwindow pcb
+zoom out 0.1927 -34.9393
+trapsize 3205
+setwindow pcb
+zoom out -4.4876 -34.9394
+trapsize 6410
+setwindow pcb
+zoom in -9.2304 -35.3240
+trapsize 3205
+setwindow pcb
+zoom in -4.4868 -35.2599
+trapsize 1603
+setwindow pcb
+zoom in -4.3265 -35.2598
+trapsize 801
+setwindow pcb
+zoom in -0.1117 -34.9874
+trapsize 401
+setwindow pcb
+zoom in -0.0797 -34.9873
+trapsize 200
+setwindow pcb
+zoom in -0.0075 -35.0033
+trapsize 100
+setwindow pcb
+zoom in 0.0146 -35.0012
+trapsize 50
+setwindow pcb
+zoom in 0.0146 -35.0012
+trapsize 25
+setwindow pcb
+zoom in 0.0146 -35.0011
+trapsize 13
+pick grid 0.0048 -35.0046
+setwindow pcb
+zoom out -0.0452 -35.0176
+trapsize 25
+setwindow pcb
+zoom out -0.0453 -35.0176
+trapsize 50
+setwindow pcb
+zoom out -0.0454 -35.0176
+trapsize 100
+setwindow pcb
+zoom out -0.3719 -35.0075
+trapsize 200
+setwindow pcb
+zoom out -0.4521 -35.0076
+trapsize 401
+setwindow pcb
+zoom out -0.5882 -35.0156
+trapsize 801
+setwindow pcb
+zoom out -0.8126 -35.0476
+trapsize 1603
+setwindow pcb
+zoom out -9.8512 -35.4963
+trapsize 3205
+setwindow pcb
+zoom out -9.9153 -35.4964
+trapsize 6410
+setwindow pcb
+zoom out -55.7691 -35.6245
+trapsize 12821
+setwindow pcb
+zoom out -32.5641 -16.1538
+trapsize 12821
+setwindow pcb
+zoom in -65.1282 -63.5897
+trapsize 6410
+setwindow pcb
+zoom in -63.0769 -62.1794
+trapsize 3205
+setwindow pcb
+zoom in -63.0769 -62.1794
+trapsize 1603
+setwindow pcb
+zoom in -65.8332 -62.6922
+trapsize 801
+setwindow pcb
+zoom in -65.8332 -62.6922
+trapsize 401
+setwindow pcb
+zoom in -65.8332 -62.6921
+trapsize 200
+setwindow pcb
+zoom in -65.9694 -62.5599
+trapsize 100
+setwindow pcb
+zoom in -65.9694 -62.5599
+trapsize 50
+setwindow pcb
+zoom in -65.9463 -62.5578
+trapsize 25
+setwindow pcb
+zoom in -65.9463 -62.5578
+trapsize 13
+pick grid -65.9462 -62.5578
+setwindow pcb
+zoom out -65.8924 -62.5247
+trapsize 25
+setwindow pcb
+zoom out -65.8925 -62.5247
+trapsize 50
+setwindow pcb
+zoom out -65.8925 -62.5247
+trapsize 100
+setwindow pcb
+zoom out -65.8925 -62.5248
+trapsize 200
+setwindow pcb
+zoom out -65.9606 -62.5127
+trapsize 401
+setwindow pcb
+zoom out -65.8164 -62.4487
+trapsize 801
+setwindow pcb
+zoom out -65.2234 -62.3204
+trapsize 1603
+setwindow pcb
+zoom out -64.9991 -62.3204
+trapsize 3205
+setwindow form.mini
+FORM mini dyns_lock_mode Arc 
+setwindow pcb
+setwindow pcb
+zoom out -69.9999 -51.9998
+trapsize 6410
+setwindow pcb
+zoom out -59.4871 -27.9484
+trapsize 12821
+setwindow pcb
+zoom out -38.2051 24.3590
+trapsize 12821
+setwindow pcb
+zoom out -36.1538 26.1539
+trapsize 12821
+setwindow pcb
+zoom in -65.1282 63.5898
+trapsize 6410
+setwindow pcb
+zoom in -68.8462 62.4359
+trapsize 3205
+setwindow pcb
+zoom in -65.1923 62.8205
+trapsize 1603
+setwindow pcb
+zoom in -65.1923 62.8206
+trapsize 801
+setwindow pcb
+zoom in -65.7212 62.7084
+trapsize 401
+setwindow pcb
+zoom in -65.7212 62.7085
+trapsize 200
+setwindow pcb
+zoom in -65.9656 62.5483
+trapsize 100
+setwindow pcb
+zoom in -65.9655 62.5483
+trapsize 50
+setwindow pcb
+zoom in -65.9655 62.5483
+trapsize 25
+setwindow pcb
+zoom in -65.9454 62.5493
+trapsize 13
+setwindow pcb
+zoom in -65.9454 62.5493
+trapsize 6
+pick grid -65.9461 62.5553
+setwindow pcb
+zoom out -65.8850 62.5269
+trapsize 13
+setwindow pcb
+zoom out -65.8850 62.5269
+trapsize 25
+setwindow pcb
+zoom out -65.8850 62.5269
+trapsize 50
+setwindow pcb
+zoom out -65.8851 62.5268
+trapsize 100
+setwindow pcb
+zoom out -65.8831 62.5149
+trapsize 200
+setwindow pcb
+zoom out -65.8710 62.4988
+trapsize 401
+setwindow pcb
+zoom out -65.8550 62.4907
+trapsize 801
+setwindow pcb
+zoom out -65.8229 62.4267
+trapsize 1603
+setwindow pcb
+zoom out -61.9871 58.8690
+trapsize 3205
+setwindow pcb
+zoom out -43.9742 53.2691
+trapsize 6410
+setwindow pcb
+zoom out -7.8201 26.1536
+trapsize 12821
+setwindow pcb
+zoom out 74.8718 -30.2564
+trapsize 12821
+setwindow pcb
+zoom in -31.5385 -4.1026
+trapsize 6410
+setwindow pcb
+zoom in -33.9744 2.4359
+trapsize 3205
+setwindow pcb
+zoom in -33.9744 2.4359
+trapsize 1603
+setwindow pcb
+zoom in -34.8077 -0.4487
+trapsize 801
+setwindow pcb
+zoom in -35.0641 -0.4968
+trapsize 401
+setwindow pcb
+zoom in -34.8877 0.1924
+trapsize 200
+setwindow pcb
+zoom in -34.9078 -0.0079
+trapsize 100
+setwindow pcb
+zoom in -34.9077 -0.0079
+trapsize 50
+setwindow pcb
+zoom in -34.9077 -0.0078
+trapsize 25
+setwindow pcb
+zoom in -35.0008 -0.0013
+trapsize 13
+pick grid -35.0007 -0.0012
+setwindow pcb
+zoom out -34.9910 -0.0015
+trapsize 25
+setwindow pcb
+zoom out -34.9910 -0.0015
+trapsize 50
+setwindow pcb
+zoom out -34.9911 -0.0014
+trapsize 100
+setwindow pcb
+zoom out -34.9911 -0.0014
+trapsize 200
+setwindow pcb
+zoom out -34.9911 -0.0015
+trapsize 401
+setwindow pcb
+zoom out -34.9911 -0.0014
+trapsize 801
+setwindow pcb
+zoom out -34.9911 -0.0014
+trapsize 1603
+setwindow pcb
+zoom out -34.9912 -0.0015
+trapsize 3205
+setwindow pcb
+zoom out -34.9912 -0.0014
+trapsize 6410
+setwindow pcb
+zoom out -56.0255 -0.0014
+trapsize 12821
+setwindow pcb
+zoom out -32.0513 -2.5641
+trapsize 12821
+setwindow pcb
+zoom in -62.3077 66.9231
+trapsize 6410
+setwindow pcb
+zoom in -71.1538 66.9231
+trapsize 3205
+setwindow pcb
+zoom in -71.1538 66.9232
+trapsize 1603
+setwindow pcb
+zoom in -61.8268 64.8399
+trapsize 801
+setwindow pcb
+zoom in -61.8268 64.8559
+trapsize 401
+setwindow pcb
+zoom out -62.6200 65.6091
+trapsize 801
+setwindow pcb
+zoom out -62.6201 65.6092
+trapsize 1603
+setwindow pcb
+zoom in -62.5561 65.9938
+trapsize 801
+setwindow pcb
+zoom in -62.5400 66.0098
+trapsize 401
+setwindow pcb
+zoom in -62.5400 66.0098
+trapsize 200
+setwindow pcb
+zoom in -62.5520 65.9738
+trapsize 100
+setwindow pcb
+zoom in -62.5520 65.9738
+trapsize 50
+setwindow pcb
+zoom in -62.5630 65.9558
+trapsize 25
+setwindow pcb
+zoom in -62.5630 65.9559
+trapsize 13
+setwindow pcb
+zoom in -62.5630 65.9559
+trapsize 6
+setwindow pcb
+zoom in -62.5630 65.9529
+trapsize 3
+pick grid -62.5630 65.9529
+setwindow pcb
+zoom out -62.5531 65.9419
+trapsize 6
+setwindow pcb
+zoom out -62.5531 65.9419
+trapsize 13
+setwindow pcb
+zoom out -62.5532 65.9418
+trapsize 25
+setwindow pcb
+zoom out -62.5532 65.9419
+trapsize 50
+setwindow pcb
+zoom out -62.5511 65.9409
+trapsize 100
+setwindow pcb
+zoom out -62.4590 65.8869
+trapsize 200
+setwindow pcb
+zoom out -62.4270 65.8628
+trapsize 401
+setwindow pcb
+zoom out -62.3790 65.8227
+trapsize 801
+setwindow pcb
+zoom out -62.3469 65.7906
+trapsize 1603
+setwindow pcb
+zoom out -62.1226 65.5022
+trapsize 3205
+setwindow pcb
+zoom out -45.2562 59.3589
+trapsize 6410
+setwindow pcb
+zoom out -10.2560 38.4614
+trapsize 12821
+setwindow pcb
+zoom out 60.0000 -3.5897
+trapsize 12821
+setwindow pcb
+zoom out 60.2564 -3.8461
+trapsize 12821
+setwindow form.mini
+FORM mini dyns_lock_mode Arc 
+setwindow pcb
+setwindow pcb
+zoom in 65.1282 66.1539
+trapsize 6410
+setwindow pcb
+zoom in 56.2820 61.1539
+trapsize 3205
+setwindow pcb
+zoom in 62.3077 65.3206
+trapsize 1603
+setwindow pcb
+zoom in 62.7565 65.4489
+trapsize 801
+setwindow pcb
+zoom out 62.5161 65.7854
+trapsize 1603
+setwindow pcb
+zoom out 62.5162 65.7855
+trapsize 3205
+setwindow pcb
+zoom out 62.5162 65.7854
+trapsize 6410
+setwindow pcb
+zoom out 61.9232 65.2726
+trapsize 12821
+setwindow pcb
+zoom out 203.8462 78.2052
+trapsize 12821
+setwindow pcb
+zoom out 203.8462 78.2052
+trapsize 12821
+setwindow pcb
+zoom in 74.8718 72.3077
+trapsize 6410
+setwindow pcb
+zoom in -1.2821 72.3077
+trapsize 3205
+setwindow pcb
+zoom out 39.2949 66.3462
+trapsize 6410
+setwindow pcb
+zoom out 76.7948 64.2308
+trapsize 12821
+setwindow pcb
+zoom out 221.7949 51.0257
+trapsize 12821
+setwindow pcb
+zoom in 69.4872 69.4872
+trapsize 6410
+setwindow pcb
+zoom in 69.3590 69.8718
+trapsize 3205
+setwindow pcb
+zoom in 62.9487 68.2692
+trapsize 1603
+setwindow pcb
+zoom in 62.8846 65.9936
+trapsize 801
+setwindow pcb
+zoom in 62.8846 65.9937
+trapsize 401
+setwindow pcb
+zoom in 62.6122 65.9616
+trapsize 200
+setwindow pcb
+zoom in 62.5882 65.9496
+trapsize 100
+setwindow pcb
+zoom in 62.5882 65.9497
+trapsize 50
+setwindow pcb
+zoom in 62.5612 65.9447
+trapsize 25
+setwindow pcb
+zoom in 62.5612 65.9447
+trapsize 13
+setwindow pcb
+zoom in 62.5602 65.9489
+trapsize 6
+pick grid 62.5603 65.9490
+setwindow pcb
+zoom out 62.4930 65.9264
+trapsize 13
+setwindow pcb
+zoom out 62.4928 65.9265
+trapsize 25
+setwindow pcb
+zoom out 62.4928 65.9265
+trapsize 50
+setwindow pcb
+zoom out 62.4888 65.9264
+trapsize 100
+setwindow pcb
+zoom out 62.4727 65.9264
+trapsize 200
+setwindow pcb
+zoom out 61.0665 65.6620
+trapsize 401
+setwindow pcb
+zoom out 60.9384 65.6219
+trapsize 801
+setwindow pcb
+zoom out 59.5352 65.6059
+trapsize 1603
+setwindow pcb
+zoom out 38.3011 65.4778
+trapsize 3205
+setwindow pcb
+zoom out -4.1671 53.7819
+trapsize 6410
+setwindow pcb
+zoom out -71.5384 20.3843
+trapsize 12821
+setwindow pcb
+zoom out -63.0769 -39.4872
+trapsize 12821
+setwindow pcb
+zoom out -61.5385 -39.7436
+trapsize 12821
+setwindow pcb
+zoom in 0.5128 34.3590
+trapsize 6410
+setwindow pcb
+zoom in -39.7436 34.3590
+trapsize 3205
+setwindow pcb
+zoom in 2.0513 34.6154
+trapsize 1603
+setwindow pcb
+zoom in -1.8268 34.9040
+trapsize 801
+setwindow pcb
+zoom in -1.5704 34.9040
+trapsize 401
+setwindow pcb
+zoom in 0.1043 34.9681
+trapsize 200
+setwindow pcb
+zoom in 0.1044 34.9681
+trapsize 100
+setwindow pcb
+zoom in 0.1044 34.9681
+trapsize 50
+setwindow pcb
+zoom in 0.1044 34.9681
+trapsize 25
+setwindow pcb
+zoom in -0.0022 34.9977
+trapsize 13
+setwindow pcb
+zoom in -0.0020 35.0017
+trapsize 6
+pick grid -0.0020 35.0017
+setwindow pcb
+zoom out -0.0165 34.9914
+trapsize 13
+setwindow pcb
+zoom out -0.0165 34.9913
+trapsize 25
+setwindow pcb
+zoom out -0.0166 34.9914
+trapsize 50
+setwindow pcb
+zoom out -0.0166 34.9913
+trapsize 100
+setwindow pcb
+zoom out -0.0166 34.9914
+trapsize 200
+setwindow pcb
+zoom out -0.0166 34.9913
+trapsize 401
+setwindow pcb
+zoom out -0.0167 34.9914
+trapsize 801
+setwindow pcb
+zoom out -0.0166 34.9914
+trapsize 1603
+setwindow pcb
+zoom out -0.0488 34.7030
+trapsize 3205
+setwindow pcb
+zoom out -7.4847 25.5362
+trapsize 6410
+setwindow pcb
+zoom out 0.1286 25.5362
+trapsize 12821
+setwindow pcb
+zoom out 80.2564 -1.2820
+trapsize 12821
+setwindow pcb
+zoom out 80.2564 -1.2820
+trapsize 12821
+setwindow pcb
+zoom out 80.2564 -1.2820
+trapsize 12821
+prepopup 3.3333 11.5385
+done 
+generaledit 
+
+#	stop time: Thu Mar 31 22:00:42 2016
