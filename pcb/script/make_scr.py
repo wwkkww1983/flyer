@@ -16,11 +16,15 @@ g_config["paper_margin"] = 5.0
 g_config["board_size"] = 150.0
 
 # 主信号区域
-g_config["signal_area_size"] = 50.0
+g_config["signal_area_size"] = 70.0
 
+# 图纸相关
 g_config["paper_size"] = g_config["board_size"] + g_config["paper_margin"] * 2
 g_config["paper_x0"] = -g_config["paper_size"]/2
 g_config["paper_y0"] = g_config["paper_x0"]
+
+# 悬链线系数
+g_catenary_a = 0.0
 
 # 初始化板参数
 g_scr = """# Allegro script
@@ -110,40 +114,35 @@ def get_up_outline():
     for p in circle_list1:
         circle_list2.append([-p[0], p[1]])
 
-    # 椭圆
-    ellipse_list = []
-    # 长短半轴
-    x_r = (g_config["board_size"] / 2) - (g_config["motor_hole_out_r"] * 2)
-    y_r = x_r - (g_config["signal_area_size"] /2)
-    #print(x_r, y_r)
-    # -x_r to x_r
-    x_min = -x_r
-    x_max = x_r
-    #print(-x_min, x_max)
+    # 悬链线
+    catenary_list = []
+    # x范围
+    x_max = (g_config["board_size"] / 2) - (g_config["motor_hole_out_r"] * 2)
+    y_max = x_max - (g_config["signal_area_size"] /2)
+    x_min = -x_max
+    x_max = x_max
+    #print("%.4f, %.4f, %.4f" % (x_min, x_max, y_max)) 
+    #print("%.5f" % g_catenary_a) 
+
     x = x_min - precision
     # - 1e-10 避免溢出
     while x < (x_max - 1e-10):
         x = x + precision 
+        
+        cosh = math.cosh( x/ g_catenary_a)
+        y = g_catenary_a * (cosh - 1) 
 
-        y_r_2 = math.pow(y_r, 2)
-        x_r_2 = math.pow(x_r, 2)
-        x_2 = math.pow(x, 2)
-        #print(y_r, x_r, x, x_max)
-        y = math.sqrt(y_r_2 - y_r_2/x_r_2*x_2)
+        catenary_list.append([x, y]) 
 
-        ellipse_list.append([x, y]) 
-
-    y_tran = (g_config["board_size"] / 2) - g_config["motor_hole_out_r"]
-    for p in ellipse_list:
-        # 沿x轴翻转
-        p[1] = -p[1]
+    y_tran = g_config["signal_area_size"] / 2
+    for p in catenary_list:
         # 上移
         p[1] = y_tran + p[1]
 
     # 保证从连续性
     circle_list2.reverse()
     #circle_list1.reverse()
-    #ellipse_list.reverse()
+    #catenary_list.reverse()
 
     """
     #调试
@@ -152,7 +151,7 @@ def get_up_outline():
         print(p[0], end = ',')
         print(p[1])
     print(2)
-    for p in ellipse_list:
+    for p in catenary_list:
         print(p[0], end = ',')
         print(p[1])
     print(3)
@@ -161,7 +160,7 @@ def get_up_outline():
         print(p[1])
     """
 
-    return (circle_list2, ellipse_list, circle_list1)
+    return (circle_list2, catenary_list, circle_list1)
 
 def get_noup_outline(angle):
     """
@@ -234,7 +233,40 @@ def get_draw_cmd():
     #print(draw_cmd_all)
     return draw_cmd_all
 
-if __name__ == '__main__':
+def catenary(): 
+    # 定点
+    x_c = (g_config["board_size"] / 2) - (g_config["motor_hole_out_r"] * 2)
+    y_c = (g_config["board_size"] / 2) - (g_config["signal_area_size"] / 2) - g_config["motor_hole_out_r"]
+    
+    # a 链表构建
+    a_min = 10
+    a_max = 100
+    step = 1.0 / 100000 
+    
+    a_nums = int((a_max - a_min)/step)
+
+    # 构造系数列表
+    a_list = []
+    for i in range(0, a_nums):
+        a_list.append(a_min + i*step)
+
+    # 遍历求解系数
+    y_last = 0
+    for a in a_list:
+        cosh = math.cosh( x_c / a)
+        y = a * (cosh - 1) 
+
+        if abs(y - y_c) < 1e-5:
+            #print("%.4f, %.5f, %.5f" % (x_c, y, a))
+            return a
+
+
+if __name__ == '__main__': 
+    # 悬链线系数 需要放在所有参数最后
+    #print("#求出悬链线系数, 稍等")
+    g_catenary_a = catenary()
+    #print("#悬链线系数:%.5f" % g_catenary_a)
+
     cmd_all = g_scr + get_draw_cmd()
     print(cmd_all)
 
