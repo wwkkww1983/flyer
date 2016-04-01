@@ -6,7 +6,7 @@ setwindow pcb
 trapsize 1362
 generaledit
 new 
-newdrawfillin "flyer.dra" "Mechanical Symbol"
+newdrawfillin "flyer_outline.dra" "Mechanical Symbol"
 trapsize 1362
 trapsize 1362
 generaledit 
@@ -2552,7 +2552,7 @@ generaledit
 add pin 
 setwindow form.mini
 FORM mini pad_browse  
-fillin "via8d6cir"
+fillin "motor820_hole"
 pick grid -69 -69
 pick grid  69 -69
 pick grid  69  69

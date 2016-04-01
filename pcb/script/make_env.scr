@@ -2,15 +2,6 @@
 
 version 16.5
 
-setwindow pcb
-trapsize 1362
-generaledit
-new 
-newdrawfillin "flyer.brd" "Board"
-trapsize 1362
-trapsize 1362
-generaledit 
-
 pop dyn_option_select 'Quick Utilities@:@Design Parameters...' 
 prmed 
 setwindow form.prmedit
