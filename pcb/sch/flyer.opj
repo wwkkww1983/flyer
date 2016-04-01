@@ -3,7 +3,7 @@
   (ProjectType "PCB")
   (Folder "Design Resources"
     (Folder "Library"
-      (File "e:\workspace\lib\allegro\olb\flyer.olb"
+      (File "e:\workspace\allegro_lib\olb\flyer.olb"
         (Type "Schematic Library")))
     (NoModify)
     (File ".\flyer.dsn"
@@ -193,12 +193,25 @@
       (Path "Design Resources")
       (Path "Design Resources" ".\flyer.dsn")
       (Path "Design Resources" ".\flyer.dsn" "sch")
+      (Path "Design Resources" "Library")
+      (Path "Design Resources" "Library"
+         "e:\workspace\allegro_lib\olb\flyer.olb")
       (Select "Design Resources" ".\flyer.dsn" "sch" "flyer"))
     (HierarchyView)
     (Doc
       (Type "COrCapturePMDoc")
       (Frame
-        (Placement "44 2 3 -1 -1 -8 -30 0 250 0 757"))
-      (Tab 0)))
+        (Placement "44 0 1 -1 -1 -8 -30 0 250 0 757"))
+      (Tab 0))
+    (Doc
+      (Type "COrSchematicDoc")
+      (Frame
+        (Placement "44 2 3 -1 -1 -8 -30 75 1225 75 459")
+        (Scroll "-62 0")
+        (Zoom "100")
+        (Occurrence "/"))
+      (Path "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.DSN")
+      (Schematic "sch")
+      (Page "flyer")))
   (LastUsedLibraryBrowseDirectory "D:\Cadence\SPB_16.5\tools\capture\library")
   (ISPCBBASICLICENSE "false"))
