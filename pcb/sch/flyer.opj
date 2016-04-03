@@ -101,6 +101,10 @@
       (Type "Report")))
   (Folder "Referenced Projects")
   (PartMRUSelector
+    (AMS1117_3V3
+      (FullPartName "AMS1117_3V3.Normal")
+      (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
+      (DeviceIndex "0"))
     ("SW PUSHBUTTON"
       (FullPartName "SW PUSHBUTTON.Normal")
       (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
@@ -120,10 +124,6 @@
       (DeviceIndex "0"))
     ("SW KEY-SPDT"
       (FullPartName "SW KEY-SPDT.Normal")
-      (LibraryName "E:\WORKSPACE\FLYER\PCB\LIB\FLYER.OLB")
-      (DeviceIndex "0"))
-    (AMS1117_3V3
-      (FullPartName "AMS1117_3V3.Normal")
       (LibraryName "E:\WORKSPACE\FLYER\PCB\LIB\FLYER.OLB")
       (DeviceIndex "0"))
     (TF_CARD
@@ -209,23 +209,13 @@
       (Path "Design Resources" "Library"
          "e:\workspace\allegro_lib\olb\flyer.olb")
       (Path "Outputs")
-      (Select "Design Resources"))
+      (Select "Design Resources" ".\flyer.dsn" "sch" "flyer"))
     (HierarchyView)
     (Doc
       (Type "COrCapturePMDoc")
       (Frame
-        (Placement "44 0 1 -1 -1 -8 -30 0 250 0 757"))
-      (Tab 0))
-    (Doc
-      (Type "COrSchematicDoc")
-      (Frame
-        (Placement "44 2 3 -1 -1 -8 -30 100 1771 100 572")
-        (Scroll "-335 110")
-        (Zoom "100")
-        (Occurrence "/"))
-      (Path "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.DSN")
-      (Schematic "sch")
-      (Page "flyer")))
+        (Placement "44 2 3 -1 -1 -8 -30 0 250 0 757"))
+      (Tab 0)))
   (LastUsedLibraryBrowseDirectory
      "E:\workspace\SPB\SPB_16.5\tools\capture\library")
   (ISPCBBASICLICENSE "false"))
