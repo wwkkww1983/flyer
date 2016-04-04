@@ -101,6 +101,44 @@
       (Type "Report")))
   (Folder "Referenced Projects")
   (PartMRUSelector
+    (OFFPAGELEFT-L
+      (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\CAPSYM.OLB")
+      (DeviceIndex "0"))
+    (OFFPAGELEFT-R
+      (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\CAPSYM.OLB")
+      (DeviceIndex "0"))
+    ("CAP NP"
+      (FullPartName "CAP NP.Normal")
+      (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
+      (DeviceIndex "0"))
+    (R
+      (FullPartName "R.Normal")
+      (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
+      (DeviceIndex "0"))
+    (STM32F401RBT6_PX
+      (FullPartName "STM32F401RBT6_PXA.Normal")
+      (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
+      (DeviceIndex "1"))
+    ("4 HEADER"
+      (FullPartName "4 HEADER.Normal")
+      (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\CONNECTOR.OLB")
+      (DeviceIndex "0"))
+    (S8050
+      (FullPartName "S8050.Normal")
+      (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
+      (DeviceIndex "0"))
+    (L14C1/TO
+      (FullPartName "L14C1/TO.Normal")
+      (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
+      (DeviceIndex "0"))
+    (MPU9250
+      (FullPartName "MPU9250.Normal")
+      (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
+      (DeviceIndex "0"))
+    (CP2102
+      (FullPartName "CP2102.Normal")
+      (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
+      (DeviceIndex "0"))
     (AMS1117_3V3
       (FullPartName "AMS1117_3V3.Normal")
       (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
@@ -144,10 +182,6 @@
     (GND
       (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\CAPSYM.OLB")
       (DeviceIndex "0"))
-    (R
-      (FullPartName "R.Normal")
-      (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
-      (DeviceIndex "0"))
     ("JFET N"
       (FullPartName "JFET N.Normal")
       (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
@@ -163,70 +197,19 @@
     (MPQ7091
       (FullPartName "MPQ7091.Normal")
       (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
-      (DeviceIndex "0"))
-    (MPQ7093
-      (FullPartName "MPQ7093.Normal")
-      (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
-      (DeviceIndex "0"))
-    (MPQ2906*
-      (FullPartName "MPQ2906*.Normal")
-      (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
-      (DeviceIndex "1"))
-    (L14C1/TO
-      (FullPartName "L14C1/TO.Normal")
-      (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
-      (DeviceIndex "0"))
-    ("CAP NP"
-      (FullPartName "CAP NP.Normal")
-      (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
-      (DeviceIndex "0"))
-    (CHOKE
-      (FullPartName "CHOKE.Normal")
-      (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
-      (DeviceIndex "0"))
-    (CAP
-      (FullPartName "CAP.Normal")
-      (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
-      (DeviceIndex "0"))
-    (LTC4504
-      (FullPartName "LTC4504.Normal")
-      (LibraryName "E:\WORKSPACE\FLYER\PCB\LIB\FLYER.OLB")
-      (DeviceIndex "0"))
-    (LM27313
-      (FullPartName "LM27313.Normal")
-      (LibraryName "E:\WORKSPACE\FLYER\PCB\LIB\FLYER.OLB")
-      (DeviceIndex "0"))
-    ("HEADER 2"
-      (FullPartName "HEADER 2.Normal")
-      (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\CONNECTOR.OLB")
       (DeviceIndex "0")))
   (GlobalState
     (FileView
       (Path "Design Resources")
       (Path "Design Resources" ".\flyer.dsn")
       (Path "Design Resources" ".\flyer.dsn" "sch")
-      (Path "Design Resources" "Library")
-      (Path "Design Resources" "Library"
-         "e:\workspace\allegro_lib\olb\flyer.olb")
-      (Path "Outputs")
-      (Select "Design Resources" ".\flyer.dsn" "sch" "flyer"))
+      (Path "Outputs"))
     (HierarchyView)
     (Doc
       (Type "COrCapturePMDoc")
       (Frame
-        (Placement "44 0 1 -1 -1 -8 -30 0 250 0 757"))
-      (Tab 0))
-    (Doc
-      (Type "COrSchematicDoc")
-      (Frame
-        (Placement "44 2 3 -1 -1 -8 -30 25 1671 25 539")
-        (Scroll "-335 9")
-        (Zoom "100")
-        (Occurrence "/"))
-      (Path "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.DSN")
-      (Schematic "sch")
-      (Page "flyer")))
-  (LastUsedLibraryBrowseDirectory
-     "E:\workspace\SPB\SPB_16.5\tools\capture\library")
+        (Placement "44 2 3 -1 -1 -8 -30 0 250 0 757"))
+      (Tab 0)))
+  (LastUsedLibraryBrowseDirectory "D:\Cadence\SPB_16.5\tools\capture\library")
   (ISPCBBASICLICENSE "false")
   (MPSSessionName "pp"))
