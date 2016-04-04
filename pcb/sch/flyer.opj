@@ -101,6 +101,10 @@
       (Type "Report")))
   (Folder "Referenced Projects")
   (PartMRUSelector
+    (CP2102
+      (FullPartName "CP2102.Normal")
+      (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
+      (DeviceIndex "0"))
     (OFFPAGELEFT-L
       (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\CAPSYM.OLB")
       (DeviceIndex "0"))
@@ -133,10 +137,6 @@
       (DeviceIndex "0"))
     (MPU9250
       (FullPartName "MPU9250.Normal")
-      (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
-      (DeviceIndex "0"))
-    (CP2102
-      (FullPartName "CP2102.Normal")
       (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
       (DeviceIndex "0"))
     (AMS1117_3V3
@@ -203,7 +203,11 @@
       (Path "Design Resources")
       (Path "Design Resources" ".\flyer.dsn")
       (Path "Design Resources" ".\flyer.dsn" "sch")
-      (Path "Outputs"))
+      (Path "Design Resources" "Library")
+      (Path "Design Resources" "Library"
+         "e:\workspace\allegro_lib\olb\flyer.olb")
+      (Path "Outputs")
+      (Select "Design Resources" ".\flyer.dsn"))
     (HierarchyView)
     (Doc
       (Type "COrCapturePMDoc")
