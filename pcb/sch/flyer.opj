@@ -212,27 +212,27 @@
     (Doc
       (Type "COrCapturePMDoc")
       (Frame
-        (Placement "44 2 3 -1 -1 -8 -30 0 250 0 757"))
+        (Placement "44 0 1 -1 -1 -8 -30 0 250 0 757"))
       (Tab 0))
     (Doc
       (Type "COrSchematicDoc")
       (Frame
-        (Placement "44 0 1 -1 -1 -8 -30 125 1275 125 509")
-        (Scroll "-66 0")
-        (Zoom "100")
+        (Placement "44 2 3 -1 -1 -8 -30 150 1300 150 534")
+        (Scroll "1036 476")
+        (Zoom "200")
         (Occurrence "/"))
       (Path "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.DSN")
       (Schematic "sch")
-      (Page "function"))
+      (Page "mcu"))
     (Doc
       (Type "COrSchematicDoc")
       (Frame
-        (Placement "44 0 1 -1 -1 -8 -30 150 1300 150 534")
-        (Scroll "0 0")
+        (Placement "44 0 1 -1 -1 -8 -30 100 1300 100 414")
+        (Scroll "-91 0")
         (Zoom "100")
         (Occurrence "/"))
       (Path "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.DSN")
       (Schematic "sch")
-      (Page "mcu")))
+      (Page "function")))
   (LastUsedLibraryBrowseDirectory "D:\Cadence\SPB_16.5\tools\capture\library")
   (ISPCBBASICLICENSE "false"))
