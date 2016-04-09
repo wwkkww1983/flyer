@@ -104,6 +104,11 @@
       (Type "Report")))
   (Folder "Referenced Projects")
   (PartMRUSelector
+    ("HEADER 7"
+      (FullPartName "HEADER 7.Normal")
+      (LibraryName
+         "E:\WORKSPACE\SPB\SPB_16.5\TOOLS\CAPTURE\LIBRARY\CONNECTOR.OLB")
+      (DeviceIndex "0"))
     (STM32F401RBT6_PX
       (FullPartName "STM32F401RBT6_PXA.Normal")
       (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
@@ -196,22 +201,40 @@
     (MPQ3799
       (FullPartName "MPQ3799.Normal")
       (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
-      (DeviceIndex "0"))
-    (MPQ7091
-      (FullPartName "MPQ7091.Normal")
-      (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
       (DeviceIndex "0")))
   (GlobalState
     (FileView
       (Path "Design Resources")
+      (Path "Design Resources" ".\flyer.dsn")
+      (Path "Design Resources" ".\flyer.dsn" "sch")
       (Path "Design Resources" "Library")
       (Path "Outputs")
-      (Select "Outputs" "e:\workspace\flyer\pcb\flyer.bom"))
+      (Select "Design Resources" ".\flyer.dsn"))
     (HierarchyView)
     (Doc
       (Type "COrCapturePMDoc")
       (Frame
         (Placement "44 2 3 -1 -1 -8 -30 0 250 0 757"))
-      (Tab 0)))
+      (Tab 0))
+    (Doc
+      (Type "COrSchematicDoc")
+      (Frame
+        (Placement "44 0 1 -1 -1 -8 -30 25 1225 25 315")
+        (Scroll "0 279")
+        (Zoom "100")
+        (Occurrence "/"))
+      (Path "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.DSN")
+      (Schematic "sch")
+      (Page "mcu"))
+    (Doc
+      (Type "COrSchematicDoc")
+      (Frame
+        (Placement "44 0 1 -1 -1 -8 -30 50 1250 50 340")
+        (Scroll "-91 0")
+        (Zoom "100")
+        (Occurrence "/"))
+      (Path "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.DSN")
+      (Schematic "sch")
+      (Page "function")))
   (LastUsedLibraryBrowseDirectory "D:\Cadence\SPB_16.5\tools\capture\library")
   (ISPCBBASICLICENSE "false"))
