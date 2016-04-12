@@ -19,8 +19,25 @@
 #include "stm32f4xx_hal.h"
 
 /************************************ 宏定义 ***********************************/
-/* PWM个数 */
-#define PWM_NUMS                               (1)
+/* LED1 定义 PC5 */
+#define LED1x                                   GPIOC
+#define LED1x_CLK_ENABLE()                      __HAL_RCC_GPIOC_CLK_ENABLE(); 
+#define LED1x_GPIO_PIN                          GPIO_PIN_5
+/* LED2 定义 PC4 */
+#define LED2x                                   GPIOC
+#define LED2x_CLK_ENABLE()                      __HAL_RCC_GPIOC_CLK_ENABLE(); 
+#define LED2x_GPIO_PIN                          GPIO_PIN_4
+/* LED3 定义 PA5 */
+#define LED3x                                   GPIOA
+#define LED3x_CLK_ENABLE()                      __HAL_RCC_GPIOA_CLK_ENABLE(); 
+#define LED3x_GPIO_PIN                          GPIO_PIN_5
+/* LED4 定义 PB12 */
+#define LED4x                                   GPIOB
+#define LED4x_CLK_ENABLE()                      __HAL_RCC_GPIOB_CLK_ENABLE(); 
+#define LED4x_GPIO_PIN                          GPIO_PIN_12
+
+/* PWM个数 1个四通道 */
+#define PWM_NUMS                                (1)
 /* PWM1 定义 */
 #define TIMx                                    TIM1
 #define TIMx_CLK_ENABLE()                       __HAL_RCC_TIM1_CLK_ENABLE()

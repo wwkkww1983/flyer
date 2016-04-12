@@ -19,6 +19,7 @@
 #include "config.h"
 #include "misc.h"
 #include "data.h"
+#include "led.h"
 #include "console.h"
 #include "pwm.h"
 #include "imu.h"
@@ -36,7 +37,9 @@
 /********************************** 变量声明区 *********************************/ 
 
 /********************************** 函数声明区 *********************************/
-static void init(void);
+static void hardware_init(void);
+static void hardware_test(void);
+static void function_init(void);
 
 /********************************** 函数实现区 *********************************/
 /*******************************************************************************
@@ -56,17 +59,23 @@ static void init(void);
 ******************************************************************************/
 int main(void)
 { 
-    init();
+    hardware_init();
+#define _HARDWARE_DEBUG_
+#ifdef _HARDWARE_DEBUG_
+    hardware_test();
 
+#else
+    function_init();
     while(1)
     { 
         fusion();
         pid();
     }
+#endif
 }
 
-/* 初始化 */
-static void init(void)
+/* 硬件初始化 */
+static void hardware_init(void)
 { 
     /* 关闭心跳中触发imu模块读取 */
     imu_stop(); 
@@ -92,6 +101,10 @@ static void init(void)
     console_init(); /* 此后可以开始打印 */ 
     debug_log("串口初始化完成.\r\n");
 
+    /* led */
+    led_init();
+    debug_log("led初始化完成.\r\n");
+
     /* pwm */
     pwm_init();
     debug_log("pwm初始化完成.\r\n");
@@ -99,7 +112,11 @@ static void init(void)
     /* imu i2c */
     imu_init();
     debug_log("imu i2c 初始化完成.\r\n");
+}
 
+/* 功能初始化 */
+static void function_init(void)
+{ 
     /* imu mpu9250 */
     mpu9250_init();
     debug_log("mpu9250 初始化完成.\r\n");
@@ -122,5 +139,32 @@ static void init(void)
     fusion_test_a_fusion_period();
 
     /* step3: 启动任务 */
+}
+
+/* 硬件测试 */
+static void hardware_test(void)
+{
+    /* 串口 */
+    debug_log("串口有打印当然就是好的.\r\n");
+    debug_log("可以测试一下串口读取.\r\n");
+
+    /* led */
+    debug_log("led测试.\r\n");
+    led_toggle(1);
+    led_toggle(2);
+    led_toggle(3);
+    led_toggle(4);
+    HAL_Delay(200);
+    led_toggle(1);
+    led_toggle(2);
+    led_toggle(3);
+    led_toggle(4);
+
+    /* pwm */
+    debug_log("pwm测试.\r\n");
+    debug_log("pwm已经有输出,可以修改占空比后测试.\r\n");
+
+    /* int*/
+    debug_log("中断测试.\r\n");
 }
 
