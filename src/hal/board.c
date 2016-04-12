@@ -199,16 +199,6 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
     HAL_NVIC_SetPriority(IMU_I2C_ER_IRQn, PER_INT_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(IMU_I2C_ER_IRQn); 
     
-    /* 设置中断 */
-    IMU_INT_CLK_ENABLE();
-    GPIO_InitStruct.Pin   = IMU_INT_PIN;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-    GPIO_InitStruct.Mode  = GPIO_MODE_IT_RISING;
-    HAL_GPIO_Init(IMU_INT_GPIO_PORT, &GPIO_InitStruct);
-    HAL_NVIC_SetPriority(IMU_INT_EXTI, PER_INT_PRIORITY, 0);
-    HAL_NVIC_EnableIRQ(IMU_INT_EXTI);
-
     /************************** 其他I2C总线初始化 ***************************/
 }
 

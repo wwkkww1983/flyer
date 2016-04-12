@@ -561,6 +561,11 @@
               <FileType>1</FileType>
               <FilePath>..\src\hal\led.c</FilePath>
             </File>
+            <File>
+              <FileName>exti.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\hal\exti.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

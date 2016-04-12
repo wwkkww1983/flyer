@@ -92,12 +92,12 @@
 #define IMU_I2C_SDA_GPIO_PORT                   GPIOB
 #define IMU_I2C_EV_IRQn                         I2C1_EV_IRQn
 #define IMU_I2C_ER_IRQn                         I2C1_ER_IRQn
-
-#define IMU_INT_PIN                             GPIO_PIN_15
-#define IMU_INT_GPIO_PORT                       GPIOA
-#define IMU_INT_CLK_ENABLE()                    __GPIOA_CLK_ENABLE()
-#define IMU_INT_CLK_DISABLE()                   __GPIOA_CLK_DISABLE()
+/* MPU9250中断 */
+#define IMU_INT_PIN                             GPIO_PIN_13
+#define IMU_INT_GPIO_PORT                       GPIOC
+#define IMU_INT_CLK_ENABLE()                    __GPIOC_CLK_ENABLE()
 #define IMU_INT_EXTI                            EXTI15_10_IRQn
+
 /* TODO:功能板 I2C定义 */
 
 /*--------------------------------- 接口声明区 --------------------------------*/

@@ -24,6 +24,7 @@
 #include "pwm.h"
 #include "imu.h"
 #include "mpu9250.h"
+#include "exti.h"
 #include "main.h"
 #include "inv_mpu.h"
 #include "fusion.h"
@@ -40,6 +41,8 @@
 static void hardware_init(void);
 static void hardware_test(void);
 static void function_init(void);
+
+static void exti_test(void *argv);
 
 /********************************** 函数实现区 *********************************/
 /*******************************************************************************
@@ -165,6 +168,12 @@ static void hardware_test(void)
     debug_log("pwm已经有输出,可以修改占空比后测试.\r\n");
 
     /* int*/
-    debug_log("中断测试.\r\n");
+    exti_set_callback(exti_test, "123");
+    debug_log("中断测试,请使用 PC13上升沿 触发中断.\r\n");
+}
+
+static void exti_test(void *argv)
+{
+    debug_log("进入中断,参数%s.\r\n", (const char *)argv);
 }
 
