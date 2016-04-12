@@ -105,7 +105,7 @@ __Vectors       DCD     __initial_sp            ; Top of Stack
                 DCD     UART1_IRQHandler        ; USART1
                 DCD     0                       ; USART2
                 DCD     0                       ; USART3
-                DCD     0                       ; External Line[15:10]s
+                DCD     EXTI15_10_IRQHandler    ; External Line[15:10]s
                 DCD     0                       ; RTC Alarm (A and B) through EXTI Line
                 DCD     0                       ; USB OTG FS Wakeup through EXTI line
                 DCD     0                       ; TIM8 Break and TIM12
@@ -220,6 +220,12 @@ SysTick_Handler PROC
 ; 控制台串口中断 C代码有重定义
 UART1_IRQHandler PROC
                 EXPORT  UART1_IRQHandler [WEAK]
+                B       .
+                ENDP
+
+; External Line[15:10]中断 C代码有重定义
+EXTI15_10_IRQHandler PROC
+                EXPORT  EXTI15_10_IRQHandler [WEAK]
                 B       .
                 ENDP
 

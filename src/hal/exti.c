@@ -43,6 +43,8 @@ void exti_init(void)
     GPIO_InitStruct.Mode  = GPIO_MODE_IT_RISING;
 
     HAL_GPIO_Init(IMU_INT_GPIO_PORT, &GPIO_InitStruct);
+
+    /* 设置中断优先级 */
     HAL_NVIC_SetPriority(IMU_INT_EXTI, PER_INT_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(IMU_INT_EXTI);
 }
@@ -54,19 +56,20 @@ void exti_set_callback(func_T callback, void *argv)
     s_callback_argv = argv;
 }
 
-/* 
- *
- * 覆盖STM32F4中弱符号
- * 硬件中断调用
- * 用户不调用 exti.h中不加
- *
- * */
-void HAL_GPIO_EXTI_Callback(uint16_T pin)
-{
-    if((GPIO_PIN_13 == pin)
-    && (NULL != s_callback))
+/* 覆盖stm32f4xx.s中弱符号 */
+void EXTI15_10_IRQHandler(void)
+{ 
+    /* 判断中断 */
+    if(__HAL_GPIO_EXTI_GET_IT(IMU_INT_PIN) != RESET)
     {
-        s_callback(s_callback_argv);
+        /* 清中断 */
+        __HAL_GPIO_EXTI_CLEAR_IT(IMU_INT_PIN); 
+        
+        /* 回调 */
+        if(NULL != s_callback)
+        {
+            s_callback(s_callback_argv);
+        }
     }
 }
 
