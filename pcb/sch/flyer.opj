@@ -213,7 +213,7 @@
       (Path "Design Resources" ".\flyer.dsn")
       (Path "Design Resources" ".\flyer.dsn" "sch")
       (Path "Outputs")
-      (Select "Design Resources" ".\flyer.dsn"))
+      (Select "Design Resources" ".\flyer.dsn" "sch" "cpu"))
     (HierarchyView)
     (Doc
       (Type "COrCapturePMDoc")
@@ -224,7 +224,7 @@
       (Type "COrSchematicDoc")
       (Frame
         (Placement "44 0 1 -1 -1 -8 -30 25 1200 25 351")
-        (Scroll "0 72")
+        (Scroll "0 0")
         (Zoom "200")
         (Occurrence "/"))
       (Path "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.DSN")
@@ -234,7 +234,7 @@
       (Type "COrSchematicDoc")
       (Frame
         (Placement "44 2 3 -1 -1 -8 -30 50 1225 50 376")
-        (Scroll "0 990")
+        (Scroll "598 760")
         (Zoom "200")
         (Occurrence "/"))
       (Path "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.DSN")
