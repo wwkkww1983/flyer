@@ -1,0 +1,10 @@
+top.art                     顶层
+bottom.art                  底层
+silkscreen_top.art          丝印顶层
+silkscreen_bottom.art       丝印底层
+soldermask_top.art          阻焊顶层
+soldermask_bottom.art       阻焊底层
+pastemask_top.art           助焊顶层
+pastemask_bottom.art        助焊底层
+flyer.drl                   钻孔
+说明.txt                    本文档,用于说文件内容
