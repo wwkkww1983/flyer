@@ -6,4 +6,4 @@ bottom.art                          底层
 soldermask_bottom.art               底层阻焊
 pastemask_bottom.art                底层助焊
 silkscreen_bottom.art               底层丝印
-flyer-1-2.drl                       钻孔文件
+flyer.drl                       钻孔文件
