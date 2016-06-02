@@ -66,7 +66,7 @@
     ("Allegro Netlist Place Changed Component" "ALWAYS_REPLACE")
     ("Allegro Netlist Open Board in Allegro" "ALLEGRO")
     ("Allegro Setup Configuration File"
-       "D:\Cadence\SPB_16.5\tools\capture\allegro.cfg")
+       "D:\Program Files (x86)\Cadence\SPB_16.5\tools\capture\allegro.cfg")
     ("Allegro Setup Backup Versions" "3")
     ("Allegro Setup Output Warnings" "TRUE")
     ("Allegro Setup Ignore Constraints" "FALSE")
@@ -108,6 +108,14 @@
       (DisplayName "FLYER.BOM")))
   (Folder "Referenced Projects")
   (PartMRUSelector
+    (XC6206P332MR
+      (FullPartName "XC6206P332MR.Normal")
+      (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
+      (DeviceIndex "0"))
+    ("CAP NP"
+      (FullPartName "CAP NP.Normal")
+      (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
+      (DeviceIndex "0"))
     (OFFPAGELEFT-L
       (LibraryName
          "D:\PROGRAM FILES (X86)\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\CAPSYM.OLB")
@@ -116,10 +124,6 @@
       (FullPartName "STM32F401RBT6_PXA.Normal")
       (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
       (DeviceIndex "1"))
-    ("CAP NP"
-      (FullPartName "CAP NP.Normal")
-      (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
-      (DeviceIndex "0"))
     (BMP280
       (FullPartName "BMP280.Normal")
       (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
@@ -203,9 +207,6 @@
       (DeviceIndex "0"))
     (VCC_BAR
       (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\CAPSYM.OLB")
-      (DeviceIndex "0"))
-    (GND
-      (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\CAPSYM.OLB")
       (DeviceIndex "0")))
   (GlobalState
     (FileView
@@ -224,8 +225,8 @@
       (Type "COrSchematicDoc")
       (Frame
         (Placement "44 0 1 -1 -1 -8 -30 25 1200 25 351")
-        (Scroll "0 0")
-        (Zoom "200")
+        (Scroll "0 500")
+        (Zoom "144")
         (Occurrence "/"))
       (Path "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.DSN")
       (Schematic "sch")
@@ -233,9 +234,9 @@
     (Doc
       (Type "COrSchematicDoc")
       (Frame
-        (Placement "44 2 3 -1 -1 -8 -30 50 1225 50 376")
-        (Scroll "0 755")
-        (Zoom "206")
+        (Placement "44 2 3 -1 -1 -8 -30 75 1225 75 459")
+        (Scroll "-165 0")
+        (Zoom "126")
         (Occurrence "/"))
       (Path "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.DSN")
       (Schematic "sch")
