@@ -21,7 +21,7 @@
     (ANNOTATE_Property_Combine "{Value}{Source Package}{POWER_GROUP}")
     (ANNOTATE_IncludeNonPrimitive "FALSE")
     (ANNOTATE_Refdes_Control_Required "FALSE")
-    (Annotate_type "Left-Right")
+    (Annotate_type "Default")
     (width_pages "100")
     (width_start "80")
     (width_End "80")
@@ -66,7 +66,7 @@
     ("Allegro Netlist Place Changed Component" "ALWAYS_REPLACE")
     ("Allegro Netlist Open Board in Allegro" "ALLEGRO")
     ("Allegro Setup Configuration File"
-       "D:\Cadence\SPB_16.5\tools\capture\allegro.cfg")
+       "D:\Program Files (x86)\Cadence\SPB_16.5\tools\capture\allegro.cfg")
     ("Allegro Setup Backup Versions" "3")
     ("Allegro Setup Output Warnings" "TRUE")
     ("Allegro Setup Ignore Constraints" "FALSE")
@@ -80,34 +80,34 @@
     (BOM_Report_File "E:\WORKSPACE\FLYER\PCB\FLYER.BOM")
     (BOM_Merge_Include "FALSE")
     (BOM_Property_Combine_7.0
-       "{Item}\t{Quantity}\t{Reference}\t{Value}\t{PCB Footprint}")
-    (BOM_Header "Item\tQuantity\tReference\tPart\tPCB Footprint")
+       "{Item}\t\t{Quantity}\t\t\t{Reference}\t\t\t{Value}\t\t\t\t\t{PCB Footprint}")
+    (BOM_Header "Item\tQuantity\tReference\tValue\t\t\t\tPCB Footprint")
     (BOM_Include_File "E:\WORKSPACE\FLYER\PCB\FLYER.INC")
     (BOM_Include_File_Combine_7.0 "{Item}\t{Quantity}\t{Reference}\t{Value}")
     (BOM_One_Part_Per_Line "TRUE")
     (Open_BOM_in_Excel "FALSE")
     (BOM_View_Output "FALSE")
-    (Board_sim_option "VHDL_flow"))
+    (Board_sim_option "VHDL_flow")
+    (CrossRef_Scope "0")
+    (Crossref__Mode "0")
+    (CrossRef_Sorting "0")
+    (CrossRef_Destination_File "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.XRF")
+    (Crossref__Outputtype "0")
+    (CrossRef_XY "FALSE")
+    (CrossRef_Unused "FALSE")
+    (XRF_View_Output "FALSE"))
   (Folder "Outputs"
-    (File "..\netlist\pstxnet.dat"
-      (Type "Report")
-      (DisplayName "pstxnet.dat"))
-    (File "..\netlist\pstxprt.dat"
-      (Type "Report")
-      (DisplayName "pstxprt.dat"))
-    (File "..\netlist\pstchip.dat"
-      (Type "Report")
-      (DisplayName "pstchip.dat"))
-    (File "..\flyer.drc"
-      (Type "Report"))
-    (File "..\flyer.bom"
-      (Type "Report"))
-    (Sort User)
-    (File ".\flyer.bom"
-      (Type "Report")
-      (DisplayName "FLYER.BOM")))
+    (Sort User))
   (Folder "Referenced Projects")
   (PartMRUSelector
+    (STM32F401RBT6
+      (FullPartName "STM32F401RBT6A.Normal")
+      (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
+      (DeviceIndex "1"))
+    (PUSHBUTTON
+      (FullPartName "PUSHBUTTON.Normal")
+      (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
+      (DeviceIndex "0"))
     (R
       (FullPartName "R.Normal")
       (LibraryName "D:\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\DISCRETE.OLB")
@@ -200,48 +200,18 @@
     ("SW KEY-SPDT"
       (FullPartName "SW KEY-SPDT.Normal")
       (LibraryName "E:\WORKSPACE\FLYER\PCB\LIB\FLYER.OLB")
-      (DeviceIndex "0"))
-    (STM32F401RBT6_FLYER
-      (FullPartName "STM32F401RBT6_FLYERA.Normal")
-      (LibraryName "E:\WORKSPACE\FLYER\PCB\LIB\FLYER.OLB")
-      (DeviceIndex "1"))
-    (SI2302DS
-      (FullPartName "SI2302DS.Normal")
-      (LibraryName "E:\WORKSPACE\FLYER\PCB\LIB\FLYER.OLB")
       (DeviceIndex "0")))
   (GlobalState
     (FileView
       (Path "Design Resources")
       (Path "Design Resources" ".\flyer.dsn")
       (Path "Design Resources" ".\flyer.dsn" "sch")
-      (Path "Outputs")
-      (Select "Design Resources" ".\flyer.dsn"))
+      (Path "Outputs"))
     (HierarchyView)
     (Doc
       (Type "COrCapturePMDoc")
       (Frame
         (Placement "44 2 3 -1 -1 -8 -30 0 250 0 757"))
-      (Tab 0))
-    (Doc
-      (Type "COrSchematicDoc")
-      (Frame
-        (Placement "44 0 1 -1 -1 -8 -30 25 1200 25 351")
-        (Scroll "0 121")
-        (Zoom "144")
-        (Occurrence "/"))
-      (Path "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.DSN")
-      (Schematic "sch")
-      (Page "peripheral"))
-    (Doc
-      (Type "COrSchematicDoc")
-      (Frame
-        (Placement "44 0 1 -1 -1 -8 -30 75 1225 75 459")
-        (Scroll "0 112")
-        (Zoom "103")
-        (Occurrence "/"))
-      (Path "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.DSN")
-      (Schematic "sch")
-      (Page "cpu")))
+      (Tab 0)))
   (LastUsedLibraryBrowseDirectory "D:\Cadence\SPB_16.5\tools\capture\library")
-  (ISPCBBASICLICENSE "false")
-  (MPSSessionName "pp"))
+  (ISPCBBASICLICENSE "false"))
