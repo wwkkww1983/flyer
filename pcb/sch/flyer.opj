@@ -209,23 +209,12 @@
       (Path "Design Resources" "Library")
       (Path "Design Resources" "Library"
          "e:\workspace\allegro_lib\olb\flyer.olb")
-      (Path "Outputs"))
+      (Select "Design Resources" ".\flyer.dsn"))
     (HierarchyView)
     (Doc
       (Type "COrCapturePMDoc")
       (Frame
         (Placement "44 2 3 -1 -1 -8 -30 0 250 0 757"))
-      (Tab 0))
-    (Doc
-      (Type "COrSchematicDoc")
-      (Frame
-        (Placement "44 0 1 -1 -1 -8 -30 50 1661 50 564")
-        (Scroll "-197 0")
-        (Zoom "100")
-        (Occurrence "/"))
-      (Path "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.DSN")
-      (Schematic "sch")
-      (Page "cpu")))
+      (Tab 0)))
   (LastUsedLibraryBrowseDirectory "D:\Cadence\SPB_16.5\tools\capture\library")
-  (ISPCBBASICLICENSE "false")
-  (MPSSessionName "pp"))
+  (ISPCBBASICLICENSE "false"))
