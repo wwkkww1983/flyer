@@ -88,7 +88,7 @@ __Vectors       DCD     __initial_sp            ; Top of Stack
                 DCD     0                       ; CAN1 RX0
                 DCD     0                       ; CAN1 RX1
                 DCD     0                       ; CAN1 SCE
-                DCD     0                       ; External Line[9:5]s
+                DCD     EXTI9_5_IRQHandler      ; External Line[9:5]s
                 DCD     0                       ; TIM1 Break and TIM9
                 DCD     0                       ; TIM1 Update and TIM10
                 DCD     0                       ; TIM1 Trigger and Commutation and TIM11
@@ -102,10 +102,10 @@ __Vectors       DCD     __initial_sp            ; Top of Stack
                 DCD     0                       ; I2C2 Error
                 DCD     0                       ; SPI1
                 DCD     0                       ; SPI2
-                DCD     UART1_IRQHandler        ; USART1
+                DCD     0                       ; USART1
                 DCD     0                       ; USART2
                 DCD     0                       ; USART3
-                DCD     EXTI15_10_IRQHandler    ; External Line[15:10]s
+                DCD     0                       ; External Line[15:10]s
                 DCD     0                       ; RTC Alarm (A and B) through EXTI Line
                 DCD     0                       ; USB OTG FS Wakeup through EXTI line
                 DCD     0                       ; TIM8 Break and TIM12
@@ -136,7 +136,7 @@ __Vectors       DCD     __initial_sp            ; Top of Stack
                 DCD     0                       ; DMA2 Stream 5
                 DCD     0                       ; DMA2 Stream 6
                 DCD     0                       ; DMA2 Stream 7
-                DCD     0                       ; USART6
+                DCD     USART6_IRQHandler       ; USART6
                 DCD     I2C3_EV_IRQHandler      ; I2C3 event
                 DCD     0                       ; I2C3 error
                 DCD     0                       ; USB OTG HS End Point 1 Out
@@ -218,14 +218,14 @@ SysTick_Handler PROC
                 ENDP
 
 ; 控制台串口中断 C代码有重定义
-UART1_IRQHandler PROC
-                EXPORT  UART1_IRQHandler [WEAK]
+USART6_IRQHandler PROC
+                EXPORT  USART6_IRQHandler [WEAK]
                 B       .
                 ENDP
 
 ; External Line[15:10]中断 C代码有重定义
-EXTI15_10_IRQHandler PROC
-                EXPORT  EXTI15_10_IRQHandler [WEAK]
+EXTI9_5_IRQHandler PROC
+                EXPORT  EXTI9_5_IRQHandler [WEAK]
                 B       .
                 ENDP
 

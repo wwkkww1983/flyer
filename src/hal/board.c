@@ -41,16 +41,12 @@ void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef *htim)
     GPIO_InitTypeDef   GPIO_InitStruct;
    
     TIMx_CLK_ENABLE(); 
-    TIMx_CHANNEL_GPIO_PORT(); 
+    TIMx_CHANNEL1_PORT_CLK_ENABLE();
+    TIMx_CHANNEL2_PORT_CLK_ENABLE();
+    TIMx_CHANNEL3_PORT_CLK_ENABLE();
+    TIMx_CHANNEL4_PORT_CLK_ENABLE();
     
-    /* Configure 
-     * PB.04 (pin 19 in CN7 connector)  (TIM3_Channel1), 
-     * PB.05 (pin 13 in CN7 connector)  (TIM3_Channel2), 
-     * PB.00 (pin 31 in CN10 connector) (TIM3_Channel3),
-     * PB.01 (pin 7  in CN10 connector) (TIM3_Channel4) 
-     * in output, push-pull, alternate function mode */
-   
-    /* Common configuration for all channels */
+    /* 配置PWM端口 */
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
