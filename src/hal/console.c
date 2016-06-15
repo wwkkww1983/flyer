@@ -78,3 +78,10 @@ void console_printf_poll(char *fmt, ...)
     return;
 }
 
+/* ESP8266 串口 */
+void USART6_IRQHandler(void)
+{
+    ;
+}
+
+

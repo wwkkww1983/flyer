@@ -223,7 +223,7 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
 }
 
 /* 中断代码 */
-void I2C3_EV_IRQHandler(void)
+void I2C1_EV_IRQHandler(void)
 {
     /* TODO:优化性能 不做冗余处理 仅处理读完成标记 */
     HAL_I2C_EV_IRQHandler(&s_imu_handle);

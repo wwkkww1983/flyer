@@ -57,7 +57,7 @@ void exti_set_callback(func_T callback, void *argv)
 }
 
 /* 覆盖stm32f4xx.s中弱符号 */
-void EXTI15_10_IRQHandler(void)
+void EXTI9_5_IRQHandler(void)
 { 
     /* 判断中断 */
     if(__HAL_GPIO_EXTI_GET_IT(IMU_INT_PIN) != RESET)
