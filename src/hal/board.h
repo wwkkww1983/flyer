@@ -20,21 +20,21 @@
 
 /************************************ 宏定义 ***********************************/
 /* LED1 定义 PC5 */
-#define LED1x                                   GPIOC
-#define LED1x_CLK_ENABLE()                      __HAL_RCC_GPIOC_CLK_ENABLE()
+#define LED1x                                   GPIOA
+#define LED1x_CLK_ENABLE()                      __HAL_RCC_GPIOA_CLK_ENABLE()
 #define LED1x_GPIO_PIN                          GPIO_PIN_5
 /* LED2 定义 PC4 */
 #define LED2x                                   GPIOC
 #define LED2x_CLK_ENABLE()                      __HAL_RCC_GPIOC_CLK_ENABLE()
 #define LED2x_GPIO_PIN                          GPIO_PIN_4
 /* LED3 定义 PB10 */
-#define LED3x                                   GPIOB
-#define LED3x_CLK_ENABLE()                      __HAL_RCC_GPIOB_CLK_ENABLE()
-#define LED3x_GPIO_PIN                          GPIO_PIN_10
+#define LED3x                                   GPIOC
+#define LED3x_CLK_ENABLE()                      __HAL_RCC_GPIOC_CLK_ENABLE()
+#define LED3x_GPIO_PIN                          GPIO_PIN_5
 /* LED4 定义 PA5 */
-#define LED4x                                   GPIOA
-#define LED4x_CLK_ENABLE()                      __HAL_RCC_GPIOA_CLK_ENABLE()
-#define LED4x_GPIO_PIN                          GPIO_PIN_5
+#define LED4x                                   GPIOB
+#define LED4x_CLK_ENABLE()                      __HAL_RCC_GPIOB_CLK_ENABLE()
+#define LED4x_GPIO_PIN                          GPIO_PIN_10
 
 /* PWM个数 1个四通道 */
 #define PWM_NUMS                                (1)
