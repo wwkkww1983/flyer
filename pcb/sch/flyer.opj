@@ -100,6 +100,14 @@
     (Sort User))
   (Folder "Referenced Projects")
   (PartMRUSelector
+    (IN5819W
+      (FullPartName "IN5819W.Normal")
+      (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
+      (DeviceIndex "0"))
+    (MBR0520
+      (FullPartName "MBR0520.Normal")
+      (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
+      (DeviceIndex "0"))
     (STM32F401RBT6
       (FullPartName "STM32F401RBT6A.Normal")
       (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
@@ -148,10 +156,6 @@
       (FullPartName "AMS1117_3V3.Normal")
       (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
       (DeviceIndex "0"))
-    (MBR0520
-      (FullPartName "MBR0520.Normal")
-      (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
-      (DeviceIndex "0"))
     ("HEADER 7"
       (FullPartName "HEADER 7.Normal")
       (LibraryName
@@ -196,14 +200,16 @@
     (LED
       (FullPartName "LED.Normal")
       (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
-      (DeviceIndex "0"))
-    ("SW KEY-SPDT"
-      (FullPartName "SW KEY-SPDT.Normal")
-      (LibraryName "E:\WORKSPACE\FLYER\PCB\LIB\FLYER.OLB")
       (DeviceIndex "0")))
   (GlobalState
     (FileView
       (Path "Design Resources")
+      (Path "Design Resources" ".\flyer.dsn")
+      (Path "Design Resources" ".\flyer.dsn" "sch")
+      (Path "Design Resources" ".\flyer.dsn" "Design Cache")
+      (Path "Design Resources" "Library")
+      (Path "Design Resources" "Library"
+         "e:\workspace\allegro_lib\olb\flyer.olb")
       (Path "Outputs"))
     (HierarchyView)
     (Doc
@@ -214,9 +220,9 @@
     (Doc
       (Type "COrSchematicDoc")
       (Frame
-        (Placement "44 0 1 -1 -1 -8 -30 25 1175 25 409")
-        (Scroll "655 786")
-        (Zoom "200")
+        (Placement "44 0 1 -1 -1 -8 -30 100 956 100 484")
+        (Scroll "-36 0")
+        (Zoom "63")
         (Occurrence "/"))
       (Path "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.DSN")
       (Schematic "sch")
@@ -224,9 +230,9 @@
     (Doc
       (Type "COrSchematicDoc")
       (Frame
-        (Placement "44 0 1 -1 -1 -8 -30 50 1200 50 434")
-        (Scroll "-66 0")
-        (Zoom "100")
+        (Placement "44 0 1 -1 -1 -8 -30 175 1031 175 559")
+        (Scroll "-55 0")
+        (Zoom "72")
         (Occurrence "/"))
       (Path "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.DSN")
       (Schematic "sch")
