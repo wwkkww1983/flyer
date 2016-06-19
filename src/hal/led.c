@@ -67,6 +67,37 @@ void led_init(void)
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
     HAL_GPIO_Init(s_led_list[4].port, &GPIO_InitStruct); 
+
+    /* led 测试 */
+#if 1
+    int delay = 100;
+    /* 上电默认点亮
+     * GPIO低电平 */
+    HAL_Delay(delay);
+    /* 此处熄灭*/
+    for(i = 1; i < 5; i++)
+    {
+        led_off(i); 
+    } 
+    HAL_Delay(delay);
+
+    /* 恢复点亮 */
+    for(i = 1; i < 5; i++)
+    {
+        led_on(i); 
+    } 
+
+    /* 闪 */
+    while(1)
+    {
+        for(i = 1; i < 5; i++)
+        {
+            led_toggle(i); 
+        } 
+        HAL_Delay(delay);
+    }
+#endif
+
 }
 
 /* 低灭 高亮 */
