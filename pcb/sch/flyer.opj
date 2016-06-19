@@ -66,7 +66,7 @@
     ("Allegro Netlist Place Changed Component" "ALWAYS_REPLACE")
     ("Allegro Netlist Open Board in Allegro" "ALLEGRO")
     ("Allegro Setup Configuration File"
-       "D:\Program Files (x86)\Cadence\SPB_16.5\tools\capture\allegro.cfg")
+       "E:\workspace\flyer\pcb\sch\allegro.cfg")
     ("Allegro Setup Backup Versions" "3")
     ("Allegro Setup Output Warnings" "TRUE")
     ("Allegro Setup Ignore Constraints" "FALSE")
@@ -100,6 +100,10 @@
     (Sort User))
   (Folder "Referenced Projects")
   (PartMRUSelector
+    (STM32F401RBT6
+      (FullPartName "STM32F401RBT6A.Normal")
+      (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
+      (DeviceIndex "1"))
     (IN5819W
       (FullPartName "IN5819W.Normal")
       (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
@@ -108,10 +112,6 @@
       (FullPartName "MBR0520.Normal")
       (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
       (DeviceIndex "0"))
-    (STM32F401RBT6
-      (FullPartName "STM32F401RBT6A.Normal")
-      (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
-      (DeviceIndex "1"))
     (PUSHBUTTON
       (FullPartName "PUSHBUTTON.Normal")
       (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
@@ -206,7 +206,6 @@
       (Path "Design Resources")
       (Path "Design Resources" ".\flyer.dsn")
       (Path "Design Resources" ".\flyer.dsn" "sch")
-      (Path "Design Resources" ".\flyer.dsn" "Design Cache")
       (Path "Design Resources" "Library")
       (Path "Design Resources" "Library"
          "e:\workspace\allegro_lib\olb\flyer.olb")
@@ -220,22 +219,13 @@
     (Doc
       (Type "COrSchematicDoc")
       (Frame
-        (Placement "44 0 1 -1 -1 -8 -30 100 956 100 484")
-        (Scroll "-36 0")
-        (Zoom "63")
-        (Occurrence "/"))
-      (Path "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.DSN")
-      (Schematic "sch")
-      (Page "cpu"))
-    (Doc
-      (Type "COrSchematicDoc")
-      (Frame
-        (Placement "44 0 1 -1 -1 -8 -30 175 1031 175 559")
-        (Scroll "-55 0")
+        (Placement "44 0 1 -1 -1 -8 -30 175 1519 175 611")
+        (Scroll "-227 0")
         (Zoom "72")
         (Occurrence "/"))
       (Path "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.DSN")
       (Schematic "sch")
-      (Page "peripheral")))
+      (Page "cpu")))
   (LastUsedLibraryBrowseDirectory "D:\Cadence\SPB_16.5\tools\capture\library")
-  (ISPCBBASICLICENSE "false"))
+  (ISPCBBASICLICENSE "false")
+  (MPSSessionName "pp"))
