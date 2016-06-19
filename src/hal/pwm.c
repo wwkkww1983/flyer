@@ -18,11 +18,13 @@
 #include "board.h"
 #include "stm32f4xx_hal_conf.h"
 
+#include "led.h"
+
 #define  PERIOD_VALUE       (uint32_t)(666 - 1)  /* Period Value  */
-#define  PULSE1_VALUE       (uint32_t)(PERIOD_VALUE/2)        /* Capture Compare 1 Value  */
-#define  PULSE2_VALUE       (uint32_t)(PERIOD_VALUE*37.5/100) /* Capture Compare 2 Value  */
-#define  PULSE3_VALUE       (uint32_t)(PERIOD_VALUE/4)        /* Capture Compare 3 Value  */
-#define  PULSE4_VALUE       (uint32_t)(PERIOD_VALUE*12.5/100) /* Capture Compare 4 Value  */
+#define  PULSE1_VALUE       (uint32_t)(PERIOD_VALUE*0.0/100)        /* Capture Compare 1 Value  */
+#define  PULSE2_VALUE       (uint32_t)(PERIOD_VALUE*33.0/100) /* Capture Compare 2 Value  */
+#define  PULSE3_VALUE       (uint32_t)(PERIOD_VALUE*77.0/100)        /* Capture Compare 3 Value  */
+#define  PULSE4_VALUE       (uint32_t)(PERIOD_VALUE*100.0/100) /* Capture Compare 4 Value  */
 
 /*----------------------------------- 声明区 ----------------------------------*/
 
@@ -157,7 +159,18 @@ void pwm_init(void)
         while(1);
     }
 
-    while (1);
+		/* 闪5次 */
+		int i = 0;
+    while(1)
+    {
+        for(i = 1; i < 5; i++)
+        {
+            led_toggle(i); 
+        } 
+        HAL_Delay(1000);
+    }
+		
+    //while (1);
 
     //return;
 }

@@ -70,6 +70,8 @@ void led_init(void)
 
     /* led 测试 */
 #if 1
+    int i = 0;
+		int j = 0;
     int delay = 100;
     /* 上电默认点亮
      * GPIO低电平 */
@@ -87,8 +89,8 @@ void led_init(void)
         led_on(i); 
     } 
 
-    /* 闪 */
-    while(1)
+    /* 闪5次 */
+    while(j++<5)
     {
         for(i = 1; i < 5; i++)
         {
