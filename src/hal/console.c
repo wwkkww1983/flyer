@@ -12,6 +12,8 @@
  *******************************************************************************/
 
 /*---------------------------------- 预处理区 ---------------------------------*/
+/* 消除中文打印警告 */
+#pragma  diag_suppress 870
 
 /************************************ 头文件 ***********************************/
 #include <stdarg.h>
@@ -27,6 +29,9 @@
 
 /********************************** 变量声明区 *********************************/
 static UART_HandleTypeDef s_uart_handle;
+
+#define UART_RECV_BUF_SIZE              (1024)
+static int8_t s_recv_buf[UART_RECV_BUF_SIZE] = {0};
 
 /********************************** 函数声明区 *********************************/
 
@@ -45,7 +50,15 @@ void console_init(void)
     if(HAL_UART_Init(&s_uart_handle) != HAL_OK)
     {
         while(1);
-    }
+    } 
+    
+    int i = 1;
+    HAL_StatusTypeDef status = HAL_OK;
+    do{ 
+        debug_log("第%d次:请输入任意字符.\r\n", i++);
+        status = HAL_UART_Receive(&s_uart_handle, (uint8_t *)s_recv_buf, UART_RECV_BUF_SIZE, 5000);
+    }while(HAL_OK != status); 
+    debug_log("输入内容为:%s", s_recv_buf);
 
     return;
 }
