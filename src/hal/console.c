@@ -30,8 +30,7 @@
 /********************************** 变量声明区 *********************************/
 static UART_HandleTypeDef s_uart_handle;
 
-#define UART_RECV_BUF_SIZE              (1024)
-static int8_t s_recv_buf[UART_RECV_BUF_SIZE] = {0};
+static char s_recv_char[2];
 
 /********************************** 函数声明区 *********************************/
 
@@ -52,13 +51,13 @@ void console_init(void)
         while(1);
     } 
     
-    int i = 1;
+    int i = 0;
     HAL_StatusTypeDef status = HAL_OK;
     do{ 
-        debug_log("第%d次:请输入任意字符.\r\n", i++);
-        status = HAL_UART_Receive(&s_uart_handle, (uint8_t *)s_recv_buf, UART_RECV_BUF_SIZE, 5000);
+        debug_log("已等待%ds:请输入任意字符(回车确认).\r\n", i++);
+        status = HAL_UART_Receive(&s_uart_handle, (uint8_t *)s_recv_char, 2, 1000);
     }while(HAL_OK != status); 
-    debug_log("输入内容为:%s", s_recv_buf);
+    debug_log("输入内容为:%c(0x%02x)\r\n", s_recv_char[0], s_recv_char[0]);
 
     return;
 }

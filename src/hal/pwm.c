@@ -158,17 +158,6 @@ void pwm_init(void)
         /* PWM generation Error */
         while(1);
     }
-
-		/* 闪5次 */
-		int i = 0;
-    while(1)
-    {
-        for(i = 1; i < 5; i++)
-        {
-            led_toggle(i); 
-        } 
-        HAL_Delay(1000);
-    }
 		
     //while (1);
 

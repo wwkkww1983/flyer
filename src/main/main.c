@@ -112,6 +112,18 @@ static void hardware_init(void)
     pwm_init();
     debug_log("pwm初始化完成.\r\n");
 
+	  debug_log("我将闪烁到世界末日.\r\n");
+		/* 闪 */
+		int i = 0;
+    while(1)
+    {
+        for(i = 1; i < 5; i++)
+        {
+            led_toggle(i); 
+        } 
+        HAL_Delay(1000);
+    }
+		
     /* imu i2c */
     imu_init();
     debug_log("imu i2c 初始化完成.\r\n");
