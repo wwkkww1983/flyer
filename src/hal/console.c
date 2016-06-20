@@ -37,6 +37,9 @@ static char s_recv_char[2];
 /********************************** 函数实现区 *********************************/
 void console_init(void)
 { 
+    int i = 0;
+    HAL_StatusTypeDef status = HAL_OK;
+
     s_uart_handle.Instance          = CONSOLE_UART;
     s_uart_handle.Init.BaudRate     = CONSOLE_BAUDRATE;
     s_uart_handle.Init.WordLength   = UART_WORDLENGTH_8B;
@@ -45,19 +48,24 @@ void console_init(void)
     s_uart_handle.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
     s_uart_handle.Init.Mode         = UART_MODE_TX_RX;
     s_uart_handle.Init.OverSampling = UART_OVERSAMPLING_16;
-	
+
     if(HAL_UART_Init(&s_uart_handle) != HAL_OK)
     {
         while(1);
     } 
-    
-    int i = 0;
-    HAL_StatusTypeDef status = HAL_OK;
-    do{ 
-        debug_log("已等待%ds:请输入任意字符(回车确认).\r\n", i++);
+
+    /* console 输入测试 */
+    debug_log("请输入任意字符(回车确认).\r\n");
+    while(1)
+    {
         status = HAL_UART_Receive(&s_uart_handle, (uint8_t *)s_recv_char, 2, 1000);
-    }while(HAL_OK != status); 
-    debug_log("输入内容为:%c(0x%02x)\r\n", s_recv_char[0], s_recv_char[0]);
+        if(HAL_OK == status)
+        { 
+            debug_log("输入内容为:%c(0x%02x)\r\n", s_recv_char[0], s_recv_char[0]);
+            break;
+        } 
+        debug_log("等待%ds:请输入任意字符(回车确认).\r\n", i++);
+    }
 
     return;
 }

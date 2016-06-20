@@ -80,6 +80,8 @@ int main(void)
 /* 硬件初始化 */
 static void hardware_init(void)
 { 
+    int i = 0;
+
     /* 关闭心跳中触发imu模块读取 */
     imu_stop(); 
     
@@ -100,21 +102,20 @@ static void hardware_init(void)
     HAL_NVIC_SetPriority(SysTick_IRQn, TICK_INT_PRIORITY, 0);
 
     /* 逐个初始化硬件 */
-    /* 串口 */
-    console_init(); /* 此后可以开始打印 */ 
-    debug_log("串口初始化完成.\r\n");
-
     /* led */
     led_init();
     debug_log("led初始化完成.\r\n");
 
+    /* 串口 */
+    console_init(); /* 此后可以开始打印 */ 
+    debug_log("串口初始化完成.\r\n");
+
     /* pwm */
     pwm_init();
-    debug_log("pwm初始化完成.\r\n");
-
-	  debug_log("我将闪烁到世界末日.\r\n");
-		/* 闪 */
-		int i = 0;
+    debug_log("pwm初始化完成.\r\n"); 
+    
+    /* 闪 */
+    debug_log("我将闪烁到世界末日.\r\n");
     while(1)
     {
         for(i = 1; i < 5; i++)
@@ -179,7 +180,7 @@ static void hardware_test(void)
     debug_log("pwm测试.\r\n");
     debug_log("pwm已经有输出,可以修改占空比后测试.\r\n");
 
-    /* int*/
+    /* int */
     exti_set_callback(exti_test, "123");
     debug_log("中断测试,请使用 PC13上升沿 触发中断.\r\n");
 }
