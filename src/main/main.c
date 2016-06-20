@@ -104,7 +104,7 @@ static void hardware_init(void)
     /* 逐个初始化硬件 */
     /* led */
     led_init();
-    debug_log("led初始化完成.\r\n");
+    debug_log("led初始化完成.\r\n"); /* 串口未初始化 无打印 */
 
     /* 串口 */
     console_init(); /* 此后可以开始打印 */ 
@@ -114,6 +114,57 @@ static void hardware_init(void)
     pwm_init();
     debug_log("pwm初始化完成.\r\n"); 
     
+    /* imu i2c */
+    imu_init();
+    debug_log("imu i2c 初始化完成.\r\n");
+    /* 测试BMP280 */
+    unsigned char bmp280_addr = 0xED;
+    /*unsigned char bmp280_addr = 0xEC;
+    unsigned char bmp280_addr = 0xEE;
+    unsigned char bmp280_addr = 0xEF;*/
+    unsigned char val = 0;
+    int iMax = 0;
+    unsigned char bmp180_reg_addr[] = {
+        /* 校验寄存器 */
+        0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F, 0x90,
+        0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99,
+        0x9A, 0x9B, 0x9C, 0x9D, 0x9E, 0x9F, 0xA0, 0xA1,
+
+        /* 控制寄存器 */
+        0xD0, 0xE0, 
+        0xF3, 0xF4, 0xF5,
+        0xF7, 0xF8, 0xF9,
+        0xFA, 0xFB, 0xFC 
+    };
+    debug_log("BMP280 寄存器值:\r\n");
+    iMax = sizeof(bmp180_reg_addr) /sizeof(bmp180_reg_addr[0]);
+    for(i=0;i<iMax;i++) 
+    { 
+        imu_read_poll(bmp280_addr, bmp180_reg_addr[i], &val, 1);
+        debug_log("0x%02x:0x%02x\r\n", bmp180_reg_addr[i], val);
+    }
+    /* 使用BMP280模式寄存器测试写入 */ 
+    unsigned char val1 = 0x00;
+    unsigned char val2 = 0x00;
+    unsigned char val_w = 0x00;
+    imu_read_poll(bmp280_addr, 0xF4, &val1, 1); /* val1 最低两位应该为 00 */
+    val_w = val1 | 0x03;
+    imu_write_poll(bmp280_addr, 0xF4, &val_w, 1); /* 0xF4最低两位设置为11 */
+    imu_read_poll(bmp280_addr, 0xF4, &val2, 1);
+    if( (0x00 == (0x03 & val1))
+     && (0x03 == (0x03 & val2)))
+    {
+        debug_log("BMP280写入测试通过.\r\n");
+    }
+    else
+    {
+        debug_log("BMP280写入测试失败.\r\n");
+    }
+
+    /* mpu9250测试(使用初始化测试) */
+    mpu9250_init();
+    debug_log("mpu9250 初始化完成.\r\n");
+
     /* 闪 */
     debug_log("我将闪烁到世界末日.\r\n");
     while(1)
@@ -124,10 +175,6 @@ static void hardware_init(void)
         } 
         HAL_Delay(1000);
     }
-		
-    /* imu i2c */
-    imu_init();
-    debug_log("imu i2c 初始化完成.\r\n");
 }
 
 /* 功能初始化 */

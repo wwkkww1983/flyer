@@ -78,12 +78,16 @@ void imu_init(void)
         assert_failed(__FILE__, __LINE__);
     } 
     
+#if 0
     init_bufAB(s_bufA);
     init_bufAB(s_bufB);
     
     uint32_T buf_size = sizeof(s_bufA);
 
     debug_log("AB 面缓存共计%.3fkByte\r\n", 2.0f * buf_size / 1024);
+#else
+    debug_log("不使用AB面缓存,所以分配buf.\r\n");
+#endif
 
     return;
 }
