@@ -104,7 +104,7 @@ static void hardware_init(void)
     /* 逐个初始化硬件 */
     /* led */
     led_init();
-    debug_log("led初始化完成.\r\n"); /* 串口未初始化 无打印 */
+    //debug_log("led初始化完成.\r\n"); /* 串口未初始化 不可打印 */
 
     /* 串口 */
     console_init(); /* 此后可以开始打印 */ 
@@ -113,7 +113,9 @@ static void hardware_init(void)
     /* pwm */
     pwm_init();
     debug_log("pwm初始化完成.\r\n"); 
-    
+
+    /* 部分板子未焊接 */
+#if 1
     /* imu i2c */
     imu_init();
     debug_log("imu i2c 初始化完成.\r\n");
@@ -147,12 +149,15 @@ static void hardware_init(void)
     unsigned char val1 = 0x00;
     unsigned char val2 = 0x00;
     unsigned char val_w = 0x00;
+    imu_write_poll(bmp280_addr, 0xF4, &val1, 1); /* 0xF4最低两位设置为 00 */
     imu_read_poll(bmp280_addr, 0xF4, &val1, 1); /* val1 最低两位应该为 00 */
     val_w = val1 | 0x03;
-    imu_write_poll(bmp280_addr, 0xF4, &val_w, 1); /* 0xF4最低两位设置为11 */
-    imu_read_poll(bmp280_addr, 0xF4, &val2, 1);
+    imu_write_poll(bmp280_addr, 0xF4, &val_w, 1); /* 0xF4最低两位设置为 11 */
+    imu_read_poll(bmp280_addr, 0xF4, &val2, 1); /* val1 最低两位应该为 03 */
+		imu_read_poll(bmp280_addr, 0xD0, &val, 1); /* id 应该为 0x58 */
     if( (0x00 == (0x03 & val1))
-     && (0x03 == (0x03 & val2)))
+     && (0x03 == (0x03 & val2))
+     && (0x58 == val))
     {
         debug_log("BMP280写入测试通过.\r\n");
     }
@@ -164,6 +169,7 @@ static void hardware_init(void)
     /* mpu9250测试(使用初始化测试) */
     mpu9250_init();
     debug_log("mpu9250 初始化完成.\r\n");
+#endif
 
     /* 串口接ESP8266,测试ESP8266是否可以重新启动 */
     /* 初始化CHPD管腿 PB15 */
@@ -173,11 +179,12 @@ static void hardware_init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct); 
-    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_RESET); 
-    HAL_Delay(1000);
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    /* 默认低电平 */
+    /* HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_RESET); 
+     * HAL_Delay(1000); */
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET); 
-    /* 此后ESP8266应该有重启打印 */
+    /* 此后ESP8266应该有启动打印 */
 
     /* 闪 */
     debug_log("我将闪烁到世界末日.\r\n");

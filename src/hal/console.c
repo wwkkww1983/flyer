@@ -54,6 +54,7 @@ void console_init(void)
         while(1);
     } 
 
+#if 0
     /* console 输入测试 */
     debug_log("请输入任意字符(回车确认).\r\n");
     while(1)
@@ -66,6 +67,7 @@ void console_init(void)
         } 
         debug_log("等待%ds:请输入任意字符(回车确认).\r\n", i++);
     }
+#endif
 
     return;
 }
