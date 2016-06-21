@@ -204,36 +204,19 @@
   (GlobalState
     (FileView
       (Path "Design Resources")
-      (Path "Design Resources" ".\flyer.dsn")
-      (Path "Design Resources" ".\flyer.dsn" "sch")
-      (Path "Design Resources" "Library")
-      (Path "Design Resources" "Library"
-         "e:\workspace\allegro_lib\olb\flyer.olb")
-      (Select "Design Resources" "Library"
-         "e:\workspace\allegro_lib\olb\flyer.olb" "STM32F401CXH6"))
+      (Path "Design Resources" ".\flyer.dsn"))
     (HierarchyView)
     (Doc
       (Type "COrCapturePMDoc")
       (Frame
-        (Placement "44 0 1 -1 -1 -8 -30 0 250 0 757"))
+        (Placement "44 2 3 -1 -1 -8 -30 0 250 0 757"))
       (Tab 0))
-    (Doc
-      (Type "COrPartDoc")
-      (Frame
-        (Placement "44 2 3 -1 -1 -8 -30 0 1115 0 384")
-        (PackageScroll "0 0")
-        (PackageZoom "1")
-        (PartPackage "Part")
-        (Scroll "437 0")
-        (Zoom "183"))
-      (Path "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
-      (Package "STM32F401CXH6"))
     (Doc
       (Type "COrSchematicDoc")
       (Frame
         (Placement "44 0 1 -1 -1 -8 -30 25 1228 25 516")
-        (Scroll "-227 0")
-        (Zoom "60")
+        (Scroll "0 504")
+        (Zoom "126")
         (Occurrence "/"))
       (Path "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.DSN")
       (Schematic "sch")
