@@ -165,6 +165,20 @@ static void hardware_init(void)
     mpu9250_init();
     debug_log("mpu9250 初始化完成.\r\n");
 
+    /* 串口接ESP8266,测试ESP8266是否可以重新启动 */
+    /* 初始化CHPD管腿 PB15 */
+    GPIO_InitTypeDef GPIO_InitStruct;
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    GPIO_InitStruct.Pin = GPIO_PIN_15;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct); 
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_RESET); 
+    HAL_Delay(1000);
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET); 
+    /* 此后ESP8266应该有重启打印 */
+
     /* 闪 */
     debug_log("我将闪烁到世界末日.\r\n");
     while(1)
