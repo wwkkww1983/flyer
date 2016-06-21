@@ -204,7 +204,9 @@
   (GlobalState
     (FileView
       (Path "Design Resources")
-      (Path "Design Resources" ".\flyer.dsn"))
+      (Path "Design Resources" ".\flyer.dsn")
+      (Path "Design Resources" ".\flyer.dsn" "sch")
+      (Path "Design Resources" "Library"))
     (HierarchyView)
     (Doc
       (Type "COrCapturePMDoc")
@@ -215,8 +217,8 @@
       (Type "COrSchematicDoc")
       (Frame
         (Placement "44 0 1 -1 -1 -8 -30 25 1228 25 516")
-        (Scroll "0 504")
-        (Zoom "126")
+        (Scroll "-203 0")
+        (Zoom "64")
         (Occurrence "/"))
       (Path "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.DSN")
       (Schematic "sch")
@@ -225,8 +227,8 @@
       (Type "COrSchematicDoc")
       (Frame
         (Placement "44 0 1 -1 -1 -8 -30 50 1200 50 410")
-        (Scroll "-216 0")
-        (Zoom "69")
+        (Scroll "-202 0")
+        (Zoom "72")
         (Occurrence "/"))
       (Path "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.DSN")
       (Schematic "sch")
