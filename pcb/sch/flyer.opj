@@ -204,7 +204,10 @@
   (GlobalState
     (FileView
       (Path "Design Resources")
-      (Select "Design Resources" ".\flyer.dsn"))
+      (Path "Design Resources" ".\flyer.dsn")
+      (Path "Design Resources" ".\flyer.dsn" "sch")
+      (Path "Design Resources" "Library")
+      (Path "Outputs"))
     (HierarchyView)
     (Doc
       (Type "COrCapturePMDoc")
@@ -214,9 +217,9 @@
     (Doc
       (Type "COrSchematicDoc")
       (Frame
-        (Placement "44 0 1 -1 -1 -8 -30 175 1519 175 611")
-        (Scroll "0 455")
-        (Zoom "168")
+        (Placement "44 0 1 -1 -1 -8 -30 25 1228 25 516")
+        (Scroll "-227 0")
+        (Zoom "60")
         (Occurrence "/"))
       (Path "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.DSN")
       (Schematic "sch")
@@ -224,13 +227,12 @@
     (Doc
       (Type "COrSchematicDoc")
       (Frame
-        (Placement "44 0 1 -1 -1 -8 -30 50 1661 50 564")
-        (Scroll "-296 0")
-        (Zoom "100")
+        (Placement "44 0 1 -1 -1 -8 -30 50 1200 50 410")
+        (Scroll "-216 0")
+        (Zoom "69")
         (Occurrence "/"))
       (Path "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.DSN")
       (Schematic "sch")
       (Page "peripheral")))
   (LastUsedLibraryBrowseDirectory "D:\Cadence\SPB_16.5\tools\capture\library")
-  (ISPCBBASICLICENSE "false")
-  (MPSSessionName "pp"))
+  (ISPCBBASICLICENSE "false"))
