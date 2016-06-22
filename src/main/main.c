@@ -172,7 +172,8 @@ static void hardware_init(void)
 #endif
 
     /* 串口接ESP8266,测试ESP8266是否可以重新启动 */
-    /* 初始化CHPD管腿 PB15 */
+    /* 初始化CHPD管腿 v2.x PB15 */
+    /* 初始化CHPD管腿 v3.x PC8 */
     GPIO_InitTypeDef GPIO_InitStruct;
     __HAL_RCC_GPIOB_CLK_ENABLE();
     GPIO_InitStruct.Pin = GPIO_PIN_15;
