@@ -115,7 +115,7 @@ static void hardware_init(void)
     debug_log("pwm初始化完成.\r\n"); 
 
     /* 部分板子未焊接 */
-#if 1
+#if 0
     /* imu i2c */
     imu_init();
     debug_log("imu i2c 初始化完成.\r\n");
@@ -170,6 +170,10 @@ static void hardware_init(void)
     mpu9250_init();
     debug_log("mpu9250 初始化完成.\r\n");
 #endif
+    led_off(1); 
+    led_off(2); 
+    led_off(3); 
+    led_off(4); 
 
     /* 串口接ESP8266,测试ESP8266是否可以重新启动 */
     /* 初始化CHPD管腿 v2.x PB15 */
@@ -186,6 +190,14 @@ static void hardware_init(void)
      * HAL_Delay(1000); */
     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET); 
     /* 此后ESP8266应该有启动打印 */
+    led_on(1); 
+    HAL_Delay(1000);
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_RESET); 
+    /* 此后ESP8266被关闭 */
+    led_on(2); 
+    HAL_Delay(1000);
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET); 
+    /* 此后ESP8266重新开启 */
 
     /* 闪 */
     debug_log("我将闪烁到世界末日.\r\n");
