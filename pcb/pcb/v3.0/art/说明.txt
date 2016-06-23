@@ -7,4 +7,5 @@ SOLDERMASK_BOTTOM.art       阻焊底层
 PASTEMASK_TOP.art           助焊顶层
 PASTEMASK_BOTTOM.art        助焊底层
 flyer.drl                   钻孔
+bom.xlsx                    物料bom
 说明.txt                    本文档,用于说文件内容
