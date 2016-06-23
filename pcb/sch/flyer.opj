@@ -97,18 +97,34 @@
     (CrossRef_Unused "FALSE")
     (XRF_View_Output "FALSE"))
   (Folder "Outputs"
-    (Sort User))
+    (Sort User)
+    (File "..\netlist\pstxnet.dat"
+      (Type "Report")
+      (DisplayName "pstxnet.dat"))
+    (File "..\netlist\pstxprt.dat"
+      (Type "Report")
+      (DisplayName "pstxprt.dat"))
+    (File "..\netlist\pstchip.dat"
+      (Type "Report")
+      (DisplayName "pstchip.dat"))
+    (File "..\flyer.drc"
+      (Type "Report")))
   (Folder "Referenced Projects")
   (PartMRUSelector
+    (STM32F401RBT6
+      (FullPartName "STM32F401RBT6A.Normal")
+      (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
+      (DeviceIndex "1"))
+    ("HEADER 4X2"
+      (FullPartName "HEADER 4X2.Normal")
+      (LibraryName
+         "D:\PROGRAM FILES (X86)\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\CONNECTOR.OLB")
+      (DeviceIndex "0"))
     ("HEADER 3"
       (FullPartName "HEADER 3.Normal")
       (LibraryName
          "D:\PROGRAM FILES (X86)\CADENCE\SPB_16.5\TOOLS\CAPTURE\LIBRARY\CONNECTOR.OLB")
       (DeviceIndex "0"))
-    (STM32F401RBT6
-      (FullPartName "STM32F401RBT6A.Normal")
-      (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
-      (DeviceIndex "1"))
     (IN5819W
       (FullPartName "IN5819W.Normal")
       (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
@@ -197,16 +213,10 @@
     ("DIODE SCHOTTKY"
       (FullPartName "DIODE SCHOTTKY.Normal")
       (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
-      (DeviceIndex "0"))
-    (LED
-      (FullPartName "LED.Normal")
-      (LibraryName "E:\WORKSPACE\ALLEGRO_LIB\OLB\FLYER.OLB")
       (DeviceIndex "0")))
   (GlobalState
     (FileView
       (Path "Design Resources")
-      (Path "Design Resources" ".\flyer.dsn")
-      (Path "Design Resources" ".\flyer.dsn" "sch")
       (Path "Outputs"))
     (HierarchyView)
     (Doc
@@ -217,24 +227,13 @@
     (Doc
       (Type "COrSchematicDoc")
       (Frame
-        (Placement "44 0 1 -1 -1 -8 -30 25 1228 25 516")
-        (Scroll "151 664")
-        (Zoom "168")
+        (Placement "44 0 1 -1 -1 -8 -30 75 923 75 428")
+        (Scroll "1335 1035")
+        (Zoom "212")
         (Occurrence "/"))
       (Path "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.DSN")
       (Schematic "sch")
-      (Page "cpu"))
-    (Doc
-      (Type "COrSchematicDoc")
-      (Frame
-        (Placement "44 0 1 -1 -1 -8 -30 50 1200 50 410")
-        (Scroll "-85 0")
-        (Zoom "96")
-        (Occurrence "/"))
-      (Path "E:\WORKSPACE\FLYER\PCB\SCH\FLYER.DSN")
-      (Schematic "sch")
-      (Page "peripheral")))
+      (Page "cpu")))
   (LastUsedLibraryBrowseDirectory
      "D:\Program Files (x86)\Cadence\SPB_16.5\tools\capture\library")
-  (ISPCBBASICLICENSE "false")
-  (MPSSessionName "pp"))
+  (ISPCBBASICLICENSE "false"))
