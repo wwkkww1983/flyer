@@ -434,10 +434,22 @@
               <FileType>2</FileType>
               <FilePath>..\src\drv\stm32f4xx.s</FilePath>
             </File>
+            <File>
+              <FileName>uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\drv\uart.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
           <GroupName>bsp</GroupName>
+          <Files>
+            <File>
+              <FileName>console.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\bsp\console.c</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>algo</GroupName>

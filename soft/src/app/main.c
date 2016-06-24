@@ -82,12 +82,62 @@ int main(void)
 
 /* 初始化 */
 static void init(void)
-{
+{ 
+
+#if 0
+    /* step1: hal初始化 */
+    if(HAL_OK != HAL_Init())
+    {
+        while(1);
+    }
+
+    /* step2: 配置时钟 HAL_Init 执行后才可执行 */
+    /* 时钟配置 84M */
+    clock_init();
+
+    /* 设置核心中断优先级 */
+    HAL_NVIC_SetPriority(MemoryManagement_IRQn, MEM_INT_PRIORITY, 0);
+    HAL_NVIC_SetPriority(BusFault_IRQn, BUS_INT_PRIORITY, 0);
+    HAL_NVIC_SetPriority(UsageFault_IRQn, USAGE_INT_PRIORITY, 0);
+    HAL_NVIC_SetPriority(SysTick_IRQn, TICK_INT_PRIORITY, 0);
+
+    /* 逐个初始化硬件 */
+    /* 控制台串口 */
+    console_init(); /* 此后可以开始打印 */ 
+    debug_log("控制台初始化完成.\r\n");
+#endif
+
+#if 0
+    /* led */
+    led_init();
+    debug_log("led初始化完成.\r\n"); /* 串口未初始化 不可打印 */
+
+    /* pwm */
+    pwm_init();
+    debug_log("pwm初始化完成.\r\n"); 
+
+    /* i2c */
+    imu_init()
+    debug_log("MPU9250+BMP280初始化完成.\r\n"); 
+
+    /* wifi moduler */
+    esp8266_init()
+    debug_log("esp8266 wifi模块初始化完成.\r\n"); 
+#endif
+
+    //debug_log("初始化完成.\r\n");
 }
 
 /* 硬件测试 */
 static void hard_test(void)
 {
-    ;
+#if 0
+    trace_log("%s,%d:开始硬件测试.\r\n", __FILE__, __LINE__);
+
+    console_printf("有输出表示控制台输出正常.\r\n");
+    console_printf("准备实现控制台输入.\r\n");
+
+    trace_log("%s,%d:结束硬件测试.\r\n", __FILE__, __LINE__);
+#endif
 }
 
