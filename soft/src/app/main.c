@@ -107,7 +107,7 @@ static void init(void)
     /* 逐个初始化硬件 */
     /* 控制台串口 */
     console_init(); /* 此后可以开始打印 */ 
-    debug_log("控制台初始化完成.\r\n");
+    console_printf("控制台初始化完成.\r\n");
 
 #if 0
     /* led */
@@ -131,13 +131,16 @@ static void init(void)
 }
 
 /* 硬件测试 */
+static uint8_T c = 0;
 static void hard_test(void)
 {
-    TRACE_FUNC_IN;
+    TRACE_FUNC_IN; 
 
+    
     console_printf("有输出表示控制台输出正常.\r\n");
-    console_printf("准备实现控制台输入.\r\n");
-
+    console_printf("输入1个字符(不按回车):\r\n"); 
+    c = console_getc();
+    console_printf("输入的字符为:%c(0x%02x)\r\n", c, c); 
 
     console_printf("结束硬件测试.\r\n");
 

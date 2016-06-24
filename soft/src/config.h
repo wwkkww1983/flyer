@@ -27,7 +27,7 @@
 /* 0: 输出err_log */
 /* 1: 输出debug_log */
 /* 2: 输出trace_log */
-#define DEBUG_LEVEL                                         (2)
+#define DEBUG_LEVEL                                         (0)
 /* console波特率 */
 #define CONSOLE_BAUDRATE                                    (115200)
 /* console 轮询输出缓存 */

@@ -50,6 +50,7 @@ void console_init(void)
     } 
 }
 
+/* 控制台打印 包裹函数 */
 void console_printf(uint8_T *fmt, ...)
 { 
     if(NULL == fmt) /* 无需打印 */
@@ -85,5 +86,28 @@ static void console_printf_poll(uint8_T *buf, int32_T n)
     }
 
     return;
+}
+
+/* 输出一个字符 */
+void console_putc(uint8_T c)
+{
+    /* 轮询 发送 */
+    if(HAL_UART_Transmit(&s_uart_handle, &c, 1, 1/CONSOLE_PRINTF_POLL_TIMEOUT_DIV)!= HAL_OK)
+    {
+        while(1);
+    }
+}
+
+/* 输入一个字符 */
+uint8_T console_getc(void)
+{
+    uint8_T c = 0;
+    /* 阻塞 输入(读取) */
+    if(HAL_UART_Receive(&s_uart_handle, &c, 1, HAL_MAX_DELAY)!= HAL_OK)
+    {
+        while(1);
+    }
+
+    return c;
 }
 

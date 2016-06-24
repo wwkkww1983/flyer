@@ -51,6 +51,8 @@
 /*********************************** 接口函数 **********************************/
 void console_init(void);
 void console_printf(uint8_T *fmt, ...);
+void console_putc(uint8_T c);
+uint8_T console_getc(void);
 
 #endif
 
