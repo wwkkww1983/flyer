@@ -30,9 +30,9 @@
 #define DEBUG_LEVEL                                         (0)
 /* console波特率 */
 #define CONSOLE_BAUDRATE                                    (115200)
-/* console 轮询输出缓存 */
-#define CONSOLE_PRINTF_POLL_BUF_SIZE                        (256)
-#define CONSOLE_PRINTF_POLL_TIMEOUT_DIV                     (1)
+/* console 每个printf的长度 64byte */
+#define CONSOLE_PRINTF_BUF_SIZE                             (64)
+#define CONSOLE_PRINTF_AB_BUF_SIZE                          (512)
 
 /* 以下内容不可修改 */
 /* 每秒钟systick中断数 默认1ms */

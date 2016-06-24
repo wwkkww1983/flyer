@@ -134,17 +134,22 @@ static void init(void)
 static uint8_T c = 0;
 static void hard_test(void)
 {
+#if 0
     TRACE_FUNC_IN; 
 
     
     console_printf("有输出表示控制台输出正常.\r\n");
+    /*
     console_printf("输入1个字符(不按回车):\r\n"); 
     c = console_getc();
-    console_printf("输入的字符为:%c(0x%02x)\r\n", c, c); 
+    console_printf("输入的字符为:%c(0x%02x)\r\n", c, c); */
+
+    //console_putc('1');
 
     console_printf("结束硬件测试.\r\n");
 
     TRACE_FUNC_OUT;
+#endif
     while(1);
 }
 

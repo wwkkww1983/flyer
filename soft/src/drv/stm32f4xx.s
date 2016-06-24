@@ -136,7 +136,7 @@ __Vectors       DCD     __initial_sp            ; Top of Stack
                 DCD     0                       ; DMA2 Stream 5
                 DCD     0                       ; DMA2 Stream 6
                 DCD     0                       ; DMA2 Stream 7
-                DCD     0                       ; USART6
+                DCD     USART6_IRQHandler       ; USART6
                 DCD     0                       ; I2C3 event
                 DCD     0                       ; I2C3 error
                 DCD     0                       ; USB OTG HS End Point 1 Out
@@ -217,11 +217,11 @@ SysTick_Handler PROC
                 B       .
                 ENDP
 
-; 控制台串口中断 C代码有重定义
-;USART6_IRQHandler PROC
-                ;EXPORT  USART6_IRQHandler [WEAK]
-                ;B       .
-                ;ENDP
+; ESP8266串口中断 C代码有重定义
+USART6_IRQHandler PROC
+                EXPORT  USART6_IRQHandler [WEAK]
+                B       .
+                ENDP
 
 ; External Line[15:10]中断 C代码有重定义
 ;EXTI9_5_IRQHandler PROC

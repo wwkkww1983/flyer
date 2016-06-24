@@ -79,6 +79,7 @@
 #define CONSOLE_UART_RX_PIN                     GPIO_PIN_7
 #define CONSOLE_UART_RX_AF                      GPIO_AF8_USART6
 #define CONSOLE_UART_IRQn                       USART6_IRQn
+#define CONSOLE_UART_IRQHANDLER                 USART6_IRQHandler
 #else
 #define CONSOLE_UART                            USART1
 #define CONSOLE_UART_CLK_ENABLE()               __HAL_RCC_USART1_CLK_ENABLE()
@@ -93,6 +94,7 @@
 #define CONSOLE_UART_RX_PIN                     GPIO_PIN_10
 #define CONSOLE_UART_RX_AF                      GPIO_AF7_USART1
 #define CONSOLE_UART_IRQn                       USART1_IRQn
+#define CONSOLE_UART_IRQHANDLER                 USART1_IRQHandler
 #endif
 /******************************* ESP82699串口定义 ******************************/
 /*
