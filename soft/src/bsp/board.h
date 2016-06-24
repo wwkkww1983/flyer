@@ -15,6 +15,8 @@
 #define _STM32F4XX_HAL_MSP_H_
 
 /************************************ 头文件 ***********************************/
+#include "typedef.h"
+#include "config.h"
 #include "stm32f4xx_hal_conf.h"
 #include "stm32f4xx_hal.h"
 
@@ -62,6 +64,22 @@
  * TX:PA9
  * RX:PA10
  * */
+/* v2.x版本硬件 */
+#ifdef _V2X_
+#define CONSOLE_UART                            USART6
+#define CONSOLE_UART_CLK_ENABLE()               __HAL_RCC_USART6_CLK_ENABLE()
+#define CONSOLE_UART_RX_GPIO_CLK_ENABLE()       __HAL_RCC_GPIOC_CLK_ENABLE()
+#define CONSOLE_UART_TX_GPIO_CLK_ENABLE()       __HAL_RCC_GPIOC_CLK_ENABLE()
+#define CONSOLE_UART_FORCE_RESET()              __HAL_RCC_USART6_FORCE_RESET()
+#define CONSOLE_UART_RELEASE_RESET()            __HAL_RCC_USART6_RELEASE_RESET()
+#define CONSOLE_UART_TX_GPIO_PORT               GPIOC
+#define CONSOLE_UART_TX_PIN                     GPIO_PIN_6
+#define CONSOLE_UART_TX_AF                      GPIO_AF8_USART6
+#define CONSOLE_UART_RX_GPIO_PORT               GPIOC
+#define CONSOLE_UART_RX_PIN                     GPIO_PIN_7
+#define CONSOLE_UART_RX_AF                      GPIO_AF8_USART6
+#define CONSOLE_UART_IRQn                       USART6_IRQn
+#else
 #define CONSOLE_UART                            USART1
 #define CONSOLE_UART_CLK_ENABLE()               __HAL_RCC_USART1_CLK_ENABLE()
 #define CONSOLE_UART_RX_GPIO_CLK_ENABLE()       __HAL_RCC_GPIOA_CLK_ENABLE()
@@ -75,6 +93,7 @@
 #define CONSOLE_UART_RX_PIN                     GPIO_PIN_10
 #define CONSOLE_UART_RX_AF                      GPIO_AF7_USART1
 #define CONSOLE_UART_IRQn                       USART1_IRQn
+#endif
 /******************************* ESP82699串口定义 ******************************/
 /*
  * USART6
@@ -131,6 +150,7 @@
 /*********************************** 全局变量 **********************************/
 
 /*********************************** 接口函数 **********************************/
+void clock_init(void);
 
 #endif /* _STM32F4XX_HAL_MSP_H_ */
 

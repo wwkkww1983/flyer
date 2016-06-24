@@ -17,29 +17,29 @@
 /************************************ 头文件 ***********************************/
 
 /************************************ 宏定义 ***********************************/
-#define  err_log(...)   console_printf_poll("ERR: ") ;\
-                        console_printf_poll(__VA_ARGS__);\
-                        console_printf_poll("\r\n");
+#define  err_log(...)   console_printf("ERR: ") ;\
+                        console_printf(__VA_ARGS__);\
+                        console_printf("\r\n");
 
 /* DEBUG_LEVEL > 0 输出基础打印信息 */
 #if (DEBUG_LEVEL > 0)
-#define debug_log(...)  console_printf_poll(__VA_ARGS__);
+#define debug_log(...)  console_printf(__VA_ARGS__);
 #else
 #define debug_log(...)
 #endif
 
 /* DEBUG_LEVEL > 1 输出跟踪信息 */
 #if (DEBUG_LEVEL > 1)
-#define trace_log(...)  console_printf_poll("TRACE : ") ;\
-                        console_printf_poll(__VA_ARGS__);\
-                        console_printf_poll("\r\n");
+#define trace_log(...)  console_printf("TRACE : ") ;\
+                        console_printf(__VA_ARGS__);\
+                        console_printf("\r\n");
 #else
 #define trace_log(...)
 #endif
 
-#define TRACE_FUNC_IN   trace_log("[IN]  %-8s%-8d%-20s", __FILE__, __LINE__, __func__)
-#define TRACE_FUNC_OUT  trace_log("[OUT] %-8s%-8d%-20s", __FILE__, __LINE__, __func__)
-#define TRACE_STR(str)  trace_log("[TRC] %-8s%-8d%-20s\t\t%s" , __FILE__, __LINE__, __func__, str)
+#define TRACE_FUNC_IN   trace_log("[IN]  %-8s:%-8d%-20s", __FILE__, __LINE__, __func__)
+#define TRACE_FUNC_OUT  trace_log("[OUT] %-8s:%-8d%-20s", __FILE__, __LINE__, __func__)
+#define TRACE_STR(str)  trace_log("[TRC] %-8s:%-8d%-20s\t\t%s" , __FILE__, __LINE__, __func__, str)
 
 #define ERR_STR(str)    err_log("%-8s%-8d%-20s\t\t%s" , __FILE__, __LINE__, __func__, str)
 
@@ -50,7 +50,7 @@
 
 /*********************************** 接口函数 **********************************/
 void console_init(void);
-void console_printf_poll(char *fmt, ...);
+void console_printf(uint8_T *fmt, ...);
 
 #endif
 

@@ -18,6 +18,7 @@
 /************************************ 头文件 ***********************************/
 #include "config.h"
 #include "board.h"
+#include "console.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
 
@@ -84,12 +85,14 @@ int main(void)
 static void init(void)
 { 
 
-#if 0
     /* step1: hal初始化 */
     if(HAL_OK != HAL_Init())
     {
         while(1);
     }
+		
+    /*Configure the SysTick to have interrupt in 1ms time basis*/
+    HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/TICK_PER_SECONDS);
 
     /* step2: 配置时钟 HAL_Init 执行后才可执行 */
     /* 时钟配置 84M */
@@ -105,12 +108,11 @@ static void init(void)
     /* 控制台串口 */
     console_init(); /* 此后可以开始打印 */ 
     debug_log("控制台初始化完成.\r\n");
-#endif
 
 #if 0
     /* led */
     led_init();
-    debug_log("led初始化完成.\r\n"); /* 串口未初始化 不可打印 */
+    debug_log("led初始化完成.\r\n");
 
     /* pwm */
     pwm_init();
@@ -125,19 +127,21 @@ static void init(void)
     debug_log("esp8266 wifi模块初始化完成.\r\n"); 
 #endif
 
-    //debug_log("初始化完成.\r\n");
+    debug_log("初始化完成.\r\n");
 }
 
 /* 硬件测试 */
 static void hard_test(void)
 {
-#if 0
-    trace_log("%s,%d:开始硬件测试.\r\n", __FILE__, __LINE__);
+    TRACE_FUNC_IN;
 
     console_printf("有输出表示控制台输出正常.\r\n");
     console_printf("准备实现控制台输入.\r\n");
 
-    trace_log("%s,%d:结束硬件测试.\r\n", __FILE__, __LINE__);
-#endif
+
+    console_printf("结束硬件测试.\r\n");
+
+    TRACE_FUNC_OUT;
+    while(1);
 }
 
