@@ -1,9 +1,0 @@
-top.art                             顶层
-silkscreen_top.art                  顶层丝印
-soldermask_top.art                  顶层阻焊
-pastemask_top.art                   顶层助焊
-bottom.art                          底层
-soldermask_bottom.art               底层阻焊
-pastemask_bottom.art                底层助焊
-silkscreen_bottom.art               底层丝印
-flyer.drl                       钻孔文件
