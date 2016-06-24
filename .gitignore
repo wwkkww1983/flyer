@@ -1,5 +1,6 @@
-prj/obj/
-prj/lst/
-prj/flyer.uvguix.pp
+soft/prj/obj/
+soft/prj/lst/
+soft/prj/flyer.uvguix.pp
 
-pcb/sch/FLYER_0.DBK
+hard/pcb/sch/FLYER_0.DBK
+hard/pcb/v3.0/allegro.jrl
