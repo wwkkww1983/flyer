@@ -22,13 +22,13 @@
 #include "typedef.h"
 #include "config.h"
 #include "board.h"
-#include "fifo.h"
 #include "console.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/
 UART_HandleTypeDef g_uart_handle; /* board.c中配置DMA需要使用 */
+static char s_printf_buf[CONSOLE_PRINTF_BUF_SIZE] = {0};
 /********************************** 函数声明区 *********************************/
 static uint8_T console_getc_poll(void);
 
@@ -63,24 +63,14 @@ void console_printf(uint8_T *fmt, ...)
     va_list args;
     int32_T n = 0; /* printf 调用需要发送的长度 */
 
-    /* 必须动态分配 否则报错 */
-    char *printf_buf = (char *)malloc(CONSOLE_PRINTF_BUF_SIZE);
-    if(NULL == printf_buf)
-    {
-        while(1);
-    }
-
     va_start(args, fmt); 
-    n = vsnprintf(printf_buf, CONSOLE_PRINTF_BUF_SIZE, (char *)fmt, args);
+    n = vsnprintf(s_printf_buf, CONSOLE_PRINTF_BUF_SIZE, (char *)fmt, args);
     va_end(args); 
     
-    if(HAL_UART_Transmit_DMA(&g_uart_handle, (uint8_t *)printf_buf, n)!= HAL_OK)
+    if(HAL_UART_Transmit_DMA(&g_uart_handle, (uint8_t *)s_printf_buf, n)!= HAL_OK)
     {
         while(1);
     }
-
-    free(printf_buf);
-    printf_buf = NULL;
 
     return;
 }
@@ -115,6 +105,11 @@ void CONSOLE_UART_IRQHANDLER(void)
     HAL_UART_IRQHandler(&g_uart_handle);
 }
 
+void CONSOLE_UART_DMA_TX_IRQHandler(void)
+{
+  HAL_DMA_IRQHandler(g_uart_handle.hdmatx);
+}
+
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
     i = 2;
@@ -124,4 +119,5 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
     i = 3;
 }
+
 

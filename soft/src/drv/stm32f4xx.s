@@ -134,7 +134,7 @@ __Vectors       DCD     __initial_sp            ; Top of Stack
                 DCD     0                       ; CAN2 SCE
                 DCD     0                       ; USB OTG FS
                 DCD     0                       ; DMA2 Stream 5
-                DCD     0                       ; DMA2 Stream 6
+                DCD     DMA2_Stream6_IRQHandler ; DMA2 Stream 6
                 DCD     0                       ; DMA2 Stream 7
                 DCD     USART6_IRQHandler       ; USART6
                 DCD     0                       ; I2C3 event
@@ -223,6 +223,10 @@ USART6_IRQHandler PROC
                 B       .
                 ENDP
 
+DMA2_Stream6_IRQHandler PROC
+                EXPORT  DMA2_Stream6_IRQHandler [WEAK]
+                B       .
+                ENDP
 ; External Line[15:10]中断 C代码有重定义
 ;EXTI9_5_IRQHandler PROC
                 ;EXPORT  EXTI9_5_IRQHandler [WEAK]
