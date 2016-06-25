@@ -17,6 +17,8 @@
 #include "config.h"
 #include "board.h"
 
+#include "console.h"
+
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/
@@ -29,8 +31,8 @@
 * 函数名  : HAL_MspInit
 * 负责人  : 彭鹏
 * 创建日期: 20160624
-* 函数功能: stm32f4 hal 初始化回调
-*           HAL_Init中统一调用
+* 函数功能: stm32f4 hal uart初始化回调
+*           HAL_Init uart 中统一调用
 *           配置复用的管腿
 * 输入参数: 无
 * 输出参数: 无
@@ -40,55 +42,54 @@
 * 其 它   : 无
 *
 ******************************************************************************/
-void HAL_MspInit(void)
+void HAL_UART_MspInit(UART_HandleTypeDef *huart)
 {  
-    GPIO_InitTypeDef  GPIO_InitStruct;
+    static DMA_HandleTypeDef hdma_tx;
+    static GPIO_InitTypeDef GPIO_InitStruct;
     /************************ 控制台使用的串口初始化 ************************/
     CONSOLE_UART_TX_GPIO_CLK_ENABLE();
     CONSOLE_UART_RX_GPIO_CLK_ENABLE();
-    CONSOLE_UART_CLK_ENABLE();
+    CONSOLE_UART_CLK_ENABLE(); 
+    CONSOLE_DMA_CLK_ENABLE();   
     /* TX */
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FAST;
-    GPIO_InitStruct.Pin       = CONSOLE_UART_TX_PIN;
-    GPIO_InitStruct.Alternate = CONSOLE_UART_TX_AF;
+    GPIO_InitStruct.Mode                = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull                = GPIO_NOPULL;
+    GPIO_InitStruct.Speed               = GPIO_SPEED_FAST;
+    GPIO_InitStruct.Pin                 = CONSOLE_UART_TX_PIN;
+    GPIO_InitStruct.Alternate           = CONSOLE_UART_TX_AF;
     HAL_GPIO_Init(CONSOLE_UART_TX_GPIO_PORT, &GPIO_InitStruct);
     /* RX */
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FAST;
-    GPIO_InitStruct.Pin = CONSOLE_UART_RX_PIN;
-    GPIO_InitStruct.Alternate = CONSOLE_UART_RX_AF;
-    HAL_GPIO_Init(CONSOLE_UART_RX_GPIO_PORT, &GPIO_InitStruct);
+    /* 相对于TX未改变
+    GPIO_InitStruct.Mode                = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull                = GPIO_NOPULL;
+    GPIO_InitStruct.Speed               = GPIO_SPEED_FAST; */
+    GPIO_InitStruct.Pin                 = CONSOLE_UART_RX_PIN;
+    GPIO_InitStruct.Alternate           = CONSOLE_UART_RX_AF;
+    HAL_GPIO_Init(CONSOLE_UART_RX_GPIO_PORT, &GPIO_InitStruct); 
+    /* 配置DMA(仅TX) */
+    hdma_tx.Instance                    = CONSOLE_UART_TX_DMA_STREAM; 
+    hdma_tx.Init.Channel                = CONSOLE_UART_TX_DMA_CHANNEL;
+    hdma_tx.Init.Direction              = DMA_MEMORY_TO_PERIPH;
+    hdma_tx.Init.PeriphInc              = DMA_PINC_DISABLE;
+    hdma_tx.Init.MemInc                 = DMA_MINC_ENABLE;
+    hdma_tx.Init.PeriphDataAlignment    = DMA_PDATAALIGN_BYTE;
+    hdma_tx.Init.MemDataAlignment       = DMA_MDATAALIGN_BYTE;
+    hdma_tx.Init.Mode                   = DMA_NORMAL;
+    hdma_tx.Init.Priority               = DMA_PRIORITY_LOW;
+    hdma_tx.Init.FIFOMode               = DMA_FIFOMODE_DISABLE;
+    hdma_tx.Init.FIFOThreshold          = DMA_FIFO_THRESHOLD_FULL;
+    hdma_tx.Init.MemBurst               = DMA_MBURST_INC4;
+    hdma_tx.Init.PeriphBurst            = DMA_PBURST_INC4; 
+    HAL_DMA_Init(&hdma_tx);   
+    /* 关联DMA与UART */
+    __HAL_LINKDMA(&g_uart_handle, hdmatx, hdma_tx); 
     /* INT */
     HAL_NVIC_SetPriority(CONSOLE_UART_IRQn, PER_INT_PRIORITY, 0);
-    HAL_NVIC_EnableIRQ(CONSOLE_UART_IRQn);
+    HAL_NVIC_EnableIRQ(CONSOLE_UART_IRQn); 
+    HAL_NVIC_SetPriority(CONSOLE_UART_DMA_TX_IRQn, 0, 1);
+    HAL_NVIC_EnableIRQ(CONSOLE_UART_DMA_TX_IRQn);
 
-#ifdef _V2X_
-#else
     /************************* ESP8266串口初始化 ****************************/
-    ESP8266_UART_TX_GPIO_CLK_ENABLE();
-    ESP8266_UART_RX_GPIO_CLK_ENABLE();
-    ESP8266_UART_CLK_ENABLE();
-    /* TX */
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FAST;
-    GPIO_InitStruct.Pin       = ESP8266_UART_TX_PIN;
-    GPIO_InitStruct.Alternate = ESP8266_UART_TX_AF;
-    HAL_GPIO_Init(ESP8266_UART_TX_GPIO_PORT, &GPIO_InitStruct);
-    /* RX */
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FAST;
-    GPIO_InitStruct.Pin       = ESP8266_UART_RX_PIN;
-    GPIO_InitStruct.Alternate = ESP8266_UART_RX_AF;
-    HAL_GPIO_Init(ESP8266_UART_RX_GPIO_PORT, &GPIO_InitStruct);
-    /* INT */
-    HAL_NVIC_SetPriority(ESP8266_UART_IRQn, PER_INT_PRIORITY, 0);
-    HAL_NVIC_EnableIRQ(ESP8266_UART_IRQn);
-#endif
 }
 
 #if 0

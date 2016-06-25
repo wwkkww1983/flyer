@@ -21,16 +21,16 @@
 ;*
 ;*******************************************************************************/
 
-; 系统栈(MSP) 1kB
-Stack_Size      EQU     0x00000400
+; 系统栈(MSP) 2kB
+Stack_Size      EQU     0x00000800
 
                 AREA    STACK, NOINIT, READWRITE, ALIGN=3
 Stack_Mem       SPACE   Stack_Size
 __initial_sp
 
-; 堆 1kB
+; 堆 2kB
 ; 对比.map文件中
-Heap_Size       EQU     0x00000400
+Heap_Size       EQU     0x00000800
 
                 AREA    HEAP, NOINIT, READWRITE, ALIGN=3
 __heap_base

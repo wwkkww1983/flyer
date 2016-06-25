@@ -80,6 +80,11 @@
 #define CONSOLE_UART_RX_AF                      GPIO_AF8_USART6
 #define CONSOLE_UART_IRQn                       USART6_IRQn
 #define CONSOLE_UART_IRQHANDLER                 USART6_IRQHandler
+#define CONSOLE_DMA_CLK_ENABLE()                __HAL_RCC_DMA2_CLK_ENABLE()
+#define CONSOLE_UART_TX_DMA_CHANNEL             DMA_CHANNEL_5
+#define CONSOLE_UART_TX_DMA_STREAM              DMA2_Stream6
+#define CONSOLE_UART_DMA_TX_IRQn                DMA2_Stream6_IRQn
+#define CONSOLE_UART_DMA_TX_IRQHandler          DMA2_Stream6_IRQHandler
 #else
 #define CONSOLE_UART                            USART1
 #define CONSOLE_UART_CLK_ENABLE()               __HAL_RCC_USART1_CLK_ENABLE()

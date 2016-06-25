@@ -79,6 +79,7 @@ int main(void)
 { 
     init();
     hard_test();
+    while(1);
 }
 
 /* 初始化 */
@@ -127,14 +128,13 @@ static void init(void)
     debug_log("esp8266 wifi模块初始化完成.\r\n"); 
 #endif
 
-    debug_log("初始化完成.\r\n");
+    console_printf("初始化完成.\r\n");
 }
 
 /* 硬件测试 */
-static uint8_T c = 0;
+//static uint8_T c = 0;
 static void hard_test(void)
 {
-#if 0
     TRACE_FUNC_IN; 
 
     
@@ -149,7 +149,5 @@ static void hard_test(void)
     console_printf("结束硬件测试.\r\n");
 
     TRACE_FUNC_OUT;
-#endif
-    while(1);
 }
 
