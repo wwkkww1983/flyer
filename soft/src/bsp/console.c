@@ -22,6 +22,7 @@
 #include "typedef.h"
 #include "config.h"
 #include "board.h"
+#include "fifo.h"
 #include "console.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
@@ -29,16 +30,10 @@
 /********************************** 变量声明区 *********************************/
 static UART_HandleTypeDef s_uart_handle;
 static char s_printf_buf[CONSOLE_PRINTF_BUF_SIZE] = {0};
-
-/* AB面 */
-static char s_a_buf[CONSOLE_PRINTF_AB_BUF_SIZE] = {0};
-static char s_b_buf[CONSOLE_PRINTF_AB_BUF_SIZE] = {0};
-static char s_buf_flag = 0;
+static fifo_T s_fifo;
 
 /********************************** 函数声明区 *********************************/
 static uint8_T console_getc_poll(void);
-static void console_printf_it(uint8_T *buf, int32_T n);
-//static uint8_T console_getc_it(void);
 
 /********************************** 函数实现区 *********************************/
 /* 控制台初始化 */
@@ -62,15 +57,9 @@ void console_init(void)
     for(int32_T i = 0; i < CONSOLE_PRINTF_BUF_SIZE; i++) 
     {
         s_printf_buf[i] = NUL;
-    }
-
-    /* 初始化AB缓存 */
-    for(int32_T i = 0; i < CONSOLE_PRINTF_AB_BUF_SIZE; i++) 
-    { 
-        s_a_buf[i] = NUL;
-        s_b_buf[i] = NUL;
     } 
-    s_buf_flag = 0;
+    
+    fifo_init(&s_fifo, CONSOLE_FIFO_SIZE);
 }
 
 /*********************************** 包裹函数 **********************************/
@@ -83,26 +72,16 @@ void console_printf(uint8_T *fmt, ...)
     }
 
     va_list args;
-    int32_T printf_length = 0; /* printf 调用需要发送的长度 */
-    int32_T space_length = 0; /* 当前可写面剩余空间 */
-    int32_T length = 0; /* 需要拷贝到缓存的长度 */
+    int32_T n = 0; /* printf 调用需要发送的长度 */
 
     va_start(args, fmt); 
-    printf_length = vsnprintf(s_printf_buf, CONSOLE_PRINTF_BUF_SIZE, (char *)fmt, args);
+    n = vsnprintf(s_printf_buf, CONSOLE_PRINTF_BUF_SIZE, (char *)fmt, args);
     va_end(args);
-
-    console_printf_it((uint8_T *)s_printf_buf, printf_length);
-
-#if 0
-    /* step1: 拷贝到后台面(初始为b),避免溢出 */
-    space_length = CONSOLE_PRINTF_AB_BUF_SIZE - strlen(s_b_buf);
-    length = (printf_length < space_length) ? (printf_length) : (space_length);
-    strncat(s_b_buf, s_printf_buf, length);
-    /* step2: */
-
-    /* 中断发送 */
-    console_printf_it((uint8_T *)s_b_buf, n);
-#endif
+    
+    if(HAL_UART_Transmit_IT(&s_uart_handle, s_printf_buf, n) != HAL_OK)
+    { 
+        fifo_write(&s_fifo, (const uint8_T *)s_printf_buf, n);
+    }
 
     return;
 }
@@ -129,16 +108,6 @@ static uint8_T console_getc_poll(void)
 }
 
 /************************************* 中断 ************************************/
-/* 输出一个字符 */
-static void console_printf_it(uint8_T *buf, int32_T n)
-{
-    /* 轮询 发送 */
-    if(HAL_UART_Transmit_IT(&s_uart_handle, buf, n)!= HAL_OK)
-    {
-        while(1);
-    }
-}
-
 /*********************************** 中断句柄 **********************************/
 int i = 0;
 void CONSOLE_UART_IRQHANDLER(void)
@@ -156,3 +125,4 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
     i = 3;
 }
+

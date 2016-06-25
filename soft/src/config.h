@@ -18,6 +18,10 @@
 #include "typedef.h"
 
 /************************************ 宏定义 ***********************************/
+/* _DEBUG_PC_
+ * PC调试
+ * */
+#define _DEBUG_PC_
 /* v2.x版本硬件使用UART6作为控制台
  * v3.x版本硬件替换
  * */
@@ -30,9 +34,10 @@
 #define DEBUG_LEVEL                                         (0)
 /* console波特率 */
 #define CONSOLE_BAUDRATE                                    (115200)
-/* console 每个printf的长度 64byte */
+/* console 每个printf的长度 64Bytes */
 #define CONSOLE_PRINTF_BUF_SIZE                             (64)
-#define CONSOLE_PRINTF_AB_BUF_SIZE                          (512)
+/* console FIFO大小 1024Bytes */
+#define CONSOLE_FIFO_SIZE                                   (8)
 
 /* 以下内容不可修改 */
 /* 每秒钟systick中断数 默认1ms */

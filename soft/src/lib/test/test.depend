@@ -1,0 +1,23 @@
+# depslib dependency file v1.0
+1466852120 source:e:\workspace\flyer\soft\src\lib\test.c
+	<stdio.h>
+	<string.h>
+	"fifo.h"
+
+1466850874 e:\workspace\flyer\soft\src\lib\fifo.h
+	"config.h"
+	"typedef.h"
+
+1466845084 e:\workspace\flyer\soft\src\config.h
+	"typedef.h"
+
+1466764226 e:\workspace\flyer\soft\src\typedef.h
+	<stdint.h>
+
+1466852137 source:e:\workspace\flyer\soft\src\lib\fifo.c
+	"stdio.h"
+	"stdlib.h"
+	"config.h"
+	"typedef.h"
+	"fifo.h"
+
