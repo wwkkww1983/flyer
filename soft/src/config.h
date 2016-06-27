@@ -31,13 +31,11 @@
 /* 0: 输出err_log */
 /* 1: 输出debug_log */
 /* 2: 输出trace_log */
-#define DEBUG_LEVEL                                         (0)
+#define DEBUG_LEVEL                                         (2)
 /* console波特率 */
-#define CONSOLE_BAUDRATE                                    (115200)
-/* console 每个printf的长度 64Bytes */
-#define CONSOLE_PRINTF_BUF_SIZE                             (64)
-/* console FIFO大小 1024Bytes */
-#define CONSOLE_FIFO_SIZE                                   (8)
+#define CONSOLE_BAUDRATE                                    (115200U)
+/* console 缓冲的长度 64Bytes */
+#define CONSOLE_BUF_SIZE                                    (512U)
 
 /* 以下内容不可修改 */
 /* 每秒钟systick中断数 默认1ms */
