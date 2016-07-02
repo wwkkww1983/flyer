@@ -4,3 +4,6 @@ soft/prj/flyer.uvguix.pp
 
 hard/pcb/sch/FLYER_0.DBK
 hard/pcb/v3.0/allegro.jrl
+
+pc/__pycache__/
+
