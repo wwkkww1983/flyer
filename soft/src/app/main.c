@@ -107,8 +107,8 @@ static void init(void)
 
     /* 逐个初始化硬件 */
     /* 控制台串口 */
-    //console_init(); /* 此后可以开始打印 */ 
-    //console_printf("控制台初始化完成.\r\n");
+    console_init(); /* 此后可以开始打印 */ 
+    console_printf("控制台初始化完成.\r\n");
 		
 		/* wifi module */
     esp8266_init();

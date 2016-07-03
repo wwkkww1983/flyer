@@ -61,10 +61,9 @@ void HAL_MspInit()
     GPIO_InitStruct.Alternate           = CONSOLE_UART_TX_AF;
     HAL_GPIO_Init(CONSOLE_UART_TX_GPIO_PORT, &GPIO_InitStruct);
     /* RX */
-    /* 相对于TX未改变
     GPIO_InitStruct.Mode                = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull                = GPIO_NOPULL;
-    GPIO_InitStruct.Speed               = GPIO_SPEED_FAST; */
+    GPIO_InitStruct.Speed               = GPIO_SPEED_FAST;
     GPIO_InitStruct.Pin                 = CONSOLE_UART_RX_PIN;
     GPIO_InitStruct.Alternate           = CONSOLE_UART_RX_AF;
     HAL_GPIO_Init(CONSOLE_UART_RX_GPIO_PORT, &GPIO_InitStruct); 
@@ -98,18 +97,16 @@ void HAL_MspInit()
     ESP8266_UART_CLK_ENABLE(); 
     ESP8266_DMA_CLK_ENABLE();   
     /* TX */
-    /* 相对于CONSOLE TX未改变
     GPIO_InitStruct.Mode                = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull                = GPIO_NOPULL;
-    GPIO_InitStruct.Speed               = GPIO_SPEED_FAST;*/
+    GPIO_InitStruct.Speed               = GPIO_SPEED_FAST;
     GPIO_InitStruct.Pin                 = ESP8266_UART_TX_PIN;
     GPIO_InitStruct.Alternate           = ESP8266_UART_TX_AF;
     HAL_GPIO_Init(ESP8266_UART_TX_GPIO_PORT, &GPIO_InitStruct);
     /* RX */
-    /* 相对于TX未改变
     GPIO_InitStruct.Mode                = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull                = GPIO_NOPULL;
-    GPIO_InitStruct.Speed               = GPIO_SPEED_FAST; */
+    GPIO_InitStruct.Speed               = GPIO_SPEED_FAST;
     GPIO_InitStruct.Pin                 = ESP8266_UART_RX_PIN;
     GPIO_InitStruct.Alternate           = ESP8266_UART_RX_AF;
     HAL_GPIO_Init(ESP8266_UART_RX_GPIO_PORT, &GPIO_InitStruct); 
@@ -126,7 +123,7 @@ void HAL_MspInit()
     hdma_tx.Init.FIFOMode               = DMA_FIFOMODE_DISABLE;
     hdma_tx.Init.FIFOThreshold          = DMA_FIFO_THRESHOLD_FULL;
     hdma_tx.Init.MemBurst               = DMA_MBURST_INC4;
-    hdma_tx.Init.PeriphBurst            = DMA_PBURST_INC4; 
+    hdma_tx.Init.PeriphBurst            = DMA_PBURST_INC4;
     HAL_DMA_Init(&hdma_tx);   
     /* 关联DMA与UART */
     __HAL_LINKDMA(&g_esp8266.handle, hdmatx, hdma_tx); 
