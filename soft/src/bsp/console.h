@@ -15,8 +15,14 @@
 #define _CONSOLE_H_
 
 /************************************ 头文件 ***********************************/
+#include "typedef.h"
+#include "config.h"
+#include "uart.h"
 
 /************************************ 宏定义 ***********************************/
+
+
+/*********************************** 实现函数 **********************************/
 #define  err_log(...)   console_printf("ERR: ") ;\
                         console_printf(__VA_ARGS__);\
                         console_printf("\r\n");
@@ -47,13 +53,16 @@
 /*--------------------------------- 接口声明区 --------------------------------*/
 
 /*********************************** 全局变量 **********************************/
-extern UART_HandleTypeDef g_console_uart_handle; /* board.c中配置DMA需要使用 */
+extern drv_uart_T g_console; /* board.c中配置DMA需要使用 */
 
 /*********************************** 接口函数 **********************************/
 void console_init(void);
-void console_printf(uint8_T *fmt, ...);
-void console_putc(uint8_T c);
-uint8_T console_getc(void);
+/* console_printf(fmt, ...) 由于有可变参数 所以使用宏 */
+#define console_printf(fmt, ...) \
+do \
+{ \
+    uart_send(&g_console, fmt, ##__VA_ARGS__); \
+} while(0)
 
 #endif
 

@@ -18,6 +18,7 @@
 #include "board.h"
 
 #include "console.h"
+#include "esp8266.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
 
@@ -83,7 +84,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
     hdma_tx.Init.PeriphBurst            = DMA_PBURST_INC4; 
     HAL_DMA_Init(&hdma_tx);   
     /* 关联DMA与UART */
-    __HAL_LINKDMA(&g_console_uart_handle, hdmatx, hdma_tx); 
+    __HAL_LINKDMA(&g_console.handle, hdmatx, hdma_tx); 
     /* INT */
     HAL_NVIC_SetPriority(CONSOLE_UART_IRQn, PER_INT_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(CONSOLE_UART_IRQn); 
@@ -127,7 +128,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
     hdma_tx.Init.PeriphBurst            = DMA_PBURST_INC4; 
     HAL_DMA_Init(&hdma_tx);   
     /* 关联DMA与UART */
-    //__HAL_LINKDMA(&g_esp8266_handle, hdmatx, hdma_tx); 
+    __HAL_LINKDMA(&g_esp8266.handle, hdmatx, hdma_tx); 
     /* INT */
     HAL_NVIC_SetPriority(ESP8266_UART_IRQn, PER_INT_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(ESP8266_UART_IRQn); 

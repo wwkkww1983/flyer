@@ -485,6 +485,11 @@
               <FileType>1</FileType>
               <FilePath>..\src\bsp\board.c</FilePath>
             </File>
+            <File>
+              <FileName>esp8266.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\bsp\esp8266.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

@@ -26,7 +26,7 @@
  * v3.x版本硬件替换
  * */
 /* #define _V2X_ */
-/********************************** 控制台配置 *********************************/
+/************************************* 配置 ************************************/
 /* 调试级别 */
 /* 0: 输出err_log */
 /* 1: 输出debug_log */
@@ -34,11 +34,12 @@
 #define DEBUG_LEVEL                                         (2)
 /* console波特率 */
 #define CONSOLE_BAUDRATE                                    (115200U)
-/* console 缓冲的长度 64Bytes */
-#define CONSOLE_BUF_SIZE                                    (512U)
-
 /* esp8266波特率 */
 #define ESP8266_BAUDRATE                                    (115200U)
+
+/* uart 行缓冲的长度 64Bytes */
+#define UART_LINE_BUF_SIZE                                  (64U)
+
 
 /* 以下内容不可修改 */
 /* 每秒钟systick中断数 默认1ms */
