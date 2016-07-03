@@ -21,11 +21,11 @@
 /* _DEBUG_PC_
  * PC调试
  * */
-#define _DEBUG_PC_
+/* #define _DEBUG_PC_ */
 /* v2.x版本硬件使用UART6作为控制台
  * v3.x版本硬件替换
  * */
-#define _V2X_
+/* #define _V2X_ */
 /********************************** 控制台配置 *********************************/
 /* 调试级别 */
 /* 0: 输出err_log */
@@ -36,6 +36,9 @@
 #define CONSOLE_BAUDRATE                                    (115200U)
 /* console 缓冲的长度 64Bytes */
 #define CONSOLE_BUF_SIZE                                    (512U)
+
+/* esp8266波特率 */
+#define ESP8266_BAUDRATE                                    (115200U)
 
 /* 以下内容不可修改 */
 /* 每秒钟systick中断数 默认1ms */

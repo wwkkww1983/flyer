@@ -27,7 +27,7 @@
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/
-UART_HandleTypeDef g_uart_handle; /* board.c中配置DMA需要使用 */
+UART_HandleTypeDef g_console_uart_handle; /* board.c中配置DMA需要使用 */
 __IO static bool_T s_tc_flag = TRUE; /* 前一次printf是否完成,初始化时已经完成 */
 
 /********************************** 函数声明区 *********************************/
@@ -38,16 +38,16 @@ static bool_T console_ready(void);
 /* 控制台初始化 */
 void console_init(void)
 {
-    g_uart_handle.Instance          = CONSOLE_UART;
-    g_uart_handle.Init.BaudRate     = CONSOLE_BAUDRATE;
-    g_uart_handle.Init.WordLength   = UART_WORDLENGTH_8B;
-    g_uart_handle.Init.StopBits     = UART_STOPBITS_1;
-    g_uart_handle.Init.Parity       = UART_PARITY_NONE;
-    g_uart_handle.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
-    g_uart_handle.Init.Mode         = UART_MODE_TX_RX;
-    g_uart_handle.Init.OverSampling = UART_OVERSAMPLING_16;
+    g_console_uart_handle.Instance          = CONSOLE_UART;
+    g_console_uart_handle.Init.BaudRate     = CONSOLE_BAUDRATE;
+    g_console_uart_handle.Init.WordLength   = UART_WORDLENGTH_8B;
+    g_console_uart_handle.Init.StopBits     = UART_STOPBITS_1;
+    g_console_uart_handle.Init.Parity       = UART_PARITY_NONE;
+    g_console_uart_handle.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
+    g_console_uart_handle.Init.Mode         = UART_MODE_TX_RX;
+    g_console_uart_handle.Init.OverSampling = UART_OVERSAMPLING_16;
 
-    if(HAL_UART_Init(&g_uart_handle) != HAL_OK)
+    if(HAL_UART_Init(&g_console_uart_handle) != HAL_OK)
     {
         while(1);
     } 
@@ -76,7 +76,7 @@ void console_printf(uint8_T *fmt, ...)
     /* 断言失败表示串口缓冲过小 */
     assert_param( n < CONSOLE_BUF_SIZE );
 
-    if(HAL_UART_Transmit_DMA(&g_uart_handle, (uint8_t *)s_printf_buf, n)!= HAL_OK)
+    if(HAL_UART_Transmit_DMA(&g_console_uart_handle, (uint8_t *)s_printf_buf, n)!= HAL_OK)
     {
         /* 出错 */
         while(1);
@@ -105,7 +105,7 @@ static uint8_T console_getc_poll(void)
 {
     uint8_T c = 0;
     /* 阻塞 输入(读取) */
-    if(HAL_UART_Receive(&g_uart_handle, &c, 1, HAL_MAX_DELAY)!= HAL_OK)
+    if(HAL_UART_Receive(&g_console_uart_handle, &c, 1, HAL_MAX_DELAY)!= HAL_OK)
     {
         while(1);
     }
@@ -119,12 +119,12 @@ int i = 0;
 void CONSOLE_UART_IRQHANDLER(void)
 {
     i = 1;
-    HAL_UART_IRQHandler(&g_uart_handle);
+    HAL_UART_IRQHandler(&g_console_uart_handle);
 }
 
 void CONSOLE_UART_DMA_TX_IRQHandler(void)
 {
-    HAL_DMA_IRQHandler(g_uart_handle.hdmatx);
+    HAL_DMA_IRQHandler(g_console_uart_handle.hdmatx);
 }
 
 /* 参考手册中 UART DMA TX章节中描述 TC中断标志本次传输完成 */
