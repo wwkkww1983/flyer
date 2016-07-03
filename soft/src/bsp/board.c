@@ -32,8 +32,8 @@
 * 函数名  : HAL_MspInit
 * 负责人  : 彭鹏
 * 创建日期: 20160624
-* 函数功能: stm32f4 hal uart初始化回调
-*           HAL_Init uart 中统一调用
+* 函数功能: stm32f4 hal初始化回调
+*           HAL_Init 中统一调用
 *           配置复用的管腿
 * 输入参数: 无
 * 输出参数: 无
@@ -43,7 +43,7 @@
 * 其 它   : 无
 *
 ******************************************************************************/
-void HAL_UART_MspInit(UART_HandleTypeDef *huart)
+void HAL_MspInit()
 {  
     static DMA_HandleTypeDef hdma_tx;
     static GPIO_InitTypeDef GPIO_InitStruct;
@@ -90,6 +90,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
     HAL_NVIC_EnableIRQ(CONSOLE_UART_IRQn); 
     HAL_NVIC_SetPriority(CONSOLE_UART_DMA_TX_IRQn, 0, 1);
     HAL_NVIC_EnableIRQ(CONSOLE_UART_DMA_TX_IRQn);
+
 
     /************************* ESP8266串口初始化 ****************************/
     ESP8266_UART_TX_GPIO_CLK_ENABLE();

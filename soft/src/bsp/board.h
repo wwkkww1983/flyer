@@ -103,6 +103,7 @@
 #define ESP8266_UART_RX_PIN                     GPIO_PIN_7
 #define ESP8266_UART_RX_AF                      GPIO_AF8_USART6
 #define ESP8266_UART_IRQn                       USART6_IRQn
+#define ESP8266_UART_IRQHANDLER                 USART6_IRQHandler
 #define ESP8266_DMA_CLK_ENABLE()                __HAL_RCC_DMA2_CLK_ENABLE()
 #define ESP8266_UART_TX_DMA_CHANNEL             DMA_CHANNEL_5
 #define ESP8266_UART_TX_DMA_STREAM              DMA2_Stream6

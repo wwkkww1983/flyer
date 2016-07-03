@@ -56,14 +56,14 @@ void uart_init(drv_uart_T *uart)
 }
 
 /* 上次传输完成 Transmit Compelete 锁住 */
-static inline bool_T uart_tc_locked(drv_uart_T *uart)
+inline static bool_T uart_tc_locked(drv_uart_T *uart)
 {
     return uart->dma_tc_lock;
 }
 
 /* FIXME: lock unlock 原子操作 */
 /* 上次传输完成 Transmit Compelete 锁(尚未完成) */
-static inline void uart_tc_lock(drv_uart_T *uart)
+inline static void uart_tc_lock(drv_uart_T *uart)
 {
     uart->dma_tc_lock = TRUE;
 }
