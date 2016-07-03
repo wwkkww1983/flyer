@@ -45,8 +45,11 @@
 ******************************************************************************/
 void HAL_MspInit()
 {  
-    static DMA_HandleTypeDef hdma_tx;
-    static GPIO_InitTypeDef GPIO_InitStruct;
+    /* 两个hdma变量运行时生命域 必须加入static修饰 */
+    static DMA_HandleTypeDef console_hdma_tx;
+    static DMA_HandleTypeDef esp8266_hdma_tx;
+
+    GPIO_InitTypeDef GPIO_InitStruct;
 
     /************************ 控制台使用的串口初始化 ************************/
     CONSOLE_UART_TX_GPIO_CLK_ENABLE();
@@ -68,29 +71,28 @@ void HAL_MspInit()
     GPIO_InitStruct.Alternate           = CONSOLE_UART_RX_AF;
     HAL_GPIO_Init(CONSOLE_UART_RX_GPIO_PORT, &GPIO_InitStruct); 
     /* 配置DMA(仅TX) */
-    hdma_tx.Instance                    = CONSOLE_UART_TX_DMA_STREAM; 
-    hdma_tx.Init.Channel                = CONSOLE_UART_TX_DMA_CHANNEL;
-    hdma_tx.Init.Direction              = DMA_MEMORY_TO_PERIPH;
-    hdma_tx.Init.PeriphInc              = DMA_PINC_DISABLE;
-    hdma_tx.Init.MemInc                 = DMA_MINC_ENABLE;
-    hdma_tx.Init.PeriphDataAlignment    = DMA_PDATAALIGN_BYTE;
-    hdma_tx.Init.MemDataAlignment       = DMA_MDATAALIGN_BYTE;
-    hdma_tx.Init.Mode                   = DMA_NORMAL;
-    hdma_tx.Init.Priority               = DMA_PRIORITY_LOW;
-    hdma_tx.Init.FIFOMode               = DMA_FIFOMODE_DISABLE;
-    hdma_tx.Init.FIFOThreshold          = DMA_FIFO_THRESHOLD_FULL;
-    hdma_tx.Init.MemBurst               = DMA_MBURST_INC4;
-    hdma_tx.Init.PeriphBurst            = DMA_PBURST_INC4; 
-    HAL_DMA_Init(&hdma_tx);   
+    console_hdma_tx.Instance                    = CONSOLE_UART_TX_DMA_STREAM; 
+    console_hdma_tx.Init.Channel                = CONSOLE_UART_TX_DMA_CHANNEL;
+    console_hdma_tx.Init.Direction              = DMA_MEMORY_TO_PERIPH;
+    console_hdma_tx.Init.PeriphInc              = DMA_PINC_DISABLE;
+    console_hdma_tx.Init.MemInc                 = DMA_MINC_ENABLE;
+    console_hdma_tx.Init.PeriphDataAlignment    = DMA_PDATAALIGN_BYTE;
+    console_hdma_tx.Init.MemDataAlignment       = DMA_MDATAALIGN_BYTE;
+    console_hdma_tx.Init.Mode                   = DMA_NORMAL;
+    console_hdma_tx.Init.Priority               = DMA_PRIORITY_LOW;
+    console_hdma_tx.Init.FIFOMode               = DMA_FIFOMODE_DISABLE;
+    console_hdma_tx.Init.FIFOThreshold          = DMA_FIFO_THRESHOLD_FULL;
+    console_hdma_tx.Init.MemBurst               = DMA_MBURST_INC4;
+    console_hdma_tx.Init.PeriphBurst            = DMA_PBURST_INC4; 
+    HAL_DMA_Init(&console_hdma_tx);   
     /* 关联DMA与UART */
-    __HAL_LINKDMA(&g_console.handle, hdmatx, hdma_tx); 
+    __HAL_LINKDMA(&g_console.handle, hdmatx, console_hdma_tx); 
     /* INT */
     HAL_NVIC_SetPriority(CONSOLE_UART_IRQn, PER_INT_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(CONSOLE_UART_IRQn); 
     HAL_NVIC_SetPriority(CONSOLE_UART_DMA_TX_IRQn, 0, 1);
     HAL_NVIC_EnableIRQ(CONSOLE_UART_DMA_TX_IRQn);
 
-#if 0
     /************************* ESP8266串口初始化 ****************************/
     ESP8266_UART_TX_GPIO_CLK_ENABLE();
     ESP8266_UART_RX_GPIO_CLK_ENABLE();
@@ -111,28 +113,27 @@ void HAL_MspInit()
     GPIO_InitStruct.Alternate           = ESP8266_UART_RX_AF;
     HAL_GPIO_Init(ESP8266_UART_RX_GPIO_PORT, &GPIO_InitStruct); 
     /* 配置DMA(仅TX) */
-    hdma_tx.Instance                    = ESP8266_UART_TX_DMA_STREAM; 
-    hdma_tx.Init.Channel                = ESP8266_UART_TX_DMA_CHANNEL;
-    hdma_tx.Init.Direction              = DMA_MEMORY_TO_PERIPH;
-    hdma_tx.Init.PeriphInc              = DMA_PINC_DISABLE;
-    hdma_tx.Init.MemInc                 = DMA_MINC_ENABLE;
-    hdma_tx.Init.PeriphDataAlignment    = DMA_PDATAALIGN_BYTE;
-    hdma_tx.Init.MemDataAlignment       = DMA_MDATAALIGN_BYTE;
-    hdma_tx.Init.Mode                   = DMA_NORMAL;
-    hdma_tx.Init.Priority               = DMA_PRIORITY_LOW;
-    hdma_tx.Init.FIFOMode               = DMA_FIFOMODE_DISABLE;
-    hdma_tx.Init.FIFOThreshold          = DMA_FIFO_THRESHOLD_FULL;
-    hdma_tx.Init.MemBurst               = DMA_MBURST_INC4;
-    hdma_tx.Init.PeriphBurst            = DMA_PBURST_INC4;
-    HAL_DMA_Init(&hdma_tx);   
+    esp8266_hdma_tx.Instance                    = ESP8266_UART_TX_DMA_STREAM; 
+    esp8266_hdma_tx.Init.Channel                = ESP8266_UART_TX_DMA_CHANNEL;
+    esp8266_hdma_tx.Init.Direction              = DMA_MEMORY_TO_PERIPH;
+    esp8266_hdma_tx.Init.PeriphInc              = DMA_PINC_DISABLE;
+    esp8266_hdma_tx.Init.MemInc                 = DMA_MINC_ENABLE;
+    esp8266_hdma_tx.Init.PeriphDataAlignment    = DMA_PDATAALIGN_BYTE;
+    esp8266_hdma_tx.Init.MemDataAlignment       = DMA_MDATAALIGN_BYTE;
+    esp8266_hdma_tx.Init.Mode                   = DMA_NORMAL;
+    esp8266_hdma_tx.Init.Priority               = DMA_PRIORITY_LOW;
+    esp8266_hdma_tx.Init.FIFOMode               = DMA_FIFOMODE_DISABLE;
+    esp8266_hdma_tx.Init.FIFOThreshold          = DMA_FIFO_THRESHOLD_FULL;
+    esp8266_hdma_tx.Init.MemBurst               = DMA_MBURST_INC4;
+    esp8266_hdma_tx.Init.PeriphBurst            = DMA_PBURST_INC4;
+    HAL_DMA_Init(&esp8266_hdma_tx);   
     /* 关联DMA与UART */
-    __HAL_LINKDMA(&g_esp8266.handle, hdmatx, hdma_tx); 
+    __HAL_LINKDMA(&g_esp8266.handle, hdmatx, esp8266_hdma_tx); 
     /* INT */
     HAL_NVIC_SetPriority(ESP8266_UART_IRQn, PER_INT_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(ESP8266_UART_IRQn); 
     HAL_NVIC_SetPriority(ESP8266_UART_DMA_TX_IRQn, 0, 1);
     HAL_NVIC_EnableIRQ(ESP8266_UART_DMA_TX_IRQn);
-#endif
 }
 
 #if 0

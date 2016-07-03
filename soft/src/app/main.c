@@ -107,22 +107,13 @@ static void init(void)
 
     /* 逐个初始化硬件 */
     /* 控制台串口 */
-#if 1
     console_init(); /* 此后可以开始打印 */ 
     console_printf("console初始化完成.\r\n");
-    while(1)
-    {
-        console_printf("%10d:uart tx by dma.\r\n", HAL_GetTick());
-    }
-#else
-    /* wifi module */
+
+    /* wifi 模块串口 */
     esp8266_init();
-    esp8266_printf("esp8266 wifi模块初始化完成.\r\n");
-    while(1)
-    {
-        esp8266_printf("%10d:uart tx by dma.\r\n", HAL_GetTick());
-    }
-#endif
+    esp8266_printf("flyer初始化完成.\r\n");
+    console_printf("esp8266 wifi模块初始化完成.\r\n");
 
 #if 0
     /* led */
@@ -135,20 +126,17 @@ static void init(void)
 
     /* i2c */
     imu_init()
-    debug_log("MPU9250+BMP280初始化完成.\r\n"); 
-
-
+    debug_log("MPU9250+BMP280初始化完成.\r\n");
 #endif
 
-    esp8266_printf("初始化完成.\r\n");
+    console_printf("初始化完成.\r\n");
 }
 
 /* 硬件测试 */
 //static uint8_T c = 0;
 static void hard_test(void)
 {
-    //TRACE_FUNC_IN; 
-    //esp8266_printf("有输出表示控制台输出正常.\r\n");
+    TRACE_FUNC_IN; 
     console_printf("有输出表示控制台输出正常.\r\n");
     /*
     console_printf("输入1个字符(不按回车):\r\n"); 
@@ -156,11 +144,11 @@ static void hard_test(void)
     console_printf("输入的字符为:%c(0x%02x)\r\n", c, c); */
 
     //console_putc('1');
-    //esp8266_printf("结束硬件测试.\r\n"); 
-    //console_printf("结束硬件测试.\r\n"); 
+    console_printf("结束硬件测试.\r\n"); 
+
     while(1)
     {
-        //esp8266_printf("%10d:uart tx by dma.\r\n", HAL_GetTick());
+        esp8266_printf("%10d:uart tx by dma.\r\n", HAL_GetTick());
         console_printf("%10d:uart tx by dma.\r\n", HAL_GetTick());
     }
 
