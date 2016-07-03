@@ -90,7 +90,7 @@ void HAL_MspInit()
     HAL_NVIC_SetPriority(CONSOLE_UART_DMA_TX_IRQn, 0, 1);
     HAL_NVIC_EnableIRQ(CONSOLE_UART_DMA_TX_IRQn);
 
-
+#if 0
     /************************* ESP8266串口初始化 ****************************/
     ESP8266_UART_TX_GPIO_CLK_ENABLE();
     ESP8266_UART_RX_GPIO_CLK_ENABLE();
@@ -132,6 +132,7 @@ void HAL_MspInit()
     HAL_NVIC_EnableIRQ(ESP8266_UART_IRQn); 
     HAL_NVIC_SetPriority(ESP8266_UART_DMA_TX_IRQn, 0, 1);
     HAL_NVIC_EnableIRQ(ESP8266_UART_DMA_TX_IRQn);
+#endif
 }
 
 #if 0

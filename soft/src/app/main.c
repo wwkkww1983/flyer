@@ -107,13 +107,23 @@ static void init(void)
 
     /* 逐个初始化硬件 */
     /* 控制台串口 */
+#if 1
     console_init(); /* 此后可以开始打印 */ 
-    console_printf("控制台初始化完成.\r\n");
-		
-		/* wifi module */
+    console_printf("console初始化完成.\r\n");
+    while(1)
+    {
+        console_printf("%10d:uart tx by dma.\r\n", HAL_GetTick());
+    }
+#else
+    /* wifi module */
     esp8266_init();
-    esp8266_printf("esp8266 wifi模块初始化完成.\r\n"); 
-    //while(1);
+    esp8266_printf("esp8266 wifi模块初始化完成.\r\n");
+    while(1)
+    {
+        esp8266_printf("%10d:uart tx by dma.\r\n", HAL_GetTick());
+    }
+#endif
+
 #if 0
     /* led */
     led_init();
@@ -138,17 +148,20 @@ static void init(void)
 static void hard_test(void)
 {
     //TRACE_FUNC_IN; 
-    esp8266_printf("有输出表示控制台输出正常.\r\n");
+    //esp8266_printf("有输出表示控制台输出正常.\r\n");
+    console_printf("有输出表示控制台输出正常.\r\n");
     /*
     console_printf("输入1个字符(不按回车):\r\n"); 
     c = console_getc();
     console_printf("输入的字符为:%c(0x%02x)\r\n", c, c); */
 
     //console_putc('1');
-    esp8266_printf("结束硬件测试.\r\n"); 
+    //esp8266_printf("结束硬件测试.\r\n"); 
+    //console_printf("结束硬件测试.\r\n"); 
     while(1)
     {
-        esp8266_printf("%10d:uart tx by dma.\r\n", HAL_GetTick());
+        //esp8266_printf("%10d:uart tx by dma.\r\n", HAL_GetTick());
+        console_printf("%10d:uart tx by dma.\r\n", HAL_GetTick());
     }
 
     //TRACE_FUNC_OUT;
