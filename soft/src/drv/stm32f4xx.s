@@ -63,8 +63,6 @@ __Vectors       DCD     __initial_sp            ; Top of Stack
                 DCD     0                       ; Reserved
                 DCD     0                       ; PendSV Handler
                 DCD     SysTick_Handler         ; SysTick Handler
-
-                ; TODO: 外部中断 仅实现USART1作为控制台
                 DCD     0                       ; Window WatchDog
                 DCD     0                       ; PVD through EXTI Line detection
                 DCD     0                       ; Tamper and TimeStamps through the EXTI line
@@ -102,7 +100,7 @@ __Vectors       DCD     __initial_sp            ; Top of Stack
                 DCD     0                       ; I2C2 Error
                 DCD     0                       ; SPI1
                 DCD     0                       ; SPI2
-                DCD     0                       ; USART1
+                DCD     USART1_IRQHandler       ; USART1
                 DCD     0                       ; USART2
                 DCD     0                       ; USART3
                 DCD     0                       ; External Line[15:10]s
@@ -135,7 +133,7 @@ __Vectors       DCD     __initial_sp            ; Top of Stack
                 DCD     0                       ; USB OTG FS
                 DCD     0                       ; DMA2 Stream 5
                 DCD     DMA2_Stream6_IRQHandler ; DMA2 Stream 6
-                DCD     0                       ; DMA2 Stream 7
+                DCD     DMA2_Stream7_IRQHandler ; DMA2 Stream 7
                 DCD     USART6_IRQHandler       ; USART6
                 DCD     0                       ; I2C3 event
                 DCD     0                       ; I2C3 error
@@ -217,16 +215,27 @@ SysTick_Handler PROC
                 B       .
                 ENDP
 
+; 控制台串口中断 C代码有重定义
+USART1_IRQHandler PROC
+                EXPORT  USART1_IRQHandler [WEAK]
+                B       .
+                ENDP
+DMA2_Stream7_IRQHandler PROC
+                EXPORT  DMA2_Stream7_IRQHandler [WEAK]
+                B       .
+                ENDP
+
+
 ; ESP8266串口中断 C代码有重定义
 USART6_IRQHandler PROC
                 EXPORT  USART6_IRQHandler [WEAK]
                 B       .
                 ENDP
-
 DMA2_Stream6_IRQHandler PROC
                 EXPORT  DMA2_Stream6_IRQHandler [WEAK]
                 B       .
                 ENDP
+
 ; External Line[15:10]中断 C代码有重定义
 ;EXTI9_5_IRQHandler PROC
                 ;EXPORT  EXTI9_5_IRQHandler [WEAK]

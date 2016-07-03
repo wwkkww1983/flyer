@@ -19,6 +19,7 @@
 #include "config.h"
 #include "board.h"
 #include "console.h"
+#include "esp8266.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
 
@@ -108,6 +109,10 @@ static void init(void)
     /* 控制台串口 */
     console_init(); /* 此后可以开始打印 */ 
     console_printf("控制台初始化完成.\r\n");
+		
+		/* wifi module */
+    esp8266_init();
+    esp8266_printf("esp8266 wifi模块初始化完成.\r\n"); 
     //while(1);
 #if 0
     /* led */
@@ -122,9 +127,7 @@ static void init(void)
     imu_init()
     debug_log("MPU9250+BMP280初始化完成.\r\n"); 
 
-    /* wifi moduler */
-    esp8266_init()
-    debug_log("esp8266 wifi模块初始化完成.\r\n"); 
+
 #endif
 
     console_printf("初始化完成.\r\n");
