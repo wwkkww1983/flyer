@@ -22,12 +22,6 @@
 #include "pwm.h"
 #include "console.h"
 
-#define  PERIOD_VALUE       (uint32_t)(666 - 1)  /* Period Value  */
-#define  PULSE1_VALUE       (uint32_t)(PERIOD_VALUE*0.0/100)        /* Capture Compare 1 Value  */
-#define  PULSE2_VALUE       (uint32_t)(PERIOD_VALUE*33.0/100) /* Capture Compare 2 Value  */
-#define  PULSE3_VALUE       (uint32_t)(PERIOD_VALUE*77.0/100)        /* Capture Compare 3 Value  */
-#define  PULSE4_VALUE       (uint32_t)(PERIOD_VALUE*100.0/100) /* Capture Compare 4 Value  */
-
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/
@@ -56,143 +50,130 @@ PWM_LIST_T g_pwm_list[] = {
 
 /* tim句柄 */
 static TIM_HandleTypeDef s_tim_handle;
+/* pwm_init和pwm_set中都使用 */
+static TIM_OC_InitTypeDef s_sConfig;
+/* PWM一次脉冲的周期 */
+uint32_T s_period = 0;
 /********************************** 函数声明区 *********************************/
 
 /********************************** 函数实现区 *********************************/
 void pwm_init(void)
 { 
-    static TIM_OC_InitTypeDef s_sConfig;
-    uint32_t s_uhPrescalerValue = 0;
+    uint32_T pre_scale_val = 0;
+    int32_T i = 0;
 
-    /* Compute the prescaler value to have PWM_TIM counter clock equal to 15000000 Hz */
-    s_uhPrescalerValue = (uint32_t)((SystemCoreClock/2) / 15000000) - 1; 
+    console_printf("系统时钟频率:%lu,%lu", SystemCoreClock / 1000 / 1000, SystemCoreClock);
+
+    /* 
+     *
+     * 将计数器时钟设置为:15MHz, 计算预分频值
+     * PWM_TIMCLK使用 APB1 的时钟 即 HCLK/2
+     *
+     * 预分频值:
+     *    pre_scale_val = (APB1_CLK / PWM_TIM_CLK ) - 1
+     * => pre_scale_val = ((SystemCoreClock / 2 ) /15 MHz) - 1
+     *
+     */
+    pre_scale_val = (uint32_t)((SystemCoreClock/2) / 15000000) - 1; 
+
+    /*
+     * 设置PWM_TIM输出频率为20 KHz, 周期(ARR)为:
+     * ARR = (PWM_TIM源时钟/PWM_TIM输出频率) - 1
+     * = 749
+     * */
+     s_period = 749;
     
-    /*##-1- Configure the TIM peripheral #######################################*/
-    /* -----------------------------------------------------------------------
-    PWM_TIM Configuration: generate 4 PWM signals with 4 different duty cycles.
-
-      In this example PWM_TIM input clock (PWM_TIMCLK) is set to APB1 clock x 2,
-      since APB1 prescaler is equal to 2.
-        PWM_TIMCLK = APB1CLK*2
-        APB1CLK = HCLK/2
-        => PWM_TIMCLK = HCLK = SystemCoreClock
-
-      To get PWM_TIM counter clock at 15 MHz, the prescaler is computed as follows:
-         Prescaler = (PWM_TIMCLK / PWM_TIM counter clock) - 1
-         Prescaler = ((SystemCoreClock) /15 MHz) - 1
-
-      To get PWM_TIM output clock at 22,52 KHz, the period (ARR)) is computed as follows:
-         ARR = (PWM_TIM counter clock / PWM_TIM output clock) - 1
-             = 665
-
-      PWM_TIM Channel1 duty cycle = (PWM_TIM_CCR1/ PWM_TIM_ARR + 1)* 100 = 50%
-      PWM_TIM Channel2 duty cycle = (PWM_TIM_CCR2/ PWM_TIM_ARR + 1)* 100 = 37.5%
-      PWM_TIM Channel3 duty cycle = (PWM_TIM_CCR3/ PWM_TIM_ARR + 1)* 100 = 25%
-      PWM_TIM Channel4 duty cycle = (PWM_TIM_CCR4/ PWM_TIM_ARR + 1)* 100 = 12.5%
-
-      Note:
-       SystemCoreClock variable holds HCLK frequency and is defined in system_stm32f4xx.c file.
-       Each time the core clock (HCLK) changes, user had to update SystemCoreClock
-       variable value. Otherwise, any configuration based on this variable will be incorrect.
-       This variable is updated in three ways:
-        1) by calling CMSIS function SystemCoreClockUpdate()
-        2) by calling HAL API function HAL_RCC_GetSysClockFreq()
-        3) each time HAL_RCC_ClockConfig() is called to configure the system clock frequency
-    ----------------------------------------------------------------------- */
-    /* Initialize PWM_TIM peripheral as follows:
-         + Prescaler = (SystemCoreClock / 15000000) - 1
-         + Period = (666 - 1)
-         + ClockDivision = 0
-         + Counter direction = Up */
+    /* 配置PWM_TIM计数器:
+     * Initialize PWM_TIM peripheral as follows:
+     * Prescaler = (SystemCoreClock / 2 / 15000000) - 1
+     * Period = (750 - 1)
+     * ClockDivision = 0
+     * Counter direction = Up
+     * */
     s_tim_handle.Instance               = PWM_TIM;
-    s_tim_handle.Init.Prescaler         = s_uhPrescalerValue;
-    s_tim_handle.Init.Period            = PERIOD_VALUE;
+    s_tim_handle.Init.Prescaler         = pre_scale_val;
+    s_tim_handle.Init.Period            = s_period;
     s_tim_handle.Init.ClockDivision     = 0;
     s_tim_handle.Init.CounterMode       = TIM_COUNTERMODE_UP;
     s_tim_handle.Init.RepetitionCounter = 0;
     if (HAL_TIM_PWM_Init(&s_tim_handle) != HAL_OK)
     {
-        /* Initialization Error */
         while(1);
     }
 
-    /*##-2- Configure the PWM channels #########################################*/
-    /* Common configuration for all channels */
+    /* 各通道的占空比计算如下:
+     * PWM_TIM_Channel1 占空比 = (PWM_TIM_CCR1/ PWM_TIM_ARR + 1)* 100
+     * PWM_TIM Channel2 占空比 = (PWM_TIM_CCR2/ PWM_TIM_ARR + 1)* 100
+     * PWM_TIM Channel3 占空比 = (PWM_TIM_CCR3/ PWM_TIM_ARR + 1)* 100
+     * PWM_TIM Channel4 占空比 = (PWM_TIM_CCR4/ PWM_TIM_ARR + 1)* 100 
+     *
+     * 初始化的时候占空比全0
+     */
+    /* 所有通道都需要 */
     s_sConfig.OCMode       = TIM_OCMODE_PWM1;
     s_sConfig.OCPolarity   = TIM_OCPOLARITY_HIGH;
     s_sConfig.OCFastMode   = TIM_OCFAST_DISABLE;
     s_sConfig.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
     s_sConfig.OCNIdleState = TIM_OCNIDLESTATE_RESET;
     s_sConfig.OCIdleState  = TIM_OCIDLESTATE_RESET;
-
-    /* Set the pulse value for channel 1 */
-    s_sConfig.Pulse = PULSE1_VALUE;
-    if (HAL_TIM_PWM_ConfigChannel(&s_tim_handle, &s_sConfig, TIM_CHANNEL_1) != HAL_OK)
-    {
-        /* Configuration Error */
-        while(1);
+    s_sConfig.Pulse        = 0;
+    for(i = 0; i < PWM_MAX; i++)
+    { 
+        /* 配置PWM */
+        if (HAL_TIM_PWM_ConfigChannel(&s_tim_handle, &s_sConfig, g_pwm_list[i].ch) != HAL_OK)
+        {
+            while(1);
+        } 
+        
+        /* 启动PWM */
+        if (HAL_TIM_PWM_Start(&s_tim_handle, g_pwm_list[i].ch) != HAL_OK)
+        {
+            while(1);
+        }
     }
 
-    /* Set the pulse value for channel 2 */
-    s_sConfig.Pulse = PULSE2_VALUE;
-    if (HAL_TIM_PWM_ConfigChannel(&s_tim_handle, &s_sConfig, TIM_CHANNEL_2) != HAL_OK)
-    {
-        /* Configuration Error */
-        while(1);
-    }
-
-    /* Set the pulse value for channel 3 */
-    s_sConfig.Pulse = PULSE3_VALUE;
-    if (HAL_TIM_PWM_ConfigChannel(&s_tim_handle, &s_sConfig, TIM_CHANNEL_3) != HAL_OK)
-    {
-        /* Configuration Error */
-        while(1);
-    }
-
-    /* Set the pulse value for channel 4 */
-    s_sConfig.Pulse = PULSE4_VALUE;
-    if (HAL_TIM_PWM_ConfigChannel(&s_tim_handle, &s_sConfig, TIM_CHANNEL_4) != HAL_OK)
-    {
-        /* Configuration Error */
-        while(1);
-    }
-
-    /*##-3- Start PWM signals generation #######################################*/
-    /* Start channel 1 */
-    if (HAL_TIM_PWM_Start(&s_tim_handle, TIM_CHANNEL_1) != HAL_OK)
-    {
-        /* PWM Generation Error */
-        while(1);
-    }
-    /* Start channel 2 */
-    if (HAL_TIM_PWM_Start(&s_tim_handle, TIM_CHANNEL_2) != HAL_OK)
-    {
-        /* PWM Generation Error */
-        while(1);
-    }
-    /* Start channel 3 */
-    if (HAL_TIM_PWM_Start(&s_tim_handle, TIM_CHANNEL_3) != HAL_OK)
-    {
-        /* PWM generation Error */
-        while(1);
-    }
-    /* Start channel 4 */
-    if (HAL_TIM_PWM_Start(&s_tim_handle, TIM_CHANNEL_4) != HAL_OK)
-    {
-        /* PWM generation Error */
-        while(1);
-    }
-		
     return;
 }
 
-void pwm_set(PWM_NAME pwm, int32_T val)
+void pwm_set(PWM_NAME pwm, uint32_T val)
 {
-    console_printf("前右后左四个pwm分别为 0% 33% 77% 100%.\r\n"); 
+    uint32_T period = 0;
+
+    /* 参数检查 */
+    if(pwm > PWM_MAX)
+    {
+        while(1);
+    }
+
+    /* 最大占空比为1 */
+    period = pwm_get_period();
+    if(val > period)
+    {
+        val = period;
+    }
+
+    /* 修改占空比 */
+    s_sConfig.Pulse = val;
+    if (HAL_TIM_PWM_ConfigChannel(&s_tim_handle, &s_sConfig, g_pwm_list[pwm].ch) != HAL_OK)
+    {
+        while(1);
+    }
+}
+
+uint32_T pwm_get_period(void)
+{
+    return s_period;
 }
 
 void pwm_test(void)
 {
-    ;
+    uint32_T period = pwm_get_period();
+
+    console_printf("前右后左四个pwm分别为 0% 33% 77% 100%.\r\n"); 
+
+    pwm_set(PWM_FRONT, 0);
+    pwm_set(PWM_RIGHT, 33.0 * 100 / period);
+    pwm_set(PWM_BACK, 77.0 * 100 / period);
+    pwm_set(PWM_LEFT, 100.0 * 100 / period);
 }
 
