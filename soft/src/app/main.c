@@ -21,6 +21,7 @@
 #include "led.h"
 #include "pwm.h"
 #include "console.h"
+#include "sensor.h"
 #include "esp8266.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
@@ -122,11 +123,9 @@ static void init(void)
     pwm_init();
     console_printf("pwm初始化完成.\r\n"); 
 
-#if 0
-    /* i2c */
-    imu_init()
-    debug_log("MPU9250+BMP280初始化完成.\r\n");
-#endif
+    /* 姿态传感器 */
+    sensor_init();
+    debug_log("sensor(MPU9250+BMP280)初始化完成.\r\n");
 
     /* wifi 模块串口 */
     esp8266_init();
@@ -148,6 +147,8 @@ static void hard_test(void)
     led_test();
 
     pwm_test();
+
+    sensor_test();
 
     esp8266_test();
 

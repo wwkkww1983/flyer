@@ -54,6 +54,7 @@ void HAL_MspInit()
     GPIO_InitTypeDef GPIO_InitStruct_Uart;
     GPIO_InitTypeDef GPIO_InitStruct_Led;
     GPIO_InitTypeDef GPIO_InitStruct_Pwm;
+    GPIO_InitTypeDef GPIO_InitStruct_Sensor; 
     int32_T i = 0;
 
     /************************ 控制台使用的串口初始化 ************************/
@@ -180,6 +181,32 @@ void HAL_MspInit()
     GPIO_InitStruct_Pwm.Alternate = PWM_TIM_GPIO_AF_CHANNEL4;
     GPIO_InitStruct_Pwm.Pin = PWM_TIM_GPIO_PIN_CHANNEL4;
     HAL_GPIO_Init(PWM_TIM_GPIO_PORT_CHANNEL4, &GPIO_InitStruct_Pwm);
+
+    /************************* SENSOR I2C初始化 *****************************/
+    SENSOR_I2C_SDA_GPIO_CLK_ENABLE();
+    SENSOR_I2C_SCL_GPIO_CLK_ENABLE();
+
+    /* 配置管脚 */
+    GPIO_InitStruct_Sensor.Mode      = GPIO_MODE_AF_OD;
+    GPIO_InitStruct_Sensor.Pull      = GPIO_NOPULL;
+    GPIO_InitStruct_Sensor.Speed     = GPIO_SPEED_FAST;
+    GPIO_InitStruct_Sensor.Pin       = SENSOR_I2C_SCL_PIN;
+    GPIO_InitStruct_Sensor.Alternate = SENSOR_I2C_SCL_AF;
+    HAL_GPIO_Init(SENSOR_I2C_SCL_GPIO_PORT, &GPIO_InitStruct_Sensor);
+    GPIO_InitStruct_Sensor.Pin       = SENSOR_I2C_SDA_PIN;
+		GPIO_InitStruct_Sensor.Alternate = SENSOR_I2C_SDA_AF;
+    HAL_GPIO_Init(SENSOR_I2C_SDA_GPIO_PORT, &GPIO_InitStruct_Sensor);
+
+    /* 使能时钟 */
+    SENSOR_I2C_CLOCK_ENABLE();
+    SENSOR_I2C_FORCE_RESET();
+    SENSOR_I2C_RELEASE_RESET(); 
+    
+    /* 设置I2C中断优先级 */
+    HAL_NVIC_SetPriority(SENSOR_I2C_EV_IRQn, PER_INT_PRIORITY, 0);
+    HAL_NVIC_EnableIRQ(SENSOR_I2C_EV_IRQn);
+    HAL_NVIC_SetPriority(SENSOR_I2C_ER_IRQn, PER_INT_PRIORITY, 0);
+    HAL_NVIC_EnableIRQ(SENSOR_I2C_ER_IRQn); 
 }
 
 #if 0

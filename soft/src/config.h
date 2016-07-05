@@ -40,6 +40,12 @@
 /* uart 行缓冲的长度 64Bytes */
 #define UART_LINE_BUF_SIZE                                  (64U)
 
+/* Sensor i2c速度 */
+#define SENSOR_I2C_RATE                                     (400000)
+#define MPU9250_ACCEL_FSR                                   (2)
+#define MPU9250_GYRO_FSR                                    (2000)
+#define MPU9250_MAIN_SAMPLE_RATE                            (1000)
+#define MPU9250_MAG_SAMPLE_RATE                             (100)
 
 /* 以下内容不可修改 */
 /* 每秒钟systick中断数 默认1ms */

@@ -110,36 +110,36 @@
 #define ESP8266_UART_DMA_TX_IRQn                DMA2_Stream6_IRQn
 #define ESP8266_UART_DMA_TX_IRQHandler          DMA2_Stream6_IRQHandler
 
-/************************************ IMU 定义 *********************************/
+/********************************** SENSOR I2C 定义 ****************************/
 /*
  * I2C1
  * SCL:PC6
  * SDA:PC7
  * */
-#define IMU_I2C                                 I2C1
-#define IMU_I2C_CLOCK_ENABLE()                  __I2C1_CLK_ENABLE()
-#define IMU_I2C_FORCE_RESET()                   __I2C1_FORCE_RESET()
-#define IMU_I2C_RELEASE_RESET()                 __I2C1_RELEASE_RESET()
-#define IMU_I2C_SDA_GPIO_CLK_ENABLE()           __GPIOB_CLK_ENABLE()
-#define IMU_I2C_SCL_GPIO_CLK_ENABLE()           __GPIOB_CLK_ENABLE() 
-#define IMU_I2C_SDA_GPIO_CLK_DISABLE()          __GPIOB_CLK_DISABLE()
-#define IMU_I2C_SCL_GPIO_CLK_DISABLE()          __GPIOB_CLK_DISABLE() 
-#define IMU_I2C_SCL_GPIO_PORT                   GPIOB
-#define IMU_I2C_SCL_PIN                         GPIO_PIN_8
-#define IMU_I2C_SCL_AF                          GPIO_AF4_I2C1
-#define IMU_I2C_SDA_GPIO_PORT                   GPIOB
-#define IMU_I2C_SDA_PIN                         GPIO_PIN_9
-#define IMU_I2C_SDA_AF                          GPIO_AF4_I2C1
-#define IMU_I2C_EV_IRQn                         I2C1_EV_IRQn
-#define IMU_I2C_ER_IRQn                         I2C1_ER_IRQn
+#define SENSOR_I2C                              I2C1
+#define SENSOR_I2C_CLOCK_ENABLE()               __I2C1_CLK_ENABLE()
+#define SENSOR_I2C_FORCE_RESET()                __I2C1_FORCE_RESET()
+#define SENSOR_I2C_RELEASE_RESET()              __I2C1_RELEASE_RESET()
+#define SENSOR_I2C_SDA_GPIO_CLK_ENABLE()        __GPIOB_CLK_ENABLE()
+#define SENSOR_I2C_SCL_GPIO_CLK_ENABLE()        __GPIOB_CLK_ENABLE() 
+#define SENSOR_I2C_SDA_GPIO_CLK_DISABLE()       __GPIOB_CLK_DISABLE()
+#define SENSOR_I2C_SCL_GPIO_CLK_DISABLE()       __GPIOB_CLK_DISABLE() 
+#define SENSOR_I2C_SCL_GPIO_PORT                GPIOB
+#define SENSOR_I2C_SCL_PIN                      GPIO_PIN_8
+#define SENSOR_I2C_SCL_AF                       GPIO_AF4_I2C1
+#define SENSOR_I2C_SDA_GPIO_PORT                GPIOB
+#define SENSOR_I2C_SDA_PIN                      GPIO_PIN_9
+#define SENSOR_I2C_SDA_AF                       GPIO_AF4_I2C1
+#define SENSOR_I2C_EV_IRQn                      I2C1_EV_IRQn
+#define SENSOR_I2C_ER_IRQn                      I2C1_ER_IRQn
 /*
  * EXIT13
  * PC13
  * */
-#define IMU_INT_PIN                             GPIO_PIN_13
-#define IMU_INT_GPIO_PORT                       GPIOC
-#define IMU_INT_CLK_ENABLE()                    __GPIOC_CLK_ENABLE()
-#define IMU_INT_EXTI                            EXTI15_10_IRQn
+#define SENSOR_INT_PIN                          GPIO_PIN_13
+#define SENSOR_INT_GPIO_PORT                    GPIOC
+#define SENSOR_INT_CLK_ENABLE()                 __GPIOC_CLK_ENABLE()
+#define SENSOR_INT_EXTI                         EXTI15_10_IRQn
 
 /*--------------------------------- 接口声明区 --------------------------------*/
 
