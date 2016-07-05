@@ -10,7 +10,7 @@
       <TargetName>flyer</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060183::V5.06 update 2 (build 183)::ARMCC</pCCUsed>
+      <pCCUsed>5060020::V5.06 (build 20)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F401RBTx</Device>
@@ -533,6 +533,11 @@
               <FileName>led.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\bsp\led.c</FilePath>
+            </File>
+            <File>
+              <FileName>pwm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\bsp\pwm.c</FilePath>
             </File>
           </Files>
         </Group>

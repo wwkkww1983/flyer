@@ -19,6 +19,7 @@
 #include "config.h"
 #include "board.h"
 #include "led.h"
+#include "pwm.h"
 #include "console.h"
 #include "esp8266.h"
 
@@ -117,11 +118,11 @@ static void init(void)
     led_init();
     console_printf("led初始化完成.\r\n");
 
-#if 0
     /* pwm */
     pwm_init();
-    debug_log("pwm初始化完成.\r\n"); 
+    console_printf("pwm初始化完成.\r\n"); 
 
+#if 0
     /* i2c */
     imu_init()
     debug_log("MPU9250+BMP280初始化完成.\r\n");
@@ -146,6 +147,9 @@ static void hard_test(void)
 
     console_printf("观察led是否有闪烁.\r\n"); 
     led_test();
+
+    console_printf("四个pwm分别为 1/4 2/4 3/4 4/4.\r\n"); 
+    pwm_test();
 
     console_printf("观察esp8266并按照提示操作.\r\n");
     esp8266_test();
