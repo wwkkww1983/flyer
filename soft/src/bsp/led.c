@@ -9,13 +9,14 @@
  * 其    他： 无
  * 修改日志： 加入led的方法:
  *            1.  增加LED_NAME中的灯编号
- *            2.  增加s_led_list中灯的定义
- *            3.  增加board.h中灯的定义
- *            4.  增加led_init中灯的GPIO的时钟初始化
+ *            2.  增加board.h中灯的定义
+ *            3.  增加g_led_list中灯的定义
+ *            4.  增加board.c中灯的GPIO的时钟初始化
  *
  *******************************************************************************/
 
 /*---------------------------------- 预处理区 ---------------------------------*/
+#pragma  diag_suppress 870
 
 /************************************ 头文件 ***********************************/
 #include "config.h"
@@ -23,36 +24,22 @@
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_conf.h"
 #include "led.h"
-
+#include "console.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/
-LED_LIST_T s_led_list[] = {
+/* led 表 */
+LED_LIST_T g_led_list[] = {
     {MLED, MLED_GPIO_PIN}
 };
 
 /********************************** 函数声明区 *********************************/
 
 /********************************** 函数实现区 *********************************/
-/* led使用gpio所以无Msp_Init过程配置管腿 所有初始化在该函数 */
 void led_init(void)
 {
-    GPIO_InitTypeDef GPIO_InitStruct;
-    int32_T i = 0;
-    
-    /* MLED 时钟使能 */
-    MLED_CLK_ENABLE();
-    /* 此处加入新增LED时钟使能 */
-
-    for(i = 0; i < LED_MAX; i++)
-    { 
-        GPIO_InitStruct.Pin = s_led_list[i].pin;
-        GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-        GPIO_InitStruct.Pull = GPIO_PULLUP;
-        GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
-        HAL_GPIO_Init(s_led_list[i].port, &GPIO_InitStruct); 
-    }
+    /* 基本初始化位于 board.c Msp_Init */
 }
 
 /* 低灭 高亮 */
@@ -64,7 +51,7 @@ void led_on(LED_NAME led)
         while(1);
     }
 
-    HAL_GPIO_WritePin(s_led_list[led].port, s_led_list[led].pin, GPIO_PIN_RESET); 
+    HAL_GPIO_WritePin(g_led_list[led].port, g_led_list[led].pin, GPIO_PIN_RESET); 
 }
 
 /* 灭灯 */
@@ -75,7 +62,7 @@ void led_off(LED_NAME led)
         while(1);
     }
 
-    HAL_GPIO_WritePin(s_led_list[led].port, s_led_list[led].pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(g_led_list[led].port, g_led_list[led].pin, GPIO_PIN_SET);
 }
 
 /* 状态翻转 */
@@ -86,7 +73,7 @@ void led_toggle(LED_NAME led)
         while(1);
     }
 
-    HAL_GPIO_TogglePin(s_led_list[led].port, s_led_list[led].pin);
+    HAL_GPIO_TogglePin(g_led_list[led].port, g_led_list[led].pin);
 }
 
 void led_test(void)
@@ -96,6 +83,7 @@ void led_test(void)
     int j = 0;
     int delay = 100;     /* led测试延迟ms */
     int flash_times = 5; /* 闪烁次数 不包括off/on测试 */
+
     /* 上电默认点亮
      * GPIO低电平 */
     HAL_Delay(delay);
@@ -104,14 +92,18 @@ void led_test(void)
     {
         led_off((LED_NAME)i); 
     } 
-    HAL_Delay(delay);
+    console_printf("观察led是否有熄灭.\r\n"); 
+    HAL_Delay(delay*20); /* 2s */
 
     /* 恢复点亮 */
     for(i = 0; i < LED_MAX; i++)
     {
         led_on((LED_NAME)i); 
     } 
+    console_printf("观察led是否有点亮.\r\n"); 
+    HAL_Delay(delay*20); /* 2s */
 
+    console_printf("观察led是否闪烁.\r\n"); 
     /* 闪5次 */
     while( j++ < flash_times )
     {

@@ -141,21 +141,17 @@ static void init(void)
 static void hard_test(void)
 {
     TRACE_FUNC_IN; 
+    console_printf("开始硬件测试.\r\n"); 
 
-    console_printf("观察控制台输出并按照提示操作.\r\n");
     console_test();
 
-    console_printf("观察led是否有闪烁.\r\n"); 
     led_test();
 
-    console_printf("四个pwm分别为 1/4 2/4 3/4 4/4.\r\n"); 
     pwm_test();
 
-    console_printf("观察esp8266并按照提示操作.\r\n");
     esp8266_test();
 
     console_printf("结束硬件测试.\r\n"); 
-
     TRACE_FUNC_OUT;
 }
 

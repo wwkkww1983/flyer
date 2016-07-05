@@ -17,6 +17,8 @@
 #include "config.h"
 #include "board.h"
 
+#include "led.h"
+#include "pwm.h"
 #include "console.h"
 #include "esp8266.h"
 
@@ -49,7 +51,10 @@ void HAL_MspInit()
     static DMA_HandleTypeDef console_hdma_tx;
     static DMA_HandleTypeDef esp8266_hdma_tx;
 
-    GPIO_InitTypeDef GPIO_InitStruct;
+    GPIO_InitTypeDef GPIO_InitStruct_Uart;
+    GPIO_InitTypeDef GPIO_InitStruct_Led;
+    GPIO_InitTypeDef GPIO_InitStruct_Pwm;
+    int32_T i = 0;
 
     /************************ 控制台使用的串口初始化 ************************/
     CONSOLE_UART_TX_GPIO_CLK_ENABLE();
@@ -57,19 +62,19 @@ void HAL_MspInit()
     CONSOLE_UART_CLK_ENABLE(); 
     CONSOLE_DMA_CLK_ENABLE();   
     /* TX */
-    GPIO_InitStruct.Mode                = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull                = GPIO_NOPULL;
-    GPIO_InitStruct.Speed               = GPIO_SPEED_FAST;
-    GPIO_InitStruct.Pin                 = CONSOLE_UART_TX_PIN;
-    GPIO_InitStruct.Alternate           = CONSOLE_UART_TX_AF;
-    HAL_GPIO_Init(CONSOLE_UART_TX_GPIO_PORT, &GPIO_InitStruct);
+    GPIO_InitStruct_Uart.Mode                = GPIO_MODE_AF_PP;
+    GPIO_InitStruct_Uart.Pull                = GPIO_NOPULL;
+    GPIO_InitStruct_Uart.Speed               = GPIO_SPEED_FAST;
+    GPIO_InitStruct_Uart.Pin                 = CONSOLE_UART_TX_PIN;
+    GPIO_InitStruct_Uart.Alternate           = CONSOLE_UART_TX_AF;
+    HAL_GPIO_Init(CONSOLE_UART_TX_GPIO_PORT, &GPIO_InitStruct_Uart);
     /* RX */
-    GPIO_InitStruct.Mode                = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull                = GPIO_NOPULL;
-    GPIO_InitStruct.Speed               = GPIO_SPEED_FAST;
-    GPIO_InitStruct.Pin                 = CONSOLE_UART_RX_PIN;
-    GPIO_InitStruct.Alternate           = CONSOLE_UART_RX_AF;
-    HAL_GPIO_Init(CONSOLE_UART_RX_GPIO_PORT, &GPIO_InitStruct); 
+    GPIO_InitStruct_Uart.Mode                = GPIO_MODE_AF_PP;
+    GPIO_InitStruct_Uart.Pull                = GPIO_NOPULL;
+    GPIO_InitStruct_Uart.Speed               = GPIO_SPEED_FAST;
+    GPIO_InitStruct_Uart.Pin                 = CONSOLE_UART_RX_PIN;
+    GPIO_InitStruct_Uart.Alternate           = CONSOLE_UART_RX_AF;
+    HAL_GPIO_Init(CONSOLE_UART_RX_GPIO_PORT, &GPIO_InitStruct_Uart); 
     /* 配置DMA(仅TX) */
     console_hdma_tx.Instance                    = CONSOLE_UART_TX_DMA_STREAM; 
     console_hdma_tx.Init.Channel                = CONSOLE_UART_TX_DMA_CHANNEL;
@@ -99,19 +104,19 @@ void HAL_MspInit()
     ESP8266_UART_CLK_ENABLE(); 
     ESP8266_DMA_CLK_ENABLE();   
     /* TX */
-    GPIO_InitStruct.Mode                = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull                = GPIO_NOPULL;
-    GPIO_InitStruct.Speed               = GPIO_SPEED_FAST;
-    GPIO_InitStruct.Pin                 = ESP8266_UART_TX_PIN;
-    GPIO_InitStruct.Alternate           = ESP8266_UART_TX_AF;
-    HAL_GPIO_Init(ESP8266_UART_TX_GPIO_PORT, &GPIO_InitStruct);
+    GPIO_InitStruct_Uart.Mode                = GPIO_MODE_AF_PP;
+    GPIO_InitStruct_Uart.Pull                = GPIO_NOPULL;
+    GPIO_InitStruct_Uart.Speed               = GPIO_SPEED_FAST;
+    GPIO_InitStruct_Uart.Pin                 = ESP8266_UART_TX_PIN;
+    GPIO_InitStruct_Uart.Alternate           = ESP8266_UART_TX_AF;
+    HAL_GPIO_Init(ESP8266_UART_TX_GPIO_PORT, &GPIO_InitStruct_Uart);
     /* RX */
-    GPIO_InitStruct.Mode                = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull                = GPIO_NOPULL;
-    GPIO_InitStruct.Speed               = GPIO_SPEED_FAST;
-    GPIO_InitStruct.Pin                 = ESP8266_UART_RX_PIN;
-    GPIO_InitStruct.Alternate           = ESP8266_UART_RX_AF;
-    HAL_GPIO_Init(ESP8266_UART_RX_GPIO_PORT, &GPIO_InitStruct); 
+    GPIO_InitStruct_Uart.Mode                = GPIO_MODE_AF_PP;
+    GPIO_InitStruct_Uart.Pull                = GPIO_NOPULL;
+    GPIO_InitStruct_Uart.Speed               = GPIO_SPEED_FAST;
+    GPIO_InitStruct_Uart.Pin                 = ESP8266_UART_RX_PIN;
+    GPIO_InitStruct_Uart.Alternate           = ESP8266_UART_RX_AF;
+    HAL_GPIO_Init(ESP8266_UART_RX_GPIO_PORT, &GPIO_InitStruct_Uart); 
     /* 配置DMA(仅TX) */
     esp8266_hdma_tx.Instance                    = ESP8266_UART_TX_DMA_STREAM; 
     esp8266_hdma_tx.Init.Channel                = ESP8266_UART_TX_DMA_CHANNEL;
@@ -134,6 +139,47 @@ void HAL_MspInit()
     HAL_NVIC_EnableIRQ(ESP8266_UART_IRQn); 
     HAL_NVIC_SetPriority(ESP8266_UART_DMA_TX_IRQn, 0, 1);
     HAL_NVIC_EnableIRQ(ESP8266_UART_DMA_TX_IRQn);
+    
+    /***************************** LED初始化 ********************************/
+    /* MLED 时钟使能 */
+    MLED_CLK_ENABLE();
+    /* 此处加入新增LED时钟使能 */
+    for(i = 0; i < LED_MAX; i++)
+    { 
+        GPIO_InitStruct_Led.Pin     = g_led_list[i].pin;
+        GPIO_InitStruct_Led.Mode    = GPIO_MODE_OUTPUT_PP;
+        GPIO_InitStruct_Led.Pull    = GPIO_PULLUP;
+        GPIO_InitStruct_Led.Speed   = GPIO_SPEED_FAST;
+        HAL_GPIO_Init(g_led_list[i].port, &GPIO_InitStruct_Led); 
+    }
+
+    /***************************** PWM初始化 ********************************/
+    PWM_TIM_CLK_ENABLE(); 
+    PWM_TIM_CHANNEL1_PORT_CLK_ENABLE();
+    PWM_TIM_CHANNEL2_PORT_CLK_ENABLE();
+    PWM_TIM_CHANNEL3_PORT_CLK_ENABLE();
+    PWM_TIM_CHANNEL4_PORT_CLK_ENABLE();
+    
+    /* 配置PWM端口 */
+    GPIO_InitStruct_Pwm.Mode    = GPIO_MODE_AF_PP;
+    GPIO_InitStruct_Pwm.Pull    = GPIO_PULLUP;
+    GPIO_InitStruct_Pwm.Speed   = GPIO_SPEED_FREQ_VERY_HIGH;
+
+    GPIO_InitStruct_Pwm.Alternate = PWM_TIM_GPIO_AF_CHANNEL1;
+    GPIO_InitStruct_Pwm.Pin = PWM_TIM_GPIO_PIN_CHANNEL1;
+    HAL_GPIO_Init(PWM_TIM_GPIO_PORT_CHANNEL1, &GPIO_InitStruct_Pwm);
+
+    GPIO_InitStruct_Pwm.Alternate = PWM_TIM_GPIO_AF_CHANNEL2;
+    GPIO_InitStruct_Pwm.Pin = PWM_TIM_GPIO_PIN_CHANNEL2;
+    HAL_GPIO_Init(PWM_TIM_GPIO_PORT_CHANNEL2, &GPIO_InitStruct_Pwm);
+
+    GPIO_InitStruct_Pwm.Alternate = PWM_TIM_GPIO_AF_CHANNEL3;
+    GPIO_InitStruct_Pwm.Pin = PWM_TIM_GPIO_PIN_CHANNEL3;
+    HAL_GPIO_Init(PWM_TIM_GPIO_PORT_CHANNEL3, &GPIO_InitStruct_Pwm);
+
+    GPIO_InitStruct_Pwm.Alternate = PWM_TIM_GPIO_AF_CHANNEL4;
+    GPIO_InitStruct_Pwm.Pin = PWM_TIM_GPIO_PIN_CHANNEL4;
+    HAL_GPIO_Init(PWM_TIM_GPIO_PORT_CHANNEL4, &GPIO_InitStruct_Pwm);
 }
 
 #if 0
@@ -346,7 +392,6 @@ void clock_init(void)
       while(1);
   }
  
-
   /* 选择PLL作为系统主时钟并且配置HCLK,PCLK1,PCLK2分频数 */
   RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;

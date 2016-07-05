@@ -38,24 +38,24 @@
  * 前       PWM1      CH3   PB10
  * 右       PWM2      CH4   PA3
  * */
-#define TIMx                                    TIM2
-#define TIMx_CLK_ENABLE()                       __HAL_RCC_TIM2_CLK_ENABLE()
-#define TIMx_CHANNEL1_PORT_CLK_ENABLE()         __HAL_RCC_GPIOA_CLK_ENABLE()
-#define TIMx_CHANNEL2_PORT_CLK_ENABLE()         __HAL_RCC_GPIOB_CLK_ENABLE()
-#define TIMx_CHANNEL3_PORT_CLK_ENABLE()         __HAL_RCC_GPIOB_CLK_ENABLE()
-#define TIMx_CHANNEL4_PORT_CLK_ENABLE()         __HAL_RCC_GPIOA_CLK_ENABLE()
-#define TIMx_GPIO_PORT_CHANNEL1                 GPIOA
-#define TIMx_GPIO_PORT_CHANNEL2                 GPIOB
-#define TIMx_GPIO_PORT_CHANNEL3                 GPIOB
-#define TIMx_GPIO_PORT_CHANNEL4                 GPIOA
-#define TIMx_GPIO_PIN_CHANNEL1                  GPIO_PIN_0
-#define TIMx_GPIO_PIN_CHANNEL2                  GPIO_PIN_3
-#define TIMx_GPIO_PIN_CHANNEL3                  GPIO_PIN_10
-#define TIMx_GPIO_PIN_CHANNEL4                  GPIO_PIN_3
-#define TIMx_GPIO_AF_CHANNEL1                   GPIO_AF1_TIM2
-#define TIMx_GPIO_AF_CHANNEL2                   GPIO_AF1_TIM2
-#define TIMx_GPIO_AF_CHANNEL3                   GPIO_AF1_TIM2
-#define TIMx_GPIO_AF_CHANNEL4                   GPIO_AF1_TIM2
+#define PWM_TIM                                 TIM2
+#define PWM_TIM_CLK_ENABLE()                    __HAL_RCC_TIM2_CLK_ENABLE()
+#define PWM_TIM_CHANNEL1_PORT_CLK_ENABLE()      __HAL_RCC_GPIOA_CLK_ENABLE()
+#define PWM_TIM_CHANNEL2_PORT_CLK_ENABLE()      __HAL_RCC_GPIOB_CLK_ENABLE()
+#define PWM_TIM_CHANNEL3_PORT_CLK_ENABLE()      __HAL_RCC_GPIOB_CLK_ENABLE()
+#define PWM_TIM_CHANNEL4_PORT_CLK_ENABLE()      __HAL_RCC_GPIOA_CLK_ENABLE()
+#define PWM_TIM_GPIO_PORT_CHANNEL1              GPIOA
+#define PWM_TIM_GPIO_PORT_CHANNEL2              GPIOB
+#define PWM_TIM_GPIO_PORT_CHANNEL3              GPIOB
+#define PWM_TIM_GPIO_PORT_CHANNEL4              GPIOA
+#define PWM_TIM_GPIO_PIN_CHANNEL1               GPIO_PIN_0
+#define PWM_TIM_GPIO_PIN_CHANNEL2               GPIO_PIN_3
+#define PWM_TIM_GPIO_PIN_CHANNEL3               GPIO_PIN_10
+#define PWM_TIM_GPIO_PIN_CHANNEL4               GPIO_PIN_3
+#define PWM_TIM_GPIO_AF_CHANNEL1                GPIO_AF1_TIM2
+#define PWM_TIM_GPIO_AF_CHANNEL2                GPIO_AF1_TIM2
+#define PWM_TIM_GPIO_AF_CHANNEL3                GPIO_AF1_TIM2
+#define PWM_TIM_GPIO_AF_CHANNEL4                GPIO_AF1_TIM2
 
 /****************************** 串口: 控制台+ESP8266 ***************************/
 /************************************* 控制台 **********************************/
