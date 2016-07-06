@@ -26,6 +26,7 @@ typedef struct drv_uart_T_tag{
     USART_TypeDef      *reg_base;   /* 处理器uart 寄存器地址句柄 */
     int32_T             baud_rate;  /* 波特率 */	
 
+    uint8_T             send_buf[UART_LINE_BUF_SIZE]; /* 发送缓冲 */
     __IO bool_T         dma_tc_lock;/* dma 传输完成 锁定 */
 }drv_uart_T;
 

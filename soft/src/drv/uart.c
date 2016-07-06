@@ -78,19 +78,18 @@ inline void uart_tc_unlock(drv_uart_T *uart)
 void uart_send(drv_uart_T *uart, uint8_T *fmt, ...)
 {
     int32_T n = 0; /* printf 调用需要发送的长度 */
-    static char s_printf_buf[UART_LINE_BUF_SIZE] = {0}; /* CONSOLE缓冲大小 */
 
     while(uart_tc_locked(uart)); /* 等待上一次传输完成 */
     uart_tc_lock(uart); /* 锁住资源 */
     
     va_list args;
     va_start(args, fmt); 
-    n = vsnprintf(s_printf_buf, UART_LINE_BUF_SIZE, (char *)fmt, args);
+    n = vsnprintf((char *)uart->send_buf, UART_LINE_BUF_SIZE, (char *)fmt, args);
     va_end(args); 
 
     assert_param( n < UART_LINE_BUF_SIZE );
 
-    if(HAL_UART_Transmit_DMA(&uart->handle, (uint8_t *)s_printf_buf, n)!= HAL_OK)
+    if(HAL_UART_Transmit_DMA(&uart->handle, (uint8_t *)uart->send_buf, n)!= HAL_OK)
     {
         /* 出错 */
         while(1);
