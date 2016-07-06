@@ -55,6 +55,7 @@ void HAL_MspInit()
     GPIO_InitTypeDef GPIO_InitStruct_Led;
     GPIO_InitTypeDef GPIO_InitStruct_Pwm;
     GPIO_InitTypeDef GPIO_InitStruct_Sensor; 
+    GPIO_InitTypeDef GPIO_InitStruct_Int;
     int32_T i = 0;
 
     /************************ 控制台使用的串口初始化 ************************/
@@ -207,163 +208,19 @@ void HAL_MspInit()
     HAL_NVIC_EnableIRQ(SENSOR_I2C_EV_IRQn);
     HAL_NVIC_SetPriority(SENSOR_I2C_ER_IRQn, PER_INT_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(SENSOR_I2C_ER_IRQn); 
+
+    /************************* SENSOR 中断初始化 ****************************/
+    SENSOR_INT_CLK_ENABLE();
+    GPIO_InitStruct_Int.Pin   = SENSOR_INT_PIN;
+    GPIO_InitStruct_Int.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct_Int.Speed = GPIO_SPEED_HIGH;
+    GPIO_InitStruct_Int.Mode  = SENSOR_INT_MODE;
+    HAL_GPIO_Init(SENSOR_INT_GPIO_PORT, &GPIO_InitStruct_Int);
+
+    /* 设置中断优先级 */
+    HAL_NVIC_SetPriority(SENSOR_INT_EXTI, PER_INT_PRIORITY, 0);
+    HAL_NVIC_EnableIRQ(SENSOR_INT_EXTI);
 }
-
-#if 0
-/*******************************************************************************
-*
-* 函数名  : HAL_TIM_PWM_MspInit
-* 负责人  : 彭鹏
-* 创建日期: 20160126
-* 函数功能: stm32f4 hal timer pwm初始化回调
-*
-* 输入参数: stm32 hal timer句柄
-* 输出参数: 无
-* 返回值  : 无
-* 调用关系: 无
-* 其 它   : 无
-*
-******************************************************************************/
-void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef *htim)
-{
-    GPIO_InitTypeDef   GPIO_InitStruct;
-   
-    TIMx_CLK_ENABLE(); 
-    TIMx_CHANNEL1_PORT_CLK_ENABLE();
-    TIMx_CHANNEL2_PORT_CLK_ENABLE();
-    TIMx_CHANNEL3_PORT_CLK_ENABLE();
-    TIMx_CHANNEL4_PORT_CLK_ENABLE();
-    
-    /* 配置PWM端口 */
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-
-    GPIO_InitStruct.Alternate = TIMx_GPIO_AF_CHANNEL1;
-    GPIO_InitStruct.Pin = TIMx_GPIO_PIN_CHANNEL1;
-    HAL_GPIO_Init(TIMx_GPIO_PORT_CHANNEL1, &GPIO_InitStruct);
-
-    GPIO_InitStruct.Alternate = TIMx_GPIO_AF_CHANNEL2;
-    GPIO_InitStruct.Pin = TIMx_GPIO_PIN_CHANNEL2;
-    HAL_GPIO_Init(TIMx_GPIO_PORT_CHANNEL2, &GPIO_InitStruct);
-
-    GPIO_InitStruct.Alternate = TIMx_GPIO_AF_CHANNEL3;
-    GPIO_InitStruct.Pin = TIMx_GPIO_PIN_CHANNEL3;
-    HAL_GPIO_Init(TIMx_GPIO_PORT_CHANNEL3, &GPIO_InitStruct);
-
-    GPIO_InitStruct.Alternate = TIMx_GPIO_AF_CHANNEL4;
-    GPIO_InitStruct.Pin = TIMx_GPIO_PIN_CHANNEL4;
-    HAL_GPIO_Init(TIMx_GPIO_PORT_CHANNEL4, &GPIO_InitStruct);
-}
-
-/*******************************************************************************
-*
-* 函数名  : HAL_TIM_PWM_MspDeInit
-* 负责人  : 彭鹏
-* 创建日期: 20160126
-* 函数功能: stm32f4 hal timer pwm解初始化回调
-*
-* 输入参数: stm32 hal timer句柄
-* 输出参数: 无
-* 返回值  : 无
-* 调用关系: 无
-* 其 它   : 无
-*
-******************************************************************************/
-void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef *htim)
-{
-}
-
-
-/*******************************************************************************
-*
-* 函数名  : HAL_UART_MspDeInit
-* 负责人  : 彭鹏
-* 创建日期: 20150615
-* 函数功能: stm32f4 hal uart解初始化回调
-*
-* 输入参数: stm32 hal uart句柄
-*
-* 输出参数: 无
-*
-* 返回值  : 无
-*
-* 调用关系: 无
-* 其 它   : 无
-*
-******************************************************************************/
-void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
-{
-}
-
-/*******************************************************************************
-*
-* 函数名  : HAL_I2C_MspInit
-* 负责人  : 彭鹏
-* 创建日期: 20151113
-* 函数功能: stm32f4 hal i2c初始化回调
-*
-* 输入参数: stm32 hal i2c句柄
-* 输出参数: 无
-*
-* 返回值  : 无
-*
-* 调用关系: 无
-* 其 它   : 无
-*
-******************************************************************************/
-void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
-{
-    GPIO_InitTypeDef  GPIO_InitStruct; 
-
-    /************************** 其他I2C3总线初始化 **************************/
-    IMU_I2C_SDA_GPIO_CLK_ENABLE();
-    IMU_I2C_SCL_GPIO_CLK_ENABLE();
-
-    /* 配置管脚 */
-    GPIO_InitStruct.Pin       = IMU_I2C_SCL_PIN;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_OD;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FAST;
-    GPIO_InitStruct.Alternate = IMU_I2C_SCL_SDA_AF;
-    HAL_GPIO_Init(IMU_I2C_SCL_GPIO_PORT, &GPIO_InitStruct);
-    GPIO_InitStruct.Pin = IMU_I2C_SDA_PIN;
-    HAL_GPIO_Init(IMU_I2C_SDA_GPIO_PORT, &GPIO_InitStruct);
-
-    /* 使能时钟 */
-    IMU_I2C_CLOCK_ENABLE();
-    IMU_I2C_FORCE_RESET();
-    IMU_I2C_RELEASE_RESET(); 
-    
-    /* 设置I2C中断优先级 */
-    HAL_NVIC_SetPriority(IMU_I2C_EV_IRQn, PER_INT_PRIORITY, 0);
-    HAL_NVIC_EnableIRQ(IMU_I2C_EV_IRQn);
-    HAL_NVIC_SetPriority(IMU_I2C_ER_IRQn, PER_INT_PRIORITY, 0);
-    HAL_NVIC_EnableIRQ(IMU_I2C_ER_IRQn); 
-    
-    /************************** 其他I2C总线初始化 ***************************/
-}
-
-/*******************************************************************************
-*
-* 函数名  : HAL_I2C_MspDeInit
-* 负责人  : 彭鹏
-* 创建日期: 20151113
-* 函数功能: stm32f4 hal i2c解初始化回调
-*
-* 输入参数: stm32 hal i2c句柄
-* 输出参数: 无
-*
-* 返回值  : 无
-*
-* 调用关系: 无
-* 其 它   : TODO: 实现stm32f4 hal 层解初始化
-*
-******************************************************************************/
-void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c)
-{
-}
-#endif
 
 /*******************************************************************************
 *

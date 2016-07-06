@@ -132,14 +132,18 @@
 #define SENSOR_I2C_SDA_AF                       GPIO_AF4_I2C1
 #define SENSOR_I2C_EV_IRQn                      I2C1_EV_IRQn
 #define SENSOR_I2C_ER_IRQn                      I2C1_ER_IRQn
+/**/
+
 /*
  * EXIT13
  * PC13
  * */
 #define SENSOR_INT_PIN                          GPIO_PIN_13
 #define SENSOR_INT_GPIO_PORT                    GPIOC
+#define SENSOR_INT_MODE                         GPIO_MODE_IT_RISING
 #define SENSOR_INT_CLK_ENABLE()                 __GPIOC_CLK_ENABLE()
 #define SENSOR_INT_EXTI                         EXTI15_10_IRQn
+#define SENSOR_INT_EXTI_IRQHandler              EXTI15_10_IRQHandler
 
 /*--------------------------------- 接口声明区 --------------------------------*/
 
