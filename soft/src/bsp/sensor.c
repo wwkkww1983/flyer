@@ -51,7 +51,7 @@ void sensor_init(void)
     {
         assert_failed(__FILE__, __LINE__);
     } 
-    debug_log("sensor i2c 初始化完成.\r\n");
+    console_printf("sensor i2c 初始化完成.\r\n");
 
     /* mpu9250初始化 */
     mpu9250_init();
@@ -59,7 +59,7 @@ void sensor_init(void)
 
     /* FIXME: 完成初始化
     bmp280_init();
-    console_printf("mpu9250 初始化完成.\r\n");
+    console_printf("bmp280_init 初始化完成.\r\n");
     */
     
     return;
@@ -90,49 +90,6 @@ void sensor_write_poll(uint8_T dev_addr, uint16_T reg_addr, const uint8_T *buf, 
 
 void sensor_test(void)
 {
-    int32_T i = 0;
-    /* 测试BMP280 */
-    unsigned char bmp280_addr = 0xED;
-    unsigned char val = 0;
-    int iMax = 0;
-    unsigned char bmp180_reg_addr[] = {
-        /* 校验寄存器 */
-        0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F, 0x90,
-        0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99,
-        0x9A, 0x9B, 0x9C, 0x9D, 0x9E, 0x9F, 0xA0, 0xA1,
-
-        /* 控制寄存器 */
-        0xD0, 0xE0, 
-        0xF3, 0xF4, 0xF5,
-        0xF7, 0xF8, 0xF9,
-        0xFA, 0xFB, 0xFC 
-    };
-    debug_log("BMP280 寄存器值:\r\n");
-    iMax = sizeof(bmp180_reg_addr) /sizeof(bmp180_reg_addr[0]);
-    for(i=0;i<iMax;i++) 
-    { 
-        sensor_read_poll(bmp280_addr, bmp180_reg_addr[i], &val, 1);
-        debug_log("0x%02x:0x%02x\r\n", bmp180_reg_addr[i], val);
-    }
-    /* 使用BMP280模式寄存器测试写入 */ 
-    unsigned char val1 = 0x00;
-    unsigned char val2 = 0x00;
-    unsigned char val_w = 0x00;
-    sensor_write_poll(bmp280_addr, 0xF4, &val1, 1); /* 0xF4最低两位设置为 00 */
-    sensor_read_poll(bmp280_addr, 0xF4, &val1, 1); /* val1 最低两位应该为 00 */
-    val_w = val1 | 0x03;
-    sensor_write_poll(bmp280_addr, 0xF4, &val_w, 1); /* 0xF4最低两位设置为 11 */
-    sensor_read_poll(bmp280_addr, 0xF4, &val2, 1); /* val1 最低两位应该为 03 */
-    sensor_read_poll(bmp280_addr, 0xD0, &val, 1); /* id 应该为 0x58 */
-    if( (0x00 == (0x03 & val1))
-     && (0x03 == (0x03 & val2))
-     && (0x58 == val))
-    {
-        debug_log("BMP280写入测试通过.\r\n");
-    }
-    else
-    {
-        debug_log("BMP280写入测试失败.\r\n");
-    }
+    ;
 }
 

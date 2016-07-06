@@ -83,7 +83,6 @@ int main(void)
 { 
     init();
     hard_test();
-
     while(1);
 }
 
@@ -114,7 +113,8 @@ static void init(void)
     /* 控制台串口 */
     console_init(); /* 此后可以开始打印 */ 
     console_printf("console初始化完成.\r\n");
-
+    console_printf("系统时钟频率:%dMHz\r\n", SystemCoreClock / 1000 / 1000);
+		
     /* led */
     led_init();
     console_printf("led初始化完成.\r\n");
@@ -129,7 +129,6 @@ static void init(void)
 
     /* wifi 模块串口 */
     esp8266_init();
-    esp8266_printf("flyer初始化完成.\r\n");
     console_printf("esp8266 wifi模块初始化完成.\r\n");
 		
     console_printf("初始化完成.\r\n");

@@ -62,7 +62,6 @@ void pwm_init(void)
 {
     uint32_T pre_scale_val = 0;
     int32_T i = 0;
-    console_printf("系统时钟频率:%lu,%lu\r\n", SystemCoreClock / 1000 / 1000, SystemCoreClock);
 
     /* 
      *

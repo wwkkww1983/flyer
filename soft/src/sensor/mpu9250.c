@@ -164,67 +164,63 @@ void mpu9250_init(void)
     unsigned char who_am_i = 0;
 
     /* 测试i2c是否正常工作 */
-    console_printf("测试I2C总线挂载芯片...\r\n");
     sensor_read_poll(MPU9250_DEV_ADDR, MPU9250_WHO_AM_I_REG_ADDR, &who_am_i, 1); 
     if(MPU9250_WHO_AM_I_REG_VALUE == who_am_i)
     {
-        console_printf("MPU9250数据可以通过i2c正常读取,who_am_i:0x%02x.\r\n", who_am_i);
+        console_printf("MPU9250正常读取who_am_i:0x%02x.\r\n", who_am_i);
     }
 
     /* invensence 初始化 */
-    console_printf("初始化MPU...\r\n");
+    console_printf("初始化MPU9250.\r\n");
     if (mpu_init(NULL) != 0)
     {
         console_printf("初始化MPU失败!\r\n");
         return;
     }
-    console_printf("打开传感器...\r\n");
+    console_printf("打开传感器.\r\n");
     if (mpu_set_sensors(INV_XYZ_GYRO|INV_XYZ_ACCEL|INV_XYZ_COMPASS)!=0)
     {
         console_printf("打开传感器失败.\r\n");
         return;
     }
-    console_printf("设置陀螺仪量程...\r\n");
+    console_printf("设置陀螺仪量程为:%ddeg/s.\r\n", MPU9250_GYRO_FSR);
     if (mpu_set_gyro_fsr(MPU9250_GYRO_FSR)!=0)
     {
         console_printf("设置陀螺仪量程失败.\r\n");
         return;
     }
-    console_printf("设置加速度计量程...\r\n");
+    console_printf("设置加速度计量程:%dg.\r\n", MPU9250_ACCEL_FSR);
     if (mpu_set_accel_fsr(MPU9250_ACCEL_FSR)!=0)
     {
         console_printf("设置加速度计量程失败.\r\n");
         return;
     }
-    console_printf("设置采样率...\r\n");
+    console_printf("设置主采样率:%dHz\r\n", MPU9250_MAIN_SAMPLE_RATE);
     if(mpu_set_sample_rate(MPU9250_MAIN_SAMPLE_RATE) !=0)
     {
         console_printf("设置accel+gyro采样率失败.\r\n");
         return;
     }
+    console_printf("设置磁力计采样率:%dHz\r\n", MPU9250_MAG_SAMPLE_RATE);
     if(mpu_set_compass_sample_rate(MPU9250_MAG_SAMPLE_RATE) !=0)
     {
         console_printf("设置compass采样率失败.\r\n");
         return;
     }
-    console_printf("MPU上电...\r\n");
     mpu_get_power_state(&dev_status);
     console_printf("MPU9250 上电%s", dev_status? "成功!\r\n" : "失败!\r\n");
-    console_printf("设置MPU FIFO...\r\n");
+    console_printf("设置MPU FIFO.\r\n");
     if (mpu_configure_fifo(INV_XYZ_GYRO|INV_XYZ_ACCEL)!=0)
     {
         console_printf("设置MPU FIFO失败.\r\n");
         return;
     }
-
-    console_printf("复位FIFO队列...\r\n");
+    console_printf("复位FIFO队列.\r\n");
     if (mpu_reset_fifo()!=0)
     {
         console_printf("复位FIFO队列失败.\r\n");
         return;
     }
-
-    console_printf("自检...\r\n"); 
     run_self_test();
 
     return;
@@ -252,12 +248,12 @@ static void run_self_test(void)
         mpu_set_gyro_bias_reg(gyro);
         mpu_set_accel_bias_6500_reg(accel);
 
-        console_printf("测试通过,设置偏移.\r\n");
-        console_printf("accel offset: %7.4f %7.4f %7.4f\r\n",
+        console_printf("自检通过,设置偏移:\r\n");
+        console_printf("accel: %7.4f %7.4f %7.4f\r\n",
                 accel[0]/65536.f,
                 accel[1]/65536.f,
                 accel[2]/65536.f);
-        console_printf("gyro  offset: %7.4f %7.4f %7.4f\r\n",
+        console_printf("gyro : %7.4f %7.4f %7.4f\r\n",
                 gyro[0]/65536.f,
                 gyro[1]/65536.f,
                 gyro[2]/65536.f);

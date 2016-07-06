@@ -12,11 +12,14 @@
  *******************************************************************************/
 
 /*---------------------------------- 预处理区 ---------------------------------*/
+/* 消除中文打印警告 */
+#pragma  diag_suppress 870
 
 /************************************ 头文件 ***********************************/
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stm32f4xx_hal.h>
 
 #include "typedef.h"
@@ -86,8 +89,6 @@ void uart_send(drv_uart_T *uart, uint8_T *fmt, ...)
     va_start(args, fmt); 
     n = vsnprintf((char *)uart->send_buf, UART_LINE_BUF_SIZE, (char *)fmt, args);
     va_end(args); 
-
-    assert_param( n < UART_LINE_BUF_SIZE );
 
     if(HAL_UART_Transmit_DMA(&uart->handle, (uint8_t *)uart->send_buf, n)!= HAL_OK)
     {
