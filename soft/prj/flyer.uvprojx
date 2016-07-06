@@ -334,7 +334,7 @@
               <MiscControls></MiscControls>
               <Define>EMPL_TARGET_STM32F4,MPU9250,EMPL_TARGET_STM32F4,ARM_MATH_CM4</Define>
               <Undefine></Undefine>
-              <IncludePath>..\src;..\src\lib;..\src\drv;..\src\sensor;..\src\bsp;..\src\algo;..\thd\eMD6.12\core\driver\eMPL;E:\Keil_v5\STM32Cube_FW_F4\Drivers\CMSIS\Include;E:\Keil_v5\STM32Cube_FW_F4\Drivers\CMSIS\Device\ST\STM32F4xx\Include;E:\Keil_v5\STM32Cube_FW_F4\Drivers\STM32F4xx_HAL_Driver\Inc</IncludePath>
+              <IncludePath>..\src;..\src\lib;..\src\drv;..\src\sensor;..\src\bsp;..\src\algo;..\thd\eMD6.12\core\driver\eMPL;..\thd\bmp280;E:\Keil_v5\STM32Cube_FW_F4\Drivers\CMSIS\Include;E:\Keil_v5\STM32Cube_FW_F4\Drivers\CMSIS\Device\ST\STM32F4xx\Include;E:\Keil_v5\STM32Cube_FW_F4\Drivers\STM32F4xx_HAL_Driver\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -435,12 +435,17 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>inv</GroupName>
+          <GroupName>chip</GroupName>
           <Files>
             <File>
               <FileName>inv_mpu.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\thd\eMD6.12\core\driver\eMPL\inv_mpu.c</FilePath>
+            </File>
+            <File>
+              <FileName>bmp280.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\thd\bmp280\bmp280.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -477,6 +482,11 @@
               <FileType>1</FileType>
               <FilePath>..\src\drv\systick.c</FilePath>
             </File>
+            <File>
+              <FileName>exti.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\drv\exti.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -486,6 +496,11 @@
               <FileName>mpu9250.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\sensor\mpu9250.c</FilePath>
+            </File>
+            <File>
+              <FileName>bmp280_hal.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\sensor\bmp280_hal.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -30,11 +30,8 @@ void *s_callback_argv = NULL;
 /********************************** 函数声明区 *********************************/
 
 /********************************** 函数实现区 *********************************/
-/* exti模块使用gpio所以无Msp_Init过程配置管腿 所有初始化在该函数 */
-void exti_init(void)
-{
-    ;
-}
+/* exti在Msp_Init过程配置管腿 */
+void exti_init(void){;}
 
 /* 设置回调 */
 void exti_set_callback(func_T callback, void *argv)

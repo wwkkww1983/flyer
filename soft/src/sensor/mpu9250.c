@@ -18,9 +18,9 @@
 /************************************ 头文件 ***********************************/
 #include "inv_mpu.h"
 #include "mpu9250.h"
+#include "exti.h"
 #include "sensor.h"
 #include "stm32f4xx_hal.h"
-#include "stm32f4xx_hal_conf.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
 
@@ -29,6 +29,8 @@
 /********************************** 函数声明区 *********************************/
 static unsigned char addr_convert(unsigned char addr);
 static void run_self_test(void);
+static void int_callback(void *argv);
+
 
 /********************************** 函数实现区 *********************************/
 /*******************************************************************************
@@ -223,7 +225,32 @@ void mpu9250_init(void)
     }
     run_self_test();
 
+		console_printf("复位FIFO队列.\r\n");
+    if (mpu_reset_fifo()!=0)
+    {
+        console_printf("复位FIFO队列失败.\r\n");
+        return;
+    }
+    console_printf("MPU9250中断设置完成.\r\n");
+    exti_set_callback(int_callback, NULL);
+
     return;
+}
+
+static int32_T i = 0;
+static int16_T int_status = 0;
+static int16_T gyro[3] = {0};
+static int16_T accel[3] = {0};
+static uint32_T timestamp = 0;
+static uint8_T sensor = 0;
+static uint8_T more = 0;
+static void int_callback(void *argv)
+{
+    int32_T rst = 0;
+    rst = mpu_get_int_status(&int_status);
+    //rst = mpu_read_fifo(gyro, accel, &timestamp, &sensor, &more);
+
+    i++;
 }
 
 static void run_self_test(void)
