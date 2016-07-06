@@ -20,6 +20,7 @@
 #include "config.h"
 #include "board.h"
 #include "mpu9250.h"
+#include "bmp280.h"
 #include "sensor.h"
 #include "console.h"
 
