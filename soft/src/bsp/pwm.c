@@ -57,12 +57,12 @@ uint32_T s_period = 0;
 /********************************** 函数声明区 *********************************/
 
 /********************************** 函数实现区 *********************************/
+
 void pwm_init(void)
-{ 
+{
     uint32_T pre_scale_val = 0;
     int32_T i = 0;
-
-    console_printf("系统时钟频率:%lu,%lu", SystemCoreClock / 1000 / 1000, SystemCoreClock);
+    console_printf("系统时钟频率:%lu,%lu\r\n", SystemCoreClock / 1000 / 1000, SystemCoreClock);
 
     /* 
      *
@@ -77,12 +77,20 @@ void pwm_init(void)
     pre_scale_val = (uint32_t)((SystemCoreClock/2) / 15000000) - 1; 
 
     /*
+     * 设置周期为:1000 便于编程
+     * ARR = (PWM_TIM源时钟/PWM_TIM输出频率) - 1
+     * => PWM_TIM输出频率 = PWM_TIM源时钟 / (ARR + 1)
+     * ARR = 1000
+     * PWM_TIM源时钟:15MHz
+     * => PWM_TIM输出频率 = 15000000 / (1000 + 1)
+     *   = 14.985 kHz
+     *
      * 设置PWM_TIM输出频率为20 KHz, 周期(ARR)为:
      * ARR = (PWM_TIM源时钟/PWM_TIM输出频率) - 1
      * = 749
      * */
-     s_period = 749;
-    
+     s_period = 1000;
+
     /* 配置PWM_TIM计数器:
      * Initialize PWM_TIM peripheral as follows:
      * Prescaler = (SystemCoreClock / 2 / 15000000) - 1
@@ -115,21 +123,15 @@ void pwm_init(void)
     s_sConfig.OCFastMode   = TIM_OCFAST_DISABLE;
     s_sConfig.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
     s_sConfig.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-    s_sConfig.OCIdleState  = TIM_OCIDLESTATE_RESET;
-    s_sConfig.Pulse        = 0;
+    s_sConfig.OCIdleState  = TIM_OCIDLESTATE_RESET; 
     for(i = 0; i < PWM_MAX; i++)
     { 
-        /* 配置PWM */
-        if (HAL_TIM_PWM_ConfigChannel(&s_tim_handle, &s_sConfig, g_pwm_list[i].ch) != HAL_OK)
-        {
-            while(1);
-        } 
-        
-        /* 启动PWM */
-        if (HAL_TIM_PWM_Start(&s_tim_handle, g_pwm_list[i].ch) != HAL_OK)
-        {
-            while(1);
-        }
+        /* 
+         * s_sConfig.Pulse == val 
+         * 0 不输出高电平 电机停转
+         *
+         * */
+        pwm_set((PWM_NAME)i, 0);
     }
 
     return;
@@ -157,7 +159,13 @@ void pwm_set(PWM_NAME pwm, uint32_T val)
     if (HAL_TIM_PWM_ConfigChannel(&s_tim_handle, &s_sConfig, g_pwm_list[pwm].ch) != HAL_OK)
     {
         while(1);
+    } 
+    /* 启动PWM */
+    if (HAL_TIM_PWM_Start(&s_tim_handle, g_pwm_list[pwm].ch) != HAL_OK)
+    {
+        while(1);
     }
+
 }
 
 uint32_T pwm_get_period(void)
@@ -167,13 +175,16 @@ uint32_T pwm_get_period(void)
 
 void pwm_test(void)
 {
-    uint32_T period = pwm_get_period();
+    uint32_T m = 0;
 
-    console_printf("前右后左四个pwm分别为 0% 33% 77% 100%.\r\n"); 
+    console_printf("前右后左四个pwm分别为 0%% 33%% 77%% 100%%.\r\n");
 
-    pwm_set(PWM_FRONT, 0);
-    pwm_set(PWM_RIGHT, 33.0 * 100 / period);
-    pwm_set(PWM_BACK, 77.0 * 100 / period);
-    pwm_set(PWM_LEFT, 100.0 * 100 / period);
+    m = pwm_get_period();
+    m /= 100;
+
+    pwm_set(PWM_FRONT, m * 0);
+    pwm_set(PWM_RIGHT, m * 33);
+    pwm_set(PWM_BACK, m * 77);
+    pwm_set(PWM_LEFT, m * 100);
 }
 
