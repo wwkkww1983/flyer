@@ -140,7 +140,7 @@
  * */
 #define SENSOR_INT_PIN                          GPIO_PIN_13
 #define SENSOR_INT_GPIO_PORT                    GPIOC
-#define SENSOR_INT_MODE                         GPIO_MODE_IT_RISING
+#define SENSOR_INT_MODE                         GPIO_MODE_IT_FALLING
 #define SENSOR_INT_CLK_ENABLE()                 __GPIOC_CLK_ENABLE()
 #define SENSOR_INT_EXTI                         EXTI15_10_IRQn
 #define SENSOR_INT_EXTI_IRQHandler              EXTI15_10_IRQHandler

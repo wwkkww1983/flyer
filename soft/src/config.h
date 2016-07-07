@@ -44,8 +44,9 @@
 #define SENSOR_I2C_RATE                                     (400000)
 #define MPU9250_ACCEL_FSR                                   (2)
 #define MPU9250_GYRO_FSR                                    (2000)
-#define MPU9250_MAIN_SAMPLE_RATE                            (1000)
-#define MPU9250_MAG_SAMPLE_RATE                             (100)
+#define MPU9250_DMP_SAMPLE_RATE                             (100)
+#define MPU9250_MAIN_SAMPLE_RATE                            (MPU9250_DMP_SAMPLE_RATE)
+#define MPU9250_MAG_SAMPLE_RATE                             (1)
 
 /* 以下内容不可修改 */
 /* 每秒钟systick中断数 默认1ms */

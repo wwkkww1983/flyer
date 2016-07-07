@@ -17,6 +17,7 @@
 
 /************************************ 头文件 ***********************************/
 #include "inv_mpu.h"
+#include "inv_mpu_dmp_motion_driver.h"
 #include "mpu9250.h"
 #include "exti.h"
 #include "sensor.h"
@@ -25,7 +26,8 @@
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/
-
+__IO bool_T g_mpu_fifo_ready = FALSE;
+__IO int16_T g_int_status = 0;
 /********************************** 函数声明区 *********************************/
 static unsigned char addr_convert(unsigned char addr);
 static void run_self_test(void);
@@ -162,9 +164,9 @@ inline static unsigned char addr_convert(unsigned char addr)
 
 void mpu9250_init(void)
 {
-    unsigned char dev_status = 0;
-    unsigned char who_am_i = 0;
-
+    uint8_T dev_status = 0;
+    uint8_T who_am_i = 0;
+    //uint16_T dmp_features = 0;
     /* 测试i2c是否正常工作 */
     sensor_read_poll(MPU9250_DEV_ADDR, MPU9250_WHO_AM_I_REG_ADDR, &who_am_i, 1); 
     if(MPU9250_WHO_AM_I_REG_VALUE == who_am_i)
@@ -172,17 +174,31 @@ void mpu9250_init(void)
         console_printf("MPU9250正常读取who_am_i:0x%02x.\r\n", who_am_i);
     }
 
-    /* invensence 初始化 */
     console_printf("初始化MPU9250.\r\n");
+		mpu_set_int_latched(1);
     if (mpu_init(NULL) != 0)
     {
         console_printf("初始化MPU失败!\r\n");
         return;
     }
+
     console_printf("打开传感器.\r\n");
     if (mpu_set_sensors(INV_XYZ_GYRO|INV_XYZ_ACCEL|INV_XYZ_COMPASS)!=0)
     {
         console_printf("打开传感器失败.\r\n");
+        return;
+    }
+	
+    console_printf("设置主采样率:%dHz\r\n", MPU9250_MAIN_SAMPLE_RATE);
+    if(mpu_set_sample_rate(MPU9250_MAIN_SAMPLE_RATE) !=0)
+    {
+        console_printf("设置accel+gyro采样率失败.\r\n");
+        return;
+    }
+    console_printf("设置磁力计采样率:%dHz\r\n", MPU9250_MAG_SAMPLE_RATE);
+    if(mpu_set_compass_sample_rate(MPU9250_MAG_SAMPLE_RATE) !=0)
+    {
+        console_printf("设置compass采样率失败.\r\n");
         return;
     }
     console_printf("设置陀螺仪量程为:%ddeg/s.\r\n", MPU9250_GYRO_FSR);
@@ -197,60 +213,81 @@ void mpu9250_init(void)
         console_printf("设置加速度计量程失败.\r\n");
         return;
     }
-    console_printf("设置主采样率:%dHz\r\n", MPU9250_MAIN_SAMPLE_RATE);
-    if(mpu_set_sample_rate(MPU9250_MAIN_SAMPLE_RATE) !=0)
-    {
-        console_printf("设置accel+gyro采样率失败.\r\n");
-        return;
-    }
-    console_printf("设置磁力计采样率:%dHz\r\n", MPU9250_MAG_SAMPLE_RATE);
-    if(mpu_set_compass_sample_rate(MPU9250_MAG_SAMPLE_RATE) !=0)
-    {
-        console_printf("设置compass采样率失败.\r\n");
-        return;
-    }
     mpu_get_power_state(&dev_status);
     console_printf("MPU9250 上电%s", dev_status? "成功!\r\n" : "失败!\r\n");
+
+    run_self_test();
+
+    /* 内部设置中断 可以用于验证中断连接MCU硬件是有效的 */
     console_printf("设置MPU FIFO.\r\n");
     if (mpu_configure_fifo(INV_XYZ_GYRO|INV_XYZ_ACCEL)!=0)
     {
         console_printf("设置MPU FIFO失败.\r\n");
         return;
     }
-    console_printf("复位FIFO队列.\r\n");
-    if (mpu_reset_fifo()!=0)
-    {
-        console_printf("复位FIFO队列失败.\r\n");
-        return;
-    }
-    run_self_test();
 
-		console_printf("复位FIFO队列.\r\n");
-    if (mpu_reset_fifo()!=0)
-    {
-        console_printf("复位FIFO队列失败.\r\n");
-        return;
-    }
+		exti_set_callback(int_callback, NULL);
     console_printf("MPU9250中断设置完成.\r\n");
-    exti_set_callback(int_callback, NULL);
+		
+    /*
+     * 初始化 DMP:
+     * 1. 注册回调函数
+     * 2. 调用dmp_load_motion_driver_firmware().加载inv_mpu_dmp_motion_driver.h的
+     *    DMP程序.
+     * 3. 加方向矩阵加入DMP.
+     * 4. 调用dmp_enable_feature()使能特性
+     * 5. 调用mpu_set_dmp_state(1)启动dmp
+     *
+     * 不能使用的特性组合:
+     * 1. DMP_FEATURE_LP_QUAT < == > DMP_FEATURE_LP_QUAT
+     * 2. DMP_FEATURE_SEND_CAL_GYRO < == > DMP_FEATURE_SEND_RAW_GYRO.
+     *
+     */
+#if 0
+    dmp_load_motion_driver_firmware();
+    /* dmp_set_orientation(inv_orientation_matrix_to_scalar(gyro_pdata.orientation)); */
+    dmp_features = DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_GYRO_CAL;
+    dmp_enable_feature(dmp_features);
+    dmp_set_fifo_rate(MPU9250_DMP_SAMPLE_RATE);
+    mpu_set_dmp_state(1);
+#endif
 
     return;
 }
 
-static int32_T i = 0;
-static int16_T int_status = 0;
-static int16_T gyro[3] = {0};
-static int16_T accel[3] = {0};
-static uint32_T timestamp = 0;
-static uint8_T sensor = 0;
-static uint8_T more = 0;
+static uint8_T int_cfg = 0;
+static uint8_T int_en = 0;
+static uint8_T int_sta = 0;
+/*static int16_T gyro[3];
+static int16_T accel[3];
+static uint8_T sensor;
+static uint8_T more;*/
+static uint32_T timestamp;
+static int32_T times = 0;
+static int32_T rst = 0;
+static uint32_T timestamp1;
+static uint32_T timestamp2;
 static void int_callback(void *argv)
 {
-    int32_T rst = 0;
-    rst = mpu_get_int_status(&int_status);
+    static int32_T rst = 0;
+    if(0 == times)
+    {
+        timestamp1 = HAL_GetTick();
+    }
+	  
+    rst = mpu_get_int_status(&g_int_status);
+    //rst = mpu_read_reg(0x37, &int_cfg);
+    //rst = mpu_read_reg(0x38, &int_en);
+    //rst = mpu_read_reg(0x3A, &int_sta);
     //rst = mpu_read_fifo(gyro, accel, &timestamp, &sensor, &more);
+    //g_mpu_fifo_ready = TRUE;
+    if(0x0010 & g_int_status)
+    {
+        timestamp2 = HAL_GetTick();
+        timestamp = timestamp2 - timestamp1;
+    }
 
-    i++;
+    times++;
 }
 
 static void run_self_test(void)
@@ -289,15 +326,15 @@ static void run_self_test(void)
     {
         if (!(result & 0x1))
         {
-            console_printf("Gyro failed.\r\n");
+            console_printf("自检陀螺仪失败.\r\n");
         }
         if (!(result & 0x2))
         {
-            console_printf("Accel failed.\r\n");
+            console_printf("自检加速度计失败.\r\n");
         }
         if (!(result & 0x4))
         {
-            console_printf("Compass failed.\r\n");
+            console_printf("自检磁力计失败.\r\n");
         }
     }
 

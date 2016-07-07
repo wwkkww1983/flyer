@@ -79,11 +79,45 @@ static void hard_test(void);
 * 其 它   : 获取MPU9250数据 中断中完成
 *
 ******************************************************************************/
+static int16_T gyro[3];
+static int16_T accel[3];
+static uint32_T timestamp;
+static uint8_T sensor;
+static uint8_T more;
+static int32_T times = 0;
+static int32_T rst = 0;
+static int32_T count = 0;
 int main(void)
 { 
+    extern bool_T g_mpu_fifo_ready;
+	  extern int16_T g_int_status;
+    int mpu_read_fifo(short *gyro, short *accel, unsigned long *timestamp, unsigned char *sensors, unsigned char *more);
     init();
     hard_test();
-    while(1);
+	  while(1);
+    while(1)
+    {
+        if(g_mpu_fifo_ready)
+        { 
+            gyro[0] = 0;
+            gyro[1] = 0;
+            gyro[2] = 0;
+            accel[0] = 0;
+            accel[1] = 0;
+            accel[2] = 0;
+            timestamp = 0;
+            sensor = 0;
+            more = 0;
+            count = 0;
+            do
+            {
+                rst = mpu_read_fifo(gyro, accel, &timestamp, &sensor, &more);
+							  count++;
+            }while(more > 0);
+						g_mpu_fifo_ready = FALSE;
+            times++;
+        }
+    }
 }
 
 /* 初始化 */
@@ -141,15 +175,15 @@ static void hard_test(void)
     TRACE_FUNC_IN; 
     console_printf("开始硬件测试.\r\n"); 
 
-    console_test();
+    //console_test();
 
-    led_test();
+    //led_test();
 
-    pwm_test();
+    //pwm_test();
 
     sensor_test();
 
-    esp8266_test();
+    //esp8266_test();
 
     console_printf("结束硬件测试.\r\n"); 
     TRACE_FUNC_OUT;

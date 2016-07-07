@@ -212,7 +212,7 @@ void HAL_MspInit()
     /************************* SENSOR 中断初始化 ****************************/
     SENSOR_INT_CLK_ENABLE();
     GPIO_InitStruct_Int.Pin   = SENSOR_INT_PIN;
-    GPIO_InitStruct_Int.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct_Int.Pull  = GPIO_PULLUP;
     GPIO_InitStruct_Int.Speed = GPIO_SPEED_HIGH;
     GPIO_InitStruct_Int.Mode  = SENSOR_INT_MODE;
     HAL_GPIO_Init(SENSOR_INT_GPIO_PORT, &GPIO_InitStruct_Int);
