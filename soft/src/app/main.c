@@ -87,18 +87,40 @@ static uint8_T more;
 static int32_T times = 0;
 static int32_T rst = 0;
 static int32_T count = 0;
+static uint8_T val = 0;
 int main(void)
 { 
     extern bool_T g_mpu_fifo_ready;
-	  extern int16_T g_int_status;
+    extern int16_T g_int_status;
     int mpu_read_fifo(short *gyro, short *accel, unsigned long *timestamp, unsigned char *sensors, unsigned char *more);
     init();
     hard_test();
-	  while(1);
+    //while(1)
+
+#if 0
+    uint32_T timestamp1 = HAL_GetTick();
+    for(int i = 0; i<9999; i++)
+    {
+        sensor_read_poll(0xD0, 0x75, &val, 1); 
+    }
+    uint32_T timestamp2 = HAL_GetTick();
+    timestamp = timestamp2 - timestamp1;
+    console_printf("吞吐率%.02fB/s", 9999.0 * 1000 / timestamp);
+#endif
+
+    uint16_T accel_sens = 0;
+    f32_T    gyro_sens = 0.0f;
+    int16_T mag_sens_adj[3];
+		
+    mpu_get_accel_sens(&accel_sens);
+    mpu_get_gyro_sens(&gyro_sens);
+    pp_get_compass_mag_sens_adj(mag_sens_adj);
+		
     while(1)
     {
         if(g_mpu_fifo_ready)
         { 
+#if 1
             gyro[0] = 0;
             gyro[1] = 0;
             gyro[2] = 0;
@@ -115,7 +137,25 @@ int main(void)
                 count++;
             }while(more > 0);
             g_mpu_fifo_ready = FALSE;
+						
+						if(0 == times % 500){
+							console_printf("times:%d, timestamp: %u, sensor: 0x%02x, more: 0x%02x\r\n",
+                    times,
+                    timestamp,
+                    sensor,
+                    more);
+            console_printf("accel: %7.4f %7.4f %7.4f\r\n",
+                    1.0f * accel[0]/accel_sens,
+                    1.0f * accel[1]/accel_sens,
+                    1.0f * accel[2]/accel_sens);
+            console_printf("gyro : %7.4f %7.4f %7.4f\r\n",
+                    gyro[0]/gyro_sens,
+                    gyro[1]/gyro_sens,
+                    gyro[2]/gyro_sens);
+						console_printf("\r\n");}
+						
             times++;
+#endif
         }
     }
 }

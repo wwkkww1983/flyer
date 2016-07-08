@@ -269,6 +269,7 @@ static uint32_T timestamp1;
 static uint32_T timestamp2;
 static void int_callback(void *argv)
 {
+#if 0
     static int32_T rst = 0;
     if(0 == times)
     {
@@ -277,7 +278,7 @@ static void int_callback(void *argv)
 	  
     rst = mpu_get_int_status(&g_int_status);
     //rst = mpu_read_reg(0x37, &int_cfg);
-    //rst = mpu_read_reg(0x38, &int_en);
+    ////rst = mpu_read_reg(0x38, &int_en);
     //rst = mpu_read_reg(0x3A, &int_sta);
     //rst = mpu_read_fifo(gyro, accel, &timestamp, &sensor, &more);
     //g_mpu_fifo_ready = TRUE;
@@ -285,8 +286,16 @@ static void int_callback(void *argv)
     {
         timestamp2 = HAL_GetTick();
         timestamp = timestamp2 - timestamp1;
+        timestamp = timestamp2 - timestamp1;
     }
-
+#endif
+    if(0 != times)
+    {
+ //rst = mpu_read_reg(0x37, &int_cfg);
+ //rst = mpu_read_reg(0x38, &int_en);
+ //rst = mpu_read_reg(0x3A, &int_sta);
+        g_mpu_fifo_ready = TRUE;
+    }
     times++;
 }
 

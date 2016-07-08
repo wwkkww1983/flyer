@@ -131,8 +131,14 @@
 #define SENSOR_I2C_SDA_PIN                      GPIO_PIN_9
 #define SENSOR_I2C_SDA_AF                       GPIO_AF4_I2C1
 #define SENSOR_I2C_EV_IRQn                      I2C1_EV_IRQn
+#define SENSOR_I2C_EV_IRQHandler                I2C1_EV_IRQHandler                                            
 #define SENSOR_I2C_ER_IRQn                      I2C1_ER_IRQn
-/**/
+#define SENSOR_I2C_ER_IRQHandler                I2C1_ER_IRQHandler
+#define SENSOR_DMA_CLK_ENABLE()                 __HAL_RCC_DMA1_CLK_ENABLE()
+#define SENSOR_I2C_RX_DMA_CHANNEL               DMA_CHANNEL_1
+#define SENSOR_I2C_RX_DMA_STREAM                DMA1_Stream5
+#define SENSOR_I2C_DMA_RX_IRQn                  DMA1_Stream5_IRQn
+#define SENSOR_I2C_DMA_RX_IRQHandler            DMA1_Stream5_IRQHandler
 
 /*
  * EXIT13

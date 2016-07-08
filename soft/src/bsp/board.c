@@ -21,6 +21,7 @@
 #include "pwm.h"
 #include "console.h"
 #include "esp8266.h"
+#include "sensor.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
 
@@ -50,6 +51,7 @@ void HAL_MspInit()
     /* 两个hdma变量运行时生命域 必须加入static修饰 */
     static DMA_HandleTypeDef console_hdma_tx;
     static DMA_HandleTypeDef esp8266_hdma_tx;
+    static DMA_HandleTypeDef sensor_hdma_rx;
 
     GPIO_InitTypeDef GPIO_InitStruct_Uart;
     GPIO_InitTypeDef GPIO_InitStruct_Led;
@@ -186,7 +188,7 @@ void HAL_MspInit()
     /************************* SENSOR I2C初始化 *****************************/
     SENSOR_I2C_SDA_GPIO_CLK_ENABLE();
     SENSOR_I2C_SCL_GPIO_CLK_ENABLE();
-
+		
     /* 配置管脚 */
     GPIO_InitStruct_Sensor.Mode      = GPIO_MODE_AF_OD;
     GPIO_InitStruct_Sensor.Pull      = GPIO_NOPULL;
@@ -195,19 +197,39 @@ void HAL_MspInit()
     GPIO_InitStruct_Sensor.Alternate = SENSOR_I2C_SCL_AF;
     HAL_GPIO_Init(SENSOR_I2C_SCL_GPIO_PORT, &GPIO_InitStruct_Sensor);
     GPIO_InitStruct_Sensor.Pin       = SENSOR_I2C_SDA_PIN;
-		GPIO_InitStruct_Sensor.Alternate = SENSOR_I2C_SDA_AF;
+    GPIO_InitStruct_Sensor.Alternate = SENSOR_I2C_SDA_AF;
     HAL_GPIO_Init(SENSOR_I2C_SDA_GPIO_PORT, &GPIO_InitStruct_Sensor);
-
     /* 使能时钟 */
     SENSOR_I2C_CLOCK_ENABLE();
     SENSOR_I2C_FORCE_RESET();
     SENSOR_I2C_RELEASE_RESET(); 
-    
+    SENSOR_DMA_CLK_ENABLE();
     /* 设置I2C中断优先级 */
     HAL_NVIC_SetPriority(SENSOR_I2C_EV_IRQn, PER_INT_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(SENSOR_I2C_EV_IRQn);
     HAL_NVIC_SetPriority(SENSOR_I2C_ER_IRQn, PER_INT_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(SENSOR_I2C_ER_IRQn); 
+
+    /* 配置DMA(仅RX) */
+    sensor_hdma_rx.Instance                    = SENSOR_I2C_RX_DMA_STREAM; 
+    sensor_hdma_rx.Init.Channel                = SENSOR_I2C_RX_DMA_CHANNEL;
+    sensor_hdma_rx.Init.Direction              = DMA_PERIPH_TO_MEMORY;
+    sensor_hdma_rx.Init.PeriphInc              = DMA_PINC_DISABLE;
+    sensor_hdma_rx.Init.MemInc                 = DMA_MINC_ENABLE;
+    sensor_hdma_rx.Init.PeriphDataAlignment    = DMA_PDATAALIGN_BYTE;
+    sensor_hdma_rx.Init.MemDataAlignment       = DMA_MDATAALIGN_BYTE;
+    sensor_hdma_rx.Init.Mode                   = DMA_NORMAL;
+    sensor_hdma_rx.Init.Priority               = DMA_PRIORITY_VERY_HIGH;
+    sensor_hdma_rx.Init.FIFOMode               = DMA_FIFOMODE_DISABLE;
+    sensor_hdma_rx.Init.FIFOThreshold          = DMA_FIFO_THRESHOLD_FULL;
+    sensor_hdma_rx.Init.MemBurst               = DMA_MBURST_INC4;
+    sensor_hdma_rx.Init.PeriphBurst            = DMA_PBURST_INC4; 
+    HAL_DMA_Init(&sensor_hdma_rx);   
+    /* 关联DMA与UART */
+    __HAL_LINKDMA(&g_sensor_handle, hdmarx, sensor_hdma_rx); 
+    /* INT */
+    HAL_NVIC_SetPriority(SENSOR_I2C_DMA_RX_IRQn, PER_INT_PRIORITY, 0);
+    HAL_NVIC_EnableIRQ(SENSOR_I2C_DMA_RX_IRQn);
 
     /************************* SENSOR 中断初始化 ****************************/
     SENSOR_INT_CLK_ENABLE();
