@@ -31,7 +31,7 @@ __IO int16_T g_int_status = 0;
 /********************************** 函数声明区 *********************************/
 static unsigned char addr_convert(unsigned char addr);
 static void run_self_test(void);
-static void int_callback(void *argv);
+//static void int_callback(void *argv);
 
 
 /********************************** 函数实现区 *********************************/
@@ -218,6 +218,8 @@ void mpu9250_init(void)
 
     run_self_test();
 
+		    /* 不使用MPU9250中断 */
+#if 0
     exti_set_callback(int_callback, NULL);
     console_printf("MPU9250中断设置完成.\r\n");
 
@@ -228,6 +230,7 @@ void mpu9250_init(void)
         console_printf("设置MPU FIFO失败.\r\n");
         return;
     } 
+#endif
 
     /*
      * 初始化 DMP:
@@ -255,18 +258,18 @@ void mpu9250_init(void)
     return;
 }
 
-static uint8_T int_cfg = 0;
+/*static uint8_T int_cfg = 0;
 static uint8_T int_en = 0;
 static uint8_T int_sta = 0;
-/*static int16_T gyro[3];
+static int16_T gyro[3];
 static int16_T accel[3];
 static uint8_T sensor;
-static uint8_T more;*/
+static uint8_T more;
 static uint32_T timestamp;
-static int32_T times = 0;
 static int32_T rst = 0;
 static uint32_T timestamp1;
 static uint32_T timestamp2;
+static int32_T times = 0;
 static void int_callback(void *argv)
 {
 #if 0
@@ -288,7 +291,7 @@ static void int_callback(void *argv)
         timestamp = timestamp2 - timestamp1;
         timestamp = timestamp2 - timestamp1;
     }
-#endif
+//#else
     if(0 != times)
     {
  //rst = mpu_read_reg(0x37, &int_cfg);
@@ -296,8 +299,11 @@ static void int_callback(void *argv)
  //rst = mpu_read_reg(0x3A, &int_sta);
         g_mpu_fifo_ready = TRUE;
     }
+#endif
     times++;
+		while(1);
 }
+*/
 
 static void run_self_test(void)
 {

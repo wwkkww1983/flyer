@@ -27,6 +27,9 @@
 /* board.c使用 */
 extern I2C_HandleTypeDef g_sensor_handle;
 
+/* main.c测试使用 */
+extern bool_T g_tx_cplt;
+
 /*********************************** 接口函数 **********************************/
 void sensor_init(void);
 void sensor_read_poll(uint8_T dev_addr, uint16_T reg_addr, uint8_T *buf, uint32_T n);

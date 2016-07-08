@@ -30,6 +30,8 @@
 /* board.c使用 */
 I2C_HandleTypeDef g_sensor_handle;
 
+bool_T g_tx_cplt = TRUE;
+
 /********************************** 函数实现区 *********************************/
 void sensor_init(void)
 {
@@ -94,6 +96,8 @@ void sensor_test(void)
     ;
 }
 
+#if 0
+/* SENSOR_I2C_EV_IRQHandler & SENSOR_I2C_ER_IRQHandler 未使用 使用DMA提高效率 */
 void SENSOR_I2C_EV_IRQHandler(void)
 {
     HAL_I2C_EV_IRQHandler(&g_sensor_handle);
@@ -103,7 +107,13 @@ void SENSOR_I2C_ER_IRQHandler(void)
 {
     HAL_I2C_ER_IRQHandler(&g_sensor_handle);
 }
+#endif
 
+void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
+{
+    g_tx_cplt = TRUE;
+}
+	
 void SENSOR_I2C_DMA_RX_IRQHandler(void)
 {
     HAL_DMA_IRQHandler(g_sensor_handle.hdmarx);

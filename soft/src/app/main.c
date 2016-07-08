@@ -24,6 +24,8 @@
 #include "sensor.h"
 #include "esp8266.h"
 
+#include "mpu9250.h"
+#include "inv_mpu.h"
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/ 
@@ -89,13 +91,23 @@ static int32_T rst = 0;
 static int32_T count = 0;
 static uint8_T val = 0;
 int main(void)
-{ 
+{
+UNUSED(gyro);
+UNUSED(accel);
+UNUSED(timestamp);
+UNUSED(sensor);
+UNUSED(more);
+UNUSED(times);
+UNUSED(rst);
+UNUSED(count);
+UNUSED(val);
+	
     extern bool_T g_mpu_fifo_ready;
     extern int16_T g_int_status;
     int mpu_read_fifo(short *gyro, short *accel, unsigned long *timestamp, unsigned char *sensors, unsigned char *more);
     init();
     hard_test();
-    //while(1)
+    //while(1);
 
 #if 0
     uint32_T timestamp1 = HAL_GetTick();
@@ -115,12 +127,13 @@ int main(void)
     mpu_get_accel_sens(&accel_sens);
     mpu_get_gyro_sens(&gyro_sens);
     pp_get_compass_mag_sens_adj(mag_sens_adj);
-		
+
+#if 0		
     while(1)
     {
+
         if(g_mpu_fifo_ready)
         { 
-#if 1
             gyro[0] = 0;
             gyro[1] = 0;
             gyro[2] = 0;
@@ -136,28 +149,59 @@ int main(void)
                 rst = mpu_read_fifo(gyro, accel, &timestamp, &sensor, &more);
                 count++;
             }while(more > 0);
-            g_mpu_fifo_ready = FALSE;
-						
-						if(0 == times % 500){
-							console_printf("times:%d, timestamp: %u, sensor: 0x%02x, more: 0x%02x\r\n",
-                    times,
-                    timestamp,
-                    sensor,
-                    more);
-            console_printf("accel: %7.4f %7.4f %7.4f\r\n",
-                    1.0f * accel[0]/accel_sens,
-                    1.0f * accel[1]/accel_sens,
-                    1.0f * accel[2]/accel_sens);
-            console_printf("gyro : %7.4f %7.4f %7.4f\r\n",
-                    gyro[0]/gyro_sens,
-                    gyro[1]/gyro_sens,
-                    gyro[2]/gyro_sens);
-						console_printf("\r\n");}
-						
+            g_mpu_fifo_ready = FALSE; 
+            
+            if(0 == times % 500)
+            {
+                console_printf("times:%d, timestamp: %u, sensor: 0x%02x, more: 0x%02x\r\n",
+                        times,
+                        timestamp,
+                        sensor,
+                        more);
+                console_printf("accel: %7.4f %7.4f %7.4f\r\n",
+                        1.0f * accel[0]/accel_sens,
+                        1.0f * accel[1]/accel_sens,
+                        1.0f * accel[2]/accel_sens);
+                console_printf("gyro : %7.4f %7.4f %7.4f\r\n",
+                        gyro[0]/gyro_sens,
+                        gyro[1]/gyro_sens,
+                        gyro[2]/gyro_sens);
+                console_printf("\r\n");
+            }
             times++;
-#endif
         }
     }
+#else
+    uint8_T buf[6];
+    while(1)
+    {
+        if(g_tx_cplt)
+        {
+            g_tx_cplt = FALSE;
+
+            /* TODO: 实现精确计时 */
+            HAL_I2C_Mem_Read_DMA(&g_sensor_handle, MPU9250_DEV_ADDR,  MPU9250_ACCEL_DATA_ADDR, I2C_MEMADD_SIZE_8BIT, buf, 6);	
+
+            //status = HAL_I2C_Mem_Read_DMA(&g_sensor_handle, MPU9250_DEV_ADDR,  MPU9250_GYRO_DATA_ADDR, I2C_MEMADD_SIZE_8BIT, buf, 6);
+            //status = HAL_I2C_Mem_Read_DMA(&g_sensor_handle, MPU9250_DEV_ADDR,  MPU9250_COMPASS_DATA_ADDR, I2C_MEMADD_SIZE_8BIT, buf, 6);
+            if(0 == times % 500)
+            {
+                int16_T buf_i16[3] = {0}; 
+                
+                buf_i16[0] = ((buf[0]) << 8) | buf[1];
+                buf_i16[1] = ((buf[2]) << 8) | buf[3];
+                buf_i16[2] = ((buf[4]) << 8) | buf[5]; 
+
+                console_printf("accel: %7.4f %7.4f %7.4f\r\n",
+                        1.0f * buf_i16[0]/accel_sens,
+                        1.0f * buf_i16[1]/accel_sens,
+                        1.0f * buf_i16[2]/accel_sens);
+            }
+            times++;
+        }
+    }
+#endif
+
 }
 
 /* 初始化 */
