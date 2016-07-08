@@ -175,7 +175,7 @@ void mpu9250_init(void)
     }
 
     console_printf("初始化MPU9250.\r\n");
-		mpu_set_int_latched(1);
+    //mpu_set_int_latched(1);
     if (mpu_init(NULL) != 0)
     {
         console_printf("初始化MPU失败!\r\n");
@@ -218,17 +218,17 @@ void mpu9250_init(void)
 
     run_self_test();
 
+    exti_set_callback(int_callback, NULL);
+    console_printf("MPU9250中断设置完成.\r\n");
+
     /* 内部设置中断 可以用于验证中断连接MCU硬件是有效的 */
     console_printf("设置MPU FIFO.\r\n");
     if (mpu_configure_fifo(INV_XYZ_GYRO|INV_XYZ_ACCEL)!=0)
     {
         console_printf("设置MPU FIFO失败.\r\n");
         return;
-    }
+    } 
 
-		exti_set_callback(int_callback, NULL);
-    console_printf("MPU9250中断设置完成.\r\n");
-		
     /*
      * 初始化 DMP:
      * 1. 注册回调函数

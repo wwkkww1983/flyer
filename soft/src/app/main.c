@@ -112,9 +112,9 @@ int main(void)
             do
             {
                 rst = mpu_read_fifo(gyro, accel, &timestamp, &sensor, &more);
-							  count++;
+                count++;
             }while(more > 0);
-						g_mpu_fifo_ready = FALSE;
+            g_mpu_fifo_ready = FALSE;
             times++;
         }
     }
