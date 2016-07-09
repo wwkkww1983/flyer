@@ -94,8 +94,8 @@ __Vectors       DCD     __initial_sp            ; Top of Stack
                 DCD     0                       ; TIM2
                 DCD     0                       ; TIM3
                 DCD     0                       ; TIM4
-                DCD     0                       ; I2C1 Event
-                DCD     0                       ; I2C1 Error
+                DCD     I2C1_EV_IRQHandler      ; I2C1 Event
+                DCD     I2C1_ER_IRQHandler      ; I2C1 Error
                 DCD     0                       ; I2C2 Event
                 DCD     0                       ; I2C2 Error
                 DCD     0                       ; SPI1
@@ -242,15 +242,17 @@ EXTI15_10_IRQHandler PROC
                 B       .
                 ENDP
 
-; Sensor I2C读取代码 C代码有重定义 仅使用DMA中断提高效率(EV中断过于频繁)
-;I2C1_EV_IRQHandler PROC
-                ;EXPORT  I2C1_EV_IRQHandler [WEAK]
-                ;B       .
-                ;ENDP
-;I2C1_ER_IRQHandler PROC
-                ;EXPORT  I2C1_ER_IRQHandler [WEAK]
-                ;B       .
-                ;ENDP
+; Sensor I2C读取代码 仅使用DMA中断提高效率(EV中断过于频繁)
+; 发生EV ER中断表示出错
+I2C1_EV_IRQHandler PROC
+                EXPORT  I2C1_EV_IRQHandler [WEAK]
+                B       .
+                ENDP
+I2C1_ER_IRQHandler PROC
+                EXPORT  I2C1_ER_IRQHandler [WEAK]
+                B       .
+                ENDP
+; C代码有重定义
 DMA1_Stream5_IRQHandler PROC
                 EXPORT  DMA1_Stream5_IRQHandler [WEAK]
                 B       .

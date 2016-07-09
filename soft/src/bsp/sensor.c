@@ -24,11 +24,17 @@
 #include "sensor.h"
 #include "console.h"
 
+#include "inv_mpu.h"
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/
 /* board.c使用 */
 I2C_HandleTypeDef g_sensor_handle;
+
+/* 数据解析需要使用 */
+uint16_T accel_sens = 0;
+f32_T    gyro_sens = 0.0f;
+int16_T  mag_sens_adj[3];
 
 bool_T g_tx_cplt = TRUE;
 
@@ -58,13 +64,17 @@ void sensor_init(void)
 
     /* mpu9250初始化 */
     mpu9250_init();
+    mpu_get_accel_sens(&accel_sens);
+    mpu_get_gyro_sens(&gyro_sens);
+    pp_get_compass_mag_sens_adj(mag_sens_adj);
+
     console_printf("mpu9250 初始化完成.\r\n");
 
     /* FIXME: 完成初始化
     bmp280_init();
     console_printf("bmp280_init 初始化完成.\r\n");
     */
-    
+
     return;
 }
 
@@ -91,23 +101,71 @@ void sensor_write_poll(uint8_T dev_addr, uint16_T reg_addr, const uint8_T *buf, 
     return;
 }
 
+
+uint8_T buf[6];
+int32_T times = 0;
 void sensor_test(void)
 {
-    ;
+    /* 获取校准参数 */
+    mpu_get_accel_sens(&accel_sens);
+    mpu_get_gyro_sens(&gyro_sens);
+    pp_get_compass_mag_sens_adj(mag_sens_adj);
+
+    while(1)
+    {
+        if(g_tx_cplt)
+        {
+            g_tx_cplt = FALSE;
+
+            /* TODO: 实现精确计时 */
+            if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_sensor_handle, MPU9250_DEV_ADDR,
+                        MPU9250_ACCEL_DATA_ADDR, I2C_MEMADD_SIZE_8BIT, buf, 6))
+            {
+                while(1);
+            }
+#if 0
+            if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_sensor_handle, MPU9250_DEV_ADDR,
+                    MPU9250_GYRO_DATA_ADDR, I2C_MEMADD_SIZE_8BIT, buf, 6))
+            {
+                while(1);
+            }
+            if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_sensor_handle, MPU9250_DEV_ADDR,
+                        MPU9250_COMPASS_DATA_ADDR, I2C_MEMADD_SIZE_8BIT, buf, 6))
+            {
+                while(1);
+            }
+#endif
+            if(0 == times % 500)
+            {
+                int16_T buf_i16[3] = {0};
+
+                buf_i16[0] = ((buf[0]) << 8) | buf[1];
+                buf_i16[1] = ((buf[2]) << 8) | buf[3];
+                buf_i16[2] = ((buf[4]) << 8) | buf[5];
+
+                console_printf("accel: %7.4f %7.4f %7.4f\r\n",
+                        1.0f * buf_i16[0]/accel_sens,
+                        1.0f * buf_i16[1]/accel_sens,
+                        1.0f * buf_i16[2]/accel_sens);
+            }
+            times++;
+        }
+    }
 }
 
-#if 0
 /* SENSOR_I2C_EV_IRQHandler & SENSOR_I2C_ER_IRQHandler 未使用 使用DMA提高效率 */
+/* 发生EV ER中断表示出错 */
 void SENSOR_I2C_EV_IRQHandler(void)
 {
-    HAL_I2C_EV_IRQHandler(&g_sensor_handle);
+    while(1);
+    /* HAL_I2C_EV_IRQHandler(&g_sensor_handle); */
 }
 
 void SENSOR_I2C_ER_IRQHandler(void)
 {
-    HAL_I2C_ER_IRQHandler(&g_sensor_handle);
+    while(1);
+    /* HAL_I2C_ER_IRQHandler(&g_sensor_handle); */
 }
-#endif
 
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {

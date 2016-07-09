@@ -24,8 +24,6 @@
 #include "sensor.h"
 #include "esp8266.h"
 
-#include "mpu9250.h"
-#include "inv_mpu.h"
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/ 
@@ -81,127 +79,10 @@ static void hard_test(void);
 * 其 它   : 获取MPU9250数据 中断中完成
 *
 ******************************************************************************/
-static int16_T gyro[3];
-static int16_T accel[3];
-static uint32_T timestamp;
-static uint8_T sensor;
-static uint8_T more;
-static int32_T times = 0;
-static int32_T rst = 0;
-static int32_T count = 0;
-static uint8_T val = 0;
 int main(void)
 {
-UNUSED(gyro);
-UNUSED(accel);
-UNUSED(timestamp);
-UNUSED(sensor);
-UNUSED(more);
-UNUSED(times);
-UNUSED(rst);
-UNUSED(count);
-UNUSED(val);
-	
-    extern bool_T g_mpu_fifo_ready;
-    extern int16_T g_int_status;
-    int mpu_read_fifo(short *gyro, short *accel, unsigned long *timestamp, unsigned char *sensors, unsigned char *more);
     init();
     hard_test();
-    //while(1);
-
-#if 0
-    uint32_T timestamp1 = HAL_GetTick();
-    for(int i = 0; i<9999; i++)
-    {
-        sensor_read_poll(0xD0, 0x75, &val, 1); 
-    }
-    uint32_T timestamp2 = HAL_GetTick();
-    timestamp = timestamp2 - timestamp1;
-    console_printf("吞吐率%.02fB/s", 9999.0 * 1000 / timestamp);
-#endif
-
-    uint16_T accel_sens = 0;
-    f32_T    gyro_sens = 0.0f;
-    int16_T mag_sens_adj[3];
-		
-    mpu_get_accel_sens(&accel_sens);
-    mpu_get_gyro_sens(&gyro_sens);
-    pp_get_compass_mag_sens_adj(mag_sens_adj);
-
-#if 0		
-    while(1)
-    {
-
-        if(g_mpu_fifo_ready)
-        { 
-            gyro[0] = 0;
-            gyro[1] = 0;
-            gyro[2] = 0;
-            accel[0] = 0;
-            accel[1] = 0;
-            accel[2] = 0;
-            timestamp = 0;
-            sensor = 0;
-            more = 0;
-            count = 0;
-            do
-            {
-                rst = mpu_read_fifo(gyro, accel, &timestamp, &sensor, &more);
-                count++;
-            }while(more > 0);
-            g_mpu_fifo_ready = FALSE; 
-            
-            if(0 == times % 500)
-            {
-                console_printf("times:%d, timestamp: %u, sensor: 0x%02x, more: 0x%02x\r\n",
-                        times,
-                        timestamp,
-                        sensor,
-                        more);
-                console_printf("accel: %7.4f %7.4f %7.4f\r\n",
-                        1.0f * accel[0]/accel_sens,
-                        1.0f * accel[1]/accel_sens,
-                        1.0f * accel[2]/accel_sens);
-                console_printf("gyro : %7.4f %7.4f %7.4f\r\n",
-                        gyro[0]/gyro_sens,
-                        gyro[1]/gyro_sens,
-                        gyro[2]/gyro_sens);
-                console_printf("\r\n");
-            }
-            times++;
-        }
-    }
-#else
-    uint8_T buf[6];
-    while(1)
-    {
-        if(g_tx_cplt)
-        {
-            g_tx_cplt = FALSE;
-
-            /* TODO: 实现精确计时 */
-            HAL_I2C_Mem_Read_DMA(&g_sensor_handle, MPU9250_DEV_ADDR,  MPU9250_ACCEL_DATA_ADDR, I2C_MEMADD_SIZE_8BIT, buf, 6);	
-
-            //status = HAL_I2C_Mem_Read_DMA(&g_sensor_handle, MPU9250_DEV_ADDR,  MPU9250_GYRO_DATA_ADDR, I2C_MEMADD_SIZE_8BIT, buf, 6);
-            //status = HAL_I2C_Mem_Read_DMA(&g_sensor_handle, MPU9250_DEV_ADDR,  MPU9250_COMPASS_DATA_ADDR, I2C_MEMADD_SIZE_8BIT, buf, 6);
-            if(0 == times % 500)
-            {
-                int16_T buf_i16[3] = {0}; 
-                
-                buf_i16[0] = ((buf[0]) << 8) | buf[1];
-                buf_i16[1] = ((buf[2]) << 8) | buf[3];
-                buf_i16[2] = ((buf[4]) << 8) | buf[5]; 
-
-                console_printf("accel: %7.4f %7.4f %7.4f\r\n",
-                        1.0f * buf_i16[0]/accel_sens,
-                        1.0f * buf_i16[1]/accel_sens,
-                        1.0f * buf_i16[2]/accel_sens);
-            }
-            times++;
-        }
-    }
-#endif
-
 }
 
 /* 初始化 */
@@ -273,3 +154,87 @@ static void hard_test(void)
     TRACE_FUNC_OUT;
 }
 
+
+#if 0
+    uint32_T timestamp1 = HAL_GetTick();
+    for(int i = 0; i<9999; i++)
+    {
+        sensor_read_poll(0xD0, 0x75, &val, 1);
+    }
+    uint32_T timestamp2 = HAL_GetTick();
+    timestamp = timestamp2 - timestamp1;
+    console_printf("吞吐率%.02fB/s", 9999.0 * 1000 / timestamp);
+#endif
+
+/* 读取FIFO */
+#if 0
+static int16_T gyro[3];
+static int16_T accel[3];
+static uint32_T timestamp;
+static uint8_T sensor;
+static uint8_T more;
+static int32_T times = 0;
+static int32_T rst = 0;
+static int32_T count = 0;
+static uint8_T val = 0;
+
+void read_fifo_func(void)
+{
+    UNUSED(gyro);
+    UNUSED(accel);
+    UNUSED(timestamp);
+    UNUSED(sensor);
+    UNUSED(more);
+    UNUSED(times);
+    UNUSED(rst);
+    UNUSED(count);
+    UNUSED(val);
+
+    extern bool_T g_mpu_fifo_ready;
+    extern int16_T g_int_status;
+    int mpu_read_fifo(short *gyro, short *accel, unsigned long *timestamp, unsigned char *sensors, unsigned char *more);
+
+    while(1)
+    {
+
+        if(g_mpu_fifo_ready)
+        {
+            gyro[0] = 0;
+            gyro[1] = 0;
+            gyro[2] = 0;
+            accel[0] = 0;
+            accel[1] = 0;
+            accel[2] = 0;
+            timestamp = 0;
+            sensor = 0;
+            more = 0;
+            count = 0;
+            do
+            {
+                rst = mpu_read_fifo(gyro, accel, &timestamp, &sensor, &more);
+                count++;
+            }while(more > 0);
+            g_mpu_fifo_ready = FALSE;
+
+            if(0 == times % 500)
+            {
+                console_printf("times:%d, timestamp: %u, sensor: 0x%02x, more: 0x%02x\r\n",
+                        times,
+                        timestamp,
+                        sensor,
+                        more);
+                console_printf("accel: %7.4f %7.4f %7.4f\r\n",
+                        1.0f * accel[0]/accel_sens,
+                        1.0f * accel[1]/accel_sens,
+                        1.0f * accel[2]/accel_sens);
+                console_printf("gyro : %7.4f %7.4f %7.4f\r\n",
+                        gyro[0]/gyro_sens,
+                        gyro[1]/gyro_sens,
+                        gyro[2]/gyro_sens);
+                console_printf("\r\n");
+            }
+            times++;
+        }
+    }
+}
+#endif
