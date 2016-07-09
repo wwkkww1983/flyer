@@ -19,6 +19,7 @@
 #include "typedef.h"
 #include "config.h"
 #include "board.h"
+#include "misc.h"
 #include "mpu9250.h"
 #include "bmp280.h"
 #include "sensor.h"
@@ -102,8 +103,16 @@ void sensor_write_poll(uint8_T dev_addr, uint16_T reg_addr, const uint8_T *buf, 
 }
 
 
-uint8_T buf[6];
+uint8_T buf[22];
 int32_T times = 0;
+uint32_T ms1 = 0;
+uint32_T ms2 = 0;
+uint32_T ms3 = 0;
+uint32_T clk1 = 0;
+uint32_T clk2 = 0;
+uint32_T clk3 = 0;
+uint32_T diffms = 0;
+uint32_T diffclk = 0;
 void sensor_test(void)
 {
     /* 获取校准参数 */
@@ -115,39 +124,110 @@ void sensor_test(void)
     {
         if(g_tx_cplt)
         {
-            g_tx_cplt = FALSE;
+            g_tx_cplt = FALSE; 
 
-            /* TODO: 实现精确计时 */
+#if 0
+            if(1 == times)
+            {
+                get_now(&ms3, &clk3); 
+                diff_clk(&diffms, &diffclk, ms1, clk1, ms3, clk3); 
+                console_printf("6Bytes 包发送时间:time: %u ms, %.2fus", diffms,  1.0f * diffclk / 84)
+            }
+            /* 加计数据 */
+            get_now(&ms1, &clk1);
             if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_sensor_handle, MPU9250_DEV_ADDR,
                         MPU9250_ACCEL_DATA_ADDR, I2C_MEMADD_SIZE_8BIT, buf, 6))
             {
                 while(1);
             }
+            get_now(&ms2, &clk2); 
+            diff_clk(&diffms, &diffclk, ms1, clk1, ms2, clk2);
+
+#else
+            if(1 == times)
+            {
+                get_now(&ms3, &clk3); 
+                diff_clk(&diffms, &diffclk, ms1, clk1, ms3, clk3); 
+                console_printf("14Bytes 包发送时间:time: %u ms, %.2fus", diffms,  1.0f * diffclk / 84);
+            }
+            /* 加计&陀螺 数据 */
+            get_now(&ms1, &clk1);
+            if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_sensor_handle, MPU9250_DEV_ADDR,
+                        MPU9250_ACCEL_DATA_ADDR, I2C_MEMADD_SIZE_8BIT, buf, 14))
+            {
+                while(1);
+            }
+            get_now(&ms2, &clk2); 
+            diff_clk(&diffms, &diffclk, ms1, clk1, ms2, clk2); 
+            console_printf("请求发送时间:time: %u ms, %.2fus", diffms,  1.0f * diffclk / 84);
+
 #if 0
+            /* 加计&陀螺&磁力计 数据 */
+            get_now(&ms1, &clk1);
             if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_sensor_handle, MPU9250_DEV_ADDR,
-                    MPU9250_GYRO_DATA_ADDR, I2C_MEMADD_SIZE_8BIT, buf, 6))
+                        MPU9250_ACCEL_DATA_ADDR, I2C_MEMADD_SIZE_8BIT, buf, 22))
             {
                 while(1);
             }
-            if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_sensor_handle, MPU9250_DEV_ADDR,
-                        MPU9250_COMPASS_DATA_ADDR, I2C_MEMADD_SIZE_8BIT, buf, 6))
-            {
-                while(1);
-            }
+            get_now(&ms2, &clk2); 
+            diff_clk(&diffms, &diffclk, ms1, clk1, ms2, clk2);
 #endif
+
             if(0 == times % 500)
-            {
-                int16_T buf_i16[3] = {0};
+            { 
+                int16_T buf_i16[10] = {0};
+
+                buf_i16[3] = ((buf[6]) << 8) | buf[7];
 
                 buf_i16[0] = ((buf[0]) << 8) | buf[1];
                 buf_i16[1] = ((buf[2]) << 8) | buf[3];
                 buf_i16[2] = ((buf[4]) << 8) | buf[5];
 
+                buf_i16[4] = ((buf[8]) << 8) | buf[9];
+                buf_i16[5] = ((buf[10]) << 8) | buf[11];
+                buf_i16[6] = ((buf[12]) << 8) | buf[13];
+
+
+                console_printf("time: %u ms, %.2fus, temp: %ld", 
+                        ms2,  1.0f * clk2 / 84,
+                        (long)((35 + (1.0f * buf_i16[3] / 321) * 65536L)));
+
                 console_printf("accel: %7.4f %7.4f %7.4f\r\n",
-                        1.0f * buf_i16[0]/accel_sens,
-                        1.0f * buf_i16[1]/accel_sens,
-                        1.0f * buf_i16[2]/accel_sens);
+                        1.0f * buf_i16[0] / accel_sens,
+                        1.0f * buf_i16[1] / accel_sens,
+                        1.0f * buf_i16[2] / accel_sens);
+
+                console_printf("gyro:  %7.4f %7.4f %7.4f\r\n",
+                        1.0f * buf_i16[4] / gyro_sens,
+                        1.0f * buf_i16[5] / gyro_sens,
+                        1.0f * buf_i16[6] / gyro_sens); 
+
+                /* 磁力计读取 原理上有问题 */
+                buf_i16[7] = ((buf[15]) << 8) | buf[16];
+                buf_i16[8] = ((buf[17]) << 8) | buf[18];
+                buf_i16[9] = ((buf[19]) << 8) | buf[20];
+                console_printf("compass ");
+                if (!(buf[14] & MPU9250_AKM_DATA_READY)
+                  || (buf[14] & MPU9250_AKM_DATA_OVERRUN)
+                  || (buf[21] & MPU9250_AKM_OVERFLOW))
+                {
+                    console_printf("data error: 0x%04x 0x%03x 0x%04x, 0x%02x, 0x%02x.\r\n\r\n",
+                            buf_i16[7] * mag_sens_adj[0] >> 8,
+                            buf_i16[8] * mag_sens_adj[1] >> 8,
+                            buf_i16[9] * mag_sens_adj[2] >> 8,
+                            buf[14], buf[21]);
+                }
+                else 
+                {
+                    console_printf(": 0x%04x 0x%03x 0x%04x, 0x%02x, 0x%02x.\r\n\r\n",
+                            buf_i16[7] * mag_sens_adj[0] >> 8,
+                            buf_i16[8] * mag_sens_adj[1] >> 8,
+                            buf_i16[9] * mag_sens_adj[2] >> 8,
+                            buf[14], buf[21]);
+                }
             }
+#endif
+
             times++;
         }
     }

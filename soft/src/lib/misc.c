@@ -94,3 +94,47 @@ void get_now(uint32_T *ms, uint32_T *clk)
     *clk = SysTick->LOAD - SysTick->VAL;
 }
 
+/*******************************************************************************
+*
+* 函数名  : diff_clk
+* 负责人  : 彭鹏
+* 创建日期: 20160709
+* 函数功能: 计算时间差
+*
+* 输入参数: ms1  - 起点ms
+*           clk1 - 起点clk
+*           ms2  - 终点ms
+*           clk2 - 终点clk
+*
+* 输出参数: ms   - 毫秒差值 指针
+*           clk  - clk差值 指针
+*
+* 返回值  : 无
+* 调用关系: 无
+* 其 它   : 无
+*
+******************************************************************************/
+void diff_clk(uint32_T *ms, uint32_T *clk, 
+        uint32_T ms1, uint32_T clk1, 
+        uint32_T ms2, uint32_T clk2)
+{
+    if( (ms2 < ms1) /* ms 只可能增大 */
+    || ((clk2 < clk1) && (ms2 == ms1))) /* 必须有位可借 */
+    {
+        ;
+    }
+
+    /* 计算差值 */
+    if(clk2 > clk1)
+    {
+        *clk = clk2 - clk1;
+    }
+    else /* 有溢出 借位 */
+    {
+        ms2 -= 1;
+        clk2 += SysTick->LOAD;
+        *clk = clk2 - clk1;
+    }
+    *ms = ms2 - ms1;
+}
+

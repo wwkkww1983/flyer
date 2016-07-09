@@ -28,6 +28,9 @@
 #define MPU9250_ACCEL_DATA_ADDR             (0x3B)
 #define MPU9250_GYRO_DATA_ADDR              (0x43)
 #define MPU9250_COMPASS_DATA_ADDR           (0x49)
+#define MPU9250_AKM_DATA_READY              (0x01)
+#define MPU9250_AKM_DATA_OVERRUN            (0x02)
+#define MPU9250_AKM_OVERFLOW                (0x80)
 
 /*--------------------------------- 接口声明区 --------------------------------*/
 
