@@ -82,8 +82,10 @@ void sensor_init(void)
         console_printf("AKM8963正常工作.\r\n");
     }
 
+
+    uint8_T buf[AKM8963_REG_NUMS] = {0};
 #if 1
-    /* inv_mpu驱动是否可读 */
+    // inv_mpu驱动读
     int32_T i = 0;
     int32_T j = 0;
     int16_T data[3] = {0};
@@ -99,13 +101,98 @@ void sensor_init(void)
     }
 
 #else
+    // 手册读
+    uint32_T ms_start = 0;
+    uint32_T ms_end = 0;
+    uint32_T times = 0;
+    uint32_T read_times = 100;
+    val = AKM8963_16BITS | AKM8963_MODE_C1;
+    sensor_write_poll(AKM8963_DEV_ADDR, AKM8963_CNTL1_REG_ADDR, &val, 1);
+    ms_start = HAL_GetTick();
+    while(1)
+
+#if 0
+    { 
+        /* 从ST1读到ST2 DMA不耗CPU */
+        sensor_read_poll(AKM8963_DEV_ADDR, AKM8963_DATA_FIRST_ADDR, buf, AKM8963_DATA_LENGTH);
+        if(AKM8963_ST1_DRDY_BIT & buf[0]) /* 有效数据 */
+        { 
+            if(AKM8963_ST1_DOR_BIT & buf[0])
+            {
+                console_printf("AKM8963 有测量值跳过.\r\n");
+                continue;
+            }
+            if(AKM8963_ST2_HOFL_BIT & buf[7])
+            {
+                console_printf("AKM8963 溢出.\r\n");
+                continue;
+            } 
+
+            console_printf("test %d times:", times);
+            console_printf("ST1:0x%02x,", buf[0]);
+            console_printf("ST2:0x%02x,", buf[7]);
+            /* 有效数据 */
+            console_printf("X:0x%02x%02x,", buf[2], buf[1]);
+            console_printf("Y:0x%02x%02x,", buf[4], buf[3]);
+            console_printf("Z:0x%02x%02x\r\n", buf[6], buf[5]);
+
+            console_printf("X:0x%7.4f,", 
+                    (((long)((buf[2] << 8) | buf[1]) * mag_sens_adj[0] ) >> 8) * 0.15f);
+            console_printf("X:0x%7.4f,", 
+                    (((long)((buf[4] << 8) | buf[3]) * mag_sens_adj[1] ) >> 8) * 0.15f);
+            console_printf("X:0x%7.4f,", 
+                    (((long)((buf[6] << 8) | buf[5]) * mag_sens_adj[2] ) >> 8) * 0.15f);
+            times++;
+            if(times > read_times)
+            {
+                break;
+            }
+        }
+    }
+#else
+    /* 避免一次读太多导致问题 */
+    { 
+        /* 仅读ST1 */
+        sensor_read_poll(AKM8963_DEV_ADDR, AKM8963_ST1_REG_ADDR, buf, 1);
+        if(AKM8963_ST1_DRDY_BIT & buf[0]) /* 有效数据 */
+        { 
+            sensor_read_poll(AKM8963_DEV_ADDR, AKM8963_HXL_REG_ADDR, buf + 1, 7);
+            if(AKM8963_ST1_DOR_BIT & buf[0])
+            {
+                console_printf("AKM8963 有测量值跳过.\r\n");
+                continue;
+            }
+            if(AKM8963_ST2_HOFL_BIT & buf[7])
+            {
+                console_printf("AKM8963 溢出.\r\n");
+                continue;
+            } 
+            
+            console_printf("test %d times:", times);
+            console_printf("ST1:0x%02x,", buf[0]);
+            console_printf("ST2:0x%02x,", buf[7]);
+            /* 有效数据 */
+            console_printf("X:0x%02x%02x,", buf[2], buf[1]);
+            console_printf("Y:0x%02x%02x,", buf[4], buf[3]);
+            console_printf("Z:0x%02x%02x\r\n", buf[6], buf[5]); 
+            times++;
+            if(times > read_times)
+            {
+                break;
+            }
+        }
+    }
+#endif
+
+    ms_end = HAL_GetTick(); 
+    console_printf("%7.4fms / per data", 1.0f * (ms_end - ms_start) / times);
+
+#if 0
     /* 无法读到数据 */
     /* 配置为 16bit采样 + 连续工作模式 8Hz */
     HAL_Delay(1);
-    val = AKM8963_16BITS_CON2;
+    val = AKM8963_16BITS | AKM8963_MODE_C1
     sensor_write_poll(AKM8963_DEV_ADDR, AKM8963_CNTL1_REG_ADDR, &val, 1);
-
-    uint8_T buf[AKM8963_DATA_LENGTH] = {0};
     uint32_T ms = 0;
     int i = 0;
     while( i++ < 10)
@@ -127,6 +214,8 @@ void sensor_init(void)
         }
         HAL_Delay(1000);
     }
+#endif
+
 #endif
 
     /* FIXME: 完成初始化
