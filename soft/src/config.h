@@ -38,7 +38,7 @@
 #define ESP8266_BAUDRATE                                    (115200U)
 
 /* uart 行缓冲的长度 64Bytes */
-#define UART_LINE_BUF_SIZE                                  (64U)
+#define UART_LINE_BUF_SIZE                                  (128U)
 
 /* Sensor i2c速度 */
 #define SENSOR_I2C_RATE                                     (400000)

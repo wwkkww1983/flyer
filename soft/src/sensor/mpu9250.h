@@ -24,13 +24,26 @@
 #define MPU9250_DEV_ADDR                    (0xD0)
 #define MPU9250_WHO_AM_I_REG_ADDR           (0x75)
 #define MPU9250_WHO_AM_I_REG_VALUE          (0x71)
-#define MPU9250_COMPASS_DEV_ADDR            (MPU9250_DEV_ADDR)
 #define MPU9250_ACCEL_DATA_ADDR             (0x3B)
 #define MPU9250_GYRO_DATA_ADDR              (0x43)
-#define MPU9250_COMPASS_DATA_ADDR           (0x49)
-#define MPU9250_AKM_DATA_READY              (0x01)
-#define MPU9250_AKM_DATA_OVERRUN            (0x02)
-#define MPU9250_AKM_OVERFLOW                (0x80)
+#define MPU9250_ALL_FIRST_DATA_ADDR         (MPU9250_ACCEL_DATA_ADDR)
+#define MPU9250_ACCEL_DATA_LENGTH           (6)
+#define MPU9250_ALL_DATA_LENGTH             (14)
+
+#define AKM8963_DEV_ADDR                    (0x18)
+#define AKM8963_WIA_REG_ADDR                (0x00)
+#define AKM8963_WIA_REG_VAL                 (0x48)
+#define AKM8963_CNTL1_REG_ADDR              (0x0A)
+#define AKM8963_16BITS_CON2                 (0x16)
+
+#define AKM8963_DATA_FIRST_ADDR             (0x00)
+#define AKM8963_DATA_LENGTH                 (19)
+
+#define AKM8963_REG_FIRST                   (0x00)
+#define AKM8963_REG_NUMS                    (19)
+#define AKM8963_DATA_READY                  (0x01)
+#define AKM8963_DATA_OVERRUN                (0x02)
+#define AKM8963_OVERFLOW                    (0x80)
 
 /*--------------------------------- 接口声明区 --------------------------------*/
 

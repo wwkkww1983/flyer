@@ -166,16 +166,15 @@ void mpu9250_init(void)
 {
     uint8_T dev_status = 0;
     uint8_T who_am_i = 0;
-    //uint16_T dmp_features = 0;
+
     /* 测试i2c是否正常工作 */
     sensor_read_poll(MPU9250_DEV_ADDR, MPU9250_WHO_AM_I_REG_ADDR, &who_am_i, 1); 
     if(MPU9250_WHO_AM_I_REG_VALUE == who_am_i)
     {
-        console_printf("MPU9250正常读取who_am_i:0x%02x.\r\n", who_am_i);
+        console_printf("MPU9250正常工作.\r\n");
     }
 
     console_printf("初始化MPU9250.\r\n");
-    //mpu_set_int_latched(1);
     if (mpu_init(NULL) != 0)
     {
         console_printf("初始化MPU失败!\r\n");

@@ -1623,7 +1623,9 @@ int mpu_set_sensors(unsigned char sensors)
 {
     unsigned char data;
 #ifdef AK89xx_SECONDARY
+#ifndef AK89xx_BYPASS
     unsigned char user_ctrl;
+#endif
 #endif
 
     if (sensors & INV_XYZ_GYRO)

@@ -65,11 +65,53 @@ void sensor_init(void)
 
     /* mpu9250初始化 */
     mpu9250_init();
+    /* 获取校准参数 */
     mpu_get_accel_sens(&accel_sens);
     mpu_get_gyro_sens(&gyro_sens);
     pp_get_compass_mag_sens_adj(mag_sens_adj);
 
     console_printf("mpu9250 初始化完成.\r\n");
+
+
+    /* FIXME: 封装AKM8963到独立文件 */
+    /* ak8963 初始化 */
+    uint8_T val = 0;
+    sensor_read_poll(AKM8963_DEV_ADDR, AKM8963_WIA_REG_ADDR, &val, 1); 
+    if(AKM8963_WIA_REG_VAL == val)
+    {
+        console_printf("AKM8963正常工作.\r\n");
+    } 
+    
+#if 0
+    /* 无法读到数据 */
+    /* 配置为 16bit采样 + 连续工作模式 8Hz */
+    HAL_Delay(1);
+    val = AKM8963_16BITS_CON2;
+    sensor_write_poll(AKM8963_DEV_ADDR, AKM8963_CNTL1_REG_ADDR, &val, 1); 
+
+    uint8_T buf[AKM8963_DATA_LENGTH] = {0}; 
+    uint32_T ms = 0;
+    int i = 0;
+    while( i++ < 10)
+    {
+        for(int32_T i = 0; i < AKM8963_DATA_LENGTH; i++)
+        {
+            buf[i] = 0x00;
+        }
+
+        ms = HAL_GetTick(); 
+        val = 0x11;
+        sensor_write_poll(AKM8963_DEV_ADDR, AKM8963_CNTL1_REG_ADDR, &val, 1); 
+        HAL_Delay(1);
+        sensor_read_poll(AKM8963_DEV_ADDR, AKM8963_DATA_FIRST_ADDR, buf, AKM8963_DATA_LENGTH); 
+        console_printf("%lu ms\r\n", ms);
+        for(int32_T i = 0; i < AKM8963_DATA_LENGTH; i++)
+        {
+            console_printf("0x%02x:0x%02x\r\n", i, buf[i]);
+        }
+        HAL_Delay(1000);
+    }
+#endif
 
     /* FIXME: 完成初始化
     bmp280_init();
@@ -103,22 +145,24 @@ void sensor_write_poll(uint8_T dev_addr, uint16_T reg_addr, const uint8_T *buf, 
 }
 
 
-uint8_T buf[22];
-int32_T times = 0;
-uint32_T ms1 = 0;
-uint32_T ms2 = 0;
-uint32_T ms3 = 0;
-uint32_T clk1 = 0;
-uint32_T clk2 = 0;
-uint32_T clk3 = 0;
-uint32_T diffms = 0;
-uint32_T diffclk = 0;
 void sensor_test(void)
 {
-    /* 获取校准参数 */
-    mpu_get_accel_sens(&accel_sens);
-    mpu_get_gyro_sens(&gyro_sens);
-    pp_get_compass_mag_sens_adj(mag_sens_adj);
+
+    uint8_T buf[19];
+    int16_T buf_i16[7] = {0};
+    int32_T times = 0;
+    uint32_T ms1 = 0;
+    uint32_T ms2 = 0;
+    uint32_T ms3 = 0;
+    uint32_T clk1 = 0;
+    uint32_T clk2 = 0;
+    uint32_T clk3 = 0;
+    uint32_T diffms1 = 0;
+    uint32_T diffclk1 = 0;
+    uint32_T diffms2 = 0;
+    uint32_T diffclk2 = 0; 
+    
+    console_printf("传感器测试开始.\r\n");
 
     while(1)
     {
@@ -126,111 +170,111 @@ void sensor_test(void)
         {
             g_tx_cplt = FALSE; 
 
-#if 0
-            if(1 == times)
-            {
-                get_now(&ms3, &clk3); 
-                diff_clk(&diffms, &diffclk, ms1, clk1, ms3, clk3); 
-                console_printf("6Bytes 包发送时间:time: %u ms, %.2fus", diffms,  1.0f * diffclk / 84)
-            }
-            /* 加计数据 */
-            get_now(&ms1, &clk1);
-            if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_sensor_handle, MPU9250_DEV_ADDR,
-                        MPU9250_ACCEL_DATA_ADDR, I2C_MEMADD_SIZE_8BIT, buf, 6))
-            {
-                while(1);
-            }
-            get_now(&ms2, &clk2); 
-            diff_clk(&diffms, &diffclk, ms1, clk1, ms2, clk2);
-
-#else
-            if(1 == times)
-            {
-                get_now(&ms3, &clk3); 
-                diff_clk(&diffms, &diffclk, ms1, clk1, ms3, clk3); 
-                console_printf("14Bytes 包发送时间:time: %u ms, %.2fus", diffms,  1.0f * diffclk / 84);
-            }
-            /* 加计&陀螺 数据 */
-            get_now(&ms1, &clk1);
-            if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_sensor_handle, MPU9250_DEV_ADDR,
-                        MPU9250_ACCEL_DATA_ADDR, I2C_MEMADD_SIZE_8BIT, buf, 14))
-            {
-                while(1);
-            }
-            get_now(&ms2, &clk2); 
-            diff_clk(&diffms, &diffclk, ms1, clk1, ms2, clk2); 
-            console_printf("请求发送时间:time: %u ms, %.2fus", diffms,  1.0f * diffclk / 84);
-
-#if 0
-            /* 加计&陀螺&磁力计 数据 */
-            get_now(&ms1, &clk1);
-            if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_sensor_handle, MPU9250_DEV_ADDR,
-                        MPU9250_ACCEL_DATA_ADDR, I2C_MEMADD_SIZE_8BIT, buf, 22))
-            {
-                while(1);
-            }
-            get_now(&ms2, &clk2); 
-            diff_clk(&diffms, &diffclk, ms1, clk1, ms2, clk2);
-#endif
-
-            if(0 == times % 500)
+            /* 启动加计测试 */
+            if(0 == times)
             { 
-                int16_T buf_i16[10] = {0};
+                /* 加计数据 */
+                get_now(&ms1, &clk1);
+                if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_sensor_handle, MPU9250_DEV_ADDR,
+                            MPU9250_ALL_FIRST_DATA_ADDR, I2C_MEMADD_SIZE_8BIT, buf, MPU9250_ACCEL_DATA_LENGTH))
+                {
+                    while(1);
+                }
+                get_now(&ms2, &clk2); 
+            }
 
-                buf_i16[3] = ((buf[6]) << 8) | buf[7];
+            /* 统计陀螺仪结果 & 启动加计温度陀螺仪测试 */
+            if(1 == times)
+            {
+                get_now(&ms3, &clk3); 
+                diff_clk(&diffms1, &diffclk1, ms1, clk1, ms2, clk2); 
+                diff_clk(&diffms2, &diffclk2, ms2, clk2, ms3, clk3); 
 
                 buf_i16[0] = ((buf[0]) << 8) | buf[1];
                 buf_i16[1] = ((buf[2]) << 8) | buf[3];
                 buf_i16[2] = ((buf[4]) << 8) | buf[5];
-
-                buf_i16[4] = ((buf[8]) << 8) | buf[9];
-                buf_i16[5] = ((buf[10]) << 8) | buf[11];
-                buf_i16[6] = ((buf[12]) << 8) | buf[13];
-
-
-                console_printf("time: %u ms, %.2fus, temp: %ld", 
-                        ms2,  1.0f * clk2 / 84,
-                        (long)((35 + (1.0f * buf_i16[3] / 321) * 65536L)));
-
-                console_printf("accel: %7.4f %7.4f %7.4f\r\n",
+                console_printf("test%d 加计(%dBytes):\r\n", times, MPU9250_ACCEL_DATA_LENGTH);
+                console_printf("DMA读取请求耗时(%dBytes):time: %u ms, %.2fus\r\n", MPU9250_ACCEL_DATA_LENGTH, diffms1,  1.0f * diffclk1 / 84);
+                console_printf("数据读取耗时(%dBytes):   time: %u ms, %.2fus\r\n", MPU9250_ACCEL_DATA_LENGTH, diffms2,  1.0f * diffclk2 / 84);
+                console_printf("加计  : %7.4f %7.4f %7.4f\r\n",
                         1.0f * buf_i16[0] / accel_sens,
                         1.0f * buf_i16[1] / accel_sens,
                         1.0f * buf_i16[2] / accel_sens);
 
-                console_printf("gyro:  %7.4f %7.4f %7.4f\r\n",
+                /* 加计温度陀螺仪测试 */
+                get_now(&ms1, &clk1);
+                if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_sensor_handle, MPU9250_DEV_ADDR,
+                            MPU9250_ALL_FIRST_DATA_ADDR, I2C_MEMADD_SIZE_8BIT, buf, MPU9250_ALL_DATA_LENGTH))
+                {
+                    while(1);
+                }
+                get_now(&ms2, &clk2); 
+            }
+
+            /* 统计加计温度陀螺仪测试 & 启动磁力计测试 */
+            if(2 == times)
+            {
+                get_now(&ms3, &clk3); 
+                diff_clk(&diffms1, &diffclk1, ms1, clk1, ms2, clk2); 
+                diff_clk(&diffms2, &diffclk2, ms2, clk2, ms3, clk3); 
+
+                buf_i16[0] = ((buf[0]) << 8) | buf[1];
+                buf_i16[1] = ((buf[2]) << 8) | buf[3];
+                buf_i16[2] = ((buf[4]) << 8) | buf[5];
+                buf_i16[3] = ((buf[6]) << 8) | buf[7];
+                buf_i16[4] = ((buf[8]) << 8) | buf[9];
+                buf_i16[5] = ((buf[10]) << 8) | buf[11];
+                buf_i16[6] = ((buf[12]) << 8) | buf[13]; 
+                console_printf("test%d 加计&温度&陀螺仪(total %dBytes):\r\n", times, MPU9250_ALL_DATA_LENGTH);
+                console_printf("DMA读取请求耗时(%dBytes):time: %u ms, %.2fus\r\n", MPU9250_ALL_DATA_LENGTH, diffms1,  1.0f * diffclk1 / 84);
+                console_printf("数据读取耗时(%dBytes):   time: %u ms, %.2fus\r\n", MPU9250_ALL_DATA_LENGTH, diffms2,  1.0f * diffclk2 / 84);
+                console_printf("加计  : %7.4f %7.4f %7.4f\r\n",
+                        1.0f * buf_i16[0] / accel_sens,
+                        1.0f * buf_i16[1] / accel_sens,
+                        1.0f * buf_i16[2] / accel_sens);
+                console_printf("陀螺仪: %7.4f %7.4f %7.4f\r\n",
                         1.0f * buf_i16[4] / gyro_sens,
                         1.0f * buf_i16[5] / gyro_sens,
                         1.0f * buf_i16[6] / gyro_sens); 
 
-                /* 磁力计读取 原理上有问题 */
-                buf_i16[7] = ((buf[15]) << 8) | buf[16];
-                buf_i16[8] = ((buf[17]) << 8) | buf[18];
-                buf_i16[9] = ((buf[19]) << 8) | buf[20];
-                console_printf("compass ");
-                if (!(buf[14] & MPU9250_AKM_DATA_READY)
-                  || (buf[14] & MPU9250_AKM_DATA_OVERRUN)
-                  || (buf[21] & MPU9250_AKM_OVERFLOW))
+                console_printf("温度  : %7.4f\r\n", (21 + (buf_i16[3] / 321.0f)));
+
+                /* 磁力计测试 */
+                /* 磁力计采样频率8Hz(较低)所以延迟 */
+                get_now(&ms1, &clk1);
+                if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_sensor_handle, AKM8963_DEV_ADDR,
+                            AKM8963_REG_FIRST, I2C_MEMADD_SIZE_8BIT, buf, AKM8963_REG_NUMS))
                 {
-                    console_printf("data error: 0x%04x 0x%03x 0x%04x, 0x%02x, 0x%02x.\r\n\r\n",
-                            buf_i16[7] * mag_sens_adj[0] >> 8,
-                            buf_i16[8] * mag_sens_adj[1] >> 8,
-                            buf_i16[9] * mag_sens_adj[2] >> 8,
-                            buf[14], buf[21]);
+                    while(1);
                 }
-                else 
-                {
-                    console_printf(": 0x%04x 0x%03x 0x%04x, 0x%02x, 0x%02x.\r\n\r\n",
-                            buf_i16[7] * mag_sens_adj[0] >> 8,
-                            buf_i16[8] * mag_sens_adj[1] >> 8,
-                            buf_i16[9] * mag_sens_adj[2] >> 8,
-                            buf[14], buf[21]);
-                }
+                get_now(&ms2, &clk2); 
             }
-#endif
+
+            /* 统计磁力计测试 & 输出数据 */
+            if(3 == times)
+            {
+                get_now(&ms3, &clk3); 
+                diff_clk(&diffms1, &diffclk1, ms1, clk1, ms2, clk2); 
+                diff_clk(&diffms2, &diffclk2, ms2, clk2, ms3, clk3); 
+
+                console_printf("test%d 磁力计(%dBytes):\r\n", times, AKM8963_REG_NUMS);
+                console_printf("磁力计DMA读取请求耗时(%dBytes):time: %u ms, %.2fus\r\n", AKM8963_REG_NUMS, diffms1,  1.0f * diffclk1 / 84);
+                console_printf("磁力计数据读取耗时(%dBytes):   time: %u ms, %.2fus\r\n", AKM8963_REG_NUMS, diffms2,  1.0f * diffclk2 / 84);
+               
+                for(int32_T i = 0; i < AKM8963_REG_NUMS; i++)
+                {
+                    console_printf("0x%02x:0x%02x\r\n", i, buf[i]);
+                }
+
+                break;
+            }
 
             times++;
         }
     }
+
+    /* FIXME: 加入BMP280测试 */
+    console_printf("传感器测试结束.\r\n");
 }
 
 void sensor_read(void)

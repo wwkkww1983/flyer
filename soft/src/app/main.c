@@ -123,24 +123,19 @@ static void idle(void)
         /* 该处代码 每秒执行一次 */
         led_toggle(LED_MLED);
         ms_start = HAL_GetTick();
+        //console_printf("%ums:我还在.\r\n", ms_start);
     }
 }
 
-/* 确认SystemCoreClock会改变 */
-uint32_t ahb1 = 0;
-uint32_t ahb2 = 0;
-uint32_t ahb3 = 0;
 /* 初始化 */
 static void init(void)
 { 
-    ahb1 = SystemCoreClock;
     /* step1: hal初始化 */
     if(HAL_OK != HAL_Init())
     {
         while(1);
     }
 
-    ahb2 = SystemCoreClock;
     /* step2: 配置时钟 HAL_Init 执行后才可执行 */
     /* 时钟配置 84MHz */
     clock_init();
@@ -149,7 +144,6 @@ static void init(void)
      * systick时钟为系统AHB时钟:84MHz
      * 注意: clock_init会改变SystemCoreClock值
      * */
-    ahb3 = SystemCoreClock;
     if(0 != HAL_SYSTICK_Config(SystemCoreClock / TICK_PER_SECONDS))
     {
         while(1);
@@ -207,7 +201,7 @@ static void self_test(void)
 
     //pwm_test();
 
-    //sensor_test();
+    sensor_test();
 
     //esp8266_test();
     
