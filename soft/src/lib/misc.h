@@ -15,6 +15,8 @@
 #define _MISC_H_
 
 /************************************ 头文件 ***********************************/
+#include "config.h"
+#include "typedef.h"
 #include "string.h"
 
 /************************************ 宏定义 ***********************************/
@@ -26,6 +28,7 @@
 /*********************************** 接口函数 **********************************/
 void assert_failed(unsigned char* file, unsigned int line);
 void err_loop(void);
+void get_now(uint32_T *ms, uint32_T *clk);
 
 #endif
 

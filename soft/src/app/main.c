@@ -85,22 +85,34 @@ int main(void)
     hard_test();
 }
 
+/* 确认SystemCoreClock会改变 */
+uint32_t ahb1 = 0;
+uint32_t ahb2 = 0;
+uint32_t ahb3 = 0;
 /* 初始化 */
 static void init(void)
 { 
-
+    ahb1 = SystemCoreClock;
     /* step1: hal初始化 */
     if(HAL_OK != HAL_Init())
     {
         while(1);
     }
-		
-    /*Configure the SysTick to have interrupt in 1ms time basis*/
-    HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/TICK_PER_SECONDS);
 
+    ahb2 = SystemCoreClock;
     /* step2: 配置时钟 HAL_Init 执行后才可执行 */
-    /* 时钟配置 84M */
+    /* 时钟配置 84MHz */
     clock_init();
+
+    /* 配置中断频率为 1ms
+     * systick时钟为系统AHB时钟:84MHz
+     * 注意: clock_init会改变SystemCoreClock值
+     * */
+    ahb3 = SystemCoreClock;
+    if(0 != HAL_SYSTICK_Config(SystemCoreClock / TICK_PER_SECONDS))
+    {
+        while(1);
+    }
 
     /* 设置核心中断优先级 */
     HAL_NVIC_SetPriority(MemoryManagement_IRQn, MEM_INT_PRIORITY, 0);
