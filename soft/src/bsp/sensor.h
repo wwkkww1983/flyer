@@ -35,6 +35,7 @@ void sensor_init(void);
 void sensor_read_poll(uint8_T dev_addr, uint16_T reg_addr, uint8_T *buf, uint32_T n);
 void sensor_write_poll(uint8_T dev_addr, uint16_T reg_addr, const uint8_T *buf, uint32_T n);
 void sensor_test(void);
+void sensor_read(void);
 
 #endif
 

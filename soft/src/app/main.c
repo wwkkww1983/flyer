@@ -23,12 +23,15 @@
 #include "console.h"
 #include "sensor.h"
 #include "esp8266.h"
+#include "fusion.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/ 
 
 /********************************** 函数声明区 *********************************/
+static void idle(void);
+
 /*******************************************************************************
 *
 * 函数名  : init
@@ -48,20 +51,20 @@ static void init(void);
 
 /*******************************************************************************
 *
-* 函数名  : hard_test
+* 函数名  : self_test
 * 负责人  : 彭鹏
 * 创建日期: 20160624
-* 函数功能: 验证硬件是否正常
+* 函数功能: 自检验证设备是否正常
 *
 * 输入参数: 无
 * 输出参数: 无
 * 返回值  : 无
 *
-* 调用关系: 贴片完成后测试板子硬件是否正常工作
+* 调用关系: 贴片完成后测试板子是否正常工作
 * 其 它   : 无
 *
 ******************************************************************************/
-static void hard_test(void);
+static void self_test(void);
 
 /********************************** 函数实现区 *********************************/
 /*******************************************************************************
@@ -82,7 +85,45 @@ static void hard_test(void);
 int main(void)
 {
     init();
-    hard_test();
+
+    while(1)
+    { 
+        /* 采样 */
+        sensor_read();
+        /* 融合 */
+        fusion();
+        /* 动力控制 */
+        pwm_update();
+        /* 以上实时性要求强 否则坠机 */
+
+        /* 以下实时性要求不强  */
+        /* 处理交互 */
+        esp8266_task();
+        /* 收尾统计工作 */
+        idle();
+    }
+}
+
+/* 每秒周期性执行 */
+static void idle(void)
+{
+    static bool_T first_run = TRUE;
+    static uint32_T ms_start = 0;
+    static uint32_T ms_end = 0;
+
+    if(TRUE == first_run) /* 获取起始时间 仅运行一次 */
+    {
+        ms_start = HAL_GetTick();
+        first_run = FALSE;
+    } 
+    
+    ms_end = HAL_GetTick();
+    if(ms_end - ms_start >= 1000) /* 已达1s */
+    {
+        /* 该处代码 每秒执行一次 */
+        led_toggle(LED_MLED);
+        ms_start = HAL_GetTick();
+    }
 }
 
 /* 确认SystemCoreClock会改变 */
@@ -141,13 +182,21 @@ static void init(void)
     /* wifi 模块串口 */
     esp8266_init();
     console_printf("esp8266 wifi模块初始化完成.\r\n");
-		
-    console_printf("初始化完成.\r\n");
+
+    /* 姿态融合算法 */
+    fusion_init();
+    console_printf("姿态融合算法初始化完成.\r\n");
+
+    /* 自检 */
+    self_test();
+    console_printf("自检完成.\r\n");
+
+    console_printf("系统初始化完成.\r\n");
 }
 
 /* 硬件测试 */
 //static uint8_T c = 0;
-static void hard_test(void)
+static void self_test(void)
 {
     TRACE_FUNC_IN; 
     console_printf("开始硬件测试.\r\n"); 
@@ -158,95 +207,13 @@ static void hard_test(void)
 
     //pwm_test();
 
-    sensor_test();
+    //sensor_test();
 
     //esp8266_test();
+    
+    //fusion_test();
 
     console_printf("结束硬件测试.\r\n"); 
     TRACE_FUNC_OUT;
 }
 
-
-#if 0
-    uint32_T timestamp1 = HAL_GetTick();
-    for(int i = 0; i<9999; i++)
-    {
-        sensor_read_poll(0xD0, 0x75, &val, 1);
-    }
-    uint32_T timestamp2 = HAL_GetTick();
-    timestamp = timestamp2 - timestamp1;
-    console_printf("吞吐率%.02fB/s", 9999.0 * 1000 / timestamp);
-#endif
-
-/* 读取FIFO */
-#if 0
-static int16_T gyro[3];
-static int16_T accel[3];
-static uint32_T timestamp;
-static uint8_T sensor;
-static uint8_T more;
-static int32_T times = 0;
-static int32_T rst = 0;
-static int32_T count = 0;
-static uint8_T val = 0;
-
-void read_fifo_func(void)
-{
-    UNUSED(gyro);
-    UNUSED(accel);
-    UNUSED(timestamp);
-    UNUSED(sensor);
-    UNUSED(more);
-    UNUSED(times);
-    UNUSED(rst);
-    UNUSED(count);
-    UNUSED(val);
-
-    extern bool_T g_mpu_fifo_ready;
-    extern int16_T g_int_status;
-    int mpu_read_fifo(short *gyro, short *accel, unsigned long *timestamp, unsigned char *sensors, unsigned char *more);
-
-    while(1)
-    {
-
-        if(g_mpu_fifo_ready)
-        {
-            gyro[0] = 0;
-            gyro[1] = 0;
-            gyro[2] = 0;
-            accel[0] = 0;
-            accel[1] = 0;
-            accel[2] = 0;
-            timestamp = 0;
-            sensor = 0;
-            more = 0;
-            count = 0;
-            do
-            {
-                rst = mpu_read_fifo(gyro, accel, &timestamp, &sensor, &more);
-                count++;
-            }while(more > 0);
-            g_mpu_fifo_ready = FALSE;
-
-            if(0 == times % 500)
-            {
-                console_printf("times:%d, timestamp: %u, sensor: 0x%02x, more: 0x%02x\r\n",
-                        times,
-                        timestamp,
-                        sensor,
-                        more);
-                console_printf("accel: %7.4f %7.4f %7.4f\r\n",
-                        1.0f * accel[0]/accel_sens,
-                        1.0f * accel[1]/accel_sens,
-                        1.0f * accel[2]/accel_sens);
-                console_printf("gyro : %7.4f %7.4f %7.4f\r\n",
-                        gyro[0]/gyro_sens,
-                        gyro[1]/gyro_sens,
-                        gyro[2]/gyro_sens);
-                console_printf("\r\n");
-            }
-            times++;
-        }
-    }
-}
-#endif

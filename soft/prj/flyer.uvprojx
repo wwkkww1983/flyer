@@ -555,6 +555,11 @@
               <FileType>1</FileType>
               <FilePath>..\src\app\main.c</FilePath>
             </File>
+            <File>
+              <FileName>fusion.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\app\fusion.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

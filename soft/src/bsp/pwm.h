@@ -49,10 +49,10 @@ typedef struct pwm_list_tag
 void pwm_init(void);
 /* 设置pwm输出 */
 void pwm_set(PWM_NAME pwm, uint32_T val);
-/* 获取周期最值 */
-uint32_T pwm_get_period(void);
 /* 测试pwm */
 void pwm_test(void);
+/* 动力控制 */
+void pwm_update(void);
 
 #endif
 

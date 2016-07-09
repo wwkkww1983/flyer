@@ -55,6 +55,7 @@ static TIM_OC_InitTypeDef s_sConfig;
 /* PWM一次脉冲的周期 */
 uint32_T s_period = 0;
 /********************************** 函数声明区 *********************************/
+static uint32_T pwm_get_period(void);
 
 /********************************** 函数实现区 *********************************/
 
@@ -167,7 +168,7 @@ void pwm_set(PWM_NAME pwm, uint32_T val)
 
 }
 
-uint32_T pwm_get_period(void)
+static uint32_T pwm_get_period(void)
 {
     return s_period;
 }
@@ -185,5 +186,10 @@ void pwm_test(void)
     pwm_set(PWM_RIGHT, m * 33);
     pwm_set(PWM_BACK, m * 77);
     pwm_set(PWM_LEFT, m * 100);
-}
+} 
 
+/* 动力控制 */
+void pwm_update(void)
+{
+    ;
+}

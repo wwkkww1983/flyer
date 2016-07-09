@@ -233,6 +233,11 @@ void sensor_test(void)
     }
 }
 
+void sensor_read(void)
+{
+    ;
+}
+
 /* SENSOR_I2C_EV_IRQHandler & SENSOR_I2C_ER_IRQHandler 未使用 使用DMA提高效率 */
 /* 发生EV ER中断表示出错 */
 void SENSOR_I2C_EV_IRQHandler(void)
@@ -256,4 +261,99 @@ void SENSOR_I2C_DMA_RX_IRQHandler(void)
 {
     HAL_DMA_IRQHandler(g_sensor_handle.hdmarx);
 }
+
+
+
+
+
+
+
+
+
+
+
+/* 用于测试 */
+#if 0
+    uint32_T timestamp1 = HAL_GetTick();
+    for(int i = 0; i<9999; i++)
+    {
+        sensor_read_poll(0xD0, 0x75, &val, 1);
+    }
+    uint32_T timestamp2 = HAL_GetTick();
+    timestamp = timestamp2 - timestamp1;
+    console_printf("吞吐率%.02fB/s", 9999.0 * 1000 / timestamp);
+#endif
+
+/* 读取FIFO */
+#if 0
+static int16_T gyro[3];
+static int16_T accel[3];
+static uint32_T timestamp;
+static uint8_T sensor;
+static uint8_T more;
+static int32_T times = 0;
+static int32_T rst = 0;
+static int32_T count = 0;
+static uint8_T val = 0;
+
+void read_fifo_func(void)
+{
+    UNUSED(gyro);
+    UNUSED(accel);
+    UNUSED(timestamp);
+    UNUSED(sensor);
+    UNUSED(more);
+    UNUSED(times);
+    UNUSED(rst);
+    UNUSED(count);
+    UNUSED(val);
+
+    extern bool_T g_mpu_fifo_ready;
+    extern int16_T g_int_status;
+    int mpu_read_fifo(short *gyro, short *accel, unsigned long *timestamp, unsigned char *sensors, unsigned char *more);
+
+    while(1)
+    {
+
+        if(g_mpu_fifo_ready)
+        {
+            gyro[0] = 0;
+            gyro[1] = 0;
+            gyro[2] = 0;
+            accel[0] = 0;
+            accel[1] = 0;
+            accel[2] = 0;
+            timestamp = 0;
+            sensor = 0;
+            more = 0;
+            count = 0;
+            do
+            {
+                rst = mpu_read_fifo(gyro, accel, &timestamp, &sensor, &more);
+                count++;
+            }while(more > 0);
+            g_mpu_fifo_ready = FALSE;
+
+            if(0 == times % 500)
+            {
+                console_printf("times:%d, timestamp: %u, sensor: 0x%02x, more: 0x%02x\r\n",
+                        times,
+                        timestamp,
+                        sensor,
+                        more);
+                console_printf("accel: %7.4f %7.4f %7.4f\r\n",
+                        1.0f * accel[0]/accel_sens,
+                        1.0f * accel[1]/accel_sens,
+                        1.0f * accel[2]/accel_sens);
+                console_printf("gyro : %7.4f %7.4f %7.4f\r\n",
+                        gyro[0]/gyro_sens,
+                        gyro[1]/gyro_sens,
+                        gyro[2]/gyro_sens);
+                console_printf("\r\n");
+            }
+            times++;
+        }
+    }
+}
+#endif
 
