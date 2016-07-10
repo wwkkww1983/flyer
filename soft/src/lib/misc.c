@@ -76,22 +76,19 @@ void err_loop(void)
 * 函数功能: 获取当前时间
 *
 * 输入参数: 无
-* 输出参数: ms  - 当前ms数
-*           clk - 当前毫秒中的AHB周期数
-*                 例如:stm32f401rbt6配置的的AHB为84MHz
-*                      1clk 代表 1/84us
+* 输出参数: time 当前时间结构
 *
 * 返回值  : 无
 * 调用关系: 无
 * 其 它   : 该函数会有几个周期的误差(由计算导入)
 *
 ******************************************************************************/
-void get_now(uint32_T *ms, uint32_T *clk)
+void get_now(misc_time_T *time)
 {
-    *ms = HAL_GetTick();
+    time->ms = HAL_GetTick();
 
     /* systick 为递减 计数器 */
-    *clk = SysTick->LOAD - SysTick->VAL;
+    time->clk = SysTick->LOAD - SysTick->VAL;
 }
 
 /*******************************************************************************
@@ -101,40 +98,43 @@ void get_now(uint32_T *ms, uint32_T *clk)
 * 创建日期: 20160709
 * 函数功能: 计算时间差
 *
-* 输入参数: ms1  - 起点ms
-*           clk1 - 起点clk
-*           ms2  - 终点ms
-*           clk2 - 终点clk
+* 输入参数: start  起点时间结构指针
+*           end    终点时间结构指针
 *
-* 输出参数: ms   - 毫秒差值 指针
-*           clk  - clk差值 指针
+* 输出参数: diff   时间差值结构指针
 *
 * 返回值  : 无
 * 调用关系: 无
 * 其 它   : 无
 *
 ******************************************************************************/
-void diff_clk(uint32_T *ms, uint32_T *clk, 
-        uint32_T ms1, uint32_T clk1, 
-        uint32_T ms2, uint32_T clk2)
+void diff_clk(misc_time_T *diff, const misc_time_T *start, const misc_time_T *end)
 {
+    uint32_T ms1 = start->ms;
+    uint32_T ms2 = end->ms;
+    uint32_T ms = 0;
+    uint32_T clk1 = start->clk;
+    uint32_T clk2 = end->clk;
+    uint32_T clk = 0;
+
+    /* 出错 */
     if( (ms2 < ms1) /* ms 只可能增大 */
     || ((clk2 < clk1) && (ms2 == ms1))) /* 必须有位可借 */
     {
-        ;
-    }
-
+        while(1);
+    } 
+    
     /* 计算差值 */
-    if(clk2 > clk1)
-    {
-        *clk = clk2 - clk1;
-    }
-    else /* 有溢出 借位 */
+    if(clk2 < clk1) /* 有溢出 借位 */
     {
         ms2 -= 1;
         clk2 += SysTick->LOAD;
-        *clk = clk2 - clk1;
     }
-    *ms = ms2 - ms1;
+
+    clk = clk2 - clk1;
+    ms = ms2 - ms1;
+
+    diff->ms = ms;
+    diff->clk = clk;
 }
 

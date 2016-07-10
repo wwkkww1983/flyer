@@ -101,7 +101,7 @@ int main(void)
         /* 处理交互 */
         esp8266_task();
         /* 收尾统计工作 */
-        idle();
+        //idle();
     }
 }
 
@@ -200,7 +200,7 @@ static void init(void)
 
     /* 自检 */
     self_test();
-    console_printf("自检完成.\r\n");
+    //console_printf("自检完成.\r\n");
 
     console_printf("系统初始化完成.\r\n");
 }
@@ -214,7 +214,7 @@ static void self_test(void)
 
     console_test();
 
-    led_test();
+    //led_test();
 
     pwm_test();
 

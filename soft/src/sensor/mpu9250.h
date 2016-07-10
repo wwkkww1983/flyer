@@ -26,9 +26,8 @@
 #define MPU9250_WHO_AM_I_REG_VALUE          (0x71)
 #define MPU9250_ACCEL_DATA_ADDR             (0x3B)
 #define MPU9250_GYRO_DATA_ADDR              (0x43)
-#define MPU9250_ALL_FIRST_DATA_ADDR         (MPU9250_ACCEL_DATA_ADDR)
-#define MPU9250_ACCEL_DATA_LENGTH           (6)
-#define MPU9250_ALL_DATA_LENGTH             (14)
+#define MPU9250_DATA_ADDR                   (MPU9250_ACCEL_DATA_ADDR)
+#define MPU9250_DATA_LENGTH                 (14)
 
 /*--------------------------------- 接口声明区 --------------------------------*/
 

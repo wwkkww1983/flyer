@@ -196,17 +196,17 @@ void mpu9250_init(void)
         return;
     }	
 
-    if(mpu_set_sample_rate(MPU9250_MAIN_SAMPLE_RATE) !=0)
+    if(mpu_set_sample_rate(MPU9250_SAMPLE_RATE) !=0)
     {
-        console_printf("设置accel+gyro主采样率(%d)失败.\r\n", MPU9250_MAIN_SAMPLE_RATE);
+        console_printf("设置accel+gyro主采样率(%d)失败.\r\n", MPU9250_SAMPLE_RATE);
         return;
     }
 
-    if(mpu_set_compass_sample_rate(MPU9250_MAG_SAMPLE_RATE) !=0)
+    /*if(mpu_set_compass_sample_rate(AK8963_SAMPLE_RATE) !=0)
     {
-        console_printf("设置磁力计采样率(%d)失败.\r\n", MPU9250_MAG_SAMPLE_RATE);
+        console_printf("设置磁力计采样率(%d)失败.\r\n", AK8963_SAMPLE_RATE);
         return;
-    }
+    }*/
 
     if (mpu_set_gyro_fsr(MPU9250_GYRO_FSR)!=0)
     {

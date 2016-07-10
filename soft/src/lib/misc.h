@@ -22,14 +22,18 @@
 /************************************ 宏定义 ***********************************/
 
 /*--------------------------------- 接口声明区 --------------------------------*/
+typedef struct{
+    uint32_T ms;
+    uint32_T clk;
+}misc_time_T;
 
 /*********************************** 全局变量 **********************************/
 
 /*********************************** 接口函数 **********************************/
 void assert_failed(unsigned char* file, unsigned int line);
 void err_loop(void);
-void get_now(uint32_T *ms, uint32_T *clk);
-void diff_clk(uint32_T *ms, uint32_T *clk, uint32_T ms1, uint32_T clk1, uint32_T ms2, uint32_T clk2);
+void get_now(misc_time_T *time);
+void diff_clk(misc_time_T *diff, const misc_time_T *start, const misc_time_T *end);
 
 #endif
 

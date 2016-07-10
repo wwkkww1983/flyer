@@ -26,7 +26,6 @@
 /********************************** 函数声明区 *********************************/
 
 /********************************** 变量实现区 *********************************/ 
-static __IO bool_T s_tick_done = FALSE;
 
 /********************************** 函数实现区 *********************************/
 /*******************************************************************************
@@ -51,10 +50,12 @@ void SysTick_Handler(void)
     /* tick自增 */
     HAL_IncTick();
 
-    s_tick_done = TRUE;
+    //s_tick_done = TRUE;
 }
 
-bool_T tick_reday(void)
+#if 0
+static __IO bool_T s_tick_done = FALSE;
+inline bool_T tick_ready(void)
 { 
     return s_tick_done;
 }
@@ -63,4 +64,5 @@ inline void tick_clear(void)
 {
     s_tick_done = FALSE;
 }
+#endif
 

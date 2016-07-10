@@ -112,7 +112,7 @@ int32_T ak8963_sample_period(int32_T read_times)
     }
 
     ms_end = HAL_GetTick(); 
-    debug_log("%7.4fms/data\r\n", 1.0f * (ms_end - ms_start) / times);
+    debug_log("%7.4fms/包(%dBytes)\r\n", 1.0f * (ms_end - ms_start) / times, AK8963_DATA_LENGTH);
 
     sample_period = ((ms_end - ms_start) / times);
     sample_period += 1; /* 留有余地 */
