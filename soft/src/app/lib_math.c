@@ -169,9 +169,9 @@ inline void math_vector3_dot_product(f32_T *product, const f32_T *a, const f32_T
 /* 求向量夹角 */
 void math_vetor_angle(f32_T *angle, const f32_T *a, const f32_T *b)
 {
-    f32_T a_norm[MATH_THREE] = {0.0f};
-    f32_T b_norm[MATH_THREE] = {0.0f};
-    f32_T cross_product[MATH_THREE] = {0.0f};
+    f32_T a_norm[3] = {0.0f};
+    f32_T b_norm[3] = {0.0f};
+    f32_T cross_product[3] = {0.0f};
     f32_T dot_product = 0.0f;
     f32_T rst_angle = 0.0f;
 

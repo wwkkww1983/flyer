@@ -52,7 +52,7 @@
 #define AK8963_SAMPLE_RATE                                  (8)
 /* 多长间隔(ms)读一次数据 */
 #define MPU9250_READ_PERIOD                                 (1)
-#define AK8963_READ_PERIOD                                  (250)
+#define AK8963_READ_PERIOD                                  (500)
 
 /* 以下内容不可修改 */
 /* 每秒钟systick中断数 默认1ms */

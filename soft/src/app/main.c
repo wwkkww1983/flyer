@@ -25,6 +25,7 @@
 #include "sensor.h"
 #include "esp8266.h"
 #include "fusion.h"
+#include "lib_math.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
 
@@ -86,7 +87,6 @@ static void self_test(void);
 int main(void)
 {
     init();
-
     console_printf("\r\n开始进入主循环.\r\n");
     while(1)
     { 
@@ -119,6 +119,9 @@ static void idle(void)
     static misc_time_T interval;
     static misc_time_T temp;
 
+    f32_T q[4] = {0.0f};
+    f32_T e[3] = {0.0f};
+
     if(TRUE == first_run) /* 获取起始时间 仅运行一次 */
     {
         ms_start = HAL_GetTick();
@@ -133,19 +136,23 @@ static void idle(void)
 
         if(diff_clk(&temp, &interval, &last_interval))
         {
-            console_printf("主循环耗时:%ums,%5.2fus.\r\n", interval.ms, 1.0f * interval.clk / 84);
             last_interval.ms = interval.ms;
             last_interval.clk = interval.clk;
         }
     }
     
     ms_end = HAL_GetTick();
-    if(ms_end - ms_start >= 5000) /* 已达1s */
+    if(ms_end - ms_start >= 2500) /* 已达2.5s 执行一次 */
     {
         /* 该处代码 每秒执行一次 */
         led_toggle(LED_MLED);
         ms_start = HAL_GetTick();
-			console_printf("%8.4f秒:在线.\r\n", ms_start / 1000.0f);
+        console_printf("%4.1f秒:", ms_start / 1000.0f); 
+        get_quaternion(q);
+        math_quaternion2euler(e, q);
+        console_printf("姿态:%.4f, %.4f, %.4f <==> %.4f,%.4f,%.4f,%.4f\r\n", math_arc2angle(e[0]), math_arc2angle(e[1]), math_arc2angle(e[2]),
+                q[0], q[1], q[2], q[3]);
+        console_printf("主循环最大耗时:%ums,%5.2fus.\r\n", last_interval.ms, 1.0f * last_interval.clk / 84);
     } 
 
     get_now(&last_loop_start_time);

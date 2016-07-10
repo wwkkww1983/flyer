@@ -185,18 +185,26 @@ static void parse(void)
     {
         s_data.val.ak8963.st1 = s_buf[0];
         s_data.val.ak8963.st2 = s_buf[7];
-        
-        buf_i16[0] = s_buf[2] << 8 | s_buf[1];
-        buf_i16[1] = s_buf[4] << 8 | s_buf[3];
-        buf_i16[2] = s_buf[6] << 8 | s_buf[5];
 
-        compass[0] = buf_i16[0] * s_ak8963_adj[0];
-        compass[1] = buf_i16[1] * s_ak8963_adj[1];
-        compass[2] = buf_i16[2] * s_ak8963_adj[2];
+        if(AK8963_ST1_DRDY_BIT & s_buf[0]) /* 有效数据 */ 
+        {
+            buf_i16[0] = s_buf[2] << 8 | s_buf[1];
+            buf_i16[1] = s_buf[4] << 8 | s_buf[3];
+            buf_i16[2] = s_buf[6] << 8 | s_buf[5]; 
 
-        s_data.val.ak8963.val[0] = compass[0];
-        s_data.val.ak8963.val[1] = compass[1];
-        s_data.val.ak8963.val[2] = compass[2];
+            compass[0] = buf_i16[0] * s_ak8963_adj[0];
+            compass[1] = buf_i16[1] * s_ak8963_adj[1];
+            compass[2] = buf_i16[2] * s_ak8963_adj[2]; 
+            
+            s_data.val.ak8963.val[0] = compass[0];
+            s_data.val.ak8963.val[1] = compass[1];
+            s_data.val.ak8963.val[2] = compass[2];
+        } 
+        else /* 数据无效 */
+        {
+            s_data_ready = FALSE;
+            return;
+        }
     }
     else
     {

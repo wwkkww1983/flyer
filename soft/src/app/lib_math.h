@@ -22,8 +22,6 @@
 #define MATH_PI                 (3.1415926f)
 #define MATH_ANGLE2ARC_RATE     (MATH_PI/180)
 #define MATH_ARC2ANGLE_RATE     (180/MATH_PI)
-#define MATH_QUAD               (4)
-#define MATH_THREE              (3)
 #define MATH_PITCH              (0)
 #define MATH_ROLL               (1)
 #define MATH_YAW                (2)
@@ -38,6 +36,7 @@
 /*********************************** 接口函数 **********************************/
 void math_norm(f32_T *dst, const f32_T *src, int32_T dim);
 f32_T math_angle2arc(f32_T x); 
+f32_T math_arc2angle(f32_T x);
 void math_euler2quaternion(f32_T *q, const f32_T *euler);
 void math_quaternion2euler(f32_T *euler, const float *q);
 void math_vector3_cross_product(f32_T *product, const f32_T *a, const f32_T *b);
@@ -45,7 +44,6 @@ void math_vector3_cross_product(f32_T *product, const f32_T *a, const f32_T *b);
 #if 0
 f32_T math_inv_sqrt(f32_T x);
 void math_vetor_angle(f32_T *angle, const f32_T *a, const f32_T *b);
-f32_T math_arc2angle(f32_T x);
 void math_vector3_dot_product(f32_T *product, const f32_T *a, const f32_T *b);
 #endif
 
