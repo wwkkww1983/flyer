@@ -86,6 +86,7 @@ int main(void)
 {
     init();
 
+    console_printf("\r\n开始进入主循环.\r\n");
     while(1)
     { 
         /* 采样 */
@@ -111,11 +112,25 @@ static void idle(void)
     static uint32_T ms_start = 0;
     static uint32_T ms_end = 0;
 
+    static uint32_T this_interval = 0;
+    static uint32_T interval = 0;
+
     if(TRUE == first_run) /* 获取起始时间 仅运行一次 */
     {
         ms_start = HAL_GetTick();
         first_run = FALSE;
     } 
+    else
+    {
+        /* 第一次不运行 其他每次都运行 */
+        /* 冒泡算法 interval中永远存放 最大间隔 */
+        this_interval = HAL_GetTick() - ms_end;
+        if(interval < this_interval)
+        {
+            interval = this_interval;
+            console_printf("间隔增大到 %ums.\r\n", interval);
+        }
+    }
     
     ms_end = HAL_GetTick();
     if(ms_end - ms_start >= 1000) /* 已达1s */
@@ -125,6 +140,8 @@ static void idle(void)
         ms_start = HAL_GetTick();
         //console_printf("%ums:我还在.\r\n", ms_start);
     }
+
+
 }
 
 /* 初始化 */
@@ -195,17 +212,17 @@ static void self_test(void)
     TRACE_FUNC_IN; 
     console_printf("开始硬件测试.\r\n"); 
 
-    //console_test();
+    console_test();
 
-    //led_test();
+    led_test();
 
-    //pwm_test();
+    pwm_test();
 
     sensor_test();
 
-    //esp8266_test();
+    esp8266_test();
     
-    //fusion_test();
+    fusion_test();
 
     console_printf("结束硬件测试.\r\n"); 
     TRACE_FUNC_OUT;

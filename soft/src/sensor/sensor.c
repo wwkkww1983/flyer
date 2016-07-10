@@ -20,12 +20,14 @@
 #include "typedef.h"
 #include "misc.h"
 #include "si.h"
+#include "systick.h"
 #include "inv_mpu.h"
 #include "mpu9250.h"
 #include "ak8963.h"
 #include "bmp280_hal.h"
 #include "console.h"
 #include "sensor.h"
+
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/
@@ -79,6 +81,13 @@ void sensor_test(void)
 
 void sensor_read(void)
 {
-    ;
+    
+#if 0
+    if( tick_ready()    /* 采样时间到 */
+    && si_read_ready()) /* i2c就绪 */
+    {
+        ;
+    }
+#endif
 }
 
