@@ -18,6 +18,7 @@
 /************************************ 头文件 ***********************************/
 #include "config.h"
 #include "typedef.h"
+#include "misc.h"
 #include <stm32f4xx_hal.h>
 #include "inv_mpu.h"
 #include "inv_mpu_dmp_motion_driver.h"
@@ -173,66 +174,58 @@ inline static unsigned char addr_convert(unsigned char addr)
 
 void mpu9250_init(void)
 {
-    uint8_T dev_status = 0;
     uint8_T who_am_i = 0;
 
     /* 测试i2c是否正常工作 */
     si_read_poll(MPU9250_DEV_ADDR, MPU9250_WHO_AM_I_REG_ADDR, &who_am_i, 1); 
-    if(MPU9250_WHO_AM_I_REG_VALUE == who_am_i)
+    if(MPU9250_WHO_AM_I_REG_VALUE != who_am_i)
     {
-        console_printf("MPU9250正常工作.\r\n");
+        console_printf("MPU9250异常.\r\n");
+        while(1);
     }
 
-    console_printf("初始化MPU9250.\r\n");
     if (mpu_init(NULL) != 0)
     {
         console_printf("初始化MPU失败!\r\n");
         return;
     }
 
-    console_printf("打开传感器.\r\n");
     if (mpu_set_sensors(INV_XYZ_GYRO|INV_XYZ_ACCEL|INV_XYZ_COMPASS)!=0)
     {
         console_printf("打开传感器失败.\r\n");
         return;
-    }
-	
-    console_printf("设置主采样率:%dHz\r\n", MPU9250_MAIN_SAMPLE_RATE);
+    }	
+
     if(mpu_set_sample_rate(MPU9250_MAIN_SAMPLE_RATE) !=0)
     {
-        console_printf("设置accel+gyro采样率失败.\r\n");
+        console_printf("设置accel+gyro主采样率(%d)失败.\r\n", MPU9250_MAIN_SAMPLE_RATE);
         return;
     }
-    console_printf("设置磁力计采样率:%dHz\r\n", MPU9250_MAG_SAMPLE_RATE);
+
     if(mpu_set_compass_sample_rate(MPU9250_MAG_SAMPLE_RATE) !=0)
     {
-        console_printf("设置compass采样率失败.\r\n");
+        console_printf("设置磁力计采样率(%d)失败.\r\n", MPU9250_MAG_SAMPLE_RATE);
         return;
     }
-    console_printf("设置陀螺仪量程为:%ddeg/s.\r\n", MPU9250_GYRO_FSR);
+
     if (mpu_set_gyro_fsr(MPU9250_GYRO_FSR)!=0)
     {
         console_printf("设置陀螺仪量程失败.\r\n");
         return;
     }
-    console_printf("设置加速度计量程:%dg.\r\n", MPU9250_ACCEL_FSR);
+
     if (mpu_set_accel_fsr(MPU9250_ACCEL_FSR)!=0)
     {
         console_printf("设置加速度计量程失败.\r\n");
         return;
     }
-    mpu_get_power_state(&dev_status);
-    console_printf("MPU9250 上电%s", dev_status? "成功!\r\n" : "失败!\r\n");
 
     run_self_test(); 
     
 #if 0
     /* mpu9250 中断未使用 */
     exti_set_callback(int_callback, NULL);
-    console_printf("MPU9250中断设置完成.\r\n");
-
     /* 内部设置中断 可以用于验证中断连接MCU硬件是有效的 */
-    console_printf("设置MPU FIFO.\r\n");
     if (mpu_configure_fifo(INV_XYZ_GYRO|INV_XYZ_ACCEL)!=0)
     {
         console_printf("设置MPU FIFO失败.\r\n");
@@ -267,7 +260,7 @@ void mpu9250_init(void)
 }
 
 void mpu9250_test(void)
-{
+{ 
     ;
 }
 
@@ -292,7 +285,7 @@ static void run_self_test(void)
 
         mpu_set_gyro_bias_reg(gyro);
         mpu_set_accel_bias_6500_reg(accel);
-
+#if 0
         console_printf("自检通过,设置偏移:\r\n");
         console_printf("accel: %7.4f %7.4f %7.4f\r\n",
                 accel[0]/65536.f,
@@ -302,6 +295,7 @@ static void run_self_test(void)
                 gyro[0]/65536.f,
                 gyro[1]/65536.f,
                 gyro[2]/65536.f);
+#endif
     }
     else
     {
@@ -323,6 +317,77 @@ static void run_self_test(void)
 }
 
 #if 0
+/* 读取FIFO */
+static int16_T gyro[3];
+static int16_T accel[3];
+static uint32_T timestamp;
+static uint8_T sensor;
+static uint8_T more;
+static int32_T times = 0;
+static int32_T rst = 0;
+static int32_T count = 0;
+static uint8_T val = 0;
+static void read_fifo_func(void)
+{
+    UNUSED(gyro);
+    UNUSED(accel);
+    UNUSED(timestamp);
+    UNUSED(sensor);
+    UNUSED(more);
+    UNUSED(times);
+    UNUSED(rst);
+    UNUSED(count);
+    UNUSED(val);
+
+    extern bool_T g_mpu_fifo_ready;
+    extern int16_T g_int_status;
+    int mpu_read_fifo(short *gyro, short *accel, unsigned long *timestamp, unsigned char *sensors, unsigned char *more);
+
+    while(1)
+    {
+
+        if(g_mpu_fifo_ready)
+        {
+            gyro[0] = 0;
+            gyro[1] = 0;
+            gyro[2] = 0;
+            accel[0] = 0;
+            accel[1] = 0;
+            accel[2] = 0;
+            timestamp = 0;
+            sensor = 0;
+            more = 0;
+            count = 0;
+            do
+            {
+                rst = mpu_read_fifo(gyro, accel, &timestamp, &sensor, &more);
+                count++;
+            }while(more > 0);
+            g_mpu_fifo_ready = FALSE;
+
+            if(0 == times % 500)
+            {
+                console_printf("times:%d, timestamp: %u, sensor: 0x%02x, more: 0x%02x\r\n",
+                        times,
+                        timestamp,
+                        sensor,
+                        more);
+                console_printf("accel: %7.4f %7.4f %7.4f\r\n",
+                        1.0f * accel[0]/accel_sens,
+                        1.0f * accel[1]/accel_sens,
+                        1.0f * accel[2]/accel_sens);
+                console_printf("gyro : %7.4f %7.4f %7.4f\r\n",
+                        gyro[0]/gyro_sens,
+                        gyro[1]/gyro_sens,
+                        gyro[2]/gyro_sens);
+                console_printf("\r\n");
+            }
+            times++;
+        }
+    }
+}
+
+
 /* mpu9250 中断未使用 */
 static uint8_T int_cfg = 0;
 static uint8_T int_en = 0;

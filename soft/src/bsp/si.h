@@ -35,6 +35,10 @@ extern bool_T g_tx_cplt;
 void si_init(void);
 void si_read_poll(uint8_T dev_addr, uint16_T reg_addr, uint8_T *buf, uint32_T n);
 void si_write_poll(uint8_T dev_addr, uint16_T reg_addr, const uint8_T *buf, uint32_T n);
+void si_read_dma(uint8_T dev_addr, uint16_T reg_addr, const uint8_T *buf, uint32_T n);
+
+void si_test_poll_rate(int32_T times);
+void si_test_dma_rate(void);
 
 #endif
 

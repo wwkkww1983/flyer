@@ -52,8 +52,6 @@
 #define AK8963_MODE_FUSE                    (0x0F)
 #define AK8963_DATA_FIRST_ADDR              (AK8963_ST1_REG_ADDR)
 #define AK8963_DATA_LENGTH                  (AK8963_ST2_REG_ADDR - AK8963_ST1_REG_ADDR + 1)
-#define AK8963_REG_FIRST_ADDR               (AK8963_WIA_REG_ADDR)
-#define AK8963_REG_NUMS                     (AK8963_ASAZ_REG_ADDR - AK8963_WIA_REG_ADDR + 1)
 
 /*--------------------------------- 接口声明区 --------------------------------*/
 

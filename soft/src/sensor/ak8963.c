@@ -35,9 +35,10 @@ void ak8963_init(void)
     uint8_T val = 0;
 
     si_read_poll(AK8963_DEV_ADDR, AK8963_WIA_REG_ADDR, &val, 1);
-    if(AK8963_WIA_REG_VAL == val)
+    if(AK8963_WIA_REG_VAL != val)
     {
-        console_printf("AK8963正常工作.\r\n");
+        console_printf("AK8963异常.\r\n");
+        while(1);
     }
 
     /* 配置为 16bit采样 + 连续工作模式 8Hz */
@@ -56,9 +57,11 @@ int32_T ak8963_sample_period(int32_T read_times)
     uint32_T ms_start = 0;
     uint32_T ms_end = 0;
     uint32_T times = 0;
-    uint8_T  buf[AK8963_REG_NUMS] = {0};
+    uint8_T  buf[AK8963_DATA_LENGTH] = {0};
     uint32_T sample_period = 0; 
     int16_T mag_sens[3] = {0};
+    int16_T buf_i16[3] = {0};
+    f32_T adj[3] = {0.0f};
     
     /* 获取校正值 */
     sensor_get_sens(NULL, NULL, mag_sens);
@@ -81,20 +84,20 @@ int32_T ak8963_sample_period(int32_T read_times)
                 continue;
             } 
 
-            debug_log("test %d times:", times);
+            debug_log("test%02d times:", times);
             debug_log("ST1:0x%02x,", buf[0]);
             debug_log("ST2:0x%02x,", buf[7]);
+            
+            buf_i16[0] = buf[2] << 8 | buf[1];
+            buf_i16[1] = buf[4] << 8 | buf[3];
+            buf_i16[2] = buf[6] << 8 | buf[5];
+            adj[0] = (0.5f * (mag_sens[0] - 128) / 128) + 1;
+            adj[1] = (0.5f * (mag_sens[1] - 128) / 128) + 1;
+            adj[2] = (0.5f * (mag_sens[2] - 128) / 128) + 1; 
             /* 有效数据 */
-            debug_log("X:0x%02x%02x,", buf[2], buf[1]);
-            debug_log("Y:0x%02x%02x,", buf[4], buf[3]);
-            debug_log("Z:0x%02x%02x\r\n", buf[6], buf[5]);
-
-            debug_log("X:%7.4f,", 
-                    (((long)((buf[2] << 8) | buf[1]) * mag_sens[0] ) >> 8) * 0.15f);
-            debug_log("Y:%7.4f,", 
-                    (((long)((buf[4] << 8) | buf[3]) * mag_sens[1] ) >> 8) * 0.15f);
-            debug_log("Z:%7.4f\r\n", 
-                    (((long)((buf[6] << 8) | buf[5]) * mag_sens[2] ) >> 8) * 0.15f);
+            console_printf("X:%7.4f,", buf_i16[0] * adj[0]);
+            console_printf("Y:%7.4f,", buf_i16[1] * adj[1]);
+            console_printf("Z:%7.4f\r\n", buf_i16[2] * adj[2]);						
 
             times++;
             if(times > read_times)

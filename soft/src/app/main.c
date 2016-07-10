@@ -171,7 +171,7 @@ static void init(void)
 
     /* 姿态传感器 */
     sensor_init();
-    console_printf("sensor(MPU9250+BMP280)初始化完成.\r\n");
+    console_printf("sensor(MPU9250+AK8963+BMP280)初始化完成.\r\n");
 
     /* wifi 模块串口 */
     esp8266_init();
