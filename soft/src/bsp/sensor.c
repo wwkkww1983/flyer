@@ -65,6 +65,7 @@ void sensor_init(void)
 
     /* mpu9250初始化 */
     mpu9250_init();
+
     /* 获取校准参数 */
     mpu_get_accel_sens(&accel_sens);
     mpu_get_gyro_sens(&gyro_sens);
@@ -73,58 +74,41 @@ void sensor_init(void)
     console_printf("mpu9250 初始化完成.\r\n");
 
 
-    /* FIXME: 封装AKM8963到独立文件 */
+    /* FIXME: 封装AK8963到独立文件 */
     /* ak8963 初始化 */
+    //ak8963_init()
     uint8_T val = 0;
-    sensor_read_poll(AKM8963_DEV_ADDR, AKM8963_WIA_REG_ADDR, &val, 1);
-    if(AKM8963_WIA_REG_VAL == val)
+    sensor_read_poll(AK8963_DEV_ADDR, AK8963_WIA_REG_ADDR, &val, 1);
+    if(AK8963_WIA_REG_VAL == val)
     {
-        console_printf("AKM8963正常工作.\r\n");
+        console_printf("AK8963正常工作.\r\n");
     }
 
+    uint8_T buf[AK8963_REG_NUMS] = {0};
 
-    uint8_T buf[AKM8963_REG_NUMS] = {0};
-#if 1
-    // inv_mpu驱动读
-    int32_T i = 0;
-    int32_T j = 0;
-    int16_T data[3] = {0};
-    while(i++ < 10)
-    {
-        mpu_get_compass_reg(data, NULL);
-        console_printf("%02d:", i);
-        for(j = 0; j < 3; j++)
-        {
-            console_printf("0x%04x,", buf[j]);
-        }
-        console_printf("\r\n");
-    }
-
-#else
     // 手册读
     uint32_T ms_start = 0;
     uint32_T ms_end = 0;
     uint32_T times = 0;
-    uint32_T read_times = 100;
-    val = AKM8963_16BITS | AKM8963_MODE_C1;
-    sensor_write_poll(AKM8963_DEV_ADDR, AKM8963_CNTL1_REG_ADDR, &val, 1);
+    uint32_T read_times = 20;
+    /* 配置为 16bit采样 + 连续工作模式 8Hz */
+    val = AK8963_16BITS | AK8963_MODE_C1;
+    sensor_write_poll(AK8963_DEV_ADDR, AK8963_CNTL1_REG_ADDR, &val, 1);
     ms_start = HAL_GetTick();
     while(1)
-
-#if 0
     { 
         /* 从ST1读到ST2 DMA不耗CPU */
-        sensor_read_poll(AKM8963_DEV_ADDR, AKM8963_DATA_FIRST_ADDR, buf, AKM8963_DATA_LENGTH);
-        if(AKM8963_ST1_DRDY_BIT & buf[0]) /* 有效数据 */
+        sensor_read_poll(AK8963_DEV_ADDR, AK8963_DATA_FIRST_ADDR, buf, AK8963_DATA_LENGTH);
+        if(AK8963_ST1_DRDY_BIT & buf[0]) /* 有效数据 */
         { 
-            if(AKM8963_ST1_DOR_BIT & buf[0])
+            if(AK8963_ST1_DOR_BIT & buf[0])
             {
-                console_printf("AKM8963 有测量值跳过.\r\n");
+                console_printf("AK8963 有测量值跳过.\r\n");
                 continue;
             }
-            if(AKM8963_ST2_HOFL_BIT & buf[7])
+            if(AK8963_ST2_HOFL_BIT & buf[7])
             {
-                console_printf("AKM8963 溢出.\r\n");
+                console_printf("AK8963 溢出.\r\n");
                 continue;
             } 
 
@@ -136,93 +120,32 @@ void sensor_init(void)
             console_printf("Y:0x%02x%02x,", buf[4], buf[3]);
             console_printf("Z:0x%02x%02x\r\n", buf[6], buf[5]);
 
-            console_printf("X:0x%7.4f,", 
+            console_printf("X:%7.4f,", 
                     (((long)((buf[2] << 8) | buf[1]) * mag_sens_adj[0] ) >> 8) * 0.15f);
-            console_printf("X:0x%7.4f,", 
+            console_printf("Y:%7.4f,", 
                     (((long)((buf[4] << 8) | buf[3]) * mag_sens_adj[1] ) >> 8) * 0.15f);
-            console_printf("X:0x%7.4f,", 
+            console_printf("Z:%7.4f\r\n", 
                     (((long)((buf[6] << 8) | buf[5]) * mag_sens_adj[2] ) >> 8) * 0.15f);
+
             times++;
             if(times > read_times)
             {
                 break;
             }
         }
-    }
-#else
-    /* 避免一次读太多导致问题 */
-    { 
-        /* 仅读ST1 */
-        sensor_read_poll(AKM8963_DEV_ADDR, AKM8963_ST1_REG_ADDR, buf, 1);
-        if(AKM8963_ST1_DRDY_BIT & buf[0]) /* 有效数据 */
-        { 
-            sensor_read_poll(AKM8963_DEV_ADDR, AKM8963_HXL_REG_ADDR, buf + 1, 7);
-            if(AKM8963_ST1_DOR_BIT & buf[0])
-            {
-                console_printf("AKM8963 有测量值跳过.\r\n");
-                continue;
-            }
-            if(AKM8963_ST2_HOFL_BIT & buf[7])
-            {
-                console_printf("AKM8963 溢出.\r\n");
-                continue;
-            } 
-            
-            console_printf("test %d times:", times);
-            console_printf("ST1:0x%02x,", buf[0]);
-            console_printf("ST2:0x%02x,", buf[7]);
-            /* 有效数据 */
-            console_printf("X:0x%02x%02x,", buf[2], buf[1]);
-            console_printf("Y:0x%02x%02x,", buf[4], buf[3]);
-            console_printf("Z:0x%02x%02x\r\n", buf[6], buf[5]); 
-            times++;
-            if(times > read_times)
-            {
-                break;
-            }
+        else
+        {
+            HAL_Delay(3);
         }
     }
-#endif
 
     ms_end = HAL_GetTick(); 
-    console_printf("%7.4fms / per data", 1.0f * (ms_end - ms_start) / times);
-
-#if 0
-    /* 无法读到数据 */
-    /* 配置为 16bit采样 + 连续工作模式 8Hz */
-    HAL_Delay(1);
-    val = AKM8963_16BITS | AKM8963_MODE_C1
-    sensor_write_poll(AKM8963_DEV_ADDR, AKM8963_CNTL1_REG_ADDR, &val, 1);
-    uint32_T ms = 0;
-    int i = 0;
-    while( i++ < 10)
-    {
-        for(int32_T i = 0; i < AKM8963_DATA_LENGTH; i++)
-        {
-            buf[i] = 0x00;
-        }
-
-        ms = HAL_GetTick();
-        val = 0x11;
-        sensor_write_poll(AKM8963_DEV_ADDR, AKM8963_CNTL1_REG_ADDR, &val, 1);
-        HAL_Delay(1);
-        sensor_read_poll(AKM8963_DEV_ADDR, AKM8963_DATA_FIRST_ADDR, buf, AKM8963_DATA_LENGTH);
-        console_printf("%lu ms\r\n", ms);
-        for(int32_T i = 0; i < AKM8963_DATA_LENGTH; i++)
-        {
-            console_printf("0x%02x:0x%02x\r\n", i, buf[i]);
-        }
-        HAL_Delay(1000);
-    }
-#endif
-
-#endif
+    console_printf("%7.4fms/data\r\n", 1.0f * (ms_end - ms_start) / times);
 
     /* FIXME: 完成初始化
     bmp280_init();
     console_printf("bmp280_init 初始化完成.\r\n");
     */
-
     return;
 }
 
@@ -346,9 +269,10 @@ void sensor_test(void)
 
                 /* 磁力计测试 */
                 /* 磁力计采样频率8Hz(较低)所以延迟 */
+                HAL_Delay(100);
                 get_now(&ms1, &clk1);
-                if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_sensor_handle, AKM8963_DEV_ADDR,
-                            AKM8963_REG_FIRST, I2C_MEMADD_SIZE_8BIT, buf, AKM8963_REG_NUMS))
+                if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_sensor_handle, AK8963_DEV_ADDR,
+                            AK8963_REG_FIRST_ADDR, I2C_MEMADD_SIZE_8BIT, buf, AK8963_REG_NUMS))
                 {
                     while(1);
                 }
@@ -362,11 +286,11 @@ void sensor_test(void)
                 diff_clk(&diffms1, &diffclk1, ms1, clk1, ms2, clk2);
                 diff_clk(&diffms2, &diffclk2, ms2, clk2, ms3, clk3);
 
-                console_printf("test%d 磁力计(%dBytes):\r\n", times, AKM8963_REG_NUMS);
-                console_printf("磁力计DMA读取请求耗时(%dBytes):time: %u ms, %.2fus\r\n", AKM8963_REG_NUMS, diffms1,  1.0f * diffclk1 / 84);
-                console_printf("磁力计数据读取耗时(%dBytes):   time: %u ms, %.2fus\r\n", AKM8963_REG_NUMS, diffms2,  1.0f * diffclk2 / 84);
+                console_printf("test%d 磁力计(%dBytes):\r\n", times, AK8963_REG_NUMS);
+                console_printf("磁力计DMA读取请求耗时(%dBytes):time: %u ms, %.2fus\r\n", AK8963_REG_NUMS, diffms1,  1.0f * diffclk1 / 84);
+                console_printf("磁力计数据读取耗时(%dBytes):   time: %u ms, %.2fus\r\n", AK8963_REG_NUMS, diffms2,  1.0f * diffclk2 / 84);
               
-                for(int32_T i = 0; i < AKM8963_REG_NUMS; i++)
+                for(int32_T i = 0; i < AK8963_REG_NUMS; i++)
                 {
                     console_printf("0x%02x:0x%02x\r\n", i, buf[i]);
                 }
