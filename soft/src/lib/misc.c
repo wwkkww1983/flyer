@@ -103,12 +103,13 @@ void get_now(misc_time_T *time)
 *
 * 输出参数: diff   时间差值结构指针
 *
-* 返回值  : 无
+* 返回值  :  0     正常差值
+*            1     起点在终点之后
 * 调用关系: 无
 * 其 它   : 无
 *
 ******************************************************************************/
-void diff_clk(misc_time_T *diff, const misc_time_T *start, const misc_time_T *end)
+int32_T diff_clk(misc_time_T *diff, const misc_time_T *start, const misc_time_T *end)
 {
     uint32_T ms1 = start->ms;
     uint32_T ms2 = end->ms;
@@ -117,11 +118,11 @@ void diff_clk(misc_time_T *diff, const misc_time_T *start, const misc_time_T *en
     uint32_T clk2 = end->clk;
     uint32_T clk = 0;
 
-    /* 出错 */
+    /* 起点在终点之后 */
     if( (ms2 < ms1) /* ms 只可能增大 */
     || ((clk2 < clk1) && (ms2 == ms1))) /* 必须有位可借 */
     {
-        while(1);
+        return 1;
     } 
     
     /* 计算差值 */
@@ -136,5 +137,7 @@ void diff_clk(misc_time_T *diff, const misc_time_T *start, const misc_time_T *en
 
     diff->ms = ms;
     diff->clk = clk;
+
+    return 0;
 }
 

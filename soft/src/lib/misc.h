@@ -33,7 +33,7 @@ typedef struct{
 void assert_failed(unsigned char* file, unsigned int line);
 void err_loop(void);
 void get_now(misc_time_T *time);
-void diff_clk(misc_time_T *diff, const misc_time_T *start, const misc_time_T *end);
+int32_T diff_clk(misc_time_T *diff, const misc_time_T *start, const misc_time_T *end);
 
 #endif
 

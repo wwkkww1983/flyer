@@ -18,6 +18,7 @@
 /************************************ 头文件 ***********************************/
 #include "config.h"
 #include "board.h"
+#include "misc.h"
 #include "led.h"
 #include "pwm.h"
 #include "console.h"
@@ -101,7 +102,7 @@ int main(void)
         /* 处理交互 */
         esp8266_task();
         /* 收尾统计工作 */
-        //idle();
+        idle();
     }
 }
 
@@ -112,8 +113,11 @@ static void idle(void)
     static uint32_T ms_start = 0;
     static uint32_T ms_end = 0;
 
-    static uint32_T this_interval = 0;
-    static uint32_T interval = 0;
+    static misc_time_T last_loop_start_time;
+    static misc_time_T now_time;
+    static misc_time_T last_interval;
+    static misc_time_T interval;
+    static misc_time_T temp;
 
     if(TRUE == first_run) /* 获取起始时间 仅运行一次 */
     {
@@ -124,24 +128,27 @@ static void idle(void)
     {
         /* 第一次不运行 其他每次都运行 */
         /* 冒泡算法 interval中永远存放 最大间隔 */
-        this_interval = HAL_GetTick() - ms_end;
-        if(interval < this_interval)
+        get_now(&now_time);
+        diff_clk(&interval, &last_loop_start_time, &now_time);
+
+        if(diff_clk(&temp, &interval, &last_interval))
         {
-            interval = this_interval;
-            console_printf("间隔增大到 %ums.\r\n", interval);
+            console_printf("主循环耗时:%ums,%5.2fus.\r\n", interval.ms, 1.0f * interval.clk / 84);
+            last_interval.ms = interval.ms;
+            last_interval.clk = interval.clk;
         }
     }
     
     ms_end = HAL_GetTick();
-    if(ms_end - ms_start >= 1000) /* 已达1s */
+    if(ms_end - ms_start >= 5000) /* 已达1s */
     {
         /* 该处代码 每秒执行一次 */
         led_toggle(LED_MLED);
         ms_start = HAL_GetTick();
-        //console_printf("%ums:我还在.\r\n", ms_start);
-    }
+			console_printf("%8.4f秒:在线.\r\n", ms_start / 1000.0f);
+    } 
 
-
+    get_now(&last_loop_start_time);
 }
 
 /* 初始化 */
