@@ -90,7 +90,7 @@ void si_write_poll(uint8_T dev_addr, uint16_T reg_addr, const uint8_T *buf, uint
 void si_read_dma(uint8_T dev_addr, uint16_T reg_addr, const uint8_T *buf, uint32_T n)
 { 
     if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_si_handle, dev_addr, reg_addr,
-                I2C_MEMADD_SIZE_8BIT, (uint8_T *)buf, (uint16_T)n));
+                I2C_MEMADD_SIZE_8BIT, (uint8_T *)buf, (uint16_T)n))
     {
         assert_failed(__FILE__, __LINE__);
     }
@@ -174,11 +174,7 @@ void si_test_dma_rate(void)
             {
                 /* 加计数据 */
                 get_now(&ms1, &clk1);
-                if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_si_handle, MPU9250_DEV_ADDR,
-                            MPU9250_ALL_FIRST_DATA_ADDR, I2C_MEMADD_SIZE_8BIT, buf, MPU9250_ACCEL_DATA_LENGTH))
-                {
-                    while(1);
-                }
+                si_read_dma(MPU9250_DEV_ADDR, MPU9250_ALL_FIRST_DATA_ADDR, buf, MPU9250_ACCEL_DATA_LENGTH);
                 get_now(&ms2, &clk2);
             }
 
@@ -202,11 +198,7 @@ void si_test_dma_rate(void)
 
                 /* 加计温度陀螺仪测试 */
                 get_now(&ms1, &clk1);
-                if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_si_handle, MPU9250_DEV_ADDR,
-                            MPU9250_ALL_FIRST_DATA_ADDR, I2C_MEMADD_SIZE_8BIT, buf, MPU9250_ALL_DATA_LENGTH))
-                {
-                    while(1);
-                }
+                si_read_dma(MPU9250_DEV_ADDR, MPU9250_ALL_FIRST_DATA_ADDR, buf, MPU9250_ALL_DATA_LENGTH);
                 get_now(&ms2, &clk2);
             }
 
@@ -240,11 +232,7 @@ void si_test_dma_rate(void)
 
                 /* 磁力计测试 */
                 get_now(&ms1, &clk1);
-                if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_si_handle, AK8963_DEV_ADDR,
-                            AK8963_DATA_FIRST_ADDR, I2C_MEMADD_SIZE_8BIT, buf, AK8963_DATA_LENGTH))
-                {
-                    while(1);
-                }
+                si_read_dma(AK8963_DEV_ADDR, AK8963_DATA_FIRST_ADDR, buf, AK8963_DATA_LENGTH);
                 get_now(&ms2, &clk2);
             }
 
