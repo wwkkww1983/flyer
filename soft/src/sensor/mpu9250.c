@@ -16,22 +16,31 @@
 #pragma  diag_suppress 870
 
 /************************************ 头文件 ***********************************/
+#include "config.h"
+#include "typedef.h"
+#include <stm32f4xx_hal.h>
 #include "inv_mpu.h"
 #include "inv_mpu_dmp_motion_driver.h"
 #include "mpu9250.h"
 #include "exti.h"
-#include "sensor.h"
-#include "stm32f4xx_hal.h"
+#include "si.h"
+
 
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/
+#if 0
 __IO bool_T g_mpu_fifo_ready = FALSE;
 __IO int16_T g_int_status = 0;
+#endif
+
 /********************************** 函数声明区 *********************************/
 static unsigned char addr_convert(unsigned char addr);
 static void run_self_test(void);
-//static void int_callback(void *argv);
+
+#if 0
+static void int_callback(void *argv);
+#endif
 
 
 /********************************** 函数实现区 *********************************/
@@ -62,7 +71,7 @@ inline int mpu9250_read_buf(unsigned char dev_addr,
 {
     uint8_T dev_addr_real = addr_convert(dev_addr);
    
-    sensor_read_poll(dev_addr_real, reg_addr, buf, buf_len);
+    si_read_poll(dev_addr_real, reg_addr, buf, buf_len);
 
     return 0;
 }
@@ -94,7 +103,7 @@ inline int mpu9250_write_buf(unsigned char dev_addr,
 {
     uint8_T dev_addr_real = addr_convert(dev_addr);
 
-    sensor_write_poll(dev_addr_real, reg_addr, buf, buf_len);
+    si_write_poll(dev_addr_real, reg_addr, buf, buf_len);
 
     return 0;
 }
@@ -168,7 +177,7 @@ void mpu9250_init(void)
     uint8_T who_am_i = 0;
 
     /* 测试i2c是否正常工作 */
-    sensor_read_poll(MPU9250_DEV_ADDR, MPU9250_WHO_AM_I_REG_ADDR, &who_am_i, 1); 
+    si_read_poll(MPU9250_DEV_ADDR, MPU9250_WHO_AM_I_REG_ADDR, &who_am_i, 1); 
     if(MPU9250_WHO_AM_I_REG_VALUE == who_am_i)
     {
         console_printf("MPU9250正常工作.\r\n");
@@ -215,10 +224,10 @@ void mpu9250_init(void)
     mpu_get_power_state(&dev_status);
     console_printf("MPU9250 上电%s", dev_status? "成功!\r\n" : "失败!\r\n");
 
-    run_self_test();
-
-		    /* 不使用MPU9250中断 */
+    run_self_test(); 
+    
 #if 0
+    /* mpu9250 中断未使用 */
     exti_set_callback(int_callback, NULL);
     console_printf("MPU9250中断设置完成.\r\n");
 
@@ -231,6 +240,7 @@ void mpu9250_init(void)
     } 
 #endif
 
+#if 0
     /*
      * 初始化 DMP:
      * 1. 注册回调函数
@@ -245,7 +255,6 @@ void mpu9250_init(void)
      * 2. DMP_FEATURE_SEND_CAL_GYRO < == > DMP_FEATURE_SEND_RAW_GYRO.
      *
      */
-#if 0
     dmp_load_motion_driver_firmware();
     /* dmp_set_orientation(inv_orientation_matrix_to_scalar(gyro_pdata.orientation)); */
     dmp_features = DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_GYRO_CAL;
@@ -257,52 +266,10 @@ void mpu9250_init(void)
     return;
 }
 
-/*static uint8_T int_cfg = 0;
-static uint8_T int_en = 0;
-static uint8_T int_sta = 0;
-static int16_T gyro[3];
-static int16_T accel[3];
-static uint8_T sensor;
-static uint8_T more;
-static uint32_T timestamp;
-static int32_T rst = 0;
-static uint32_T timestamp1;
-static uint32_T timestamp2;
-static int32_T times = 0;
-static void int_callback(void *argv)
+void mpu9250_test(void)
 {
-#if 0
-    static int32_T rst = 0;
-    if(0 == times)
-    {
-        timestamp1 = HAL_GetTick();
-    }
-	  
-    rst = mpu_get_int_status(&g_int_status);
-    //rst = mpu_read_reg(0x37, &int_cfg);
-    ////rst = mpu_read_reg(0x38, &int_en);
-    //rst = mpu_read_reg(0x3A, &int_sta);
-    //rst = mpu_read_fifo(gyro, accel, &timestamp, &sensor, &more);
-    //g_mpu_fifo_ready = TRUE;
-    if(0x0010 & g_int_status)
-    {
-        timestamp2 = HAL_GetTick();
-        timestamp = timestamp2 - timestamp1;
-        timestamp = timestamp2 - timestamp1;
-    }
-//#else
-    if(0 != times)
-    {
- //rst = mpu_read_reg(0x37, &int_cfg);
- //rst = mpu_read_reg(0x38, &int_en);
- //rst = mpu_read_reg(0x3A, &int_sta);
-        g_mpu_fifo_ready = TRUE;
-    }
-#endif
-    times++;
-		while(1);
+    ;
 }
-*/
 
 static void run_self_test(void)
 {
@@ -354,4 +321,53 @@ static void run_self_test(void)
 
     return;
 }
+
+#if 0
+/* mpu9250 中断未使用 */
+static uint8_T int_cfg = 0;
+static uint8_T int_en = 0;
+static uint8_T int_sta = 0;
+static int16_T gyro[3];
+static int16_T accel[3];
+static uint8_T sensor;
+static uint8_T more;
+static uint32_T timestamp;
+static int32_T rst = 0;
+static uint32_T timestamp1;
+static uint32_T timestamp2;
+static int32_T times = 0;
+static void int_callback(void *argv)
+{
+#if 0
+    static int32_T rst = 0;
+    if(0 == times)
+    {
+        timestamp1 = HAL_GetTick();
+    }
+	  
+    rst = mpu_get_int_status(&g_int_status);
+    //rst = mpu_read_reg(0x37, &int_cfg);
+    ////rst = mpu_read_reg(0x38, &int_en);
+    //rst = mpu_read_reg(0x3A, &int_sta);
+    //rst = mpu_read_fifo(gyro, accel, &timestamp, &sensor, &more);
+    //g_mpu_fifo_ready = TRUE;
+    if(0x0010 & g_int_status)
+    {
+        timestamp2 = HAL_GetTick();
+        timestamp = timestamp2 - timestamp1;
+        timestamp = timestamp2 - timestamp1;
+    }
+//#else
+    if(0 != times)
+    {
+ //rst = mpu_read_reg(0x37, &int_cfg);
+ //rst = mpu_read_reg(0x38, &int_en);
+ //rst = mpu_read_reg(0x3A, &int_sta);
+        g_mpu_fifo_ready = TRUE;
+    }
+#endif
+    times++;
+		while(1);
+}
+#endif
 

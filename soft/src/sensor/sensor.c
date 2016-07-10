@@ -1,10 +1,10 @@
 /******************************************************************************
  *
- * 文件名  ： sensor.c
+ * 文件名  ： sensor接口
  * 负责人  ： 彭鹏(pengpeng@fiberhome.com)
  * 创建日期： 20160112
  * 版本号  ： 1.0
- * 文件描述： sensor i2c 驱动程序实现
+ * 文件描述： sensor共有代码
  * 版权说明： Copyright (c) GNU
  * 其    他： 实现非阻塞
  * 修改日志： 无
@@ -18,161 +18,64 @@
 /************************************ 头文件 ***********************************/
 #include "typedef.h"
 #include "config.h"
-#include "board.h"
 #include "misc.h"
-#include "mpu9250.h"
-#include "bmp280.h"
-#include "sensor.h"
-#include "console.h"
-
+#include "si.h"
 #include "inv_mpu.h"
+#include "mpu9250.h"
+#include "ak8963.h"
+#include "bmp280_hal.h"
+#include "console.h"
+#include "sensor.h"
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/
-/* board.c使用 */
-I2C_HandleTypeDef g_sensor_handle;
-
-/* 数据解析需要使用 */
-uint16_T accel_sens = 0;
-f32_T    gyro_sens = 0.0f;
-int16_T  mag_sens_adj[3];
-
-bool_T g_tx_cplt = TRUE;
 
 /********************************** 函数实现区 *********************************/
 void sensor_init(void)
 {
-    if(HAL_I2C_STATE_RESET != HAL_I2C_GetState(&g_sensor_handle))
-    {
-        assert_failed(__FILE__, __LINE__);
-    }
-
-    g_sensor_handle.Instance              = SENSOR_I2C;
-    g_sensor_handle.Init.ClockSpeed       = SENSOR_I2C_RATE;
-    g_sensor_handle.Init.DutyCycle        = I2C_DUTYCYCLE_2;
-    g_sensor_handle.Init.OwnAddress1      = 0;
-    g_sensor_handle.Init.AddressingMode   = I2C_ADDRESSINGMODE_7BIT;
-    g_sensor_handle.Init.DualAddressMode  = I2C_DUALADDRESS_DISABLE;
-    g_sensor_handle.Init.OwnAddress2      = 0;
-    g_sensor_handle.Init.GeneralCallMode  = I2C_GENERALCALL_DISABLE;
-    g_sensor_handle.Init.NoStretchMode    = I2C_NOSTRETCH_DISABLE;
-   
-    if(HAL_OK != HAL_I2C_Init(&g_sensor_handle))
-    {
-        assert_failed(__FILE__, __LINE__);
-    }
-    console_printf("sensor i2c 初始化完成.\r\n");
-
     /* mpu9250初始化 */
     mpu9250_init();
-
-    /* 获取校准参数 */
-    mpu_get_accel_sens(&accel_sens);
-    mpu_get_gyro_sens(&gyro_sens);
-    pp_get_compass_mag_sens_adj(mag_sens_adj);
-
     console_printf("mpu9250 初始化完成.\r\n");
 
-
-    /* FIXME: 封装AK8963到独立文件 */
     /* ak8963 初始化 */
-    //ak8963_init()
-    uint8_T val = 0;
-    sensor_read_poll(AK8963_DEV_ADDR, AK8963_WIA_REG_ADDR, &val, 1);
-    if(AK8963_WIA_REG_VAL == val)
-    {
-        console_printf("AK8963正常工作.\r\n");
-    }
+    ak8963_init();
+    ak8963_sample_period(10);
+    console_printf("mpu9250 初始化完成.\r\n");
 
-    uint8_T buf[AK8963_REG_NUMS] = {0};
-
-    // 手册读
-    uint32_T ms_start = 0;
-    uint32_T ms_end = 0;
-    uint32_T times = 0;
-    uint32_T read_times = 20;
-    /* 配置为 16bit采样 + 连续工作模式 8Hz */
-    val = AK8963_16BITS | AK8963_MODE_C1;
-    sensor_write_poll(AK8963_DEV_ADDR, AK8963_CNTL1_REG_ADDR, &val, 1);
-    ms_start = HAL_GetTick();
-    while(1)
-    { 
-        /* 从ST1读到ST2 DMA不耗CPU */
-        sensor_read_poll(AK8963_DEV_ADDR, AK8963_DATA_FIRST_ADDR, buf, AK8963_DATA_LENGTH);
-        if(AK8963_ST1_DRDY_BIT & buf[0]) /* 有效数据 */
-        { 
-            if(AK8963_ST1_DOR_BIT & buf[0])
-            {
-                console_printf("AK8963 有测量值跳过.\r\n");
-                continue;
-            }
-            if(AK8963_ST2_HOFL_BIT & buf[7])
-            {
-                console_printf("AK8963 溢出.\r\n");
-                continue;
-            } 
-
-            console_printf("test %d times:", times);
-            console_printf("ST1:0x%02x,", buf[0]);
-            console_printf("ST2:0x%02x,", buf[7]);
-            /* 有效数据 */
-            console_printf("X:0x%02x%02x,", buf[2], buf[1]);
-            console_printf("Y:0x%02x%02x,", buf[4], buf[3]);
-            console_printf("Z:0x%02x%02x\r\n", buf[6], buf[5]);
-
-            console_printf("X:%7.4f,", 
-                    (((long)((buf[2] << 8) | buf[1]) * mag_sens_adj[0] ) >> 8) * 0.15f);
-            console_printf("Y:%7.4f,", 
-                    (((long)((buf[4] << 8) | buf[3]) * mag_sens_adj[1] ) >> 8) * 0.15f);
-            console_printf("Z:%7.4f\r\n", 
-                    (((long)((buf[6] << 8) | buf[5]) * mag_sens_adj[2] ) >> 8) * 0.15f);
-
-            times++;
-            if(times > read_times)
-            {
-                break;
-            }
-        }
-        else
-        {
-            HAL_Delay(3);
-        }
-    }
-
-    ms_end = HAL_GetTick(); 
-    console_printf("%7.4fms/data\r\n", 1.0f * (ms_end - ms_start) / times);
-
-    /* FIXME: 完成初始化
-    bmp280_init();
+    bmp280_hal_init();
     console_printf("bmp280_init 初始化完成.\r\n");
-    */
-    return;
-}
 
-/* 初始化时采用轮询模型 */
-void sensor_read_poll(uint8_T dev_addr, uint16_T reg_addr, uint8_T *buf, uint32_T n)
+    return;
+} 
+
+/* 获取校准参数 */
+void sensor_get_sens(uint16_T *accel_sens, f32_T *gyro_sens, int16_T *mag_sens)
 {
-    if(HAL_OK != HAL_I2C_Mem_Read(&g_sensor_handle, dev_addr, reg_addr,
-                I2C_MEMADD_SIZE_8BIT, buf, (uint16_T)(n), HAL_MAX_DELAY))
+    /* 使用inv_mpu.c */ 
+    if(NULL != accel_sens)
     {
-        assert_failed(__FILE__, __LINE__);
+        mpu_get_accel_sens(accel_sens);
+    }
+        
+    if(NULL != gyro_sens)
+    {
+        mpu_get_gyro_sens(gyro_sens);
     }
 
-    return;
-}
-
-void sensor_write_poll(uint8_T dev_addr, uint16_T reg_addr, const uint8_T *buf, uint32_T n)
-{
-    if(HAL_OK != HAL_I2C_Mem_Write(&g_sensor_handle, dev_addr, reg_addr,
-                I2C_MEMADD_SIZE_8BIT, (uint8_T *)buf, (uint16_T)(n), HAL_MAX_DELAY))
+    if(NULL != mag_sens)
     {
-        assert_failed(__FILE__, __LINE__);
+        pp_get_compass_mag_sens_adj(mag_sens);
     }
-
-    return;
 }
 
+void sensor_test(void)
+{
+    mpu9250_test();
+    ak8963_test();
+    bmp280_hal_test();
+}
 
+#if 0
 void sensor_test(void)
 {
 
@@ -203,7 +106,7 @@ void sensor_test(void)
             {
                 /* 加计数据 */
                 get_now(&ms1, &clk1);
-                if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_sensor_handle, MPU9250_DEV_ADDR,
+                if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_si_handle, MPU9250_DEV_ADDR,
                             MPU9250_ALL_FIRST_DATA_ADDR, I2C_MEMADD_SIZE_8BIT, buf, MPU9250_ACCEL_DATA_LENGTH))
                 {
                     while(1);
@@ -231,7 +134,7 @@ void sensor_test(void)
 
                 /* 加计温度陀螺仪测试 */
                 get_now(&ms1, &clk1);
-                if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_sensor_handle, MPU9250_DEV_ADDR,
+                if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_si_handle, MPU9250_DEV_ADDR,
                             MPU9250_ALL_FIRST_DATA_ADDR, I2C_MEMADD_SIZE_8BIT, buf, MPU9250_ALL_DATA_LENGTH))
                 {
                     while(1);
@@ -271,7 +174,7 @@ void sensor_test(void)
                 /* 磁力计采样频率8Hz(较低)所以延迟 */
                 HAL_Delay(100);
                 get_now(&ms1, &clk1);
-                if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_sensor_handle, AK8963_DEV_ADDR,
+                if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_si_handle, AK8963_DEV_ADDR,
                             AK8963_REG_FIRST_ADDR, I2C_MEMADD_SIZE_8BIT, buf, AK8963_REG_NUMS))
                 {
                     while(1);
@@ -305,45 +208,12 @@ void sensor_test(void)
     /* FIXME: 加入BMP280测试 */
     console_printf("传感器测试结束.\r\n");
 }
+#endif
 
 void sensor_read(void)
 {
     ;
 }
-
-/* SENSOR_I2C_EV_IRQHandler & SENSOR_I2C_ER_IRQHandler 未使用 使用DMA提高效率 */
-/* 发生EV ER中断表示出错 */
-void SENSOR_I2C_EV_IRQHandler(void)
-{
-    while(1);
-    /* HAL_I2C_EV_IRQHandler(&g_sensor_handle); */
-}
-
-void SENSOR_I2C_ER_IRQHandler(void)
-{
-    while(1);
-    /* HAL_I2C_ER_IRQHandler(&g_sensor_handle); */
-}
-
-void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
-{
-    g_tx_cplt = TRUE;
-}
-
-void SENSOR_I2C_DMA_RX_IRQHandler(void)
-{
-    HAL_DMA_IRQHandler(g_sensor_handle.hdmarx);
-}
-
-
-
-
-
-
-
-
-
-
 
 /* 用于测试 */
 #if 0

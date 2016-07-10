@@ -21,7 +21,7 @@
 #include "pwm.h"
 #include "console.h"
 #include "esp8266.h"
-#include "sensor.h"
+#include "si.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
 
@@ -203,7 +203,7 @@ void HAL_MspInit()
     SENSOR_I2C_CLOCK_ENABLE();
     SENSOR_I2C_FORCE_RESET();
     SENSOR_I2C_RELEASE_RESET(); 
-    SENSOR_DMA_CLK_ENABLE();
+    SENSOR_I2C_DMA_CLK_ENABLE();
     /* 设置I2C中断优先级 */
     HAL_NVIC_SetPriority(SENSOR_I2C_EV_IRQn, PER_INT_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(SENSOR_I2C_EV_IRQn);
@@ -226,7 +226,7 @@ void HAL_MspInit()
     sensor_hdma_rx.Init.PeriphBurst            = DMA_PBURST_INC4; 
     HAL_DMA_Init(&sensor_hdma_rx);   
     /* 关联DMA与UART */
-    __HAL_LINKDMA(&g_sensor_handle, hdmarx, sensor_hdma_rx); 
+    __HAL_LINKDMA(&g_si_handle, hdmarx, sensor_hdma_rx); 
     /* INT */
     HAL_NVIC_SetPriority(SENSOR_I2C_DMA_RX_IRQn, PER_INT_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(SENSOR_I2C_DMA_RX_IRQn);

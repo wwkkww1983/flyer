@@ -4,7 +4,7 @@
 * 负责人  ： 彭鹏(pengpeng@fiberhome.com)
 * 创建日期： 20160112
 * 版本号  ： v1.0
-* 文件描述： 传感器(i2c) 驱动头文件
+* 文件描述： sensor共有接口
 * 版权说明： Copyright (c) 2000-2020 GNU
 * 其 他   ： 无
 * 修改日志： 无
@@ -24,18 +24,12 @@
 /*--------------------------------- 接口声明区 --------------------------------*/
 
 /*********************************** 全局变量 **********************************/
-/* board.c使用 */
-extern I2C_HandleTypeDef g_sensor_handle;
-
-/* main.c测试使用 */
-extern bool_T g_tx_cplt;
 
 /*********************************** 接口函数 **********************************/
 void sensor_init(void);
-void sensor_read_poll(uint8_T dev_addr, uint16_T reg_addr, uint8_T *buf, uint32_T n);
-void sensor_write_poll(uint8_T dev_addr, uint16_T reg_addr, const uint8_T *buf, uint32_T n);
 void sensor_test(void);
 void sensor_read(void);
+void sensor_get_sens(uint16_T *accel_sens, f32_T *gyro_sens, int16_T *mag_sens);
 
 #endif
 
