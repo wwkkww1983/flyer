@@ -159,7 +159,7 @@ void si_test_dma_rate(void)
     uint16_T accel_sens = 0;
     f32_T gyro_sens = 0;
     int16_T mag_sens[3] = {0};
-    f32_T adj[3] = {0.0f};
+    f32_T compass[3] = {0.0f};
 
     /* 获取校正值 */
     sensor_get_sens(&accel_sens, &gyro_sens, mag_sens); 
@@ -194,16 +194,19 @@ void si_test_dma_rate(void)
     while(!si_read_ready()); 
     get_now(&time3); 
     diff_clk(&diff1, &time1, &time2);
-    diff_clk(&diff2, &time2, &time3);
-    buf_i16[0] = buf[2] << 8 | buf[1];
-    buf_i16[1] = buf[4] << 8 | buf[3];
-    buf_i16[2] = buf[6] << 8 | buf[5];
-    adj[0] = (0.5f * (mag_sens[0] - 128) / 128) + 1;
-    adj[1] = (0.5f * (mag_sens[1] - 128) / 128) + 1;
-    adj[2] = (0.5f * (mag_sens[2] - 128) / 128) + 1;
+    diff_clk(&diff2, &time2, &time3); 
+
     console_printf("磁力计(%dBytes)DMA读取请求耗时:%ums,%.2fus\r\n", AK8963_DATA_LENGTH, diff1.ms, 1.0f * diff1.clk / 84);
     console_printf("磁力计等待数据耗时:%ums,%.2fus\r\n", diff2.ms, 1.0f * diff2.clk / 84); 
     console_printf("磁力计数据:ST1:0x%02x,ST2:0x%02x\r\n", buf[0], buf[7]);
-    console_printf("X:%7.4f,Y:%7.4f,Z:%7.4f\r\n", buf_i16[0] * adj[0], buf_i16[1] * adj[1], buf_i16[2] * adj[2]);
+    if(0 == ak8963_data_parse(compass, buf))
+    {
+        console_printf("X:%7.4f,Y:%7.4f,Z:%7.4f\r\n", compass[0], compass[1], compass[2]);
+    }
+    else
+    { 
+        console_printf("%s:%d磁力计未为获取到有效数据\r\n", __FILE__, __LINE__);
+        while(1);
+    }
 }
 

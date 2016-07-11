@@ -220,31 +220,38 @@ static void init(void)
 
     /* 自检 */
     self_test();
-    //console_printf("自检完成.\r\n");
+    console_printf("自检完成.\r\n");
 
     console_printf("系统初始化完成.\r\n");
 }
 
 /* 硬件测试 */
-//static uint8_T c = 0;
-//
-static int32_T rst = 0;
-static uint8_T int_cfg = 0;
-static uint8_T int_en = 0;
-static uint8_T int_sta = 0;
-static int16_T s_gyro[3] = {0};
-static int16_T s_accel_short[3] = {0};
-static int16_T s_sensors = 0;
-static uint8_T s_more = 0;
-static int32_T s_quat[4] = {0};
-static int32_T s_temperature = 0;
-static int32_T times = 0;
+
 static void self_test(void)
 {
     TRACE_FUNC_IN; 
     console_printf("开始硬件测试.\r\n"); 
 
+    console_test();
+    led_test();
+    pwm_test();
+    sensor_test();
+    esp8266_test();    
+    fusion_test();
+
+#if 0
     /* 硬解 */
+    static int32_T rst = 0;
+    static uint8_T int_cfg = 0;
+    static uint8_T int_en = 0;
+    static uint8_T int_sta = 0;
+    static int16_T s_gyro[3] = {0};
+    static int16_T s_accel_short[3] = {0};
+    static int16_T s_sensors = 0;
+    static uint8_T s_more = 0;
+    static int32_T s_quat[4] = {0};
+    static int32_T s_temperature = 0;
+    static int32_T times = 0;
     while(1)
     {
         if(g_pp_fifo_ready) 
@@ -298,18 +305,7 @@ static void self_test(void)
             UNUSED(i);
         }
     }
-
-    console_test();
-
-    led_test();
-
-    pwm_test();
-
-    sensor_test();
-
-    esp8266_test();
-    
-    fusion_test();
+#endif
 
     console_printf("结束硬件测试.\r\n"); 
     TRACE_FUNC_OUT;

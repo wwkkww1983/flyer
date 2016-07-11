@@ -261,8 +261,8 @@ static void ak8963_fusion(uint32_T time, f32_T *val, uint8_t st1, uint8_t st2)
     f32_T compass[3];
 
     accel[0] = s_accel[0];
-    accel[1] = s_accel[0];
-    accel[2] = s_accel[0];
+    accel[1] = s_accel[1];
+    accel[2] = s_accel[2];
 
     compass[0] = val[0];
     compass[1] = val[1];
@@ -272,9 +272,9 @@ static void ak8963_fusion(uint32_T time, f32_T *val, uint8_t st1, uint8_t st2)
     math_vector3_cross_product(e, accel, compass);
 
 #if 0
-    printf("a:%7.4f,%7.4f,%7.4f + ", accel[0], accel[1], accel[2]);
-    printf("m:%7.4f,%7.4f,%7.4f => ", mag[0], mag[1], mag[2]);
-    printf("e:%7.4f,%7.4f,%7.4f\n", e[0], e[1], e[2]);
+    console_printf("a:%7.4f,%7.4f,%7.4f + ", accel[0], accel[1], accel[2]);
+    console_printf("m:%7.4f,%7.4f,%7.4f => ", compass[0], compass[1], compass[2]);
+    console_printf("e:%7.4f,%7.4f,%7.4f\r\n", e[0], e[1], e[2]);
 #endif
 
     /* 直接姿态 */
@@ -296,11 +296,8 @@ static void ak8963_fusion(uint32_T time, f32_T *val, uint8_t st1, uint8_t st2)
 #endif
     euler[2] = psi; 
     
-    /* 关闭磁力计融合算法 */
-#if 0
     /* 转换为四元数 */
     math_euler2quaternion(q, euler);
     set_quaternion(q);
-#endif
 }
 

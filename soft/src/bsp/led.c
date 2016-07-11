@@ -81,27 +81,8 @@ void led_test(void)
     /* led 测试 */
     int i = 0;
     int j = 0;
-    int delay = 100;     /* led测试延迟ms */
+    int delay = 200;     /* led测试延迟ms */
     int flash_times = 5; /* 闪烁次数 不包括off/on测试 */
-
-    /* 上电默认点亮
-     * GPIO低电平 */
-    HAL_Delay(delay);
-    /* 此处熄灭*/
-    for(i = 0; i < LED_MAX; i++)
-    {
-        led_off((LED_NAME)i); 
-    } 
-    console_printf("观察led是否有熄灭.\r\n"); 
-    HAL_Delay(delay*20); /* 2s */
-
-    /* 恢复点亮 */
-    for(i = 0; i < LED_MAX; i++)
-    {
-        led_on((LED_NAME)i); 
-    } 
-    console_printf("观察led是否有点亮.\r\n"); 
-    HAL_Delay(delay*20); /* 2s */
 
     console_printf("观察led是否闪烁.\r\n"); 
     /* 闪5次 */

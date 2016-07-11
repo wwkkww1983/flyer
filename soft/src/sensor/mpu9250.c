@@ -37,9 +37,11 @@ const signed char s_orientation[9] = MPU9250_ORIENTATION;
 /********************************** 函数声明区 *********************************/
 static unsigned char addr_convert(unsigned char addr);
 static void run_self_test(void);
+#if 0
 static void int_callback(void *argv);
 static void tap_callback(unsigned char direction, unsigned char count);
 static void android_orient_callback(unsigned char orientation);
+#endif
 
 /********************************** 函数实现区 *********************************/
 /*******************************************************************************
@@ -172,7 +174,7 @@ inline static unsigned char addr_convert(unsigned char addr)
 void mpu9250_init(void)
 {
     uint8_T who_am_i = 0;
-    uint16_T dmp_features = 0;
+    //uint16_T dmp_features = 0;
 
     /* 测试i2c是否正常工作 */
     si_read_poll(MPU9250_DEV_ADDR, MPU9250_WHO_AM_I_REG_ADDR, &who_am_i, 1); 
@@ -214,6 +216,7 @@ void mpu9250_init(void)
 
     run_self_test(); 
     
+#if 0
     /* 开启DMP中断 */
     exti_set_callback(int_callback, NULL);
     if (mpu_configure_fifo(INV_XYZ_GYRO|INV_XYZ_ACCEL)!=0)
@@ -259,6 +262,7 @@ void mpu9250_init(void)
     /* 该函数会关闭bypass模式 */
     mpu_set_dmp_state(1);
     mpu_set_bypass(1); /* 打开bypass */
+#endif
 
     return;
 }
@@ -394,14 +398,6 @@ static void read_fifo_func(void)
 #endif
 
 #if 0
-static int16_T gyro[3];
-static int16_T accel[3];
-static uint8_T sensor;
-static uint8_T more;
-static uint32_T timestamp;
-static uint32_T timestamp1;
-static uint32_T timestamp2;
-#endif
 static int32_T times = 0;
 static misc_time_T last_time;
 static misc_time_T now;
@@ -477,4 +473,6 @@ static void android_orient_callback(unsigned char orientation)
     }
     return;
 }
+
+#endif
 

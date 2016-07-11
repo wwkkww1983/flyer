@@ -50,6 +50,9 @@
 #define AK8963_MODE_ET                      (0x04)
 #define AK8963_MODE_TEST                    (0x08)
 #define AK8963_MODE_FUSE                    (0x0F)
+#define AK8963_POWER_DOWN                   (AK8963_16BITS | AK8963_MODE_PD)
+#define AK8963_FUSE_ACCESS                  (AK8963_16BITS | AK8963_MODE_FUSE)
+#define AK8963_16BIT_STEP                   (0.15f)
 #define AK8963_DATA_FIRST_ADDR              (AK8963_ST1_REG_ADDR)
 #define AK8963_DATA_LENGTH                  (AK8963_ST2_REG_ADDR - AK8963_ST1_REG_ADDR + 1)
 
@@ -62,6 +65,6 @@
 void ak8963_init(void);
 int32_T ak8963_sample_period(int32_T read_times);
 void ak8963_test(void);
-
+int32_T ak8963_data_parse(f32_T *val, const uint8_T *buf);
 #endif /* _AK8963_H_ */
 

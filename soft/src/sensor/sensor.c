@@ -33,7 +33,6 @@
 /********************************** 变量声明区 *********************************/
 uint16_T s_accel_sens = 0;
 f32_T s_gyro_sens = 0;
-static f32_T s_ak8963_adj[3] = {0};
 
 /* 传感器回传的解析前数据 */ 
 static uint8_T s_buf[MPU9250_DATA_LENGTH]; /* 取较大值 避免溢出 */ 
@@ -60,10 +59,6 @@ void sensor_init(void)
 
     /* 获取校正值 */
     sensor_get_sens(&s_accel_sens, &s_gyro_sens, mag_sens); 
-    /* 计算ak8963矫正值 */
-    s_ak8963_adj[0] = (0.5f * (mag_sens[0] - 128) / 128) + 1;
-    s_ak8963_adj[1] = (0.5f * (mag_sens[1] - 128) / 128) + 1;
-    s_ak8963_adj[2] = (0.5f * (mag_sens[2] - 128) / 128) + 1;
 
     return;
 } 
@@ -183,33 +178,22 @@ static void parse(void)
     }
     else if(ak8963_E == s_buf_type)
     {
-        s_data.val.ak8963.st1 = s_buf[0];
-        s_data.val.ak8963.st2 = s_buf[7];
-
-        if(AK8963_ST1_DRDY_BIT & s_buf[0]) /* 有效数据 */ 
+        if(0 == ak8963_data_parse(compass, s_buf))
         {
-            buf_i16[0] = s_buf[2] << 8 | s_buf[1];
-            buf_i16[1] = s_buf[4] << 8 | s_buf[3];
-            buf_i16[2] = s_buf[6] << 8 | s_buf[5]; 
+            s_data.val.ak8963.st1 = s_buf[0];
+            s_data.val.ak8963.st1 = s_buf[7];
 
-            compass[0] = buf_i16[0] * s_ak8963_adj[0];
-            compass[1] = buf_i16[1] * s_ak8963_adj[1];
-            compass[2] = buf_i16[2] * s_ak8963_adj[2]; 
-            
             s_data.val.ak8963.val[0] = compass[0];
             s_data.val.ak8963.val[1] = compass[1];
             s_data.val.ak8963.val[2] = compass[2];
-        } 
-        else /* 数据无效 */
-        {
+        }
+        else
+        { 
+
             s_data_ready = FALSE;
-            return;
         }
     }
-    else
-    {
-        ;
-    }
+    else { ; } /* 无效包类型 */
     s_data_ready = TRUE;
 
     return;
