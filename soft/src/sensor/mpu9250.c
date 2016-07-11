@@ -31,10 +31,8 @@
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/
-#if 0
 __IO bool_T g_mpu_fifo_ready = FALSE;
 __IO int16_T g_int_status = 0;
-#endif
 
 const signed char s_orientation[9] = MPU9250_ORIENTATION;
 
@@ -224,7 +222,6 @@ void mpu9250_init(void)
 
     run_self_test(); 
     
-#if 0
     /* 开启DMP中断 */
     exti_set_callback(int_callback, NULL);
     if (mpu_configure_fifo(INV_XYZ_GYRO|INV_XYZ_ACCEL)!=0)
@@ -238,8 +235,9 @@ void mpu9250_init(void)
      * 2. 调用dmp_load_motion_driver_firmware().加载inv_mpu_dmp_motion_driver.h的
      *    DMP程序.
      * 3. 加方向矩阵加入DMP.
-     * 4. 调用dmp_enable_feature()使能特性
-     * 5. 调用mpu_set_dmp_state(1)启动dmp
+     * 4. 注册姿态回调函数
+     * 5. 调用dmp_enable_feature()使能特性
+     * 6. 调用mpu_set_dmp_state(1)启动dmp
      *
      * 不能使用的特性组合:
      * 1. DMP_FEATURE_LP_QUAT < == > DMP_FEATURE_LP_QUAT
@@ -265,8 +263,9 @@ void mpu9250_init(void)
         | DMP_FEATURE_GYRO_CAL;
     dmp_enable_feature(dmp_features);
     dmp_set_fifo_rate(MPU9250_DMP_SAMPLE_RATE);
+    /* 该函数会关闭bypass模式 */
     mpu_set_dmp_state(1);
-#endif
+    mpu_set_bypass(1); /* 打开bypass */
 
     return;
 }
@@ -401,18 +400,24 @@ static void read_fifo_func(void)
 #endif
 
 #if 0
-static uint8_T int_cfg = 0;
-static uint8_T int_en = 0;
-static uint8_T int_sta = 0;
 static int16_T gyro[3];
 static int16_T accel[3];
 static uint8_T sensor;
 static uint8_T more;
 static uint32_T timestamp;
-static int32_T rst = 0;
 static uint32_T timestamp1;
 static uint32_T timestamp2;
 #endif
+static int32_T rst = 0;
+static uint8_T int_cfg = 0;
+static uint8_T int_en = 0;
+static uint8_T int_sta = 0;
+static int16_T s_gyro[3] = {0};
+static int16_T s_accel_short[3] = {0};
+static int16_T s_sensors = 0;
+static uint8_T s_more = 0;
+static int32_T s_quat[4] = {0};
+static int32_T s_temperature = 0;
 static int32_T times = 0;
 static void int_callback(void *argv)
 {
@@ -422,7 +427,7 @@ static void int_callback(void *argv)
     {
         timestamp1 = HAL_GetTick();
     }
-	  
+
     rst = mpu_get_int_status(&g_int_status);
     //rst = mpu_read_reg(0x37, &int_cfg);
     ////rst = mpu_read_reg(0x38, &int_en);
@@ -435,17 +440,42 @@ static void int_callback(void *argv)
         timestamp = timestamp2 - timestamp1;
         timestamp = timestamp2 - timestamp1;
     }
-//#else
+#else
+    UNUSED(rst);
     if(0 != times)
-    {
- //rst = mpu_read_reg(0x37, &int_cfg);
- //rst = mpu_read_reg(0x38, &int_en);
- //rst = mpu_read_reg(0x3A, &int_sta);
+    { 
+        int32_T i = 0;
+
+        rst = mpu_read_reg(0x37, &int_cfg);
+        rst = mpu_read_reg(0x38, &int_en);
+        rst = mpu_read_reg(0x3A, &int_sta);
+        rst = dmp_read_fifo(s_gyro, s_accel_short, (long *)s_quat, (unsigned long *)&s_temperature, &s_sensors, &s_more);
+
+        if (!s_more)
+        {
+            i = 1;
+        }
+       
+        if (s_sensors & INV_XYZ_GYRO)
+        {
+            i = 2;
+        }
+
+        if (s_sensors & INV_XYZ_ACCEL) 
+        {
+            i = 3;
+        }
+       
+        if (s_sensors & INV_WXYZ_QUAT) 
+        {
+            i = 4;
+        }
+        UNUSED(i);
+
         g_mpu_fifo_ready = TRUE;
     }
 #endif
     times++;
-		while(1);
 }
 
 static void tap_callback(unsigned char direction, unsigned char count)
