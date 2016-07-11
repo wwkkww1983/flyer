@@ -200,12 +200,6 @@ void mpu9250_init(void)
         return;
     }
 
-    /*if(mpu_set_compass_sample_rate(AK8963_SAMPLE_RATE) !=0)
-    {
-        console_printf("设置磁力计采样率(%d)失败.\r\n", AK8963_SAMPLE_RATE);
-        return;
-    }*/
-
     if (mpu_set_gyro_fsr(MPU9250_GYRO_FSR)!=0)
     {
         console_printf("设置陀螺仪量程失败.\r\n");
@@ -253,14 +247,15 @@ void mpu9250_init(void)
      */
     dmp_load_motion_driver_firmware();
     dmp_set_orientation(inv_orientation_matrix_to_scalar(s_orientation));
-    dmp_register_tap_cb(tap_callback);
-		dmp_register_android_orient_cb(android_orient_callback);
+    //dmp_register_tap_cb(tap_callback);
+		//dmp_register_android_orient_cb(android_orient_callback);
     dmp_features = DMP_FEATURE_6X_LP_QUAT
         | DMP_FEATURE_TAP
         | DMP_FEATURE_ANDROID_ORIENT
         | DMP_FEATURE_GYRO_CAL;
     dmp_enable_feature(dmp_features);
     dmp_set_fifo_rate(MPU9250_DMP_SAMPLE_RATE);
+    dmp_set_interrupt_mode(DMP_INT_CONTINUOUS);
     /* 该函数会关闭bypass模式 */
     mpu_set_dmp_state(1);
     mpu_set_bypass(1); /* 打开bypass */
@@ -414,11 +409,11 @@ static misc_time_T diff;
 static void int_callback(void *argv)
 {
     /* 计算中断间隔 200Hz 5ms左右 */
-    if(0 == times)
+    if(1 == times)
     {
         get_now(&last_time);
     }
-    else if(1 == times)
+    else if(2 == times)
     {
         get_now(&now);
         diff_clk(&diff, &last_time, &now);
@@ -431,7 +426,6 @@ static void int_callback(void *argv)
 /* 关闭回调功能 避免震动影响性能测试 */
 static void tap_callback(unsigned char direction, unsigned char count)
 {
-#if 0
     switch (direction)
     {
         case TAP_X_UP:
@@ -457,14 +451,13 @@ static void tap_callback(unsigned char direction, unsigned char count)
             return;
     }
 
-    console_printf("tapi:%d\n", count);
-#endif
+    console_printf("tap:%d\n", count);
     return;
 }
 
 static void android_orient_callback(unsigned char orientation)
 {
-#if 0
+
     switch (orientation)
     {
         case ANDROID_ORIENT_PORTRAIT:
@@ -482,7 +475,6 @@ static void android_orient_callback(unsigned char orientation)
         default:
             return;
     }
-#endif
     return;
 }
 

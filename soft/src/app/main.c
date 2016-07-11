@@ -238,11 +238,13 @@ static int16_T s_sensors = 0;
 static uint8_T s_more = 0;
 static int32_T s_quat[4] = {0};
 static int32_T s_temperature = 0;
+static int32_T times = 0;
 static void self_test(void)
 {
     TRACE_FUNC_IN; 
     console_printf("开始硬件测试.\r\n"); 
 
+    /* 硬解 */
     while(1)
     {
         if(g_pp_fifo_ready) 
@@ -272,9 +274,25 @@ static void self_test(void)
             }
 
             if (s_sensors & INV_WXYZ_QUAT) 
-            {
-                i = 4;
+            { 
+                if(0 == times % 100)
+                {
+                f32_T e[3] = {0.0f};
+                f32_T q[4] = {0.0f};
+                q[0] = (f32_T) s_quat[0] / ((f32_T)(1L << 30));
+                q[1] = (f32_T) s_quat[1] / ((f32_T)(1L << 30));
+                q[2] = (f32_T) s_quat[2] / ((f32_T)(1L << 30));
+                q[3] = (f32_T) s_quat[3] / ((f32_T)(1L << 30));
+
+                math_quaternion2euler(e, q);
+                console_printf("姿态:%.4f, %.4f, %.4f <==> %.4f,%.4f,%.4f,%.4f\r\n",
+                        math_arc2angle(e[0]), math_arc2angle(e[1]), math_arc2angle(e[2]),
+                        q[0], q[1], q[2], q[3]);
+                }
+
+                times++;
             }
+
 
             UNUSED(rst);
             UNUSED(i);

@@ -47,10 +47,9 @@
 #define SENSOR_I2C_RATE                                     (400000)
 #define MPU9250_ACCEL_FSR                                   (2)
 #define MPU9250_GYRO_FSR                                    (2000)
-/* max rate 1000 */
-#define MPU9250_SAMPLE_RATE                                 (1000)
-#define AK8963_SAMPLE_RATE                                  (8)
 #define MPU9250_DMP_SAMPLE_RATE                             (200)
+/* max rate 1000 */
+#define MPU9250_SAMPLE_RATE                                 (MPU9250_DMP_SAMPLE_RATE)
 /* 多长间隔(ms)读一次数据 */
 #define MPU9250_READ_PERIOD                                 (1)
 #define AK8963_READ_PERIOD                                  (500)
