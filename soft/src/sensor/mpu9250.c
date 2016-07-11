@@ -31,9 +31,7 @@
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/
-__IO bool_T g_mpu_fifo_ready = FALSE;
-__IO int16_T g_int_status = 0;
-
+__IO bool_T g_pp_fifo_ready = FALSE;
 const signed char s_orientation[9] = MPU9250_ORIENTATION;
 
 /********************************** 函数声明区 *********************************/
@@ -240,7 +238,7 @@ void mpu9250_init(void)
      * 6. 调用mpu_set_dmp_state(1)启动dmp
      *
      * 不能使用的特性组合:
-     * 1. DMP_FEATURE_LP_QUAT < == > DMP_FEATURE_LP_QUAT
+     * 1. DMP_FEATURE_6X_LP_QUAT < == > DMP_FEATURE_LP_QUAT
      * 2. DMP_FEATURE_SEND_CAL_GYRO < == > DMP_FEATURE_SEND_RAW_GYRO.
      *
      * 已知问题:
@@ -338,6 +336,7 @@ static int32_T times = 0;
 static int32_T rst = 0;
 static int32_T count = 0;
 static uint8_T val = 0;
+__IO int16_T g_int_status = 0;
 static void read_fifo_func(void)
 {
     UNUSED(gyro);
@@ -350,14 +349,14 @@ static void read_fifo_func(void)
     UNUSED(count);
     UNUSED(val);
 
-    extern bool_T g_mpu_fifo_ready;
+    extern bool_T g_pp_fifo_ready;
     extern int16_T g_int_status;
     int mpu_read_fifo(short *gyro, short *accel, unsigned long *timestamp, unsigned char *sensors, unsigned char *more);
 
     while(1)
     {
 
-        if(g_mpu_fifo_ready)
+        if(g_pp_fifo_ready)
         {
             gyro[0] = 0;
             gyro[1] = 0;
@@ -374,7 +373,7 @@ static void read_fifo_func(void)
                 rst = mpu_read_fifo(gyro, accel, &timestamp, &sensor, &more);
                 count++;
             }while(more > 0);
-            g_mpu_fifo_ready = FALSE;
+            g_pp_fifo_ready = FALSE;
 
             if(0 == times % 500)
             {
@@ -408,78 +407,31 @@ static uint32_T timestamp;
 static uint32_T timestamp1;
 static uint32_T timestamp2;
 #endif
-static int32_T rst = 0;
-static uint8_T int_cfg = 0;
-static uint8_T int_en = 0;
-static uint8_T int_sta = 0;
-static int16_T s_gyro[3] = {0};
-static int16_T s_accel_short[3] = {0};
-static int16_T s_sensors = 0;
-static uint8_T s_more = 0;
-static int32_T s_quat[4] = {0};
-static int32_T s_temperature = 0;
 static int32_T times = 0;
+static misc_time_T last_time;
+static misc_time_T now;
+static misc_time_T diff;
 static void int_callback(void *argv)
 {
-#if 0
-    static int32_T rst = 0;
+    /* 计算中断间隔 200Hz 5ms左右 */
     if(0 == times)
     {
-        timestamp1 = HAL_GetTick();
+        get_now(&last_time);
     }
-
-    rst = mpu_get_int_status(&g_int_status);
-    //rst = mpu_read_reg(0x37, &int_cfg);
-    ////rst = mpu_read_reg(0x38, &int_en);
-    //rst = mpu_read_reg(0x3A, &int_sta);
-    //rst = mpu_read_fifo(gyro, accel, &timestamp, &sensor, &more);
-    //g_mpu_fifo_ready = TRUE;
-    if(0x0010 & g_int_status)
+    else if(1 == times)
     {
-        timestamp2 = HAL_GetTick();
-        timestamp = timestamp2 - timestamp1;
-        timestamp = timestamp2 - timestamp1;
+        get_now(&now);
+        diff_clk(&diff, &last_time, &now);
     }
-#else
-    UNUSED(rst);
-    if(0 != times)
-    { 
-        int32_T i = 0;
-
-        rst = mpu_read_reg(0x37, &int_cfg);
-        rst = mpu_read_reg(0x38, &int_en);
-        rst = mpu_read_reg(0x3A, &int_sta);
-        rst = dmp_read_fifo(s_gyro, s_accel_short, (long *)s_quat, (unsigned long *)&s_temperature, &s_sensors, &s_more);
-
-        if (!s_more)
-        {
-            i = 1;
-        }
-       
-        if (s_sensors & INV_XYZ_GYRO)
-        {
-            i = 2;
-        }
-
-        if (s_sensors & INV_XYZ_ACCEL) 
-        {
-            i = 3;
-        }
-       
-        if (s_sensors & INV_WXYZ_QUAT) 
-        {
-            i = 4;
-        }
-        UNUSED(i);
-
-        g_mpu_fifo_ready = TRUE;
-    }
-#endif
     times++;
+
+    g_pp_fifo_ready = TRUE;
 }
 
+/* 关闭回调功能 避免震动影响性能测试 */
 static void tap_callback(unsigned char direction, unsigned char count)
 {
+#if 0
     switch (direction)
     {
         case TAP_X_UP:
@@ -506,27 +458,31 @@ static void tap_callback(unsigned char direction, unsigned char count)
     }
 
     console_printf("tapi:%d\n", count);
+#endif
     return;
 }
 
 static void android_orient_callback(unsigned char orientation)
 {
-	switch (orientation)
-        {
-            case ANDROID_ORIENT_PORTRAIT:
-                console_printf("竖屏肖像\n");
-                break;
-            case ANDROID_ORIENT_LANDSCAPE:
-                console_printf("横屏风景\n");
-                break;
-            case ANDROID_ORIENT_REVERSE_PORTRAIT:
-                console_printf("反竖屏肖像\n");
-                break;
-            case ANDROID_ORIENT_REVERSE_LANDSCAPE:
-                console_printf("反横屏风景\n");
-                break;
-            default:
-                return;
-        }
+#if 0
+    switch (orientation)
+    {
+        case ANDROID_ORIENT_PORTRAIT:
+            console_printf("竖屏肖像\n");
+            break;
+        case ANDROID_ORIENT_LANDSCAPE:
+            console_printf("横屏风景\n");
+            break;
+        case ANDROID_ORIENT_REVERSE_PORTRAIT:
+            console_printf("反竖屏肖像\n");
+            break;
+        case ANDROID_ORIENT_REVERSE_LANDSCAPE:
+            console_printf("反横屏风景\n");
+            break;
+        default:
+            return;
+    }
+#endif
+    return;
 }
 

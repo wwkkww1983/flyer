@@ -27,6 +27,10 @@
 #include "fusion.h"
 #include "lib_math.h"
 
+#include "inv_mpu.h"
+#include "mpu9250.h"
+#include "inv_mpu_dmp_motion_driver.h"
+
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/ 
@@ -88,6 +92,8 @@ int main(void)
 {
     init();
     console_printf("\r\n开始进入主循环.\r\n");
+
+    /* 实际运行 */
     while(1)
     { 
         /* 采样 */
@@ -221,14 +227,63 @@ static void init(void)
 
 /* 硬件测试 */
 //static uint8_T c = 0;
+//
+static int32_T rst = 0;
+static uint8_T int_cfg = 0;
+static uint8_T int_en = 0;
+static uint8_T int_sta = 0;
+static int16_T s_gyro[3] = {0};
+static int16_T s_accel_short[3] = {0};
+static int16_T s_sensors = 0;
+static uint8_T s_more = 0;
+static int32_T s_quat[4] = {0};
+static int32_T s_temperature = 0;
 static void self_test(void)
 {
     TRACE_FUNC_IN; 
     console_printf("开始硬件测试.\r\n"); 
 
+    while(1)
+    {
+        if(g_pp_fifo_ready) 
+        {
+            int32_T i = 0;
+
+            g_pp_fifo_ready = FALSE; 
+            rst = mpu_read_reg(0x37, &int_cfg);
+            rst = mpu_read_reg(0x38, &int_en);
+            rst = mpu_read_reg(0x3A, &int_sta);
+            rst = dmp_read_fifo(s_gyro, s_accel_short,
+                    (long *)s_quat, (unsigned long *)&s_temperature, &s_sensors, &s_more);
+
+            if (!s_more)
+            {
+                i = 1;
+            }
+
+            if (s_sensors & INV_XYZ_GYRO)
+            {
+                i = 2;
+            }
+
+            if (s_sensors & INV_XYZ_ACCEL) 
+            {
+                i = 3;
+            }
+
+            if (s_sensors & INV_WXYZ_QUAT) 
+            {
+                i = 4;
+            }
+
+            UNUSED(rst);
+            UNUSED(i);
+        }
+    }
+
     console_test();
 
-    //led_test();
+    led_test();
 
     pwm_test();
 
