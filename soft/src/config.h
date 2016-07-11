@@ -50,9 +50,14 @@
 /* max rate 1000 */
 #define MPU9250_SAMPLE_RATE                                 (1000)
 #define AK8963_SAMPLE_RATE                                  (8)
+#define MPU9250_DMP_SAMPLE_RATE                             (200)
 /* 多长间隔(ms)读一次数据 */
 #define MPU9250_READ_PERIOD                                 (1)
 #define AK8963_READ_PERIOD                                  (500)
+/* 配置MPU9250的方向 */
+#define MPU9250_ORIENTATION                                 { 1, 0, 0, \
+                                                              0, 1, 0, \
+                                                              0, 0, 1}
 
 /* 以下内容不可修改 */
 /* 每秒钟systick中断数 默认1ms */

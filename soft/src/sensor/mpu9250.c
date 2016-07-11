@@ -22,6 +22,7 @@
 #include <stm32f4xx_hal.h>
 #include "inv_mpu.h"
 #include "inv_mpu_dmp_motion_driver.h"
+#include "ml_math_func.h"
 #include "mpu9250.h"
 #include "exti.h"
 #include "si.h"
@@ -35,14 +36,14 @@ __IO bool_T g_mpu_fifo_ready = FALSE;
 __IO int16_T g_int_status = 0;
 #endif
 
+const signed char s_orientation[9] = MPU9250_ORIENTATION;
+
 /********************************** 函数声明区 *********************************/
 static unsigned char addr_convert(unsigned char addr);
 static void run_self_test(void);
-
-#if 0
 static void int_callback(void *argv);
-#endif
-
+static void tap_callback(unsigned char direction, unsigned char count);
+static void android_orient_callback(unsigned char orientation);
 
 /********************************** 函数实现区 *********************************/
 /*******************************************************************************
@@ -175,6 +176,7 @@ inline static unsigned char addr_convert(unsigned char addr)
 void mpu9250_init(void)
 {
     uint8_T who_am_i = 0;
+    uint16_T dmp_features = 0;
 
     /* 测试i2c是否正常工作 */
     si_read_poll(MPU9250_DEV_ADDR, MPU9250_WHO_AM_I_REG_ADDR, &who_am_i, 1); 
@@ -223,17 +225,13 @@ void mpu9250_init(void)
     run_self_test(); 
     
 #if 0
-    /* mpu9250 中断未使用 */
+    /* 开启DMP中断 */
     exti_set_callback(int_callback, NULL);
-    /* 内部设置中断 可以用于验证中断连接MCU硬件是有效的 */
     if (mpu_configure_fifo(INV_XYZ_GYRO|INV_XYZ_ACCEL)!=0)
     {
         console_printf("设置MPU FIFO失败.\r\n");
         return;
     } 
-#endif
-
-#if 0
     /*
      * 初始化 DMP:
      * 1. 注册回调函数
@@ -247,10 +245,24 @@ void mpu9250_init(void)
      * 1. DMP_FEATURE_LP_QUAT < == > DMP_FEATURE_LP_QUAT
      * 2. DMP_FEATURE_SEND_CAL_GYRO < == > DMP_FEATURE_SEND_RAW_GYRO.
      *
+     * 已知问题:
+     * 如果没有使能DMP_FEATURE_TAP,无论使用dmp_set_fifo_rate设置的中断
+     * 频率为多少,dmp生成中断的频率都为200Hz.
+     * 为了避免这个问题,需要使能DMP_FEATURE_TAP
+     *
+     * DMP融合工作于:
+     * gyro +-2000dps
+     * accel +-2G
+     *
      */
     dmp_load_motion_driver_firmware();
-    /* dmp_set_orientation(inv_orientation_matrix_to_scalar(gyro_pdata.orientation)); */
-    dmp_features = DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_GYRO_CAL;
+    dmp_set_orientation(inv_orientation_matrix_to_scalar(s_orientation));
+    dmp_register_tap_cb(tap_callback);
+		dmp_register_android_orient_cb(android_orient_callback);
+    dmp_features = DMP_FEATURE_6X_LP_QUAT
+        | DMP_FEATURE_TAP
+        | DMP_FEATURE_ANDROID_ORIENT
+        | DMP_FEATURE_GYRO_CAL;
     dmp_enable_feature(dmp_features);
     dmp_set_fifo_rate(MPU9250_DMP_SAMPLE_RATE);
     mpu_set_dmp_state(1);
@@ -386,9 +398,9 @@ static void read_fifo_func(void)
         }
     }
 }
+#endif
 
-
-/* mpu9250 中断未使用 */
+#if 0
 static uint8_T int_cfg = 0;
 static uint8_T int_en = 0;
 static uint8_T int_sta = 0;
@@ -400,6 +412,7 @@ static uint32_T timestamp;
 static int32_T rst = 0;
 static uint32_T timestamp1;
 static uint32_T timestamp2;
+#endif
 static int32_T times = 0;
 static void int_callback(void *argv)
 {
@@ -434,5 +447,56 @@ static void int_callback(void *argv)
     times++;
 		while(1);
 }
-#endif
+
+static void tap_callback(unsigned char direction, unsigned char count)
+{
+    switch (direction)
+    {
+        case TAP_X_UP:
+            console_printf("X上.\r\n");
+            break;
+        case TAP_X_DOWN:
+            console_printf("X下.\r\n");
+            break;
+        case TAP_Y_UP:
+            console_printf("Y上.\r\n");
+            break;
+        case TAP_Y_DOWN:
+            console_printf("Y下.\r\n");
+            break;
+        case TAP_Z_UP:
+            console_printf("Z上.\r\n");
+            break;
+        case TAP_Z_DOWN:
+            console_printf("Z下.\r\n");
+            break;
+        default:
+            err_log("tap_callback error.\r\n");
+            return;
+    }
+
+    console_printf("tapi:%d\n", count);
+    return;
+}
+
+static void android_orient_callback(unsigned char orientation)
+{
+	switch (orientation)
+        {
+            case ANDROID_ORIENT_PORTRAIT:
+                console_printf("竖屏肖像\n");
+                break;
+            case ANDROID_ORIENT_LANDSCAPE:
+                console_printf("横屏风景\n");
+                break;
+            case ANDROID_ORIENT_REVERSE_PORTRAIT:
+                console_printf("反竖屏肖像\n");
+                break;
+            case ANDROID_ORIENT_REVERSE_LANDSCAPE:
+                console_printf("反横屏风景\n");
+                break;
+            default:
+                return;
+        }
+}
 
