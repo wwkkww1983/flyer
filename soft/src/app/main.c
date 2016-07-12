@@ -156,9 +156,11 @@ static void idle(void)
         console_printf("%4.1f秒:", ms_start / 1000.0f); 
         get_quaternion(q);
         math_quaternion2euler(e, q);
-        console_printf("姿态:%.4f, %.4f, %.4f <==> %.4f,%.4f,%.4f,%.4f\r\n", math_arc2angle(e[0]), math_arc2angle(e[1]), math_arc2angle(e[2]),
+        console_printf("姿态:%.4f, %.4f, %.4f <==> %.4f,%.4f,%.4f,%.4f\r\n",
+                math_arc2angle(e[0]), math_arc2angle(e[1]), math_arc2angle(e[2]),
                 q[0], q[1], q[2], q[3]);
-        console_printf("主循环最大耗时:%ums,%5.2fus.\r\n", last_interval.ms, 1.0f * last_interval.clk / 84);
+        console_printf("主循环最大耗时:%ums,%5.2fus.\r\n",
+                last_interval.ms, 1.0f * last_interval.clk / 84);
     } 
 
     get_now(&last_loop_start_time);
