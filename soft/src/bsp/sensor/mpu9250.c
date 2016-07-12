@@ -23,20 +23,25 @@
 #include "inv_mpu.h"
 #include "inv_mpu_dmp_motion_driver.h"
 #include "ml_math_func.h"
-#include "mpu9250.h"
 #include "exti.h"
 #include "si.h"
-
+#include "mpu9250.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/
-__IO bool_T g_pp_fifo_ready = FALSE;
-const signed char s_orientation[9] = MPU9250_ORIENTATION;
+#if 0
+__IO bool_T g_pp_fifo_ready = FALSE; 
+static const signed char s_orientation[9] = MPU9250_ORIENTATION;
+#endif
+
+/* 灵敏度值 */
+static uint16_T s_accel_sens = 0;
+static f32_T s_gyro_sens = 0;
 
 /********************************** 函数声明区 *********************************/
-static unsigned char addr_convert(unsigned char addr);
 static void run_self_test(void);
+
 #if 0
 static void int_callback(void *argv);
 static void tap_callback(unsigned char direction, unsigned char count);
@@ -44,133 +49,7 @@ static void android_orient_callback(unsigned char orientation);
 #endif
 
 /********************************** 函数实现区 *********************************/
-/*******************************************************************************
-*
-* 函数名  : mpu9250_read_buf
-* 负责人  : 彭鹏
-* 创建日期: 20150703
-* 函数功能: i2c读取
-*
-* 输入参数: dev_addr 设备地址
-*           reg_addr 寄存器启始地址
-*           buf_len 缓存大小
-*
-* 输出参数: ptr_read_buf 读取的缓存
-*
-* 返回值  : 0       成功
-*           其他    失败
-*
-* 调用关系: 无
-* 其 它   : buf_len过大(需要的数据过多会卡死)
-*
-******************************************************************************/
-inline int mpu9250_read_buf(unsigned char dev_addr,
-        unsigned char reg_addr,
-        unsigned short buf_len, 
-        unsigned char *buf)
-{
-    uint8_T dev_addr_real = addr_convert(dev_addr);
-   
-    si_read_poll(dev_addr_real, reg_addr, buf, buf_len);
-
-    return 0;
-}
-
-/*******************************************************************************
-*
-* 函数名  : mpu9250_write_buf
-* 负责人  : 彭鹏
-* 创建日期: 20150703
-* 函数功能: i2c写入
-*
-* 输入参数: dev_addr 设备地址
-*           reg_addr 寄存器启始地址
-*           buf_len 缓存大小
-*
-* 输出参数: ptr_write_buf 写入的缓存
-*
-* 返回值  : 0       成功
-*           其他    失败
-*
-* 调用关系: 无
-* 其 它   : 无
-*
-******************************************************************************/
-inline int mpu9250_write_buf(unsigned char dev_addr,
-        unsigned char reg_addr,
-        unsigned short buf_len, 
-        const unsigned char *buf)
-{
-    uint8_T dev_addr_real = addr_convert(dev_addr);
-
-    si_write_poll(dev_addr_real, reg_addr, buf, buf_len);
-
-    return 0;
-}
-
-/*******************************************************************************
-*
-* 函数名  : mpu9250_get_ms
-* 负责人  : 彭鹏
-* 创建日期: 20150703
-* 函数功能: 获取系统启动后的时间ms为单位
-*
-* 输入参数: 无
-* 输出参数: count 当前ms值地址
-* 返回值  : 0 正确
-*           1 出错
-* 调用关系: 无
-* 其 它   : 无
-*
-******************************************************************************/
-inline int mpu9250_get_ms(unsigned long *count)
-{
-    *count = HAL_GetTick();
-    return 0;
-}
-
-/*******************************************************************************
-*
-* 函数名  : mpu9250_delay_ms
-* 负责人  : 彭鹏
-* 创建日期: 20150707
-* 函数功能: 延迟 ms作为单位
-*
-* 输入参数: 无
-* 输出参数: count 当前ms值地址
-* 返回值  : 0 正确
-*           1 出错
-* 调用关系: 无
-* 其 它   : 无
-*
-******************************************************************************/
-inline void mpu9250_delay_ms(unsigned int ms)
-{
-    HAL_Delay(ms);
-}
-
-/*******************************************************************************
-*
-* 函数名  : addr_convert
-* 负责人  : 彭鹏
-* 创建日期: 20150703
-* 函数功能: 地址转换
-*           MPU9250 7bit地址 1101000
-*           stm32f4 i2c接收的地址 1101000X (X 1读 x0 写)
-*           故地址需要左移1bit
-*
-* 输入参数: addr 待转换的地址
-* 输出参数: 无
-* 返回值  : 转换后的地址
-* 调用关系: 无
-* 其 它   : 无
-*
-******************************************************************************/
-inline static unsigned char addr_convert(unsigned char addr)
-{
-    return (addr << 1);
-}
-
+/* 初始化 */
 void mpu9250_init(void)
 {
     uint8_T who_am_i = 0;
@@ -262,14 +141,119 @@ void mpu9250_init(void)
     /* 该函数会关闭bypass模式 */
     mpu_set_dmp_state(1);
     mpu_set_bypass(1); /* 打开bypass */
-#endif
+#endif 
+    
+    /* 初始化灵敏度值 */
+    mpu_get_accel_sens(&s_accel_sens); 
+    mpu_get_gyro_sens(&s_gyro_sens); 
 
     return;
 }
 
 void mpu9250_test(void)
-{ 
-    ;
+{
+    uint8_T buf[MPU9250_ATG_LENGTH]; /* 避免溢出 */
+    uint32_T type = 0;
+    misc_time_T time1, time2, time3;
+    misc_time_T diff1, diff2;
+    mpu9250_val_T mpu9250;
+
+    /* 加计温度陀螺仪测试 */ 
+    get_now(&time1); 
+    type = ACCEL_TYPE | GYRO_TYPE;
+    mpu9250_read(type, buf);
+    get_now(&time2);
+    while(!si_read_ready()); 
+    get_now(&time3);
+    diff_clk(&diff1, &time1, &time2);
+    diff_clk(&diff2, &time2, &time3); 
+    mpu9250_parse(&mpu9250, buf, type);
+    console_printf("加计&温度&陀螺仪(total %dBytes)DMA读取请求耗时:%ums,%.2fus\r\n",
+            MPU9250_ATG_LENGTH, diff1.ms,  1.0f * diff1.clk/ 84);
+    console_printf("加计&温度&陀螺仪等待数据耗时:%ums,%.2fus\r\n",
+            diff2.ms,  1.0f * diff2.clk / 84); 
+    console_printf("加计数据:  %7.4f %7.4f %7.4f\r\n", mpu9250.accel[0], mpu9250.accel[1], mpu9250.accel[2]);
+    console_printf("陀螺仪数据:%7.4f %7.4f %7.4f\r\n", mpu9250.gyro[0], mpu9250.gyro[1], mpu9250.gyro[2]);
+    console_printf("温度数据:  %7.4f\r\n", (21 + (buf[6] << 8 | buf[7]) / 321.0f));
+} 
+
+/* TODO: 实现多种数据读取 */
+void mpu9250_read(uint32_T type, const uint8_T *buf)
+{
+    if((ACCEL_TYPE & type) /* 加计&陀螺仪 为了效率和简化一口气读取(包括温度) */
+    && (GYRO_TYPE & type))
+    { 
+        si_read_dma(MPU9250_DEV_ADDR, MPU9250_ATG_REG_ADDR, buf, MPU9250_ATG_LENGTH);
+        return;
+    } 
+    
+    /* 为了便于磁力计融合 需要加入加计数据 */
+    if((ACCEL_TYPE & type)
+    && (QUAT_TYPE & type))
+    {
+        console_printf("四元数获取未实现.\r\n",);
+        return;
+    }
+    
+    err_log("无效类型数据:0x%08x.\r\n", type);
+    while(1);
+}
+
+/*
+ * 返回 0 成功
+ * 其他   无效数据
+ *
+ * */
+int32_T mpu9250_parse(mpu9250_val_T *mpu9250, const uint8_T *buf, uint32_T type)
+{
+    f32_T accel[3];
+    f32_T gyro[3];
+    f32_T quat[4];
+
+    int16_T buf_i16[7] = {0}; /* accel 3Bytes, temp 2Bytes, gyro 6Bytes */
+
+    if((ACCEL_TYPE & type) /* 加计&陀螺仪 为了效率和简化一口气读取(包括温度) */
+    && (GYRO_TYPE & type))
+    { 
+        /* accel */
+        buf_i16[0] = ((buf[0]) << 8) | buf[1];
+        buf_i16[1] = ((buf[2]) << 8) | buf[3];
+        buf_i16[2] = ((buf[4]) << 8) | buf[5];
+        mpu9250->accel[0] = buf_i16[0] / s_accel_sens;
+        mpu9250->accel[1] = buf_i16[1] / s_accel_sens;
+        mpu9250->accel[2] = buf_i16[2] / s_accel_sens;
+
+        /* gyro */
+        buf_i16[4] = ((buf[8]) << 8) | buf[9];
+        buf_i16[5] = ((buf[10]) << 8) | buf[11];
+        buf_i16[6] = ((buf[12]) << 8) | buf[13]; 
+        mpu9250->gyro[0] = buf_i16[4] / s_accel_sens;
+        mpu9250->gyro[1] = buf_i16[5] / s_accel_sens;
+        mpu9250->gyro[2] = buf_i16[6] / s_accel_sens;
+
+        mpu9250->type = type;
+        /* 温度未使用
+           buf_i16[3] = ((buf[6]) << 8) | buf[7];
+           f32_T temp = 21 + (buf_i16[3] / 321.0f)));
+           */ 
+
+        UNUSED(quat);
+        return 0;
+    } 
+    
+    /* 为了便于磁力计融合 需要加入加计数据 */
+    if((ACCEL_TYPE & type)
+    && (QUAT_TYPE & type))
+    {
+        console_printf("四元数解析未实现.\r\n",);
+
+        UNUSED(accel);
+        UNUSED(gyro);
+        return -1;
+    }
+    
+    err_log("无效类型数据:0x%08x.\r\n", type);
+    return -1;
 }
 
 static void run_self_test(void)

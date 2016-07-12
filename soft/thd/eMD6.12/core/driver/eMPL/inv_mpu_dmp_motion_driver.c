@@ -34,11 +34,11 @@
  */
 #if defined EMPL_TARGET_STM32F4
 
-#include "mpu9250.h"
+#include "inv.h"
    
-#define i2c_write   mpu9250_write_buf
-#define i2c_read    mpu9250_read_buf 
-#define get_ms      mpu9250_get_ms
+#define i2c_write   inv_write_buf
+#define i2c_read    inv_read_buf 
+#define get_ms      inv_get_ms
 #define __no_operation()  __nop();
 
 #elif defined MOTION_DRIVER_TARGET_MSP430

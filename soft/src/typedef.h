@@ -36,6 +36,11 @@
 #define NULL ((void*) 0)
 #endif
 
+#define QUAT_TYPE               (0x00000001)
+#define ACCEL_TYPE              (0x00000002)
+#define GYRO_TYPE               (0x00000004)
+#define COMPASS_TYPE            (0x00000008)
+
 /*********************************** 类型定义 **********************************/
 typedef unsigned char       uint8_T;
 typedef unsigned short      uint16_T;

@@ -18,11 +18,11 @@
 /************************************ 头文件 ***********************************/
 #include "config.h"
 #include "typedef.h"
+#include "misc.h"
 #include "si.h"
 #include "inv_mpu.h"
-#include "ak8963.h"
-#include "sensor.h"
 #include "console.h"
+#include "ak8963.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
 
@@ -66,32 +66,62 @@ void ak8963_init(void)
     /* 配置为 16bit采样 + 连续工作模式 8Hz */
     val = AK8963_16BITS | AK8963_MODE_C1;
     si_write_poll(AK8963_DEV_ADDR, AK8963_CNTL1_REG_ADDR, &val, 1); 
-}
-
-void ak8963_test(void)
-{
-    ;
 } 
 
+/* 磁力计测试 */
+void ak8963_test(void)
+{
+    misc_time_T time1, time2, time3;
+    misc_time_T diff1, diff2;
+    ak8963_val_T data;
+    uint8_T buf[AK8963_DATA_LENGTH]; /* 避免溢出 */
+
+    get_now(&time1);
+    ak8963_read(buf);
+    get_now(&time2);
+    while(!si_read_ready()); 
+    get_now(&time3); 
+    diff_clk(&diff1, &time1, &time2);
+    diff_clk(&diff2, &time2, &time3); 
+
+    console_printf("磁力计(%dBytes)DMA读取请求耗时:%ums,%.2fus\r\n", AK8963_DATA_LENGTH, diff1.ms, 1.0f * diff1.clk / 84);
+    console_printf("磁力计等待数据耗时:%ums,%.2fus\r\n", diff2.ms, 1.0f * diff2.clk / 84); 
+    if(0 == ak8963_parse(&data, buf))
+    { 
+        console_printf("X:%7.4f,Y:%7.4f,Z:%7.4f\r\n", data.val[0], data.val[1], data.val[2]);
+    }
+    else
+    { 
+        console_printf("%s:%d磁力计未为获取到有效数据\r\n", __FILE__, __LINE__);
+        while(1);
+    }
+    console_printf("磁力计数据:ST1:0x%02x,ST2:0x%02x\r\n", data.st1, data.st2);
+} 
+
+/* 读取一帧 */
+int32_T ak8963_read(uint8_T *buf)
+{
+    si_read_dma(AK8963_DEV_ADDR, AK8963_DATA_FIRST_ADDR, buf, AK8963_DATA_LENGTH);
+    return AK8963_DATA_LENGTH;
+}
 
 /*
  * 返回 0 成功
  * 其他   无效数据
  *
  * */
-int32_T ak8963_data_parse(f32_T *val, const uint8_T *buf)
+int32_T ak8963_parse(ak8963_val_T *ak8963, const uint8_T *buf)
 {
-    uint8_T st1 = 0;
-    uint8_T st2 = 0;
     int16_T buf_i16[3] = {0};
     int16_T val_adjd[3] = {0};
     
-    st1 = buf[0];
-    st2 = buf[7]; 
+    ak8963->st1 = buf[0];
+    ak8963->st2 = buf[7];
     
-    if((AK8963_ST1_DRDY_BIT & st1)   /* 有效数据 */ 
-    && !(AK8963_ST2_HOFL_BIT & st2)) /* 未超量程溢出 */
+    if((AK8963_ST1_DRDY_BIT & ak8963->st1)   /* 有效数据 */ 
+    && !(AK8963_ST2_HOFL_BIT & ak8963->st2)) /* 未超量程溢出 */
     {
+
         buf_i16[0] = buf[2] << 8 | buf[1];
         buf_i16[1] = buf[4] << 8 | buf[3];
         buf_i16[2] = buf[6] << 8 | buf[5];
@@ -101,9 +131,9 @@ int32_T ak8963_data_parse(f32_T *val, const uint8_T *buf)
         val_adjd[1] = ((buf_i16[1] * s_adj[1]) >> 8) + 1;
         val_adjd[2] = ((buf_i16[2] * s_adj[2]) >> 8) + 1;
 
-        val[0] = val_adjd[0] * AK8963_16BIT_STEP;
-        val[1] = val_adjd[1] * AK8963_16BIT_STEP;
-        val[2] = val_adjd[2] * AK8963_16BIT_STEP;
+        ak8963->val[0] = val_adjd[0] * AK8963_16BIT_STEP;
+        ak8963->val[1] = val_adjd[1] * AK8963_16BIT_STEP;
+        ak8963->val[2] = val_adjd[2] * AK8963_16BIT_STEP;
 
         return 0;
     } 
@@ -111,53 +141,5 @@ int32_T ak8963_data_parse(f32_T *val, const uint8_T *buf)
     {
         return -1;
     }
-}
-
-/* 计算采样延迟 */
-int32_T ak8963_sample_period(int32_T read_times)
-{
-    uint32_T ms_start = 0;
-    uint32_T ms_end = 0;
-    uint32_T times = 0;
-    uint8_T  buf[AK8963_DATA_LENGTH] = {0};
-    uint32_T sample_period = 0; 
-    f32_T compass[3] = {0.0f};
-
-    ms_start = HAL_GetTick();
-    while(1)
-    { 
-        /* 从ST1读到ST2 DMA不耗CPU */
-        si_read_poll(AK8963_DEV_ADDR, AK8963_DATA_FIRST_ADDR, buf, AK8963_DATA_LENGTH);
-
-        if(0 == ak8963_data_parse(compass, buf))
-        {
-            debug_log("test%02d times:", times);
-            debug_log("ST1:0x%02x,", buf[0]);
-            debug_log("ST2:0x%02x,", buf[7]);
-            
-            /* 有效数据 */
-            console_printf("X:%7.4f,", compass[0]);
-            console_printf("Y:%7.4f,", compass[1]);
-            console_printf("Z:%7.4f\r\n", compass[1]);
-
-            times++;
-            if(times > read_times)
-            {
-                break;
-            }
-        }
-        else
-        {
-            HAL_Delay(3);
-        }
-    }
-
-    ms_end = HAL_GetTick(); 
-    debug_log("%7.4fms/包(%dBytes)\r\n", 1.0f * (ms_end - ms_start) / times, AK8963_DATA_LENGTH);
-
-    sample_period = ((ms_end - ms_start) / times);
-    sample_period += 1; /* 留有余地 */
-
-    return sample_period;
 }
 

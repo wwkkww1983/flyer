@@ -334,7 +334,7 @@
               <MiscControls></MiscControls>
               <Define>EMPL_TARGET_STM32F4,MPU9250,AK89xx_BYPASS,ARM_MATH_CM4</Define>
               <Undefine></Undefine>
-              <IncludePath>..\src;..\src\lib;..\src\drv;..\src\sensor;..\src\bsp;..\src\algo;..\thd\eMD6.12\core\driver\eMPL;..\thd\eMD6.12\core\driver\include;..\thd\eMD6.12\core\mllite;..\thd\bmp280;E:\Keil_v5\STM32Cube_FW_F4\Drivers\CMSIS\Include;E:\Keil_v5\STM32Cube_FW_F4\Drivers\CMSIS\Device\ST\STM32F4xx\Include;E:\Keil_v5\STM32Cube_FW_F4\Drivers\STM32F4xx_HAL_Driver\Inc</IncludePath>
+              <IncludePath>..\src;..\src\lib;..\src\drv;..\src\bsp;..\src\bsp\sensor;..\thd\eMD6.12\core\driver\eMPL;..\thd\eMD6.12\core\driver\include;..\thd\eMD6.12\core\mllite;..\thd\bmp280;E:\Keil_v5\STM32Cube_FW_F4\Drivers\CMSIS\Include;E:\Keil_v5\STM32Cube_FW_F4\Drivers\CMSIS\Device\ST\STM32F4xx\Include;E:\Keil_v5\STM32Cube_FW_F4\Drivers\STM32F4xx_HAL_Driver\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -508,24 +508,29 @@
           <GroupName>sensor</GroupName>
           <Files>
             <File>
-              <FileName>mpu9250.c</FileName>
+              <FileName>ak8963.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\src\sensor\mpu9250.c</FilePath>
+              <FilePath>..\src\bsp\sensor\ak8963.c</FilePath>
             </File>
             <File>
               <FileName>bmp280_hal.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\src\sensor\bmp280_hal.c</FilePath>
+              <FilePath>..\src\bsp\sensor\bmp280_hal.c</FilePath>
             </File>
             <File>
-              <FileName>ak8963.c</FileName>
+              <FileName>inv.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\src\sensor\ak8963.c</FilePath>
+              <FilePath>..\src\bsp\sensor\inv.c</FilePath>
+            </File>
+            <File>
+              <FileName>mpu9250.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\bsp\sensor\mpu9250.c</FilePath>
             </File>
             <File>
               <FileName>sensor.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\src\sensor\sensor.c</FilePath>
+              <FilePath>..\src\bsp\sensor\sensor.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -28,15 +28,11 @@
 /********************************** 变量声明区 *********************************/
 static f32_T s_quaternion[4] = {0.0f}; /* 四元数 q0 q1 q2 q3*/
 
-/* 存储最近的accel值 磁力计融合 */
-static f32_T s_accel[3] = {0.0f};
-
-
 /********************************** 函数声明区 *********************************/
 static void set_quaternion(f32_T *q);
-static void mpu9250_gyro_fusion(uint32_T time, f32_T *gyro);
-static void mpu9250_accel_fusion(uint32_T time, f32_T *accel);
-static void ak8963_fusion(uint32_T time, f32_T *val, uint8_t st1, uint8_t st2);
+static void gyro_fusion(uint32_T time, f32_T *gyro);
+static void accel_fusion(f32_T *accel);
+static void compass_fusion(f32_T *accel, f32_T *compass);
 /********************************** 变量实现区 *********************************/
 
 /********************************** 函数实现区 *********************************/
@@ -49,12 +45,11 @@ void fusion_init(void)
     math_euler2quaternion(q, e);
     set_quaternion(q);
 
-    console_printf("姿态角始值为  :%7.4f, %7.4f, %7.4f\r\n", math_arc2angle(e[0]), math_arc2angle(e[1]), math_arc2angle(e[2]));
+    console_printf("姿态角始值为  :%7.4f, %7.4f, %7.4f\r\n", 
+            math_arc2angle(e[0]), math_arc2angle(e[1]), math_arc2angle(e[2]));
     console_printf("四元数初始值为:%7.4f, %7.4f, %7.4f, %7.4f\r\n", q[0], q[1], q[2], q[3]);
 }
 
-/* 10ms的数据作为单位计算 */
-/* 可优化为1ms融合gyro accel, 10ms融合 compass */
 void fusion(void)
 {
     sensor_data_T *data;
@@ -67,18 +62,25 @@ void fusion(void)
 
     /* step2: 融合 */ 
     sensor_get_data(&data);
-    if(mpu9250_E == data->type)
+
+    /* 陀螺仪 加计融合 */
+    if(!(QUAT_TYPE & data->type)) /* 无四元数了 才做gyro&accel融合 */
     {
-        mpu9250_gyro_fusion(data->time, (f32_T *)(data->val.mpu9250.gyro));
-        mpu9250_accel_fusion(data->time, (f32_T *)(data->val.mpu9250.accel));
+        if(GYRO_TYPE & data->type)
+        {
+            gyro_fusion(data->time, data->mpu9250.gyro);
+        }
+        if(ACCEL_TYPE & data->type)
+        {
+            accel_fusion(data->mpu9250.accel);
+        }
     }
-    else if(ak8963_E == data->type)
+
+    /* 磁力计融合 */
+    if((COMPASS_TYPE & data->type)
+     &&(ACCEL_TYPE & data->type))  /* 磁力计融合需要加计数据配合 */
     {
-        ak8963_fusion(data->time, (f32_T *)(data->val.ak8963.val), (data->val.ak8963.st1), (data->val.ak8963.st2));
-    }
-    else
-    {
-        while(1);
+        compass_fusion(data->mpu9250.accel, data->ak8963.val);
     }
 
 }
@@ -105,7 +107,7 @@ inline void get_quaternion(f32_T *q)
     q[3] = s_quaternion[3];
 }
 
-static void mpu9250_gyro_fusion(uint32_T time, f32_T *gyro)
+static void gyro_fusion(uint32_T time, f32_T *gyro)
 {
     f32_T wx = gyro[0];
     f32_T wy = gyro[1];
@@ -172,7 +174,7 @@ static void mpu9250_gyro_fusion(uint32_T time, f32_T *gyro)
     return;
 }
 
-static void mpu9250_accel_fusion(uint32_T time, f32_T *accel)
+static void accel_fusion(f32_T *accel)
 {
 ;
     f32_T q[4] = {0.0f};
@@ -215,10 +217,6 @@ static void mpu9250_accel_fusion(uint32_T time, f32_T *accel)
     math_euler2quaternion(q, euler);
     set_quaternion(q); 
     
-    s_accel[0] = accel[0];
-    s_accel[1] = accel[1];
-    s_accel[2] = accel[2];
-
 #if 0
     static int32_T pp = 0;
     if(1000 == pp)
@@ -247,7 +245,7 @@ static void mpu9250_accel_fusion(uint32_T time, f32_T *accel)
 #endif
 }
 
-static void ak8963_fusion(uint32_T time, f32_T *val, uint8_t st1, uint8_t st2)
+static void compass_fusion(f32_T *accel, f32_T *compass)
 {
     f32_T e[3] = {0.0f}; /* 指东针 */
 
@@ -256,17 +254,6 @@ static void ak8963_fusion(uint32_T time, f32_T *val, uint8_t st1, uint8_t st2)
     f32_T psi_g = 0.0f;
     f32_T euler[3] = {0.0f};
     f32_T q[4] = {0.0f};
-
-    f32_T accel[3];
-    f32_T compass[3];
-
-    accel[0] = s_accel[0];
-    accel[1] = s_accel[1];
-    accel[2] = s_accel[2];
-
-    compass[0] = val[0];
-    compass[1] = val[1];
-    compass[2] = val[2];
 
     /* 求指东针 */
     math_vector3_cross_product(e, accel, compass);

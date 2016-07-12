@@ -24,32 +24,33 @@
 #define MPU9250_DEV_ADDR                    (0xD0)
 #define MPU9250_WHO_AM_I_REG_ADDR           (0x75)
 #define MPU9250_WHO_AM_I_REG_VALUE          (0x71)
-#define MPU9250_ACCEL_DATA_ADDR             (0x3B)
-#define MPU9250_GYRO_DATA_ADDR              (0x43)
-#define MPU9250_DATA_ADDR                   (MPU9250_ACCEL_DATA_ADDR)
-#define MPU9250_DATA_LENGTH                 (14)
+#define MPU9250_ACCEL_REG_ADDR              (0x3B)
+#define MPU9250_ACCEL_LENGTH                (6)
+#define MPU9250_GYRO_REG_ADDR               (0x43)
+#define MPU9250_GYRO_LENGTH                 (6)
+#define MPU9250_ATG_REG_ADDR                (MPU9250_ACCEL_REG_ADDR)
+#define MPU9250_ATG_LENGTH                  (14)
 
 /*--------------------------------- 接口声明区 --------------------------------*/
+typedef struct{ 
+    uint32_T type;
+    f32_T accel[3];
+    f32_T gyro[3];
+    f32_T quat[4];
+}mpu9250_val_T;
 
 /*********************************** 全局变量 **********************************/
-extern __IO bool_T g_pp_fifo_ready;
+//extern __IO bool_T g_pp_fifo_ready;
 
 /*********************************** 接口函数 **********************************/
-/* inv适配 */
-#define mpu9250_log_i   debug_log
-#define mpu9250_log_e   err_log
-int mpu9250_read_buf(unsigned char dev_addr, unsigned char reg_addr,
-        unsigned short buf_len, unsigned char *ptr_read_buf);
-int mpu9250_write_buf(unsigned char dev_addr, unsigned char reg_addr, 
-        unsigned short buf_len, const unsigned char *ptr_write_buf);
-int mpu9250_get_ms(unsigned long *count);
-void mpu9250_delay_ms(unsigned int ms);
-
 /* 初始化 */
 void mpu9250_init(void);
-
 /* 测试 */
 void mpu9250_test(void);
+/* 读取 */
+void mpu9250_read(uint32_T type, const uint8_T *buf);
+/* 数据解析 */
+int32_T mpu9250_parse(mpu9250_val_T *mpu9250, const uint8_T *buf, uint32_T type);
 
 #endif /* _MPU9250_H_ */
 
