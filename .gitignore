@@ -7,5 +7,7 @@ hard/pcb/v3.0/allegro.jrl
 
 pc/__pycache__/
 pc/bak/__pycache__/
+pc/data.dat
 soft/prj/DebugConfig/
+
 
