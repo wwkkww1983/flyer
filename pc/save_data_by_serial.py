@@ -11,7 +11,7 @@ g_baudrate = 115200
 g_frame_size = 1
 
 # 200包/s
-max_counts = 200 * 10
+max_counts = 200 * 5
 
 def Capture(file_name, ser):
     print("从%s:%d捕获." % (ser.portstr, ser.baudrate))

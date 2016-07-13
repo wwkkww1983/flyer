@@ -236,7 +236,10 @@ static void init(void)
 #endif
 }
 
-#define FRAME_LENGTH        (48U)
+#define FRAME_LENGTH        (48U) 
+static int32_T times = 0; 
+static misc_time_T time1, time2;
+static misc_time_T diff1;
 static void hard_fusion(void)
 {
     /* 硬解 */
@@ -247,7 +250,6 @@ static void hard_fusion(void)
     static uint8_T s_more = 0;
     static int32_T s_quat[4] = {0};
     static int32_T s_temperature = 0;
-    static int32_T times = 0; 
     static uint8_T buf[AK8963_DATA_LENGTH] = {0};
     static uint8_T frame[FRAME_LENGTH+1] = {0};
 
@@ -338,6 +340,8 @@ static void hard_fusion(void)
         frame[7] = 0x00;
         if(g_mpu9250_fifo_ready) /* 大约 5ms true一次 */
         { 
+            get_now(&time1);
+
             g_mpu9250_fifo_ready = FALSE; 
 
             ak8963_read(buf); /* dma读磁力计数据 */
@@ -366,7 +370,7 @@ static void hard_fusion(void)
             /* TODO: 看看读取的时间 查看是否有必要马上优化为DMA读 */
             rst = dmp_read_fifo(s_gyro, s_accel_short,
                     (long *)s_quat, (unsigned long *)&s_temperature, &s_sensors, &s_more); 
-            
+
             if (s_sensors & INV_XYZ_GYRO)
             {
                 frame[7] |= 0x04; /* 陀螺仪 */ 
@@ -415,6 +419,7 @@ static void hard_fusion(void)
                 q[3] = (f32_T) s_quat[3] / ((f32_T)(1L << 30)); 
 #endif
             }
+
             /* 使用crc32校验 */
             crc32 = HAL_CRC_Calculate(&crc, (uint32_T *)frame, FRAME_LENGTH / sizeof(uint32_T)); 
             frame[44] =  (uint8_T)( crc32 >> 24);
@@ -425,7 +430,21 @@ static void hard_fusion(void)
             /* 串口发送 */
             console_printf(frame);
 
-            UNUSED(rst);
+            get_now(&time2);
+            diff_clk(&diff1, &time1, &time2);
+
+            UNUSED(rst); 
+            times++;
+        }
+
+        if(0 == times)
+        {
+            get_now(&time1);
+        }
+        if(1 == times)
+        {
+            get_now(&time2);
+            diff_clk(&diff1, &time1, &time2);
         }
     }
 }
