@@ -32,7 +32,7 @@
 #include "inv_mpu.h"
 #include "mpu9250.h"
 #include "inv_mpu_dmp_motion_driver.h"
-
+#include "uart.h"
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/ 
@@ -72,7 +72,7 @@ static void init(void);
 * 其 它   : 无
 *
 ******************************************************************************/
-static void self_test(void);
+//static void self_test(void);
 
 /********************************** 函数实现区 *********************************/
 /*******************************************************************************
@@ -236,7 +236,7 @@ static void init(void)
 #endif
 }
 
-#define FRAME_LENGTH        (48U) 
+#define FRAME_LENGTH        (32U) 
 static int32_T times = 0; 
 static misc_time_T time1, time2;
 static misc_time_T diff1;
@@ -244,211 +244,161 @@ static void hard_fusion(void)
 {
     /* 硬解 */
     static int32_T rst = 0;
-    static int16_T s_gyro[3] = {0};
-    static int16_T s_accel_short[3] = {0};
-    static int16_T s_sensors = 0;
-    static uint8_T s_more = 0;
-    static int32_T s_quat[4] = {0};
-    static int32_T s_temperature = 0;
-    static uint8_T buf[AK8963_DATA_LENGTH] = {0};
-    static uint8_T frame[FRAME_LENGTH+1] = {0};
+    static uint8_T ak8963_buf[AK8963_DATA_LENGTH] = {0};
+    static uint8_T mpuu9250_buf[MPU9250_ATG_LENGTH] = {0};
+    static uint8_T frame[FRAME_LENGTH] = {0};
+    static uint8_T send_buf[FRAME_LENGTH] = {0};
+    static uint32_T tick = 0;
 
     static int32_T crc32 = 0;
     /* 硬件crc */
     static CRC_HandleTypeDef crc;
     
-    /* 长度定长 */
+    /* 长度 */
     frame[0] = 0;
-    frame[1] = 46;
+    frame[1] = 30;
 
+    crc.Instance = CRC;
+		__HAL_RCC_CRC_CLK_ENABLE();
     if(HAL_OK != HAL_CRC_Init(&crc))
     {
         while(1);
     }
 
+    /* 填充 */
+    frame[2] = 0x00;
+    frame[3] = 0x00;
+
 #if 0
+    /* 标记 */
+    frame[4] = 0x00;
+    frame[5] = 0x00;
+
     /* time */
-    frame[2] = 42;
-    frame[3] = 42;
-    frame[4] = 42;
-    frame[5] = 42;
-#endif
+    frame[6] = 0;
+    frame[7] = 0;
+    frame[8] = 0;
+    frame[9] = 0;
 
-    /* type */
-    frame[6] = 0x00;
-    frame[7] = 0x00;
-
-#if 0
-    /* 四元数 */
-    frame[8] = 0x00;
-    frame[9] = 0x00;
+    /* 加计 */
     frame[10] = 0x00;
     frame[11] = 0x00;
     frame[12] = 0x00;
     frame[13] = 0x00;
     frame[14] = 0x00;
     frame[15] = 0x00;
+
+    /* 陀螺仪 */
     frame[16] = 0x00;
     frame[17] = 0x00;
     frame[18] = 0x00;
     frame[19] = 0x00;
     frame[20] = 0x00;
     frame[21] = 0x00;
+
+    /* 磁力计 */
     frame[22] = 0x00;
     frame[23] = 0x00;
-
-    /* 加计 */
     frame[24] = 0x00;
     frame[25] = 0x00;
     frame[26] = 0x00;
     frame[27] = 0x00;
-    frame[28] = 0x00;
-    frame[29] = 0x00;
-
-    /* 陀螺仪 */
-    frame[30] = 0x00;
-    frame[31] = 0x00;
-    frame[32] = 0x00;
-    frame[33] = 0x00;
-    frame[34] = 0x00;
-    frame[35] = 0x00;
-
-    /* 磁力计 */
-    frame[36] = 0x00;
-    frame[37] = 0x00;
-    frame[38] = 0x00;
-    frame[39] = 0x00;
-    frame[40] = 0x00;
-    frame[41] = 0x00;
-#endif
-
-    /* 填充 */
-    frame[42] = 0x00;
-    frame[43] = 0x00;
 
     /* crc32 */
-    frame[44] = 0x00;
-    frame[45] = 0x00;
-    frame[46] = 0x00;
-    frame[47] = 0x00;
-   
-    /* 末尾空字符 */
-    frame[48] = NUL;
+    frame[28] = 0x00;
+    frame[29] = 0x00;
+    frame[30] = 0x00;
+    frame[31] = 0x00;
+#endif
 
+    console_printf("data:\r\n");
+		HAL_Delay(1000);
     while(1)
     { 
         frame[7] = 0x00;
-        if(g_mpu9250_fifo_ready) /* 大约 5ms true一次 */
-        { 
-            get_now(&time1);
-
-            g_mpu9250_fifo_ready = FALSE; 
-
-            ak8963_read(buf); /* dma读磁力计数据 */
-            while(!si_read_ready()); /* 等待读完成 */ 
-            
-            /* 填充磁力计数据 */
-            if((AK8963_ST1_DRDY_BIT & buf[0])   /* 有效数据 */ 
-            && !(AK8963_ST2_HOFL_BIT & buf[7])) /* 未超量程溢出 */
-            { 
-                frame[7] |= 0x08; /* 磁力计 */
-                frame[36] = buf[1];
-                frame[37] = buf[2];
-                frame[38] = buf[3];
-                frame[39] = buf[4];
-                frame[40] = buf[5];
-                frame[41] = buf[6];
-            }
-#if 0 
-            static uint8_T int_cfg = 0;
-            static uint8_T int_en = 0;
-            static uint8_T int_sta = 0;
-            rst = mpu_read_reg(0x37, &int_cfg);
-            rst = mpu_read_reg(0x38, &int_en);
-            rst = mpu_read_reg(0x3A, &int_sta);
-#endif      
-            /* TODO: 看看读取的时间 查看是否有必要马上优化为DMA读 */
-            rst = dmp_read_fifo(s_gyro, s_accel_short,
-                    (long *)s_quat, (unsigned long *)&s_temperature, &s_sensors, &s_more); 
-
-            if (s_sensors & INV_XYZ_GYRO)
-            {
-                frame[7] |= 0x04; /* 陀螺仪 */ 
-                frame[30] = (uint8_T)(s_gyro[0] >> 8);
-                frame[31] = (uint8_T)(s_gyro[0] & 0xff);
-                frame[32] = (uint8_T)(s_gyro[1] >> 8);
-                frame[33] = (uint8_T)(s_gyro[1] & 0xff);
-                frame[34] = (uint8_T)(s_gyro[2] >> 8);
-                frame[35] = (uint8_T)(s_gyro[2] & 0xff);
-            }
-            if (s_sensors & INV_XYZ_ACCEL) 
-            {
-                frame[7] |= 0x02; /* 加计 */
-                frame[24] = (uint8_T)(s_accel_short[0] >> 8);
-                frame[25] = (uint8_T)(s_accel_short[0] & 0xff);
-                frame[26] = (uint8_T)(s_accel_short[1] >> 8);
-                frame[27] = (uint8_T)(s_accel_short[1] & 0xff);
-                frame[28] = (uint8_T)(s_accel_short[2] >> 8);
-                frame[29] = (uint8_T)(s_accel_short[2] & 0xff);
-            }
-            if (s_sensors & INV_WXYZ_QUAT) 
-            {
-                frame[7] |= 0x01; /* 四元数 */ 
-                
-                frame[8] =  (uint8_T)( s_quat[0] >> 24);
-                frame[9] =  (uint8_T)((s_quat[0] >> 16) & 0xff);
-                frame[10] = (uint8_T)((s_quat[0] >> 8) & 0xff);
-                frame[11] = (uint8_T)( s_quat[0] & 0xff);
-                frame[12] = (uint8_T)( s_quat[1] >> 24);
-                frame[13] = (uint8_T)((s_quat[1] >> 16) & 0xff);
-                frame[14] = (uint8_T)((s_quat[1] >> 8) & 0xff);
-                frame[15] = (uint8_T)( s_quat[1] & 0xff);
-                frame[16] = (uint8_T)( s_quat[2] >> 24);
-                frame[17] = (uint8_T)((s_quat[2] >> 16) & 0xff);
-                frame[18] = (uint8_T)((s_quat[2] >> 8) & 0xff);
-                frame[19] = (uint8_T)( s_quat[2] & 0xff);
-                frame[20] = (uint8_T)( s_quat[3] >> 24);
-                frame[21] = (uint8_T)((s_quat[3] >> 16) & 0xff);
-                frame[22] = (uint8_T)((s_quat[3] >> 8) & 0xff);
-                frame[23] = (uint8_T)( s_quat[3] & 0xff);
-
-#if 0
-                q[0] = (f32_T) s_quat[0] / ((f32_T)(1L << 30));
-                q[1] = (f32_T) s_quat[1] / ((f32_T)(1L << 30));
-                q[2] = (f32_T) s_quat[2] / ((f32_T)(1L << 30));
-                q[3] = (f32_T) s_quat[3] / ((f32_T)(1L << 30)); 
-#endif
-            }
-
-            /* 使用crc32校验 */
-            crc32 = HAL_CRC_Calculate(&crc, (uint32_T *)frame, FRAME_LENGTH / sizeof(uint32_T)); 
-            frame[44] =  (uint8_T)( crc32 >> 24);
-            frame[45] =  (uint8_T)((crc32 >> 16) & 0xff);
-            frame[46] =  (uint8_T)((crc32 >> 8) & 0xff);
-            frame[47] =  (uint8_T)(crc32  & 0xff);
-
-            /* 串口发送 */
-            console_printf(frame);
-
-            get_now(&time2);
-            diff_clk(&diff1, &time1, &time2);
-
-            UNUSED(rst); 
-            times++;
-        }
-
-        if(0 == times)
-        {
-            get_now(&time1);
-        }
+#if 1
         if(1 == times)
         {
+            get_now(&time1);
+        }
+        if(2 == times)
+        {
             get_now(&time2);
             diff_clk(&diff1, &time1, &time2);
+        }
+#endif
+
+        tick = HAL_GetTick();
+        frame[6] = (uint8_T)(tick >> 24);
+        frame[7] = (uint8_T)((tick >> 16) & 0xff);
+        frame[8] = (uint8_T)((tick >> 8) & 0xff);
+        frame[9] = (uint8_T)((tick) & 0xff);
+        if(0 == tick % 5) /* 大约 5ms true一次 */
+        {
+#if 0
+            get_now(&time1);
+#endif
+
+            mpu9250_read(ACCEL_TYPE | GYRO_TYPE, mpuu9250_buf); /* dma读mpu9250数据 */
+            while(!si_read_ready()); /* 等待读完成 */
+
+            frame[5] |= 0x02; /* 加计 */
+            frame[10] = mpuu9250_buf[0];
+            frame[11] = mpuu9250_buf[1];
+            frame[12] = mpuu9250_buf[2];
+            frame[13] = mpuu9250_buf[3];
+            frame[14] = mpuu9250_buf[4];
+            frame[15] = mpuu9250_buf[5];
+
+            frame[5] |= 0x04; /* 陀螺仪 */
+            frame[16] = mpuu9250_buf[8];
+            frame[17] = mpuu9250_buf[9];
+            frame[18] = mpuu9250_buf[10];
+            frame[19] = mpuu9250_buf[11];
+            frame[20] = mpuu9250_buf[12];
+            frame[21] = mpuu9250_buf[13];
+
+            ak8963_read(ak8963_buf); /* dma读磁力计数据 */
+            while(!si_read_ready()); /* 等待读完成 */ 
+            /* 填充磁力计数据 */
+            if((AK8963_ST1_DRDY_BIT & ak8963_buf[0])   /* 有效数据 */ 
+            && !(AK8963_ST2_HOFL_BIT & ak8963_buf[7])) /* 未超量程溢出 */
+            { 
+                frame[5] |= 0x08; /* 磁力计 */
+                frame[22] = ak8963_buf[1];
+                frame[23] = ak8963_buf[2];
+                frame[24] = ak8963_buf[3];
+                frame[25] = ak8963_buf[4];
+                frame[26] = ak8963_buf[5];
+                frame[27] = ak8963_buf[6];
+            } 
+
+            /* 使用crc32校验 */
+            crc32 = HAL_CRC_Calculate(&crc, (uint32_T *)frame, FRAME_LENGTH / sizeof(uint32_T) - 1); 
+            frame[28] =  (uint8_T)( crc32 >> 24);
+            frame[29] =  (uint8_T)((crc32 >> 16) & 0xff);
+            frame[30] =  (uint8_T)((crc32 >> 8) & 0xff);
+            frame[31] =  (uint8_T)(crc32  & 0xff); 
+            
+            /* 双缓冲frame/send_buf 避免串口被组帧干扰 */
+            /* 串口发送 */
+            while(uart_tc_locked(&g_console)); /* 等待上一次传输完成 */
+            memcpy(send_buf, frame, FRAME_LENGTH); 
+            uart_send_bytes(&g_console, send_buf, FRAME_LENGTH);
+#if 0
+            get_now(&time2);
+            diff_clk(&diff1, &time1, &time2);
+            times++;
+#endif
+            /* 避免1ms中多次读取 */
+            HAL_Delay(1);
+            UNUSED(rst); 
+            UNUSED(times);
         }
     }
 }
 
+#if 0
 /* 硬件测试 */
 static void self_test(void)
 {
@@ -465,4 +415,4 @@ static void self_test(void)
     debug_log("结束硬件测试.\r\n"); 
     TRACE_FUNC_OUT;
 }
-
+#endif

@@ -16,8 +16,10 @@
 
 /************************************ 头文件 ***********************************/
 #include "typedef.h"
-#include "stm32f4xx_hal.h"
 #include "config.h"
+
+#include "stm32f4xx_hal.h"
+
 
 /************************************ 宏定义 ***********************************/
 /*********************************** 类型定义 **********************************/
@@ -36,8 +38,13 @@ typedef struct drv_uart_T_tag{
 
 /*********************************** 接口函数 **********************************/
 void uart_init(drv_uart_T *uart);
+/* 用于printf */
 void uart_send(drv_uart_T *uart, uint8_T *fmt, ...);
 void uart_tc_unlock(drv_uart_T *uart);
+
+/* 串口字节流裸传 */
+void uart_send_bytes(drv_uart_T *uart, uint8_T *buf, uint32_T n);
+bool_T uart_tc_locked(drv_uart_T *uart);
 
 #endif
 

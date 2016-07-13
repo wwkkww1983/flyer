@@ -22,8 +22,8 @@
 #include "typedef.h"
 #include "config.h"
 #include "board.h"
-#include "uart.h"
 #include "console.h"
+#include "uart.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
 

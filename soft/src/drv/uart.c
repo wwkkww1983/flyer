@@ -59,7 +59,7 @@ void uart_init(drv_uart_T *uart)
 }
 
 /* 上次传输完成 Transmit Compelete 锁住 */
-inline static bool_T uart_tc_locked(drv_uart_T *uart)
+inline bool_T uart_tc_locked(drv_uart_T *uart)
 {
     return uart->dma_tc_lock;
 }
@@ -97,6 +97,18 @@ void uart_send(drv_uart_T *uart, uint8_T *fmt, ...)
     }
 
     return;
+}
+
+void uart_send_bytes(drv_uart_T *uart, uint8_T *buf, uint32_T n)
+{
+    while(uart_tc_locked(uart)); /* 等待上一次传输完成 */
+    uart_tc_lock(uart); /* 锁住资源 */
+
+    if(HAL_UART_Transmit_DMA(&uart->handle, buf, n)!= HAL_OK)
+    {
+        /* 出错 */
+        while(1);
+    }
 }
 
 /* FIXME: 新增串口 家分支 */

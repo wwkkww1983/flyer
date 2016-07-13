@@ -30,8 +30,8 @@
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/
-__IO bool_T g_mpu9250_fifo_ready = FALSE; 
-static const signed char s_orientation[9] = MPU9250_ORIENTATION;
+//__IO bool_T g_mpu9250_fifo_ready = FALSE; 
+//static const signed char s_orientation[9] = MPU9250_ORIENTATION;
 
 /* 灵敏度值 */
 static uint16_T s_accel_sens = 0;
@@ -39,8 +39,8 @@ static f32_T s_gyro_sens = 0;
 
 /********************************** 函数声明区 *********************************/
 static void run_self_test(void);
-static void int_callback(void *argv);
 #if 0
+static void int_callback(void *argv);
 static void tap_callback(unsigned char direction, unsigned char count);
 static void android_orient_callback(unsigned char orientation);
 #endif
@@ -50,7 +50,7 @@ static void android_orient_callback(unsigned char orientation);
 void mpu9250_init(void)
 {
     uint8_T who_am_i = 0;
-    uint16_T dmp_features = 0;
+    //uint16_T dmp_features = 0;
 
     /* 测试i2c是否正常工作 */
     si_read_poll(MPU9250_DEV_ADDR, MPU9250_WHO_AM_I_REG_ADDR, &who_am_i, 1); 
@@ -92,6 +92,7 @@ void mpu9250_init(void)
 
     run_self_test(); 
     
+#if 0
     /* 开启DMP中断 */
     exti_set_callback(int_callback, NULL);
     if (mpu_configure_fifo(INV_XYZ_GYRO|INV_XYZ_ACCEL)!=0)
@@ -140,6 +141,7 @@ void mpu9250_init(void)
     mpu_set_dmp_state(1);
     mpu_set_bypass(1); /* 打开bypass */
     
+#endif
     /* 初始化灵敏度值 */
     mpu_get_accel_sens(&s_accel_sens); 
     mpu_get_gyro_sens(&s_gyro_sens); 
@@ -379,9 +381,9 @@ static void read_fifo_func(void)
 }
 #endif
 
+#if 0
 static void int_callback(void *argv)
 {
-#if 0
     static int32_T times = 0;
     static misc_time_T last_time;
     static misc_time_T now;
@@ -398,10 +400,9 @@ static void int_callback(void *argv)
         diff_clk(&diff, &last_time, &now);
     }
     times++;
-#endif
-
     g_mpu9250_fifo_ready = TRUE;
 }
+#endif
 
 #if 0
 /* 关闭回调功能 避免震动影响性能测试 */
