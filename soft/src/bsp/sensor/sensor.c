@@ -43,7 +43,7 @@ static void parse(void);
 void sensor_init(void)
 {
     si_init();
-    console_printf("传感器i2c总线 初始化完成.\r\n");
+    debug_log("传感器i2c总线 初始化完成.\r\n");
 
     mpu9250_init();
     ak8963_init();

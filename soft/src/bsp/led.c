@@ -84,7 +84,7 @@ void led_test(void)
     int delay = 200;     /* led测试延迟ms */
     int flash_times = 5; /* 闪烁次数 不包括off/on测试 */
 
-    console_printf("观察led是否闪烁.\r\n"); 
+    debug_log("观察led是否闪烁.\r\n"); 
     /* 闪5次 */
     while( j++ < flash_times )
     {

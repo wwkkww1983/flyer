@@ -45,9 +45,9 @@ void fusion_init(void)
     math_euler2quaternion(q, e);
     set_quaternion(q);
 
-    console_printf("姿态角始值为  :%7.4f, %7.4f, %7.4f\r\n", 
+    debug_log("姿态角始值为  :%7.4f, %7.4f, %7.4f\r\n", 
             math_arc2angle(e[0]), math_arc2angle(e[1]), math_arc2angle(e[2]));
-    console_printf("四元数初始值为:%7.4f, %7.4f, %7.4f, %7.4f\r\n", q[0], q[1], q[2], q[3]);
+    debug_log("四元数初始值为:%7.4f, %7.4f, %7.4f, %7.4f\r\n", q[0], q[1], q[2], q[3]);
 }
 
 void fusion(void)
@@ -259,9 +259,9 @@ static void compass_fusion(f32_T *accel, f32_T *compass)
     math_vector3_cross_product(e, accel, compass);
 
 #if 0
-    console_printf("a:%7.4f,%7.4f,%7.4f + ", accel[0], accel[1], accel[2]);
-    console_printf("m:%7.4f,%7.4f,%7.4f => ", compass[0], compass[1], compass[2]);
-    console_printf("e:%7.4f,%7.4f,%7.4f\r\n", e[0], e[1], e[2]);
+    debug_log("a:%7.4f,%7.4f,%7.4f + ", accel[0], accel[1], accel[2]);
+    debug_log("m:%7.4f,%7.4f,%7.4f => ", compass[0], compass[1], compass[2]);
+    debug_log("e:%7.4f,%7.4f,%7.4f\r\n", e[0], e[1], e[2]);
 #endif
 
     /* 直接姿态 */

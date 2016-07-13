@@ -39,7 +39,7 @@ void ak8963_init(void)
     si_read_poll(AK8963_DEV_ADDR, AK8963_WIA_REG_ADDR, &val, 1);
     if(AK8963_WIA_REG_VAL != val)
     {
-        console_printf("AK8963异常.\r\n");
+        debug_log("AK8963异常.\r\n");
         while(1);
     }
 
@@ -84,18 +84,18 @@ void ak8963_test(void)
     diff_clk(&diff1, &time1, &time2);
     diff_clk(&diff2, &time2, &time3); 
 
-    console_printf("磁力计(%dBytes)DMA读取请求耗时:%ums,%.2fus\r\n", AK8963_DATA_LENGTH, diff1.ms, 1.0f * diff1.clk / 84);
-    console_printf("磁力计等待数据耗时:%ums,%.2fus\r\n", diff2.ms, 1.0f * diff2.clk / 84); 
+    debug_log("磁力计(%dBytes)DMA读取请求耗时:%ums,%.2fus\r\n", AK8963_DATA_LENGTH, diff1.ms, 1.0f * diff1.clk / 84);
+    debug_log("磁力计等待数据耗时:%ums,%.2fus\r\n", diff2.ms, 1.0f * diff2.clk / 84); 
     if(0 == ak8963_parse(&data, buf))
     { 
-        console_printf("X:%7.4f,Y:%7.4f,Z:%7.4f\r\n", data.val[0], data.val[1], data.val[2]);
+        debug_log("X:%7.4f,Y:%7.4f,Z:%7.4f\r\n", data.val[0], data.val[1], data.val[2]);
     }
     else
     { 
-        console_printf("%s:%d磁力计未为获取到有效数据\r\n", __FILE__, __LINE__);
+        debug_log("%s:%d磁力计未为获取到有效数据\r\n", __FILE__, __LINE__);
         while(1);
     }
-    console_printf("磁力计数据:ST1:0x%02x,ST2:0x%02x\r\n", data.st1, data.st2);
+    debug_log("磁力计数据:ST1:0x%02x,ST2:0x%02x\r\n", data.st1, data.st2);
 } 
 
 /* 读取一帧 */

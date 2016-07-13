@@ -30,10 +30,8 @@
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/
-#if 0
-__IO bool_T g_pp_fifo_ready = FALSE; 
+__IO bool_T g_mpu9250_fifo_ready = FALSE; 
 static const signed char s_orientation[9] = MPU9250_ORIENTATION;
-#endif
 
 /* 灵敏度值 */
 static uint16_T s_accel_sens = 0;
@@ -41,9 +39,8 @@ static f32_T s_gyro_sens = 0;
 
 /********************************** 函数声明区 *********************************/
 static void run_self_test(void);
-
-#if 0
 static void int_callback(void *argv);
+#if 0
 static void tap_callback(unsigned char direction, unsigned char count);
 static void android_orient_callback(unsigned char orientation);
 #endif
@@ -53,54 +50,53 @@ static void android_orient_callback(unsigned char orientation);
 void mpu9250_init(void)
 {
     uint8_T who_am_i = 0;
-    //uint16_T dmp_features = 0;
+    uint16_T dmp_features = 0;
 
     /* 测试i2c是否正常工作 */
     si_read_poll(MPU9250_DEV_ADDR, MPU9250_WHO_AM_I_REG_ADDR, &who_am_i, 1); 
     if(MPU9250_WHO_AM_I_REG_VALUE != who_am_i)
     {
-        console_printf("MPU9250异常.\r\n");
+        debug_log("MPU9250异常.\r\n");
         while(1);
     }
 
     if (mpu_init(NULL) != 0)
     {
-        console_printf("初始化MPU失败!\r\n");
+        debug_log("初始化MPU失败!\r\n");
         return;
     }
 
     if (mpu_set_sensors(INV_XYZ_GYRO|INV_XYZ_ACCEL|INV_XYZ_COMPASS)!=0)
     {
-        console_printf("打开传感器失败.\r\n");
+        debug_log("打开传感器失败.\r\n");
         return;
     }	
 
     if(mpu_set_sample_rate(MPU9250_SAMPLE_RATE) !=0)
     {
-        console_printf("设置accel+gyro主采样率(%d)失败.\r\n", MPU9250_SAMPLE_RATE);
+        debug_log("设置accel+gyro主采样率(%d)失败.\r\n", MPU9250_SAMPLE_RATE);
         return;
     }
 
     if (mpu_set_gyro_fsr(MPU9250_GYRO_FSR)!=0)
     {
-        console_printf("设置陀螺仪量程失败.\r\n");
+        debug_log("设置陀螺仪量程失败.\r\n");
         return;
     }
 
     if (mpu_set_accel_fsr(MPU9250_ACCEL_FSR)!=0)
     {
-        console_printf("设置加速度计量程失败.\r\n");
+        debug_log("设置加速度计量程失败.\r\n");
         return;
     }
 
     run_self_test(); 
     
-#if 0
     /* 开启DMP中断 */
     exti_set_callback(int_callback, NULL);
     if (mpu_configure_fifo(INV_XYZ_GYRO|INV_XYZ_ACCEL)!=0)
     {
-        console_printf("设置MPU FIFO失败.\r\n");
+        debug_log("设置MPU FIFO失败.\r\n");
         return;
     } 
     /*
@@ -130,10 +126,12 @@ void mpu9250_init(void)
     dmp_load_motion_driver_firmware();
     dmp_set_orientation(inv_orientation_matrix_to_scalar(s_orientation));
     //dmp_register_tap_cb(tap_callback);
-		//dmp_register_android_orient_cb(android_orient_callback);
+    //dmp_register_android_orient_cb(android_orient_callback);
     dmp_features = DMP_FEATURE_6X_LP_QUAT
         | DMP_FEATURE_TAP
         | DMP_FEATURE_ANDROID_ORIENT
+        | DMP_FEATURE_SEND_RAW_ACCEL
+        | DMP_FEATURE_SEND_RAW_GYRO
         | DMP_FEATURE_GYRO_CAL;
     dmp_enable_feature(dmp_features);
     dmp_set_fifo_rate(MPU9250_DMP_SAMPLE_RATE);
@@ -141,7 +139,6 @@ void mpu9250_init(void)
     /* 该函数会关闭bypass模式 */
     mpu_set_dmp_state(1);
     mpu_set_bypass(1); /* 打开bypass */
-#endif 
     
     /* 初始化灵敏度值 */
     mpu_get_accel_sens(&s_accel_sens); 
@@ -168,13 +165,13 @@ void mpu9250_test(void)
     diff_clk(&diff1, &time1, &time2);
     diff_clk(&diff2, &time2, &time3); 
     mpu9250_parse(&mpu9250, buf, type);
-    console_printf("加计&温度&陀螺仪(total %dBytes)DMA读取请求耗时:%ums,%.2fus\r\n",
+    debug_log("加计&温度&陀螺仪(total %dBytes)DMA读取请求耗时:%ums,%.2fus\r\n",
             MPU9250_ATG_LENGTH, diff1.ms,  1.0f * diff1.clk/ 84);
-    console_printf("加计&温度&陀螺仪等待数据耗时:%ums,%.2fus\r\n",
+    debug_log("加计&温度&陀螺仪等待数据耗时:%ums,%.2fus\r\n",
             diff2.ms,  1.0f * diff2.clk / 84); 
-    console_printf("加计数据:  %7.4f %7.4f %7.4f\r\n", mpu9250.accel[0], mpu9250.accel[1], mpu9250.accel[2]);
-    console_printf("陀螺仪数据:%7.4f %7.4f %7.4f\r\n", mpu9250.gyro[0], mpu9250.gyro[1], mpu9250.gyro[2]);
-    console_printf("温度数据:  %7.4f\r\n", (21 + (buf[6] << 8 | buf[7]) / 321.0f));
+    debug_log("加计数据:  %7.4f %7.4f %7.4f\r\n", mpu9250.accel[0], mpu9250.accel[1], mpu9250.accel[2]);
+    debug_log("陀螺仪数据:%7.4f %7.4f %7.4f\r\n", mpu9250.gyro[0], mpu9250.gyro[1], mpu9250.gyro[2]);
+    debug_log("温度数据:  %7.4f\r\n", (21 + (buf[6] << 8 | buf[7]) / 321.0f));
 } 
 
 /* TODO: 实现多种数据读取 */
@@ -191,7 +188,7 @@ void mpu9250_read(uint32_T type, const uint8_T *buf)
     if((ACCEL_TYPE & type)
     && (QUAT_TYPE & type))
     {
-        console_printf("四元数获取未实现.\r\n",);
+        debug_log("四元数获取未实现.\r\n",);
         return;
     }
     
@@ -232,7 +229,8 @@ int32_T mpu9250_parse(mpu9250_val_T *mpu9250, const uint8_T *buf, uint32_T type)
         mpu9250->gyro[2] = buf_i16[6] / s_accel_sens;
 
         mpu9250->type = type;
-        /* 温度未使用
+        /* 
+         * 温度未使用
            buf_i16[3] = ((buf[6]) << 8) | buf[7];
            f32_T temp = 21 + (buf_i16[3] / 321.0f)));
            */ 
@@ -245,7 +243,7 @@ int32_T mpu9250_parse(mpu9250_val_T *mpu9250, const uint8_T *buf, uint32_T type)
     if((ACCEL_TYPE & type)
     && (QUAT_TYPE & type))
     {
-        console_printf("四元数解析未实现.\r\n",);
+        debug_log("四元数解析未实现.\r\n",);
 
         UNUSED(accel);
         UNUSED(gyro);
@@ -278,12 +276,12 @@ static void run_self_test(void)
         mpu_set_gyro_bias_reg(gyro);
         mpu_set_accel_bias_6500_reg(accel);
 #if 0
-        console_printf("自检通过,设置偏移:\r\n");
-        console_printf("accel: %7.4f %7.4f %7.4f\r\n",
+        debug_log("自检通过,设置偏移:\r\n");
+        debug_log("accel: %7.4f %7.4f %7.4f\r\n",
                 accel[0]/65536.f,
                 accel[1]/65536.f,
                 accel[2]/65536.f);
-        console_printf("gyro : %7.4f %7.4f %7.4f\r\n",
+        debug_log("gyro : %7.4f %7.4f %7.4f\r\n",
                 gyro[0]/65536.f,
                 gyro[1]/65536.f,
                 gyro[2]/65536.f);
@@ -293,15 +291,15 @@ static void run_self_test(void)
     {
         if (!(result & 0x1))
         {
-            console_printf("自检陀螺仪失败.\r\n");
+            debug_log("自检陀螺仪失败.\r\n");
         }
         if (!(result & 0x2))
         {
-            console_printf("自检加速度计失败.\r\n");
+            debug_log("自检加速度计失败.\r\n");
         }
         if (!(result & 0x4))
         {
-            console_printf("自检磁力计失败.\r\n");
+            debug_log("自检磁力计失败.\r\n");
         }
     }
 
@@ -332,14 +330,14 @@ static void read_fifo_func(void)
     UNUSED(count);
     UNUSED(val);
 
-    extern bool_T g_pp_fifo_ready;
+    extern bool_T g_mpu9250_fifo_ready;
     extern int16_T g_int_status;
     int mpu_read_fifo(short *gyro, short *accel, unsigned long *timestamp, unsigned char *sensors, unsigned char *more);
 
     while(1)
     {
 
-        if(g_pp_fifo_ready)
+        if(g_mpu9250_fifo_ready)
         {
             gyro[0] = 0;
             gyro[1] = 0;
@@ -356,24 +354,24 @@ static void read_fifo_func(void)
                 rst = mpu_read_fifo(gyro, accel, &timestamp, &sensor, &more);
                 count++;
             }while(more > 0);
-            g_pp_fifo_ready = FALSE;
+            g_mpu9250_fifo_ready = FALSE;
 
             if(0 == times % 500)
             {
-                console_printf("times:%d, timestamp: %u, sensor: 0x%02x, more: 0x%02x\r\n",
+                debug_log("times:%d, timestamp: %u, sensor: 0x%02x, more: 0x%02x\r\n",
                         times,
                         timestamp,
                         sensor,
                         more);
-                console_printf("accel: %7.4f %7.4f %7.4f\r\n",
+                debug_log("accel: %7.4f %7.4f %7.4f\r\n",
                         1.0f * accel[0]/accel_sens,
                         1.0f * accel[1]/accel_sens,
                         1.0f * accel[2]/accel_sens);
-                console_printf("gyro : %7.4f %7.4f %7.4f\r\n",
+                debug_log("gyro : %7.4f %7.4f %7.4f\r\n",
                         gyro[0]/gyro_sens,
                         gyro[1]/gyro_sens,
                         gyro[2]/gyro_sens);
-                console_printf("\r\n");
+                debug_log("\r\n");
             }
             times++;
         }
@@ -381,13 +379,14 @@ static void read_fifo_func(void)
 }
 #endif
 
-#if 0
-static int32_T times = 0;
-static misc_time_T last_time;
-static misc_time_T now;
-static misc_time_T diff;
 static void int_callback(void *argv)
 {
+#if 0
+    static int32_T times = 0;
+    static misc_time_T last_time;
+    static misc_time_T now;
+    static misc_time_T diff;
+
     /* 计算中断间隔 200Hz 5ms左右 */
     if(1 == times)
     {
@@ -399,39 +398,41 @@ static void int_callback(void *argv)
         diff_clk(&diff, &last_time, &now);
     }
     times++;
+#endif
 
-    g_pp_fifo_ready = TRUE;
+    g_mpu9250_fifo_ready = TRUE;
 }
 
+#if 0
 /* 关闭回调功能 避免震动影响性能测试 */
 static void tap_callback(unsigned char direction, unsigned char count)
 {
     switch (direction)
     {
         case TAP_X_UP:
-            console_printf("X上.\r\n");
+            debug_log("X上.\r\n");
             break;
         case TAP_X_DOWN:
-            console_printf("X下.\r\n");
+            debug_log("X下.\r\n");
             break;
         case TAP_Y_UP:
-            console_printf("Y上.\r\n");
+            debug_log("Y上.\r\n");
             break;
         case TAP_Y_DOWN:
-            console_printf("Y下.\r\n");
+            debug_log("Y下.\r\n");
             break;
         case TAP_Z_UP:
-            console_printf("Z上.\r\n");
+            debug_log("Z上.\r\n");
             break;
         case TAP_Z_DOWN:
-            console_printf("Z下.\r\n");
+            debug_log("Z下.\r\n");
             break;
         default:
             err_log("tap_callback error.\r\n");
             return;
     }
 
-    console_printf("tap:%d\n", count);
+    debug_log("tap:%d\n", count);
     return;
 }
 
@@ -441,16 +442,16 @@ static void android_orient_callback(unsigned char orientation)
     switch (orientation)
     {
         case ANDROID_ORIENT_PORTRAIT:
-            console_printf("竖屏肖像\n");
+            debug_log("竖屏肖像\n");
             break;
         case ANDROID_ORIENT_LANDSCAPE:
-            console_printf("横屏风景\n");
+            debug_log("横屏风景\n");
             break;
         case ANDROID_ORIENT_REVERSE_PORTRAIT:
-            console_printf("反竖屏肖像\n");
+            debug_log("反竖屏肖像\n");
             break;
         case ANDROID_ORIENT_REVERSE_LANDSCAPE:
-            console_printf("反横屏风景\n");
+            debug_log("反横屏风景\n");
             break;
         default:
             return;

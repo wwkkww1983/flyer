@@ -177,7 +177,7 @@ void pwm_test(void)
 {
     uint32_T m = 0;
 
-    console_printf("前右后左四个pwm分别为 0%% 33%% 77%% 100%%.\r\n");
+    debug_log("前右后左四个pwm分别为 0%% 33%% 77%% 100%%.\r\n");
 
     m = pwm_get_period();
     m /= 100;

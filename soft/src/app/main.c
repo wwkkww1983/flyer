@@ -18,6 +18,7 @@
 /************************************ 头文件 ***********************************/
 #include "config.h"
 #include "board.h"
+#include <stm32f4xx_hal.h>
 #include "misc.h"
 #include "led.h"
 #include "pwm.h"
@@ -27,6 +28,7 @@
 #include "fusion.h"
 #include "lib_math.h"
 
+#include "si.h"
 #include "inv_mpu.h"
 #include "mpu9250.h"
 #include "inv_mpu_dmp_motion_driver.h"
@@ -91,7 +93,7 @@ static void self_test(void);
 int main(void)
 {
     init();
-    console_printf("\r\n开始进入主循环.\r\n");
+    debug_log("\r\n开始进入主循环.\r\n");
 
     /* 实际运行 */
     while(1)
@@ -153,13 +155,13 @@ static void idle(void)
         /* 该处代码 每秒执行一次 */
         led_toggle(LED_MLED);
         ms_start = HAL_GetTick();
-        console_printf("%4.1f秒:", ms_start / 1000.0f); 
+        debug_log("%4.1f秒:", ms_start / 1000.0f); 
         get_quaternion(q);
         math_quaternion2euler(e, q);
-        console_printf("姿态:%.4f, %.4f, %.4f <==> %.4f,%.4f,%.4f,%.4f\r\n",
+        debug_log("姿态:%.4f, %.4f, %.4f <==> %.4f,%.4f,%.4f,%.4f\r\n",
                 math_arc2angle(e[0]), math_arc2angle(e[1]), math_arc2angle(e[2]),
                 q[0], q[1], q[2], q[3]);
-        console_printf("主循环最大耗时:%ums,%5.2fus.\r\n",
+        debug_log("主循环最大耗时:%ums,%5.2fus.\r\n",
                 last_interval.ms, 1.0f * last_interval.clk / 84);
     } 
 
@@ -197,42 +199,242 @@ static void init(void)
     /* 逐个初始化硬件 */
     /* 控制台串口 */
     console_init(); /* 此后可以开始打印 */ 
-    console_printf("console初始化完成.\r\n");
-    console_printf("系统时钟频率:%dMHz\r\n", SystemCoreClock / 1000 / 1000);
+    debug_log("console初始化完成.\r\n");
+    debug_log("系统时钟频率:%dMHz\r\n", SystemCoreClock / 1000 / 1000);
 		
     /* led */
     led_init();
-    console_printf("led初始化完成.\r\n");
+    debug_log("led初始化完成.\r\n");
 
     /* pwm */
     pwm_init();
-    console_printf("pwm初始化完成.\r\n"); 
+    debug_log("pwm初始化完成.\r\n"); 
 
     /* 姿态传感器 */
     sensor_init();
-    console_printf("sensor(MPU9250+AK8963+BMP280)初始化完成.\r\n");
+    debug_log("sensor(MPU9250+AK8963+BMP280)初始化完成.\r\n");
 
     /* wifi 模块串口 */
     esp8266_init();
-    console_printf("esp8266 wifi模块初始化完成.\r\n");
+    debug_log("esp8266 wifi模块初始化完成.\r\n");
 
     /* 姿态融合算法 */
     fusion_init();
-    console_printf("姿态融合算法初始化完成.\r\n");
+    debug_log("姿态融合算法初始化完成.\r\n");
+
+#if 1
+    static void hard_fusion(void);
+    hard_fusion();
+
+#else
 
     /* 自检 */
     self_test();
-    console_printf("自检完成.\r\n");
+    debug_log("自检完成.\r\n");
 
-    console_printf("系统初始化完成.\r\n");
+    debug_log("系统初始化完成.\r\n");
+#endif
+}
+
+#define FRAME_LENGTH        (48U)
+static void hard_fusion(void)
+{
+    /* 硬解 */
+    static int32_T rst = 0;
+    static int16_T s_gyro[3] = {0};
+    static int16_T s_accel_short[3] = {0};
+    static int16_T s_sensors = 0;
+    static uint8_T s_more = 0;
+    static int32_T s_quat[4] = {0};
+    static int32_T s_temperature = 0;
+    static int32_T times = 0; 
+    static uint8_T buf[AK8963_DATA_LENGTH] = {0};
+    static uint8_T frame[FRAME_LENGTH+1] = {0};
+
+    static int32_T crc32 = 0;
+    /* 硬件crc */
+    static CRC_HandleTypeDef crc;
+    
+    /* 长度定长 */
+    frame[0] = 0;
+    frame[1] = 46;
+
+    if(HAL_OK != HAL_CRC_Init(&crc))
+    {
+        while(1);
+    }
+
+#if 0
+    /* time */
+    frame[2] = 42;
+    frame[3] = 42;
+    frame[4] = 42;
+    frame[5] = 42;
+#endif
+
+    /* type */
+    frame[6] = 0x00;
+    frame[7] = 0x00;
+
+#if 0
+    /* 四元数 */
+    frame[8] = 0x00;
+    frame[9] = 0x00;
+    frame[10] = 0x00;
+    frame[11] = 0x00;
+    frame[12] = 0x00;
+    frame[13] = 0x00;
+    frame[14] = 0x00;
+    frame[15] = 0x00;
+    frame[16] = 0x00;
+    frame[17] = 0x00;
+    frame[18] = 0x00;
+    frame[19] = 0x00;
+    frame[20] = 0x00;
+    frame[21] = 0x00;
+    frame[22] = 0x00;
+    frame[23] = 0x00;
+
+    /* 加计 */
+    frame[24] = 0x00;
+    frame[25] = 0x00;
+    frame[26] = 0x00;
+    frame[27] = 0x00;
+    frame[28] = 0x00;
+    frame[29] = 0x00;
+
+    /* 陀螺仪 */
+    frame[30] = 0x00;
+    frame[31] = 0x00;
+    frame[32] = 0x00;
+    frame[33] = 0x00;
+    frame[34] = 0x00;
+    frame[35] = 0x00;
+
+    /* 磁力计 */
+    frame[36] = 0x00;
+    frame[37] = 0x00;
+    frame[38] = 0x00;
+    frame[39] = 0x00;
+    frame[40] = 0x00;
+    frame[41] = 0x00;
+#endif
+
+    /* 填充 */
+    frame[42] = 0x00;
+    frame[43] = 0x00;
+
+    /* crc32 */
+    frame[44] = 0x00;
+    frame[45] = 0x00;
+    frame[46] = 0x00;
+    frame[47] = 0x00;
+   
+    /* 末尾空字符 */
+    frame[48] = NUL;
+
+    while(1)
+    { 
+        frame[7] = 0x00;
+        if(g_mpu9250_fifo_ready) /* 大约 5ms true一次 */
+        { 
+            g_mpu9250_fifo_ready = FALSE; 
+
+            ak8963_read(buf); /* dma读磁力计数据 */
+            while(!si_read_ready()); /* 等待读完成 */ 
+            
+            /* 填充磁力计数据 */
+            if((AK8963_ST1_DRDY_BIT & buf[0])   /* 有效数据 */ 
+            && !(AK8963_ST2_HOFL_BIT & buf[7])) /* 未超量程溢出 */
+            { 
+                frame[7] |= 0x08; /* 磁力计 */
+                frame[36] = buf[1];
+                frame[37] = buf[2];
+                frame[38] = buf[3];
+                frame[39] = buf[4];
+                frame[40] = buf[5];
+                frame[41] = buf[6];
+            }
+#if 0 
+            static uint8_T int_cfg = 0;
+            static uint8_T int_en = 0;
+            static uint8_T int_sta = 0;
+            rst = mpu_read_reg(0x37, &int_cfg);
+            rst = mpu_read_reg(0x38, &int_en);
+            rst = mpu_read_reg(0x3A, &int_sta);
+#endif      
+            /* TODO: 看看读取的时间 查看是否有必要马上优化为DMA读 */
+            rst = dmp_read_fifo(s_gyro, s_accel_short,
+                    (long *)s_quat, (unsigned long *)&s_temperature, &s_sensors, &s_more); 
+            
+            if (s_sensors & INV_XYZ_GYRO)
+            {
+                frame[7] |= 0x04; /* 陀螺仪 */ 
+                frame[30] = (uint8_T)(s_gyro[0] >> 8);
+                frame[31] = (uint8_T)(s_gyro[0] & 0xff);
+                frame[32] = (uint8_T)(s_gyro[1] >> 8);
+                frame[33] = (uint8_T)(s_gyro[1] & 0xff);
+                frame[34] = (uint8_T)(s_gyro[2] >> 8);
+                frame[35] = (uint8_T)(s_gyro[2] & 0xff);
+            }
+            if (s_sensors & INV_XYZ_ACCEL) 
+            {
+                frame[7] |= 0x02; /* 加计 */
+                frame[24] = (uint8_T)(s_accel_short[0] >> 8);
+                frame[25] = (uint8_T)(s_accel_short[0] & 0xff);
+                frame[26] = (uint8_T)(s_accel_short[1] >> 8);
+                frame[27] = (uint8_T)(s_accel_short[1] & 0xff);
+                frame[28] = (uint8_T)(s_accel_short[2] >> 8);
+                frame[29] = (uint8_T)(s_accel_short[2] & 0xff);
+            }
+            if (s_sensors & INV_WXYZ_QUAT) 
+            {
+                frame[7] |= 0x01; /* 四元数 */ 
+                
+                frame[8] =  (uint8_T)( s_quat[0] >> 24);
+                frame[9] =  (uint8_T)((s_quat[0] >> 16) & 0xff);
+                frame[10] = (uint8_T)((s_quat[0] >> 8) & 0xff);
+                frame[11] = (uint8_T)( s_quat[0] & 0xff);
+                frame[12] = (uint8_T)( s_quat[1] >> 24);
+                frame[13] = (uint8_T)((s_quat[1] >> 16) & 0xff);
+                frame[14] = (uint8_T)((s_quat[1] >> 8) & 0xff);
+                frame[15] = (uint8_T)( s_quat[1] & 0xff);
+                frame[16] = (uint8_T)( s_quat[2] >> 24);
+                frame[17] = (uint8_T)((s_quat[2] >> 16) & 0xff);
+                frame[18] = (uint8_T)((s_quat[2] >> 8) & 0xff);
+                frame[19] = (uint8_T)( s_quat[2] & 0xff);
+                frame[20] = (uint8_T)( s_quat[3] >> 24);
+                frame[21] = (uint8_T)((s_quat[3] >> 16) & 0xff);
+                frame[22] = (uint8_T)((s_quat[3] >> 8) & 0xff);
+                frame[23] = (uint8_T)( s_quat[3] & 0xff);
+
+#if 0
+                q[0] = (f32_T) s_quat[0] / ((f32_T)(1L << 30));
+                q[1] = (f32_T) s_quat[1] / ((f32_T)(1L << 30));
+                q[2] = (f32_T) s_quat[2] / ((f32_T)(1L << 30));
+                q[3] = (f32_T) s_quat[3] / ((f32_T)(1L << 30)); 
+#endif
+            }
+            /* 使用crc32校验 */
+            crc32 = HAL_CRC_Calculate(&crc, (uint32_T *)frame, FRAME_LENGTH / sizeof(uint32_T)); 
+            frame[44] =  (uint8_T)( crc32 >> 24);
+            frame[45] =  (uint8_T)((crc32 >> 16) & 0xff);
+            frame[46] =  (uint8_T)((crc32 >> 8) & 0xff);
+            frame[47] =  (uint8_T)(crc32  & 0xff);
+
+            /* 串口发送 */
+            console_printf(frame);
+
+            UNUSED(rst);
+        }
+    }
 }
 
 /* 硬件测试 */
-
 static void self_test(void)
 {
     TRACE_FUNC_IN; 
-    console_printf("开始硬件测试.\r\n"); 
+    debug_log("开始硬件测试.\r\n"); 
 
     console_test();
     led_test();
@@ -241,75 +443,7 @@ static void self_test(void)
     esp8266_test();    
     fusion_test();
 
-#if 0
-    /* 硬解 */
-    static int32_T rst = 0;
-    static uint8_T int_cfg = 0;
-    static uint8_T int_en = 0;
-    static uint8_T int_sta = 0;
-    static int16_T s_gyro[3] = {0};
-    static int16_T s_accel_short[3] = {0};
-    static int16_T s_sensors = 0;
-    static uint8_T s_more = 0;
-    static int32_T s_quat[4] = {0};
-    static int32_T s_temperature = 0;
-    static int32_T times = 0;
-    while(1)
-    {
-        if(g_pp_fifo_ready) 
-        {
-            int32_T i = 0;
-
-            g_pp_fifo_ready = FALSE; 
-            rst = mpu_read_reg(0x37, &int_cfg);
-            rst = mpu_read_reg(0x38, &int_en);
-            rst = mpu_read_reg(0x3A, &int_sta);
-            rst = dmp_read_fifo(s_gyro, s_accel_short,
-                    (long *)s_quat, (unsigned long *)&s_temperature, &s_sensors, &s_more);
-
-            if (!s_more)
-            {
-                i = 1;
-            }
-
-            if (s_sensors & INV_XYZ_GYRO)
-            {
-                i = 2;
-            }
-
-            if (s_sensors & INV_XYZ_ACCEL) 
-            {
-                i = 3;
-            }
-
-            if (s_sensors & INV_WXYZ_QUAT) 
-            { 
-                if(0 == times % 100)
-                {
-                f32_T e[3] = {0.0f};
-                f32_T q[4] = {0.0f};
-                q[0] = (f32_T) s_quat[0] / ((f32_T)(1L << 30));
-                q[1] = (f32_T) s_quat[1] / ((f32_T)(1L << 30));
-                q[2] = (f32_T) s_quat[2] / ((f32_T)(1L << 30));
-                q[3] = (f32_T) s_quat[3] / ((f32_T)(1L << 30));
-
-                math_quaternion2euler(e, q);
-                console_printf("姿态:%.4f, %.4f, %.4f <==> %.4f,%.4f,%.4f,%.4f\r\n",
-                        math_arc2angle(e[0]), math_arc2angle(e[1]), math_arc2angle(e[2]),
-                        q[0], q[1], q[2], q[3]);
-                }
-
-                times++;
-            }
-
-
-            UNUSED(rst);
-            UNUSED(i);
-        }
-    }
-#endif
-
-    console_printf("结束硬件测试.\r\n"); 
+    debug_log("结束硬件测试.\r\n"); 
     TRACE_FUNC_OUT;
 }
 

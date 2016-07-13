@@ -49,7 +49,7 @@ void esp8266_init(void)
 /* esp8266测试 */
 void esp8266_test(void)
 {
-    console_printf("观察esp8266并按照提示操作.\r\n");
+    debug_log("观察esp8266并按照提示操作.\r\n");
 }
 
 /* esp8266交互任务 */
