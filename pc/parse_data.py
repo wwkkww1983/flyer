@@ -17,7 +17,6 @@ def Parse(file_name):
     for b in frame:
         print("%02x," % b, end = '')
 
-    # I/i为嘛占用6Bytes
     parsed_frame = struct.unpack('>HHHIHHHHHHHHHI', frame)
     f_length = parsed_frame[0]
     f_fill = parsed_frame[1]
@@ -55,11 +54,8 @@ def Parse(file_name):
     #print(parsed_frame)
 
     print()
-    print("分析完成.")
-    while True:
-        pass
-
     f.close()
+    c = input("分析完成,输入任意键退出")
 
 if __name__ == "__main__":
     Parse(g_file)

@@ -5,7 +5,7 @@ import time
 import serial
 #import serial.tools.list_ports
 
-g_file = "data.dat"
+g_file = "flyer.dat"
 g_com = "COM1"
 g_baudrate = 115200
 g_frame_size = 32
@@ -51,9 +51,7 @@ def Capture(file_name, ser):
     ser.close()
     f.close()
 
-    print("记录完成.")
-    while True:
-        pass
+    c = input("记录完成,输入任意键退出")
 
 if __name__ == "__main__":
     ser = serial.Serial()
