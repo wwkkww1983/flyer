@@ -239,5 +239,10 @@ void math_quaternion_cross(f32_T *rotated, const f32_T *q, const f32_T *rotate_q
     g = rotate_q[2];
     h = rotate_q[3];
 
+    rotated[0] = (a * e) - (b * f) - (c * g) - (d * h);
+    rotated[1] = (a * f) + (b * e) + (c * h) - (d * g);
+    rotated[2] = (a * g) + (c * e) + (d * f) - (b * h);
+    rotated[3] = (a * h) + (d * e) + (b * g) - (c * f);
+
     return;
 }

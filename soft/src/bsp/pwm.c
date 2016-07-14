@@ -17,6 +17,7 @@
 /************************************ 头文件 ***********************************/
 #include "config.h"
 #include "board.h"
+#include "math.h"
 #include "stm32f4xx_hal.h"
 #include "pwm.h"
 #include "console.h"
@@ -142,7 +143,7 @@ void pwm_init(void)
         pwm_set((PWM_NAME)i, 0);
     }
 
-    theta = MATH_PI / 4;
+    f32_T theta = MATH_PI / 4;
     /* 求偏航角旋转45度(绕Z轴)的四元数表示 */
     s_q45[0] = cos(theta / 2);
     s_q45[1] = 0;
@@ -206,7 +207,9 @@ void pwm_test(void)
 
 /* 动力控制 */
 void pwm_update(void)
-{ 
+{
+    f32_T q[4] = {0.0f};
+	  f32_T e[3] = {0.0f};
     f32_T q_rotated[4] = {0.0f};
 
     get_quaternion(q);
@@ -215,6 +218,8 @@ void pwm_update(void)
 
     debug_log("横滚角:%7.4f, 俯仰角:%7.4f, 偏航角:%7.4f\r\n", 
             math_arc2angle(e[0]), math_arc2angle(e[1]), math_arc2angle(e[2]));
+
+    /* 实现控制 */
     /* 俯仰角 + 前减后加 */
 
     /* 俯仰角 - 前加后减 */
