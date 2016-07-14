@@ -30,8 +30,8 @@
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/
-//__IO bool_T g_mpu9250_fifo_ready = FALSE; 
-//static const signed char s_orientation[9] = MPU9250_ORIENTATION;
+static bool_T s_mpu9250_fifo_ready = FALSE; 
+static const signed char s_orientation[9] = MPU9250_ORIENTATION;
 
 /* 灵敏度值 */
 static uint16_T s_accel_sens = 0;
@@ -39,8 +39,8 @@ static f32_T s_gyro_sens = 0;
 
 /********************************** 函数声明区 *********************************/
 static void run_self_test(void);
-#if 0
 static void int_callback(void *argv);
+#if 0
 static void tap_callback(unsigned char direction, unsigned char count);
 static void android_orient_callback(unsigned char orientation);
 #endif
@@ -50,7 +50,7 @@ static void android_orient_callback(unsigned char orientation);
 void mpu9250_init(void)
 {
     uint8_T who_am_i = 0;
-    //uint16_T dmp_features = 0;
+    uint16_T dmp_features = 0;
 
     /* 测试i2c是否正常工作 */
     si_read_poll(MPU9250_DEV_ADDR, MPU9250_WHO_AM_I_REG_ADDR, &who_am_i, 1); 
@@ -92,7 +92,6 @@ void mpu9250_init(void)
 
     run_self_test(); 
     
-#if 0
     /* 开启DMP中断 */
     exti_set_callback(int_callback, NULL);
     if (mpu_configure_fifo(INV_XYZ_GYRO|INV_XYZ_ACCEL)!=0)
@@ -131,8 +130,9 @@ void mpu9250_init(void)
     dmp_features = DMP_FEATURE_6X_LP_QUAT
         | DMP_FEATURE_TAP
         | DMP_FEATURE_ANDROID_ORIENT
-        | DMP_FEATURE_SEND_RAW_ACCEL
-        | DMP_FEATURE_SEND_RAW_GYRO
+        /* 发送原始数据是否会改变 中断频率 */
+        //| DMP_FEATURE_SEND_RAW_ACCEL
+        //| DMP_FEATURE_SEND_RAW_GYRO
         | DMP_FEATURE_GYRO_CAL;
     dmp_enable_feature(dmp_features);
     dmp_set_fifo_rate(MPU9250_DMP_SAMPLE_RATE);
@@ -140,8 +140,7 @@ void mpu9250_init(void)
     /* 该函数会关闭bypass模式 */
     mpu_set_dmp_state(1);
     mpu_set_bypass(1); /* 打开bypass */
-    
-#endif
+
     /* 初始化灵敏度值 */
     mpu_get_accel_sens(&s_accel_sens); 
     mpu_get_gyro_sens(&s_gyro_sens); 
@@ -177,6 +176,12 @@ void mpu9250_test(void)
 } 
 
 /* TODO: 实现多种数据读取 */
+static int16_T gyro[3] = {0};
+static int16_T accel_short[3] = {0};
+static int32_T quat[4] = {0};
+static int32_T sensor_timestamp = 0;
+static int16_T sensors = 0;
+static uint8_T more = 0;
 void mpu9250_read(uint32_T type, const uint8_T *buf)
 {
     if((ACCEL_TYPE & type) /* 加计&陀螺仪 为了效率和简化一口气读取(包括温度) */
@@ -185,10 +190,39 @@ void mpu9250_read(uint32_T type, const uint8_T *buf)
         si_read_dma(MPU9250_DEV_ADDR, MPU9250_ATG_REG_ADDR, buf, MPU9250_ATG_LENGTH);
         return;
     } 
-    
+
+    if(QUAT_TYPE == type)
+    { 
+        if(s_mpu9250_fifo_ready) /* 四元数 就绪 */
+        { 
+            dmp_read_fifo(gyro, accel_short, quat, &sensor_timestamp, &sensors, &more);
+            if (!more)
+            {
+                int32_T i = 0;
+
+                i++;
+                UNUSED(i);
+            }
+           
+            if (sensors & INV_XYZ_GYRO)
+            {
+                while(1);
+            }
+            if (sensors & INV_XYZ_ACCEL) 
+            {
+                while(1);
+            }
+
+            if (sensors & INV_WXYZ_QUAT)
+            {
+                quat;
+            }
+        }
+    }
+
     /* 为了便于磁力计融合 需要加入加计数据 */
     if((ACCEL_TYPE & type)
-    && (QUAT_TYPE & type))
+            && (QUAT_TYPE & type))
     {
         debug_log("四元数获取未实现.\r\n",);
         return;
@@ -332,14 +366,14 @@ static void read_fifo_func(void)
     UNUSED(count);
     UNUSED(val);
 
-    extern bool_T g_mpu9250_fifo_ready;
+    extern bool_T s_mpu9250_fifo_ready;
     extern int16_T g_int_status;
     int mpu_read_fifo(short *gyro, short *accel, unsigned long *timestamp, unsigned char *sensors, unsigned char *more);
 
     while(1)
     {
 
-        if(g_mpu9250_fifo_ready)
+        if(s_mpu9250_fifo_ready)
         {
             gyro[0] = 0;
             gyro[1] = 0;
@@ -356,7 +390,7 @@ static void read_fifo_func(void)
                 rst = mpu_read_fifo(gyro, accel, &timestamp, &sensor, &more);
                 count++;
             }while(more > 0);
-            g_mpu9250_fifo_ready = FALSE;
+            s_mpu9250_fifo_ready = FALSE;
 
             if(0 == times % 500)
             {
@@ -381,7 +415,6 @@ static void read_fifo_func(void)
 }
 #endif
 
-#if 0
 static void int_callback(void *argv)
 {
     static int32_T times = 0;
@@ -400,9 +433,8 @@ static void int_callback(void *argv)
         diff_clk(&diff, &last_time, &now);
     }
     times++;
-    g_mpu9250_fifo_ready = TRUE;
+    s_mpu9250_fifo_ready = TRUE;
 }
-#endif
 
 #if 0
 /* 关闭回调功能 避免震动影响性能测试 */

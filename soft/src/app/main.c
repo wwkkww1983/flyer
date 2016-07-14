@@ -68,11 +68,11 @@ static void init(void);
 * 输出参数: 无
 * 返回值  : 无
 *
-* 调用关系: 贴片完成后测试板子是否正常工作
+* 调用关系: 测试硬件是否正常工作
 * 其 它   : 无
 *
 ******************************************************************************/
-//static void self_test(void);
+static void self_test(void);
 
 /********************************** 函数实现区 *********************************/
 /*******************************************************************************
@@ -222,183 +222,13 @@ static void init(void)
     fusion_init();
     debug_log("姿态融合算法初始化完成.\r\n");
 
-#if 1
-    static void hard_fusion(void);
-    hard_fusion();
-
-#else
-
     /* 自检 */
     self_test();
     debug_log("自检完成.\r\n");
 
     debug_log("系统初始化完成.\r\n");
-#endif
 }
 
-#define FRAME_LENGTH        (32U) 
-static int32_T times = 0; 
-static misc_time_T time1, time2;
-static misc_time_T diff1;
-static void hard_fusion(void)
-{
-    /* 硬解 */
-    static int32_T rst = 0;
-    static uint8_T ak8963_buf[AK8963_DATA_LENGTH] = {0};
-    static uint8_T mpuu9250_buf[MPU9250_ATG_LENGTH] = {0};
-    static uint8_T frame[FRAME_LENGTH] = {0};
-    static uint8_T send_buf[FRAME_LENGTH] = {0};
-    static uint32_T tick = 0;
-
-    static int32_T crc32 = 0;
-    /* 硬件crc */
-    static CRC_HandleTypeDef crc;
-    
-    /* 长度 */
-    frame[0] = 0;
-    frame[1] = 30;
-
-    crc.Instance = CRC;
-		__HAL_RCC_CRC_CLK_ENABLE();
-    if(HAL_OK != HAL_CRC_Init(&crc))
-    {
-        while(1);
-    }
-
-    /* 填充 */
-    frame[2] = 0x00;
-    frame[3] = 0x00;
-
-#if 0
-    /* 标记 */
-    frame[4] = 0x00;
-    frame[5] = 0x00;
-
-    /* time */
-    frame[6] = 0;
-    frame[7] = 0;
-    frame[8] = 0;
-    frame[9] = 0;
-
-    /* 加计 */
-    frame[10] = 0x00;
-    frame[11] = 0x00;
-    frame[12] = 0x00;
-    frame[13] = 0x00;
-    frame[14] = 0x00;
-    frame[15] = 0x00;
-
-    /* 陀螺仪 */
-    frame[16] = 0x00;
-    frame[17] = 0x00;
-    frame[18] = 0x00;
-    frame[19] = 0x00;
-    frame[20] = 0x00;
-    frame[21] = 0x00;
-
-    /* 磁力计 */
-    frame[22] = 0x00;
-    frame[23] = 0x00;
-    frame[24] = 0x00;
-    frame[25] = 0x00;
-    frame[26] = 0x00;
-    frame[27] = 0x00;
-
-    /* crc32 */
-    frame[28] = 0x00;
-    frame[29] = 0x00;
-    frame[30] = 0x00;
-    frame[31] = 0x00;
-#endif
-
-    console_printf("data:\r\n");
-		HAL_Delay(1000);
-    while(1)
-    { 
-        frame[7] = 0x00;
-#if 1
-        if(1 == times)
-        {
-            get_now(&time1);
-        }
-        if(2 == times)
-        {
-            get_now(&time2);
-            diff_clk(&diff1, &time1, &time2);
-        }
-#endif
-
-        tick = HAL_GetTick();
-        frame[6] = (uint8_T)(tick >> 24);
-        frame[7] = (uint8_T)((tick >> 16) & 0xff);
-        frame[8] = (uint8_T)((tick >> 8) & 0xff);
-        frame[9] = (uint8_T)((tick) & 0xff);
-        if(0 == tick % 5) /* 大约 5ms true一次 */
-        {
-#if 0
-            get_now(&time1);
-#endif
-
-            mpu9250_read(ACCEL_TYPE | GYRO_TYPE, mpuu9250_buf); /* dma读mpu9250数据 */
-            while(!si_read_ready()); /* 等待读完成 */
-
-            frame[5] |= 0x02; /* 加计 */
-            frame[10] = mpuu9250_buf[0];
-            frame[11] = mpuu9250_buf[1];
-            frame[12] = mpuu9250_buf[2];
-            frame[13] = mpuu9250_buf[3];
-            frame[14] = mpuu9250_buf[4];
-            frame[15] = mpuu9250_buf[5];
-
-            frame[5] |= 0x04; /* 陀螺仪 */
-            frame[16] = mpuu9250_buf[8];
-            frame[17] = mpuu9250_buf[9];
-            frame[18] = mpuu9250_buf[10];
-            frame[19] = mpuu9250_buf[11];
-            frame[20] = mpuu9250_buf[12];
-            frame[21] = mpuu9250_buf[13];
-
-            ak8963_read(ak8963_buf); /* dma读磁力计数据 */
-            while(!si_read_ready()); /* 等待读完成 */ 
-            /* 填充磁力计数据 */
-            if((AK8963_ST1_DRDY_BIT & ak8963_buf[0])   /* 有效数据 */ 
-            && !(AK8963_ST2_HOFL_BIT & ak8963_buf[7])) /* 未超量程溢出 */
-            { 
-                frame[5] |= 0x08; /* 磁力计 */
-                frame[22] = ak8963_buf[1];
-                frame[23] = ak8963_buf[2];
-                frame[24] = ak8963_buf[3];
-                frame[25] = ak8963_buf[4];
-                frame[26] = ak8963_buf[5];
-                frame[27] = ak8963_buf[6];
-            } 
-
-            /* 使用crc32校验 */
-            crc32 = HAL_CRC_Calculate(&crc, (uint32_T *)frame, FRAME_LENGTH / sizeof(uint32_T) - 1); 
-            frame[28] =  (uint8_T)( crc32 >> 24);
-            frame[29] =  (uint8_T)((crc32 >> 16) & 0xff);
-            frame[30] =  (uint8_T)((crc32 >> 8) & 0xff);
-            frame[31] =  (uint8_T)(crc32  & 0xff); 
-            
-            /* 双缓冲frame/send_buf 避免串口被组帧干扰 */
-            /* 串口发送 */
-            while(uart_tc_locked(&g_console)); /* 等待上一次传输完成 */
-            memcpy(send_buf, frame, FRAME_LENGTH); 
-            uart_send_bytes(&g_console, send_buf, FRAME_LENGTH);
-#if 0
-            get_now(&time2);
-            diff_clk(&diff1, &time1, &time2);
-            times++;
-#endif
-            /* 避免1ms中多次读取 */
-            HAL_Delay(1);
-            UNUSED(rst); 
-            UNUSED(times);
-        }
-    }
-}
-
-#if 0
 /* 硬件测试 */
 static void self_test(void)
 {
@@ -415,4 +245,4 @@ static void self_test(void)
     debug_log("结束硬件测试.\r\n"); 
     TRACE_FUNC_OUT;
 }
-#endif
+

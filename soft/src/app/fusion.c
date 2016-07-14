@@ -75,6 +75,10 @@ void fusion(void)
             accel_fusion(data->mpu9250.accel);
         }
     }
+    else /* 已有四元数 */
+    { 
+        set_quaternion(data->mpu9250.quat);
+    }
 
     /* 磁力计融合 */
     if((COMPASS_TYPE & data->type)
