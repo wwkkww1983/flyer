@@ -64,40 +64,10 @@ void sensor_test(void)
 
 void sensor_read(void)
 {
-    static bool_T first_run = TRUE;
-
-    /* 首次 启动采样 */
-    if(first_run)
-    {			
-        s_tick = HAL_GetTick();
-        s_buf_type = ACCEL_TYPE | GYRO_TYPE;
-        mpu9250_read(s_buf_type, s_buf);
-        first_run = FALSE;
-        return;
-    }
-
-    /* 其他 保存数据 后 启动采样 */
-    if(si_read_ready()) /* 上一帧数据已达 */
-    { 
-        /* 解析并保存入data */
-        parse();
-        s_tick = HAL_GetTick();			
-        if(0 == s_tick % AK8963_READ_PERIOD) /* 读AK8963周期 */
-        { 
-            s_buf_type = COMPASS_TYPE;
-            ak8963_read(s_buf);
-        }
-        else if(0 == s_tick % MPU9250_READ_PERIOD) /* 读MPU9250周期 */
-        { 
-            s_buf_type = ACCEL_TYPE | GYRO_TYPE;
-            mpu9250_read(s_buf_type, s_buf);
-
-        }
-        else
-        {
-            return;
-        }
-    }
+    /* 硬解算不使用buf */
+    s_buf_type = QUAT_TYPE;
+    mpu9250_read(s_buf_type, NULL);
+    parse();
 } 
 
 static void parse(void)
@@ -105,7 +75,16 @@ static void parse(void)
     s_data.type = s_buf_type;
     s_data.time = s_tick;
 
-    if((ACCEL_TYPE & s_buf_type)
+    if(QUAT_TYPE & s_buf_type)
+    {
+        /* 硬解算不使用buf */
+        if(0 != mpu9250_parse(&(s_data.mpu9250), NULL, QUAT_TYPE))
+        { 
+            s_data_ready = FALSE;
+            return;
+        }
+    }
+    else if((ACCEL_TYPE & s_buf_type)
     && (GYRO_TYPE & s_buf_type))
     { 
         if(0 != mpu9250_parse(&(s_data.mpu9250), s_buf, ACCEL_TYPE | GYRO_TYPE))

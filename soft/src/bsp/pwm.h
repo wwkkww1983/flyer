@@ -38,6 +38,7 @@ typedef struct pwm_list_tag
     PWM_NAME    name; /* 通道名字 */
     TIM_TypeDef *tim; /* 计时器 */
     uint32_T    ch;   /* 通道 */
+    uint32_T    val;  /* 占空值 */
 }PWM_LIST_T;
 
 /*--------------------------------- 接口声明区 --------------------------------*/

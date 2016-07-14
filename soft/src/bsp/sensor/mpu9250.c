@@ -176,26 +176,21 @@ void mpu9250_test(void)
 } 
 
 /* TODO: 实现多种数据读取 */
-static int16_T gyro[3] = {0};
-static int16_T accel_short[3] = {0};
-static int32_T quat[4] = {0};
-static int32_T sensor_timestamp = 0;
-static int16_T sensors = 0;
-static uint8_T more = 0;
+static f32_T s_quat_f[4] = {0.0f};
 void mpu9250_read(uint32_T type, const uint8_T *buf)
 {
-    if((ACCEL_TYPE & type) /* 加计&陀螺仪 为了效率和简化一口气读取(包括温度) */
-    && (GYRO_TYPE & type))
-    { 
-        si_read_dma(MPU9250_DEV_ADDR, MPU9250_ATG_REG_ADDR, buf, MPU9250_ATG_LENGTH);
-        return;
-    } 
+    static int16_T gyro[3] = {0};
+    static int16_T accel_short[3] = {0};
+    static int32_T quat[4] = {0};
+    static uint32_T sensor_timestamp = 0;
+    static int16_T sensors = 0;
+    static uint8_T more = 0;
 
     if(QUAT_TYPE == type)
     { 
         if(s_mpu9250_fifo_ready) /* 四元数 就绪 */
-        { 
-            dmp_read_fifo(gyro, accel_short, quat, &sensor_timestamp, &sensors, &more);
+        {
+            dmp_read_fifo(gyro, accel_short, (long *)quat, (unsigned long *)&sensor_timestamp, &sensors, &more);
             if (!more)
             {
                 int32_T i = 0;
@@ -215,10 +210,42 @@ void mpu9250_read(uint32_T type, const uint8_T *buf)
 
             if (sensors & INV_WXYZ_QUAT)
             {
-                quat;
+                s_quat_f[0] = (f32_T) quat[0] / ((f32_T)(1L << 30));
+                s_quat_f[1] = (f32_T) quat[1] / ((f32_T)(1L << 30));
+                s_quat_f[2] = (f32_T) quat[2] / ((f32_T)(1L << 30));
+                s_quat_f[3] = (f32_T) quat[3] / ((f32_T)(1L << 30));
+
+#if 0
+                buf[0] = (uint8_T)( quat_f[0] >> 24);
+                buf[1] = (uint8_T)((quat_f[0] >> 16) & 0xff);
+                buf[2] = (uint8_T)((quat_f[0] >> 8) & 0xff);
+                buf[3] = (uint8_T)( quat_f[0] & 0xff);
+
+                buf[4] = (uint8_T)( quat_f[1] >> 24);
+                buf[5] = (uint8_T)((quat_f[1] >> 16) & 0xff);
+                buf[6] = (uint8_T)((quat_f[1] >> 8) & 0xff);
+                buf[7] = (uint8_T)( quat_f[1] & 0xff);
+
+                buf[8] = (uint8_T)( quat_f[2] >> 24);
+                buf[9] = (uint8_T)((quat_f[2] >> 16) & 0xff);
+                buf[10] = (uint8_T)((quat_f[2] >> 8) & 0xff);
+                buf[11] = (uint8_T)( quat_f[2] & 0xff);
+
+                buf[12] = (uint8_T)( quat_f[3] >> 24);
+                buf[13] = (uint8_T)((quat_f[3] >> 16) & 0xff);
+                buf[14] = (uint8_T)((quat_f[3] >> 8) & 0xff);
+                buf[15] = (uint8_T)( quat_f[3] & 0xff);
+#endif
             }
         }
     }
+
+    if((ACCEL_TYPE & type) /* 加计&陀螺仪 为了效率和简化一口气读取(包括温度) */
+    && (GYRO_TYPE & type))
+    { 
+        si_read_dma(MPU9250_DEV_ADDR, MPU9250_ATG_REG_ADDR, buf, MPU9250_ATG_LENGTH);
+        return;
+    } 
 
     /* 为了便于磁力计融合 需要加入加计数据 */
     if((ACCEL_TYPE & type)
@@ -274,6 +301,15 @@ int32_T mpu9250_parse(mpu9250_val_T *mpu9250, const uint8_T *buf, uint32_T type)
         UNUSED(quat);
         return 0;
     } 
+
+    if(QUAT_TYPE == type)
+    {
+        mpu9250->quat[0] = s_quat_f[0];
+        mpu9250->quat[1] = s_quat_f[1];
+        mpu9250->quat[2] = s_quat_f[2];
+        mpu9250->quat[3] = s_quat_f[3];
+        mpu9250->type = type;
+    }
     
     /* 为了便于磁力计融合 需要加入加计数据 */
     if((ACCEL_TYPE & type)

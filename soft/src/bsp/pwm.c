@@ -18,9 +18,10 @@
 #include "config.h"
 #include "board.h"
 #include "stm32f4xx_hal.h"
-#include "stm32f4xx_hal_conf.h"
 #include "pwm.h"
 #include "console.h"
+#include "fusion.h"
+#include "lib_math.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
 
@@ -29,22 +30,26 @@ PWM_LIST_T g_pwm_list[] = {
     {
         .name = PWM_FRONT,
         .tim  = PWM_TIM, 
-        .ch   = TIM_CHANNEL_1
+        .ch   = TIM_CHANNEL_1,
+        .val = 0
     },
     {
         .name = PWM_RIGHT,
         .tim  = PWM_TIM, 
-        .ch   = TIM_CHANNEL_2
+        .ch   = TIM_CHANNEL_2,
+        .val = 0
     },
     {
         .name = PWM_BACK,
         .tim  = PWM_TIM, 
-        .ch   = TIM_CHANNEL_3
+        .ch   = TIM_CHANNEL_3,
+        .val = 0
     },
     {
         .name = PWM_LEFT,
         .tim  = PWM_TIM, 
-        .ch   = TIM_CHANNEL_4
+        .ch   = TIM_CHANNEL_4,
+        .val = 0
     }
 };
 
@@ -186,10 +191,28 @@ void pwm_test(void)
     pwm_set(PWM_RIGHT, m * 33);
     pwm_set(PWM_BACK, m * 77);
     pwm_set(PWM_LEFT, m * 100);
+
 } 
 
 /* 动力控制 */
 void pwm_update(void)
-{
-    ;
+{ 
+    f32_T q[4] = {0.0f};
+    f32_T e[3] = {0.0f};
+
+    get_quaternion(q);
+    math_quaternion2euler(e, q);
+
+    debug_log("横滚角:%7.4f, 俯仰角:%7.4f, 偏航角:%7.4f\r\n", 
+            math_arc2angle(e[0]), math_arc2angle(e[1]), math_arc2angle(e[2]));
+
+    /* 俯仰角 + 前加后减 */
+
+    /* 俯仰角 - 前减后加 */
+
+    /* 横滚角 + 左减右加 */
+
+    /* 横滚角 - 左加右减 */
+
 }
+
