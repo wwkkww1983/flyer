@@ -223,3 +223,21 @@ void math_quaternion2euler(f32_T *euler, const float *q)
     /* FIXME: 是否是全姿态的，反三角函数计算出的角度是否需要修正? */
 }
 
+/* 继续实现 */
+/* rotated = rotate_q * q */
+void math_quaternion_cross(f32_T *rotated, const f32_T *q, const f32_T *rotate_q)
+{
+    f32_T a,b,c,d,e,f,g,h;
+
+    a = q[0];
+    b = q[1];
+    c = q[2];
+    d = q[3];
+
+    e = rotate_q[0];
+    f = rotate_q[1];
+    g = rotate_q[2];
+    h = rotate_q[3];
+
+    return;
+}

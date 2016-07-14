@@ -40,6 +40,7 @@ f32_T math_arc2angle(f32_T x);
 void math_euler2quaternion(f32_T *q, const f32_T *euler);
 void math_quaternion2euler(f32_T *euler, const float *q);
 void math_vector3_cross_product(f32_T *product, const f32_T *a, const f32_T *b);
+void math_quaternion_cross(f32_T *rotated, const f32_T *q, const f32_T *rotate_q);
 
 #if 0
 f32_T math_inv_sqrt(f32_T x);

@@ -53,6 +53,9 @@ PWM_LIST_T g_pwm_list[] = {
     }
 };
 
+/* 45度旋转的四元数表示 */
+f32_T s_q45[4] = {0.0f};
+
 /* tim句柄 */
 static TIM_HandleTypeDef s_tim_handle;
 /* pwm_init和pwm_set中都使用 */
@@ -139,6 +142,13 @@ void pwm_init(void)
         pwm_set((PWM_NAME)i, 0);
     }
 
+    theta = MATH_PI / 4;
+    /* 求偏航角旋转45度(绕Z轴)的四元数表示 */
+    s_q45[0] = cos(theta / 2);
+    s_q45[1] = 0;
+    s_q45[2] = 0;
+    s_q45[3] = sin(theta / 2);
+
     return;
 }
 
@@ -197,18 +207,17 @@ void pwm_test(void)
 /* 动力控制 */
 void pwm_update(void)
 { 
-    f32_T q[4] = {0.0f};
-    f32_T e[3] = {0.0f};
+    f32_T q_rotated[4] = {0.0f};
 
     get_quaternion(q);
-    math_quaternion2euler(e, q);
+    math_quaternion_cross(q_rotated, q, s_q45); /* 偏航角旋转45度与机翼对应 */
+    math_quaternion2euler(e, q_rotated);
 
     debug_log("横滚角:%7.4f, 俯仰角:%7.4f, 偏航角:%7.4f\r\n", 
             math_arc2angle(e[0]), math_arc2angle(e[1]), math_arc2angle(e[2]));
+    /* 俯仰角 + 前减后加 */
 
-    /* 俯仰角 + 前加后减 */
-
-    /* 俯仰角 - 前减后加 */
+    /* 俯仰角 - 前加后减 */
 
     /* 横滚角 + 左减右加 */
 
