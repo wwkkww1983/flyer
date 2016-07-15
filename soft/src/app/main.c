@@ -95,10 +95,7 @@ int main(void)
     init();
     debug_log("\r\n开始进入主循环.\r\n");
 
-    while(1)
-		{
-			sensor_read();
-		}
+    while(1);
 
     /* 实际运行 */
     while(1)
@@ -241,9 +238,9 @@ static void self_test(void)
     debug_log("开始硬件测试.\r\n"); 
 
     console_test();
-    //led_test();
+    led_test();
     pwm_test();
-    //sensor_test();
+    sensor_test();
     esp8266_test();    
     fusion_test();
 
