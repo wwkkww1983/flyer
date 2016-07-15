@@ -6,6 +6,23 @@ import struct
 g_file = "data.dat"
 g_frame_length = 32
 
+class FParser():
+    def __init__(self, file_name):
+        self.mFile = open(file_name, 'rb')
+
+    def __del__(self):
+        self.mFile.close()
+
+    def ParseAFrame(self): 
+        frame = self.mFile.read(g_frame_length)
+        print('ParseAFrame')
+
+    def Parse(self):
+        print('Parse')
+
+    def Print(self):
+        print('Print')
+
 def Parse(file_name):
     print("从%s中读取文件分析." % (file_name))
     
@@ -58,6 +75,10 @@ def Parse(file_name):
     c = input("分析完成,输入任意键退出")
 
 if __name__ == "__main__":
-    Parse(g_file)
+    parser = FParser(g_file)
+    parser.Parse()
+    parser.Print()
+    c = input("分析完成,输入任意键退出")
 
+    #Parse(g_file)
 
