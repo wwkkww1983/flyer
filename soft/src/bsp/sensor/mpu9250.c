@@ -94,11 +94,14 @@ void mpu9250_init(void)
     
     /* 开启DMP中断 */
     exti_set_callback(int_callback, NULL);
+#if 1
     if (mpu_configure_fifo(INV_XYZ_GYRO|INV_XYZ_ACCEL)!=0)
     {
         debug_log("设置MPU FIFO失败.\r\n");
         return;
     } 
+#endif
+
     /*
      * 初始化 DMP:
      * 1. 注册回调函数
@@ -190,6 +193,7 @@ void mpu9250_read(uint32_T type, const uint8_T *buf)
     { 
         if(s_mpu9250_fifo_ready) /* 四元数 就绪 */
         {
+            s_mpu9250_fifo_ready = FALSE;
             dmp_read_fifo(gyro, accel_short, (long *)quat, (unsigned long *)&sensor_timestamp, &sensors, &more);
             if (!more)
             {
@@ -459,15 +463,19 @@ static void int_callback(void *argv)
     static misc_time_T diff;
 
     /* 计算中断间隔 200Hz 5ms左右 */
-    if(1 == times)
+    if(0 == times)
     {
         get_now(&last_time);
     }
-    else if(2 == times)
+    else
     {
         get_now(&now);
         diff_clk(&diff, &last_time, &now);
+
+        last_time.ms = now.ms;
+        last_time.clk = now.clk;
     }
+
     times++;
     s_mpu9250_fifo_ready = TRUE;
 }
