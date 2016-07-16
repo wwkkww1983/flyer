@@ -22,10 +22,6 @@
  * PC调试
  * */
 /* #define _DEBUG_PC_ */
-/* v2.x版本硬件使用UART6作为控制台
- * v3.x版本硬件替换
- * */
-/* #define _V2X_ */
 
 /* 测试传感器详细数据 */
 #define SENSOR_TEST_DETAIL
@@ -40,7 +36,7 @@
 /* esp8266波特率 */
 #define ESP8266_BAUDRATE                                    (115200U)
 
-/* uart 行缓冲的长度 64Bytes */
+/* uart 行缓冲的长度 128Bytes */
 #define UART_LINE_BUF_SIZE                                  (128U)
 
 /* Sensor i2c速度 */
@@ -48,15 +44,13 @@
 #define MPU9250_ACCEL_FSR                                   (2)
 #define MPU9250_GYRO_FSR                                    (2000)
 #define MPU9250_DMP_SAMPLE_RATE                             (200)
-/* max rate 1000 */
+/* 采样率 与 DMP保持一致 */
 #define MPU9250_SAMPLE_RATE                                 (MPU9250_DMP_SAMPLE_RATE)
-/* 多长间隔(ms)读一次数据 */
-#define MPU9250_READ_PERIOD                                 (1)
-#define AK8963_READ_PERIOD                                  (500)
 /* 配置MPU9250的方向 */
 #define MPU9250_ORIENTATION                                 { 1, 0, 0, \
                                                               0, 1, 0, \
                                                               0, 0, 1}
+
 
 /* 以下内容不可修改 */
 /* 每秒钟systick中断数 默认1ms */
