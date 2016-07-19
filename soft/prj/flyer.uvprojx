@@ -440,36 +440,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>chip</GroupName>
-          <Files>
-            <File>
-              <FileName>inv_mpu.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\thd\eMD6.12\core\driver\eMPL\inv_mpu.c</FilePath>
-            </File>
-            <File>
-              <FileName>bmp280.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\thd\bmp280\bmp280.c</FilePath>
-            </File>
-            <File>
-              <FileName>inv_mpu_dmp_motion_driver.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\thd\eMD6.12\core\driver\eMPL\inv_mpu_dmp_motion_driver.c</FilePath>
-            </File>
-            <File>
-              <FileName>ml_math_func.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\thd\eMD6.12\core\mllite\ml_math_func.c</FilePath>
-            </File>
-            <File>
-              <FileName>mlmath.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\thd\eMD6.12\core\mllite\mlmath.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>lib</GroupName>
           <Files>
             <File>
@@ -478,9 +448,9 @@
               <FilePath>..\src\lib\misc.c</FilePath>
             </File>
             <File>
-              <FileName>fifo.c</FileName>
+              <FileName>lib_math.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\src\lib\fifo.c</FilePath>
+              <FilePath>..\src\lib\lib_math.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -510,32 +480,27 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>sensor</GroupName>
+          <GroupName>chip</GroupName>
           <Files>
             <File>
-              <FileName>ak8963.c</FileName>
+              <FileName>inv_mpu.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\src\bsp\sensor\ak8963.c</FilePath>
+              <FilePath>..\thd\eMD6.12\core\driver\eMPL\inv_mpu.c</FilePath>
             </File>
             <File>
-              <FileName>bmp280_hal.c</FileName>
+              <FileName>inv_mpu_dmp_motion_driver.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\src\bsp\sensor\bmp280_hal.c</FilePath>
+              <FilePath>..\thd\eMD6.12\core\driver\eMPL\inv_mpu_dmp_motion_driver.c</FilePath>
             </File>
             <File>
-              <FileName>inv.c</FileName>
+              <FileName>ml_math_func.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\src\bsp\sensor\inv.c</FilePath>
+              <FilePath>..\thd\eMD6.12\core\mllite\ml_math_func.c</FilePath>
             </File>
             <File>
-              <FileName>mpu9250.c</FileName>
+              <FileName>mlmath.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\src\bsp\sensor\mpu9250.c</FilePath>
-            </File>
-            <File>
-              <FileName>sensor.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\bsp\sensor\sensor.c</FilePath>
+              <FilePath>..\thd\eMD6.12\core\mllite\mlmath.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -572,10 +537,17 @@
               <FileType>1</FileType>
               <FilePath>..\src\bsp\si.c</FilePath>
             </File>
+            <File>
+              <FileName>mpu9250.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\bsp\mpu9250.c</FilePath>
+            </File>
+            <File>
+              <FileName>inv.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\bsp\inv.c</FilePath>
+            </File>
           </Files>
-        </Group>
-        <Group>
-          <GroupName>algo</GroupName>
         </Group>
         <Group>
           <GroupName>app</GroupName>
@@ -584,16 +556,6 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\app\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>fusion.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\app\fusion.c</FilePath>
-            </File>
-            <File>
-              <FileName>lib_math.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\app\lib_math.c</FilePath>
             </File>
           </Files>
         </Group>

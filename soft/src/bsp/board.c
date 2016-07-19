@@ -204,7 +204,7 @@ void HAL_MspInit()
     SENSOR_I2C_FORCE_RESET();
     SENSOR_I2C_RELEASE_RESET(); 
     SENSOR_I2C_DMA_CLK_ENABLE();
-    /* 设置I2C中断优先级 */
+    /* 设置I2C中断优先级, I2C目前使用DMA和轮询方式 中断实际并未使用 */
     HAL_NVIC_SetPriority(SENSOR_I2C_EV_IRQn, PER_INT_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(SENSOR_I2C_EV_IRQn);
     HAL_NVIC_SetPriority(SENSOR_I2C_ER_IRQn, PER_INT_PRIORITY, 0);
@@ -225,10 +225,10 @@ void HAL_MspInit()
     sensor_hdma_rx.Init.MemBurst               = DMA_MBURST_INC4;
     sensor_hdma_rx.Init.PeriphBurst            = DMA_PBURST_INC4; 
     HAL_DMA_Init(&sensor_hdma_rx);   
-    /* 关联DMA与UART */
+    /* 关联DMA与I2C */
     __HAL_LINKDMA(&g_si_handle, hdmarx, sensor_hdma_rx); 
     /* INT */
-    HAL_NVIC_SetPriority(SENSOR_I2C_DMA_RX_IRQn, PER_INT_PRIORITY, 0);
+    HAL_NVIC_SetPriority(SENSOR_I2C_DMA_RX_IRQn, PER_SI_INT_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(SENSOR_I2C_DMA_RX_IRQn);
 
     /************************* SENSOR 中断初始化 ****************************/

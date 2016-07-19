@@ -28,6 +28,7 @@
 #define MPU9250_ACCEL_LENGTH                (6)
 #define MPU9250_GYRO_REG_ADDR               (0x43)
 #define MPU9250_GYRO_LENGTH                 (6)
+#define MPU9250_INT_STATUS_REG_ADDR         (0x3A)
 #define MPU9250_ATG_REG_ADDR                (MPU9250_ACCEL_REG_ADDR)
 #define MPU9250_ATG_LENGTH                  (14)
 
@@ -47,9 +48,8 @@ void mpu9250_init(void);
 /* 测试 */
 void mpu9250_test(void);
 /* 读取 */
-void mpu9250_read(uint32_T type, const uint8_T *buf);
-/* 数据解析 */
-int32_T mpu9250_parse(mpu9250_val_T *mpu9250, const uint8_T *buf, uint32_T type);
+void mpu9250_dmp_read(f32_T *quat_f32);
+
 
 #endif /* _MPU9250_H_ */
 

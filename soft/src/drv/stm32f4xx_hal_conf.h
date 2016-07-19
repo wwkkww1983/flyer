@@ -2,7 +2,7 @@
  *
  * 文件名  ： stm32f4xx_hal_conf.h
  * 负责人  ： 彭鹏(pengpeng@fiberhome.com)
- * 创建日期： 20150116 
+ * 创建日期： 20150116
  * 版本号  ： v1.0
  * 文件描述： STM32 HAL 配置文件
  * 版权说明： Copyright (c) 2000-2020 GNU
@@ -19,49 +19,49 @@
 /************************************ 宏定义 ***********************************/
 /*********************************** 模块选择 **********************************/
 /* 定义需要使用的模块 */
-#define HAL_MODULE_ENABLED         
+#define HAL_MODULE_ENABLED
 /* #define HAL_ADC_MODULE_ENABLED       */
 /* #define HAL_CAN_MODULE_ENABLED       */
 #define HAL_CRC_MODULE_ENABLED
-/* #define HAL_CRYP_MODULE_ENABLED      */ 
-/* #define HAL_DAC_MODULE_ENABLED       */ 
-/* #define HAL_DCMI_MODULE_ENABLED      */ 
-#define HAL_DMA_MODULE_ENABLED     
-#define HAL_DMA2D_MODULE_ENABLED
+/* #define HAL_CRYP_MODULE_ENABLED      */
+/* #define HAL_DAC_MODULE_ENABLED       */
+/* #define HAL_DCMI_MODULE_ENABLED      */
+#define HAL_DMA_MODULE_ENABLED
+/* #define HAL_DMA2D_MODULE_ENABLED     */
 /* #define HAL_ETH_MODULE_ENABLED       */
-#define HAL_FLASH_MODULE_ENABLED     
+#define HAL_FLASH_MODULE_ENABLED
 /* #define HAL_NAND_MODULE_ENABLED      */
 /* #define HAL_NOR_MODULE_ENABLED       */
 /* #define HAL_PCCARD_MODULE_ENABLED    */
 /* #define HAL_SRAM_MODULE_ENABLED      */
 /* #define HAL_SDRAM_MODULE_ENABLED     */
-/* #define HAL_HASH_MODULE_ENABLED      */  
+/* #define HAL_HASH_MODULE_ENABLED      */
 #define HAL_GPIO_MODULE_ENABLED
 #define HAL_I2C_MODULE_ENABLED
-/* #define HAL_I2S_MODULE_ENABLED       */  
-/* #define HAL_IWDG_MODULE_ENABLED      */ 
+/* #define HAL_I2S_MODULE_ENABLED       */
+/* #define HAL_IWDG_MODULE_ENABLED      */
 /* #define HAL_LTDC_MODULE_ENABLED      */
 #define HAL_PWR_MODULE_ENABLED
-#define HAL_RCC_MODULE_ENABLED      
-/* #define HAL_RNG_MODULE_ENABLED       */   
+#define HAL_RCC_MODULE_ENABLED
+/* #define HAL_RNG_MODULE_ENABLED       */
 /* #define HAL_RTC_MODULE_ENABLED       */
-/* #define HAL_SAI_MODULE_ENABLED       */   
+/* #define HAL_SAI_MODULE_ENABLED       */
 /* #define HAL_SD_MODULE_ENABLED        */
 /* #define HAL_SPI_MODULE_ENABLED       */
 #define HAL_TIM_MODULE_ENABLED
 #define HAL_UART_MODULE_ENABLED
-/* #define HAL_USART_MODULE_ENABLED     */ 
+/* #define HAL_USART_MODULE_ENABLED     */
 /* #define HAL_IRDA_MODULE_ENABLED      */
 /* #define HAL_SMARTCARD_MODULE_ENABLED */
 /* #define HAL_WWDG_MODULE_ENABLED      */
-#define HAL_CORTEX_MODULE_ENABLED   
+#define HAL_CORTEX_MODULE_ENABLED
 /* #define HAL_PCD_MODULE_ENABLED       */
 /*#define HAL_HCD_MODULE_ENABLED        */
 
 /********************************** HSE/HSI值 **********************************/
 /* 外部晶体(HSE)频率(Hz) */
 /* 需要对应晶体振荡器的频率 */
-#if !defined  (HSE_VALUE) 
+#if !defined  (HSE_VALUE)
   #define HSE_VALUE    ((uint32_t)8000000)
 #endif /* HSE_VALUE */
 
@@ -76,13 +76,13 @@
 #endif /* HSI_VALUE */
 
 /* 内部晶体(LSI)频率(Hz) */
-#if !defined  (LSI_VALUE) 
- #define LSI_VALUE  ((uint32_t)32000)    
+#if !defined  (LSI_VALUE)
+ #define LSI_VALUE  ((uint32_t)32000)
 #endif /* LSI_VALUE */
 
 /* 外部晶体(LSE)频率(Hz) */
 #if !defined  (LSE_VALUE)
- #define LSE_VALUE  ((uint32_t)32768) 
+ #define LSE_VALUE  ((uint32_t)32768)
 #endif /* LSE_VALUE */
 
 #if !defined  (LSE_STARTUP_TIMEOUT)
@@ -91,18 +91,19 @@
 
 /************************************ HAL配置 **********************************/
 #define  VDD_VALUE                    ((uint32_t)3300) /* VDD电压(mv) */
-#define  USE_RTOS                     0     
-#define  PREFETCH_ENABLE              1              
+#define  USE_RTOS                     0
+#define  PREFETCH_ENABLE              1
 #define  INSTRUCTION_CACHE_ENABLE     1
 #define  DATA_CACHE_ENABLE            1
 
-/* Fault 0 > UART|I2C|SPI等外设 1 > SysTick 2 */
+/* Fault 0 > (传感器)I2C DMA > 外设 > SysTick > PendSV */
 #define  MEM_INT_PRIORITY             ((uint32_t)0) /* Memory Management 中断优先级 */
 #define  BUS_INT_PRIORITY             ((uint32_t)0) /* Bus Fault 中断优先级 */
 #define  USAGE_INT_PRIORITY           ((uint32_t)0) /* Usage Fault 中断优先级 */
-#define  TICK_INT_PRIORITY            ((uint32_t)2) /* SysTick 中断优先级 */
-/* FIXME:添加外设时修改 */
-#define  PER_INT_PRIORITY             ((uint32_t)1) /* UART|I2C灯外设的中断的优先级 */
+#define  PER_SI_INT_PRIORITY          ((uint32_t)12) /* I2C DMA读取优先级需要较高 否则同步会故障 */
+#define  PER_INT_PRIORITY             ((uint32_t)13) /* UART|I2C|LED|PWM等外设的中断的优先级 */
+#define  TICK_INT_PRIORITY            ((uint32_t)14) /* SysTick 中断优先级较低 */
+/* 最低优先级15预留给PendSV做任务切换 */
 
 /* include头文件 */
 #ifdef HAL_RCC_MODULE_ENABLED
@@ -116,7 +117,7 @@
 #ifdef HAL_DMA_MODULE_ENABLED
   #include "stm32f4xx_hal_dma.h"
 #endif /* HAL_DMA_MODULE_ENABLED */
-   
+
 #ifdef HAL_CORTEX_MODULE_ENABLED
   #include "stm32f4xx_hal_cortex.h"
 #endif /* HAL_CORTEX_MODULE_ENABLED */
@@ -134,7 +135,7 @@
 #endif /* HAL_CRC_MODULE_ENABLED */
 
 #ifdef HAL_CRYP_MODULE_ENABLED
-  #include "stm32f4xx_hal_cryp.h" 
+  #include "stm32f4xx_hal_cryp.h"
 #endif /* HAL_CRYP_MODULE_ENABLED */
 
 #ifdef HAL_DMA2D_MODULE_ENABLED
@@ -156,7 +157,7 @@
 #ifdef HAL_FLASH_MODULE_ENABLED
   #include "stm32f4xx_hal_flash.h"
 #endif /* HAL_FLASH_MODULE_ENABLED */
- 
+
 #ifdef HAL_SRAM_MODULE_ENABLED
   #include "stm32f4xx_hal_sram.h"
 #endif /* HAL_SRAM_MODULE_ENABLED */
@@ -171,8 +172,8 @@
 
 #ifdef HAL_PCCARD_MODULE_ENABLED
   #include "stm32f4xx_hal_pccard.h"
-#endif /* HAL_PCCARD_MODULE_ENABLED */ 
-  
+#endif /* HAL_PCCARD_MODULE_ENABLED */
+
 #ifdef HAL_SDRAM_MODULE_ENABLED
   #include "stm32f4xx_hal_sdram.h"
 #endif /* HAL_SDRAM_MODULE_ENABLED */
@@ -254,7 +255,7 @@
 #endif /* HAL_HCD_MODULE_ENABLED */
 
 /* 向量表的偏移 必须为0x200 的倍数 */
-#define VECT_TAB_OFFSET  0x00 
+#define VECT_TAB_OFFSET  0x00
 
 /*********************************** 断言配置 **********************************/
 #define USE_FULL_ASSERT                         (1)
@@ -262,10 +263,10 @@
  *
  * 函数名  : assert_param
  * 负责人  : 彭鹏
- * 创建日期：20150321 
+ * 创建日期：20150321
  * 函数功能: 用于函数做参数检查 HAL源码已经使用
  *
- * 输入参数: expr 
+ * 输入参数: expr
  *           - true  啥也不干
  *           - flase 该函数调用 assert_failed 报告源码文件及行数
  *
@@ -283,7 +284,7 @@
   void assert_failed(uint8_t* file, uint32_t line);
 #else
   #define assert_param(expr) ((void)0)
-#endif /* USE_FULL_ASSERT */   
+#endif /* USE_FULL_ASSERT */
 
 /*********************************** 类型定义 **********************************/
 

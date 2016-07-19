@@ -22,9 +22,6 @@
 #include "misc.h"
 #include "si.h"
 #include "mpu9250.h"
-#include "ak8963.h"
-#include "bmp280_hal.h"
-#include "sensor.h"
 #include "console.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
@@ -87,7 +84,7 @@ void si_write_poll(uint8_T dev_addr, uint16_T reg_addr, const uint8_T *buf, uint
 
 /* 工作时采用DMA提升效率 */
 void si_read_dma(uint8_T dev_addr, uint16_T reg_addr, const uint8_T *buf, uint32_T n)
-{ 
+{
     /* 锁住 */
     s_rx_cplt = FALSE;
     if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_si_handle, dev_addr, reg_addr,

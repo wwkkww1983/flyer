@@ -22,23 +22,18 @@
 #include "misc.h"
 #include "led.h"
 #include "pwm.h"
+#include "si.h"
+#include "mpu9250.h"
 #include "console.h"
-#include "sensor.h"
 #include "esp8266.h"
-#include "fusion.h"
 #include "lib_math.h"
 
-#include "si.h"
-#include "inv_mpu.h"
-#include "mpu9250.h"
-#include "inv_mpu_dmp_motion_driver.h"
-#include "uart.h"
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/ 
 
 /********************************** 函数声明区 *********************************/
-static void idle(void);
+static void idle(f32_T *quat);
 
 /*******************************************************************************
 *
@@ -91,33 +86,31 @@ static void self_test(void);
 *
 ******************************************************************************/
 int main(void)
-{
+{ 
+    f32_T quat[4] = {0.0f};
+
     init();
     debug_log("\r\n开始进入主循环.\r\n");
-
-    while(1);
 
     /* 实际运行 */
     while(1)
     { 
         /* 采样 */
-        sensor_read();
-        /* 融合 */
-        fusion();
+        mpu9250_dmp_read(quat);
         /* 动力控制 */
-        pwm_update();
+        pwm_update(quat);
         /* 以上实时性要求强 否则坠机 */
 
         /* 以下实时性要求不强  */
         /* 处理交互 */
-        esp8266_task();
+        esp8266_task(quat);
         /* 收尾统计工作 */
-        idle();
+        idle(quat);
     }
 }
 
 /* 每秒周期性执行 */
-static void idle(void)
+static void idle(f32_T *quat)
 {
     static bool_T first_run = TRUE;
     static uint32_T ms_start = 0;
@@ -129,7 +122,6 @@ static void idle(void)
     static misc_time_T interval;
     static misc_time_T temp;
 
-    f32_T q[4] = {0.0f};
     f32_T e[3] = {0.0f};
 
     if(TRUE == first_run) /* 获取起始时间 仅运行一次 */
@@ -158,11 +150,11 @@ static void idle(void)
         led_toggle(LED_MLED);
         ms_start = HAL_GetTick();
         debug_log("%4.1f秒:", ms_start / 1000.0f); 
-        get_quaternion(q);
-        math_quaternion2euler(e, q);
+
+        math_quaternion2euler(e, quat);
         debug_log("姿态:%.4f, %.4f, %.4f <==> %.4f,%.4f,%.4f,%.4f\r\n",
                 math_arc2angle(e[0]), math_arc2angle(e[1]), math_arc2angle(e[2]),
-                q[0], q[1], q[2], q[3]);
+                quat[0], quat[1], quat[2], quat[3]);
         debug_log("主循环最大耗时:%ums,%5.2fus.\r\n",
                 last_interval.ms, 1.0f * last_interval.clk / 84);
     } 
@@ -173,13 +165,13 @@ static void idle(void)
 /* 初始化 */
 static void init(void)
 { 
-    /* step1: hal初始化 */
+    /* hal初始化 */
     if(HAL_OK != HAL_Init())
     {
         while(1);
     }
 
-    /* step2: 配置时钟 HAL_Init 执行后才可执行 */
+    /* 配置时钟 HAL_Init 执行后才可执行 */
     /* 时钟配置 84MHz */
     clock_init();
 
@@ -212,17 +204,17 @@ static void init(void)
     pwm_init();
     debug_log("pwm初始化完成.\r\n"); 
 
+    /* 姿态传感器i2c总线初始化 */
+    si_init();
+    debug_log("传感器i2c总线 初始化完成.\r\n");
+
     /* 姿态传感器 */
-    sensor_init();
-    debug_log("sensor(MPU9250+AK8963+BMP280)初始化完成.\r\n");
+    mpu9250_init();
+    debug_log("MPU9250初始化完成.\r\n");
 
     /* wifi 模块串口 */
     esp8266_init();
     debug_log("esp8266 wifi模块初始化完成.\r\n");
-
-    /* 姿态融合算法 */
-    fusion_init();
-    debug_log("姿态融合算法初始化完成.\r\n");
 
     /* 自检 */
     self_test();
@@ -240,9 +232,8 @@ static void self_test(void)
     console_test();
     led_test();
     pwm_test();
-    sensor_test();
+    mpu9250_test();
     esp8266_test();    
-    fusion_test();
 
     debug_log("结束硬件测试.\r\n"); 
     TRACE_FUNC_OUT;

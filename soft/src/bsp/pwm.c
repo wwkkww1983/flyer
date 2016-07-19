@@ -21,7 +21,6 @@
 #include "stm32f4xx_hal.h"
 #include "pwm.h"
 #include "console.h"
-#include "fusion.h"
 #include "lib_math.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
@@ -206,13 +205,12 @@ void pwm_test(void)
 } 
 
 /* 动力控制 */
-void pwm_update(void)
+void pwm_update(f32_T *q)
 {
-    f32_T q[4] = {0.0f};
-	  f32_T e[3] = {0.0f};
+    f32_T e[3] = {0.0f};
     f32_T q_rotated[4] = {0.0f};
 
-    get_quaternion(q);
+    /* FIXME:可能有问题 两边都需要乘 */
     math_quaternion_cross(q_rotated, q, s_q45); /* 偏航角旋转45度与机翼对应 */
     math_quaternion2euler(e, q_rotated);
 
