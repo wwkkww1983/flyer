@@ -112,15 +112,15 @@ int main(void)
 /* 每秒周期性执行 */
 static void idle(f32_T *quat)
 {
-    static bool_T first_run = TRUE;
-    static uint32_T ms_start = 0;
-    static uint32_T ms_end = 0;
+    static bool_T first_run = TRUE; /* 标记是否首次运行 */
+    static uint32_T ms_start = 0; /* 首次运行ms数*/
+    static misc_time_T last_loop_start_time; /* 上次主循环启动时间 */
+    static misc_time_T max_interval; /* 存放每次主循环最大耗时(用于评估时间片) */
 
-    static misc_time_T last_loop_start_time;
-    static misc_time_T now_time;
-    static misc_time_T last_interval;
-    static misc_time_T interval;
-    static misc_time_T temp;
+    uint32_T ms_now = 0;
+    misc_time_T now_time;
+    misc_time_T interval;
+    misc_time_T temp;
 
     f32_T e[3] = {0.0f};
 
@@ -129,36 +129,38 @@ static void idle(f32_T *quat)
         ms_start = HAL_GetTick();
         first_run = FALSE;
     } 
-    else
+    else /* 第一次不运行 其他每次都运行 */
     {
-        /* 第一次不运行 其他每次都运行 */
-        /* 冒泡算法 interval中永远存放 最大间隔 */
+        /* (本次)主循环终点 */
         get_now(&now_time);
         diff_clk(&interval, &last_loop_start_time, &now_time);
 
-        if(diff_clk(&temp, &interval, &last_interval))
+        /* 冒泡算法max_interval中永远存放 最大间隔 */
+        if(1 == diff_clk(&temp, &interval, &max_interval))
         {
-            last_interval.ms = interval.ms;
-            last_interval.clk = interval.clk;
+            max_interval.ms = interval.ms;
+            max_interval.clk = interval.clk;
         }
+
+        ms_now = HAL_GetTick();
+        if(ms_now - ms_start >= 2500) /* 已达2.5s 执行一次 */
+        {
+            /* 该处代码 每秒执行一次 */
+            led_toggle(LED_MLED);
+            ms_start = HAL_GetTick();
+            debug_log("%4.1f秒:", ms_start / 1000.0f);
+
+            math_quaternion2euler(e, quat);
+            debug_log("姿态:%.4f, %.4f, %.4f <==> %.4f,%.4f,%.4f,%.4f\r\n",
+                    math_arc2angle(e[0]), math_arc2angle(e[1]), math_arc2angle(e[2]),
+                    quat[0], quat[1], quat[2], quat[3]);
+            debug_log("主循环最大耗时:%ums,%5.2fus.\r\n",
+                    max_interval.ms, 1.0f * max_interval.clk / 84);
+        }
+
     }
-    
-    ms_end = HAL_GetTick();
-    if(ms_end - ms_start >= 2500) /* 已达2.5s 执行一次 */
-    {
-        /* 该处代码 每秒执行一次 */
-        led_toggle(LED_MLED);
-        ms_start = HAL_GetTick();
-        debug_log("%4.1f秒:", ms_start / 1000.0f); 
 
-        math_quaternion2euler(e, quat);
-        debug_log("姿态:%.4f, %.4f, %.4f <==> %.4f,%.4f,%.4f,%.4f\r\n",
-                math_arc2angle(e[0]), math_arc2angle(e[1]), math_arc2angle(e[2]),
-                quat[0], quat[1], quat[2], quat[3]);
-        debug_log("主循环最大耗时:%ums,%5.2fus.\r\n",
-                last_interval.ms, 1.0f * last_interval.clk / 84);
-    } 
-
+    /* (下次)主循环起点 */
     get_now(&last_loop_start_time);
 }
 

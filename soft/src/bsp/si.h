@@ -29,16 +29,15 @@
 /* board.c使用 */
 extern I2C_HandleTypeDef g_si_handle;;
 
-/* main.c测试使用 */
-extern bool_T g_tx_cplt;
-
 /*********************************** 接口函数 **********************************/
 void si_init(void);
 void si_read_poll(uint8_T dev_addr, uint16_T reg_addr, uint8_T *buf, uint32_T n);
 void si_write_poll(uint8_T dev_addr, uint16_T reg_addr, const uint8_T *buf, uint32_T n);
 
 void si_read_dma(uint8_T dev_addr, uint16_T reg_addr, const uint8_T *buf, uint32_T n);
-bool_T si_read_ready(void);
+
+/* poll与dma混用时需要用该函数同步 */
+bool_T si_rx_locked(void);
 
 #endif
 

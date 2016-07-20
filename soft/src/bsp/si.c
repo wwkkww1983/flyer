@@ -31,7 +31,10 @@
 I2C_HandleTypeDef g_si_handle;
 
 /* 数据解析需要使用 */
-static __IO bool_T s_rx_cplt = TRUE;
+static __IO bool_T s_rx_lock = FALSE;
+
+static void si_tc_lock(void);
+static void si_tc_unlock(void);
 
 /********************************** 函数实现区 *********************************/
 void si_init(void)
@@ -85,8 +88,9 @@ void si_write_poll(uint8_T dev_addr, uint16_T reg_addr, const uint8_T *buf, uint
 /* 工作时采用DMA提升效率 */
 void si_read_dma(uint8_T dev_addr, uint16_T reg_addr, const uint8_T *buf, uint32_T n)
 {
-    /* 锁住 */
-    s_rx_cplt = FALSE;
+    while(si_rx_locked()); /* 等待上一次传输完成 */
+    si_tc_lock(); /* 锁住资源 */
+
     if(HAL_OK != HAL_I2C_Mem_Read_DMA(&g_si_handle, dev_addr, reg_addr,
                 I2C_MEMADD_SIZE_8BIT, (uint8_T *)buf, (uint16_T)n))
     {
@@ -95,10 +99,25 @@ void si_read_dma(uint8_T dev_addr, uint16_T reg_addr, const uint8_T *buf, uint32
     return ;
 }
 
-inline bool_T si_read_ready(void)
+/* 上次传输完成 Transmit Compelete 锁住 */
+inline bool_T si_rx_locked(void)
 {
-    return s_rx_cplt;
+    return s_rx_lock;
 }
+
+/* FIXME: lock unlock 原子操作 */
+/* 上次传输完成 Transmit Compelete 锁(尚未完成) */
+inline static void si_tc_lock(void)
+{
+    s_rx_lock = TRUE;
+}
+
+/* 上次传输完成 Transmit Compelete 解锁(完成) */
+inline static void si_tc_unlock(void)
+{
+    s_rx_lock = FALSE;
+}
+
 
 /* SENSOR_I2C_EV_IRQHandler & SENSOR_I2C_ER_IRQHandler 未使用 使用DMA提高效率 */
 /* 发生EV ER中断表示出错 */
@@ -116,7 +135,7 @@ void SENSOR_I2C_ER_IRQHandler(void)
 
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
-    s_rx_cplt = TRUE;
+    si_tc_unlock();
 }
 
 void SENSOR_I2C_DMA_RX_IRQHandler(void)

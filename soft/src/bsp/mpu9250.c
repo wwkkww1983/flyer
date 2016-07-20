@@ -31,7 +31,7 @@
 
 /********************************** 变量声明区 *********************************/
 static bool_T s_mpu9250_fifo_ready = FALSE; 
-static uint8_T int_status = 0;
+static uint8_T s_int_status = 0;
 static f32_T s_quat[4] = {1.0f, 0.0f, 0.0f, 0.0f}; /* 四元数默认值 */
 static const signed char s_orientation[9] = MPU9250_ORIENTATION;
 
@@ -152,7 +152,8 @@ void mpu9250_dmp_read(f32_T *quat_f32)
     
     if(s_mpu9250_fifo_ready) /* 四元数 就绪 */
     { 
-        while(!si_read_ready()); /* 自旋等待i2c空闲 */
+        while(si_rx_locked()); /* 自旋等待i2c空闲 */
+
         s_mpu9250_fifo_ready = FALSE;
         dmp_read_fifo(gyro, accel_short, (long *)quat, (unsigned long *)&sensor_timestamp, &sensors, &more);
         if (more)
@@ -241,12 +242,8 @@ static void int_callback(void *argv)
 {
     static int32_T times = 0;
     static misc_time_T last_time;
-    static misc_time_T now;
-    static misc_time_T diff; 
-
-    while(!si_read_ready()); /* 自旋等待i2c空闲 */
-    /* 读取中断状态寄存器(用于清中断) */
-    si_read_dma(MPU9250_DEV_ADDR, MPU9250_INT_STATUS_REG_ADDR, &int_status, 1);
+    misc_time_T now;
+    misc_time_T diff; 
 
     /* 计算中断间隔 200Hz 5ms左右 */
     if(0 == times)
@@ -261,8 +258,15 @@ static void int_callback(void *argv)
         last_time.ms = now.ms;
         last_time.clk = now.clk;
     }
-
     times++;
+    /* 以上代码用于测试中断时间 */
+
+
+    /* FIXME: 中断中自旋 性能较差 */
+    while(si_rx_locked()); /* 自旋等待i2c空闲 */
+    /* 读取中断状态寄存器(用于清中断) */
+    si_read_dma(MPU9250_DEV_ADDR, MPU9250_INT_STATUS_REG_ADDR, &s_int_status, 1);
+
     s_mpu9250_fifo_ready = TRUE;
 }
 
@@ -304,19 +308,20 @@ static void android_orient_callback(unsigned char orientation)
     switch (orientation)
     {
         case ANDROID_ORIENT_PORTRAIT:
-            debug_log("竖屏肖像\n");
+            debug_log("竖屏\r\n");
             break;
         case ANDROID_ORIENT_LANDSCAPE:
-            debug_log("横屏风景\n");
+            debug_log("横屏\r\n");
             break;
         case ANDROID_ORIENT_REVERSE_PORTRAIT:
-            debug_log("反竖屏肖像\n");
+            debug_log("反竖屏\r\n");
             break;
         case ANDROID_ORIENT_REVERSE_LANDSCAPE:
-            debug_log("反横屏风景\n");
+            debug_log("反横屏\r\n");
             break;
         default:
             return;
     }
     return;
 }
+
