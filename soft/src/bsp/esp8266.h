@@ -40,7 +40,7 @@ do \
 /* esp8266测试 */
 void esp8266_test(void);
 /* esp8266交互任务 */
-void esp8266_task(f32_T *quat);
+void esp8266_task(void);
 
 #endif
 

@@ -103,7 +103,7 @@ int main(void)
 
         /* 以下实时性要求不强  */
         /* 处理交互 */
-        esp8266_task(quat);
+        esp8266_task();
         /* 收尾统计工作 */
         idle(quat);
     }
