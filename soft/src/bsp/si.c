@@ -65,22 +65,28 @@ void si_init(void)
 /* 初始化时采用轮询模型(避免并发出问题) */
 void si_read_poll(uint8_T dev_addr, uint16_T reg_addr, uint8_T *buf, uint32_T n)
 {
+    while(si_rx_locked()); /* 等待上一次传输完成 */
+    si_tc_lock(); /* 锁住资源 */
     if(HAL_OK != HAL_I2C_Mem_Read(&g_si_handle, dev_addr, reg_addr,
                 I2C_MEMADD_SIZE_8BIT, buf, (uint16_T)(n), HAL_MAX_DELAY))
     {
         assert_failed(__FILE__, __LINE__);
     }
+    si_tc_unlock();
 
     return;
 }
 
 void si_write_poll(uint8_T dev_addr, uint16_T reg_addr, const uint8_T *buf, uint32_T n)
 {
+    while(si_rx_locked()); /* 等待上一次传输完成 */
+    si_tc_lock(); /* 锁住资源 */
     if(HAL_OK != HAL_I2C_Mem_Write(&g_si_handle, dev_addr, reg_addr,
                 I2C_MEMADD_SIZE_8BIT, (uint8_T *)buf, (uint16_T)(n), HAL_MAX_DELAY))
     {
         assert_failed(__FILE__, __LINE__);
     }
+    si_tc_unlock();
 
     return;
 } 

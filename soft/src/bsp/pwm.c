@@ -17,7 +17,6 @@
 /************************************ 头文件 ***********************************/
 #include "config.h"
 #include "board.h"
-#include "math.h"
 #include "stm32f4xx_hal.h"
 #include "pwm.h"
 #include "console.h"
@@ -142,13 +141,6 @@ void pwm_init(void)
         pwm_set((PWM_NAME)i, 0);
     }
 
-    f32_T theta = MATH_PI / 4;
-    /* 求偏航角旋转45度(绕Z轴)的四元数表示 */
-    s_q45[0] = cos(theta / 2);
-    s_q45[1] = 0;
-    s_q45[2] = 0;
-    s_q45[3] = sin(theta / 2);
-
     return;
 }
 
@@ -208,14 +200,7 @@ void pwm_test(void)
 void pwm_update(f32_T *q)
 {
     f32_T e[3] = {0.0f};
-    f32_T q_rotated[4] = {0.0f};
-
-    /* FIXME:可能有问题 两边都需要乘 */
-    math_quaternion_cross(q_rotated, q, s_q45); /* 偏航角旋转45度与机翼对应 */
-    math_quaternion2euler(e, q_rotated);
-
-    debug_log("横滚角:%7.4f, 俯仰角:%7.4f, 偏航角:%7.4f\r\n", 
-            math_arc2angle(e[0]), math_arc2angle(e[1]), math_arc2angle(e[2]));
+    math_quaternion2euler(e, q);
 
     /* 实现控制 */
     /* 俯仰角 + 前减后加 */

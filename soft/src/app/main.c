@@ -19,6 +19,7 @@
 #include "config.h"
 #include "board.h"
 #include <stm32f4xx_hal.h>
+#include <math.h>
 #include "misc.h"
 #include "led.h"
 #include "pwm.h"
@@ -87,7 +88,15 @@ static void self_test(void);
 ******************************************************************************/
 int main(void)
 { 
-    f32_T quat[4] = {0.0f};
+    f32_T quat[4] = {0.0f}; /* mpu9250 dmp四元数 */
+    f32_T q_rotated[4] = {0.0f}; /* 旋转后的与机翼方向一致的四元数 */
+    f32_T q45[4] = {0.0f}; /* 求偏航角旋转45度pi/4(绕Z轴)的四元数表示 */
+    f32_T theta = MATH_PI / 4;
+
+    q45[0] = cos(theta / 2);
+    q45[1] = 0;
+    q45[2] = 0;
+    q45[3] = sin(theta / 2);
 
     init();
     debug_log("\r\n开始进入主循环.\r\n");
@@ -96,16 +105,19 @@ int main(void)
     while(1)
     { 
         /* 采样 */
-        mpu9250_dmp_read(quat);
+        mpu9250_dmp_read(quat); 
+        /* 偏航角旋转45度与机翼对应 */
+        /* FIXME:可能有问题 两边都需要乘 */
+        math_quaternion_cross(q_rotated, quat, q45);
         /* 动力控制 */
-        pwm_update(quat);
+        pwm_update(q_rotated);
         /* 以上实时性要求强 否则坠机 */
 
         /* 以下实时性要求不强  */
         /* 处理交互 */
         esp8266_task();
         /* 收尾统计工作 */
-        idle(quat);
+        idle(q_rotated);
     }
 }
 
@@ -219,7 +231,7 @@ static void init(void)
     debug_log("esp8266 wifi模块初始化完成.\r\n");
 
     /* 自检 */
-    self_test();
+    //self_test();
     debug_log("自检完成.\r\n");
 
     debug_log("系统初始化完成.\r\n");

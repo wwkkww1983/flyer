@@ -41,9 +41,9 @@
 #define SENSOR_I2C_RATE                                     (400000U)
 #define MPU9250_ACCEL_FSR                                   (2U)
 #define MPU9250_GYRO_FSR                                    (2000U)
-#define MPU9250_DMP_SAMPLE_RATE                             (200U)
+#define MPU9250_DMP_SAMPLE_RATE                             (100U)
 /* max rate 1000 */
-#define MPU9250_SAMPLE_RATE                                 (MPU9250_DMP_SAMPLE_RATE)
+#define MPU9250_SAMPLE_RATE                                 (1000U)
 /* 配置MPU9250的方向 */
 #define MPU9250_ORIENTATION                                 { 1, 0, 0, \
                                                               0, 1, 0, \

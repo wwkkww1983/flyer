@@ -39,8 +39,10 @@ static const signed char s_orientation[9] = MPU9250_ORIENTATION;
 static void run_self_test(void);
 static void int_callback(void *argv);
 
+#if 0
 static void tap_callback(unsigned char direction, unsigned char count);
 static void android_orient_callback(unsigned char orientation);
+#endif
 
 /********************************** 函数实现区 *********************************/
 /* 初始化 */
@@ -55,7 +57,7 @@ void mpu9250_init(void)
     {
         debug_log("MPU9250异常.\r\n");
         while(1);
-    } 
+    }
 
     if (mpu_init(NULL) != 0)
     {
@@ -118,8 +120,8 @@ void mpu9250_init(void)
      */
     dmp_load_motion_driver_firmware();
     dmp_set_orientation(inv_orientation_matrix_to_scalar(s_orientation));
-    dmp_register_tap_cb(tap_callback);
-    dmp_register_android_orient_cb(android_orient_callback);
+    //dmp_register_tap_cb(tap_callback);
+    //dmp_register_android_orient_cb(android_orient_callback);
     dmp_features = DMP_FEATURE_6X_LP_QUAT
         | DMP_FEATURE_TAP
         | DMP_FEATURE_ANDROID_ORIENT
@@ -136,10 +138,7 @@ void mpu9250_init(void)
     return;
 }
 
-void mpu9250_test(void)
-{
-    ;
-} 
+void mpu9250_test(void) { ; } 
 
 void mpu9250_dmp_read(f32_T *quat_f32)
 {
@@ -153,15 +152,11 @@ void mpu9250_dmp_read(f32_T *quat_f32)
     if(s_mpu9250_fifo_ready) /* 四元数 就绪 */
     { 
         while(si_rx_locked()); /* 自旋等待i2c空闲 */
-
         s_mpu9250_fifo_ready = FALSE;
         dmp_read_fifo(gyro, accel_short, (long *)quat, (unsigned long *)&sensor_timestamp, &sensors, &more);
         if (more)
         {
-            int32_T i = 0;
-
-            i++;
-            UNUSED(i);
+            debug_log("有溢出:%u\r\n", more);
         }
 
         if (sensors & INV_XYZ_GYRO)
@@ -240,6 +235,8 @@ static void run_self_test(void)
 
 static void int_callback(void *argv)
 {
+    /* 以下代码用于测试中断时间 */
+#if 1
     static int32_T times = 0;
     static misc_time_T last_time;
     misc_time_T now;
@@ -259,8 +256,7 @@ static void int_callback(void *argv)
         last_time.clk = now.clk;
     }
     times++;
-    /* 以上代码用于测试中断时间 */
-
+#endif
 
     /* FIXME: 中断中自旋 性能较差 */
     while(si_rx_locked()); /* 自旋等待i2c空闲 */
@@ -270,6 +266,7 @@ static void int_callback(void *argv)
     s_mpu9250_fifo_ready = TRUE;
 }
 
+#if 0
 /* 关闭回调功能 避免震动影响性能测试 */
 static void tap_callback(unsigned char direction, unsigned char count)
 {
@@ -324,4 +321,4 @@ static void android_orient_callback(unsigned char orientation)
     }
     return;
 }
-
+#endif
