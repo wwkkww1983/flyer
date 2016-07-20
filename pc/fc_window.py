@@ -27,7 +27,12 @@ class FCWindow(QMainWindow):
         self.mStatusBar.addWidget(statusLabel1)
 
         # 标题
-        self.setWindowTitle("飞控上位机")
+        self.setWindowTitle("飞控上位机") 
+        
+        # 测试使用的类型
+        self.mTypeComboBox = self.mUi.typeComboBox
+        self.mTypeComboBox.addItem('串口')
+        self.mTypeComboBox.addItem('WiFi')
 
 if __name__ == '__main__': 
     app = QApplication(sys.argv)
