@@ -21,6 +21,7 @@ class FCCaptureWidget(QWidget):
         # 正在捕获
         self.mCapturing = False
         self.mRecvThread = threading.Thread(target=self.RecvFunc)
+        self.mRecvThread.daemon = True # 主线程结束 子线程也结束
 
         # 初始化UI
         self.mUi = FCWindowUIClass[0]()
@@ -68,21 +69,21 @@ class FCCaptureWidget(QWidget):
             self.StartCapture()
 
     def StartCapture(self):
-        print("开始采集")
         # step1: 启动串口线程
         self.mRecvThread.start()
         # step2: 组帧
         # step3: 发帧
+        print("开始采集")
 
     def StopCapture(self):
-        print("停止采集")
         # step1: 组帧
         # step2: 发帧
         # step3: 停止串口线程
-        self.mRecvThread.stop()
+        self.mRecvThread.join(10) #等待10s
+        print("停止采集")
 
     def RecvFunc(self):
-        while True:
+        while self.mCapturing:
             print("RecvFunc")
             sleep(1)
 
