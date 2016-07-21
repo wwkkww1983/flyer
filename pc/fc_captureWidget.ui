@@ -27,7 +27,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_5">
       <item>
-       <widget class="QGroupBox" name="groupBox_3">
+       <widget class="QGroupBox" name="commGroupBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
           <horstretch>0</horstretch>
@@ -102,7 +102,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QComboBox" name="comboBox_2">
+               <widget class="QComboBox" name="comNameComboBox">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -129,7 +129,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLineEdit" name="lineEdit">
+               <widget class="QLineEdit" name="buadLineEdit">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -146,7 +146,7 @@
          <item>
           <widget class="QGroupBox" name="groupBox_2">
            <property name="enabled">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
@@ -178,7 +178,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_4">
+       <widget class="QGroupBox" name="dataGroupBox">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -202,7 +202,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLineEdit" name="lineEdit_2"/>
+            <widget class="QLineEdit" name="intervalLineEdit"/>
            </item>
            <item>
             <widget class="QLabel" name="label_5">
@@ -216,7 +216,7 @@
          <item>
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <item>
-            <widget class="QCheckBox" name="checkBox_2">
+            <widget class="QCheckBox" name="dmpQuatCheckBox">
              <property name="text">
               <string>DMP四元数</string>
              </property>
@@ -226,6 +226,9 @@
             <layout class="QHBoxLayout" name="horizontalLayout_7">
              <item>
               <widget class="QCheckBox" name="checkBox_4">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="text">
                 <string>陀螺仪</string>
                </property>
@@ -233,6 +236,9 @@
              </item>
              <item>
               <widget class="QCheckBox" name="checkBox_3">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="text">
                 <string>加计</string>
                </property>
@@ -244,6 +250,9 @@
             <layout class="QHBoxLayout" name="horizontalLayout_8">
              <item>
               <widget class="QCheckBox" name="checkBox_5">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="text">
                 <string>磁力计</string>
                </property>
@@ -251,6 +260,9 @@
              </item>
              <item>
               <widget class="QCheckBox" name="checkBox_6">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="text">
                 <string>气压计</string>
                </property>
@@ -280,7 +292,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="capturePushButton">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -300,6 +312,9 @@
    </item>
    <item>
     <widget class="QGroupBox" name="waveGroupBox">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="minimumSize">
       <size>
        <width>800</width>
