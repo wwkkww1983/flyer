@@ -3,18 +3,17 @@
 
 import sys
 
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtWidgets import QMainWindow
-from PyQt5.QtWidgets import QLabel
-
+from PyQt5.QtWidgets import *
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.uic import loadUiType, loadUi
+
+from fc_widget import FCWidget
 
 FCWindowUIClass = loadUiType("fc_window.ui")
 
 class FCWindow(QMainWindow):
     def __init__(self):
-        super(QMainWindow, self).__init__() 
+        super(FCWindow, self).__init__() 
 
         # 初始化UI
         self.mUi = FCWindowUIClass[0]()
@@ -29,10 +28,9 @@ class FCWindow(QMainWindow):
         # 标题
         self.setWindowTitle("飞控上位机") 
         
-        # 测试使用的类型
-        self.mTypeComboBox = self.mUi.typeComboBox
-        self.mTypeComboBox.addItem('串口')
-        self.mTypeComboBox.addItem('WiFi')
+        # 设置核心控件
+        self.mFCWidget = FCWidget()
+        self.setCentralWidget(self.mFCWidget)
 
 if __name__ == '__main__': 
     app = QApplication(sys.argv)
