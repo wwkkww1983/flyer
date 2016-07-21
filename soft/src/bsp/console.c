@@ -41,7 +41,6 @@ drv_uart_T g_console = {
 void console_init(void)
 { 
     uart_init(&g_console);
-    uart_tc_unlock(&g_console); /* 初始可用 */
 }
 
 /* 控制台测试 */
@@ -60,5 +59,10 @@ void CONSOLE_UART_IRQHANDLER(void)
 void CONSOLE_UART_DMA_TX_IRQHandler(void)
 {
     HAL_DMA_IRQHandler((g_console.handle).hdmatx);
+}
+
+void CONSOLE_UART_DMA_RX_IRQHandler(void)
+{
+    HAL_DMA_IRQHandler((g_console.handle).hdmarx);
 }
 

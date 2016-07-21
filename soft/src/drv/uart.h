@@ -30,6 +30,7 @@ typedef struct drv_uart_T_tag{
 
     uint8_T             send_buf[UART_LINE_BUF_SIZE]; /* 发送缓冲 */
     __IO bool_T         dma_tc_lock;/* dma 传输完成 锁定 */
+    __IO bool_T         dma_rx_lock;/* dma 接收完成 锁定 */
 }drv_uart_T;
 
 /*--------------------------------- 接口声明区 --------------------------------*/
@@ -38,13 +39,16 @@ typedef struct drv_uart_T_tag{
 
 /*********************************** 接口函数 **********************************/
 void uart_init(drv_uart_T *uart);
-/* 用于printf */
-void uart_send(drv_uart_T *uart, uint8_T *fmt, ...);
-void uart_tc_unlock(drv_uart_T *uart);
 
 /* 串口字节流裸传 */
 void uart_send_bytes(drv_uart_T *uart, uint8_T *buf, uint32_T n);
-bool_T uart_tc_locked(drv_uart_T *uart);
+void uart_recv_bytes(drv_uart_T *uart, uint8_T *buf, uint32_T n);
+
+/* 供comm模块判断是否到达一帧 */
+bool_T uart_frame_ready(const drv_uart_T *uart);
+
+/* 专用于printf */
+void uart_send(drv_uart_T *uart, uint8_T *fmt, ...);
 
 #endif
 

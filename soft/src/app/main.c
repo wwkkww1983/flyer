@@ -26,7 +26,7 @@
 #include "si.h"
 #include "mpu9250.h"
 #include "console.h"
-#include "esp8266.h"
+#include "comm.h"
 #include "lib_math.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
@@ -101,7 +101,7 @@ int main(void)
 
         /* 以下实时性要求不强  */
         /* 处理交互 */
-        esp8266_task();
+        comm_task();
         /* 收尾统计工作 */
         idle(q_rotated);
     }
@@ -193,9 +193,17 @@ static void init(void)
     /* 逐个初始化硬件 */
     /* 控制台串口 */
     console_init(); /* 此后可以开始打印 */ 
-    debug_log("console初始化完成.\r\n");
     debug_log("系统时钟频率:%dMHz\r\n", SystemCoreClock / 1000 / 1000);
-		
+    debug_log("console初始化完成.\r\n");
+
+    /* wifi 模块串口 */
+    esp8266_init();
+    debug_log("esp8266 wifi模块初始化完成.\r\n");
+
+    /* 配置交互协议模块(必须等待console和esp8266初始化完成) */
+    comm_init(&g_console);
+    debug_log("交互模块初始化完成.\r\n");
+
     /* led */
     led_init();
     debug_log("led初始化完成.\r\n");
@@ -211,10 +219,6 @@ static void init(void)
     /* 姿态传感器 */
     mpu9250_init();
     debug_log("MPU9250初始化完成.\r\n");
-
-    /* wifi 模块串口 */
-    esp8266_init();
-    debug_log("esp8266 wifi模块初始化完成.\r\n");
 
     /* 自检 */
     //self_test();

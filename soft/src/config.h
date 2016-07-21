@@ -37,6 +37,9 @@
 /* uart 行缓冲的长度 128Bytes */
 #define UART_LINE_BUF_SIZE                                  (128U)
 
+/* 下行协议帧长 16Bytes */
+#define COMM_DOWN_FRAME_BUF_SIZE                            (16U)
+
 /* Sensor i2c速度 */
 #define SENSOR_I2C_RATE                                     (400000U)
 #define MPU9250_ACCEL_FSR                                   (2U)

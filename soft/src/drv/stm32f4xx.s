@@ -121,7 +121,7 @@ __Vectors       DCD     __initial_sp            ; Top of Stack
                 DCD     0                       ; TIM7
                 DCD     0                       ; DMA2 Stream 0
                 DCD     0                       ; DMA2 Stream 1
-                DCD     0                       ; DMA2 Stream 2
+                DCD     DMA2_Stream2_IRQHandler ; DMA2 Stream 2
                 DCD     0                       ; DMA2 Stream 3
                 DCD     0                       ; DMA2 Stream 4
                 DCD     0                       ; Ethernet
@@ -131,7 +131,7 @@ __Vectors       DCD     __initial_sp            ; Top of Stack
                 DCD     0                       ; CAN2 RX1
                 DCD     0                       ; CAN2 SCE
                 DCD     0                       ; USB OTG FS
-                DCD     0                       ; DMA2 Stream 5
+                DCD     DMA2_Stream5_IRQHandler ; DMA2 Stream 5
                 DCD     DMA2_Stream6_IRQHandler ; DMA2 Stream 6
                 DCD     DMA2_Stream7_IRQHandler ; DMA2 Stream 7
                 DCD     USART6_IRQHandler       ; USART6
@@ -224,11 +224,19 @@ DMA2_Stream7_IRQHandler PROC
                 EXPORT  DMA2_Stream7_IRQHandler [WEAK]
                 B       .
                 ENDP
+DMA2_Stream5_IRQHandler PROC
+                EXPORT  DMA2_Stream5_IRQHandler [WEAK]
+                B       .
+                ENDP
 
 
 ; ESP8266串口中断 C代码有重定义
 USART6_IRQHandler PROC
                 EXPORT  USART6_IRQHandler [WEAK]
+                B       .
+                ENDP
+DMA2_Stream2_IRQHandler PROC
+                EXPORT  DMA2_Stream2_IRQHandler [WEAK]
                 B       .
                 ENDP
 DMA2_Stream6_IRQHandler PROC

@@ -78,11 +78,16 @@
 #define CONSOLE_UART_RX_AF                      GPIO_AF7_USART1
 #define CONSOLE_UART_IRQn                       USART1_IRQn
 #define CONSOLE_UART_IRQHANDLER                 USART1_IRQHandler
-#define CONSOLE_DMA_CLK_ENABLE()                __HAL_RCC_DMA2_CLK_ENABLE()
+#define CONSOLE_TX_DMA_CLK_ENABLE()             __HAL_RCC_DMA2_CLK_ENABLE()
 #define CONSOLE_UART_TX_DMA_CHANNEL             DMA_CHANNEL_4
 #define CONSOLE_UART_TX_DMA_STREAM              DMA2_Stream7
 #define CONSOLE_UART_DMA_TX_IRQn                DMA2_Stream7_IRQn
 #define CONSOLE_UART_DMA_TX_IRQHandler          DMA2_Stream7_IRQHandler
+#define CONSOLE_RX_DMA_CLK_ENABLE()             __HAL_RCC_DMA2_CLK_ENABLE()
+#define CONSOLE_UART_RX_DMA_CHANNEL             DMA_CHANNEL_4
+#define CONSOLE_UART_RX_DMA_STREAM              DMA2_Stream5
+#define CONSOLE_UART_DMA_RX_IRQn                DMA2_Stream5_IRQn
+#define CONSOLE_UART_DMA_RX_IRQHandler          DMA2_Stream5_IRQHandler
 
 /******************************* ESP82699串口定义 ******************************/
 /*
@@ -104,11 +109,16 @@
 #define ESP8266_UART_RX_AF                      GPIO_AF8_USART6
 #define ESP8266_UART_IRQn                       USART6_IRQn
 #define ESP8266_UART_IRQHANDLER                 USART6_IRQHandler
-#define ESP8266_DMA_CLK_ENABLE()                __HAL_RCC_DMA2_CLK_ENABLE()
+#define ESP8266_TX_DMA_CLK_ENABLE()             __HAL_RCC_DMA2_CLK_ENABLE()
 #define ESP8266_UART_TX_DMA_CHANNEL             DMA_CHANNEL_5
 #define ESP8266_UART_TX_DMA_STREAM              DMA2_Stream6
 #define ESP8266_UART_DMA_TX_IRQn                DMA2_Stream6_IRQn
 #define ESP8266_UART_DMA_TX_IRQHandler          DMA2_Stream6_IRQHandler
+#define ESP8266_RX_DMA_CLK_ENABLE()             __HAL_RCC_DMA2_CLK_ENABLE()
+#define ESP8266_UART_RX_DMA_CHANNEL             DMA_CHANNEL_5
+#define ESP8266_UART_RX_DMA_STREAM              DMA2_Stream2
+#define ESP8266_UART_DMA_RX_IRQn                DMA2_Stream2_IRQn
+#define ESP8266_UART_DMA_RX_IRQHandler          DMA2_Stream2_IRQHandler
 
 /********************************** SENSOR I2C 定义 ****************************/
 /*

@@ -43,19 +43,12 @@ drv_uart_T g_esp8266 = {
 void esp8266_init(void)
 { 
     uart_init(&g_esp8266);
-    uart_tc_unlock(&g_esp8266); /* 初始可用 */
 }
 
 /* esp8266测试 */
 void esp8266_test(void)
 {
     debug_log("观察esp8266并按照提示操作.\r\n");
-}
-
-/* esp8266交互任务 */
-void esp8266_task(void)
-{
-    ;
 }
 
 /************************************* 中断 ************************************/
@@ -68,5 +61,10 @@ void ESP8266_UART_IRQHANDLER(void)
 void ESP8266_UART_DMA_TX_IRQHandler(void)
 {
     HAL_DMA_IRQHandler((g_esp8266.handle).hdmatx);
+}
+
+void ESP8266_UART_DMA_RX_IRQHandler(void)
+{
+    HAL_DMA_IRQHandler((g_esp8266.handle).hdmarx);
 }
 
