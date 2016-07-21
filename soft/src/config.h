@@ -37,7 +37,7 @@
 /* uart 行缓冲的长度 128Bytes */
 #define UART_LINE_BUF_SIZE                                  (128U)
 
-/* 下行协议帧长 16Bytes */
+/* 下行协议帧长16Bytes = 12Bytes(type 4Bytes, len 4Bytes, crc32 4Bytes) + data(interval 4Bytes) */
 #define COMM_DOWN_FRAME_BUF_SIZE                            (16U)
 
 /* Sensor i2c速度 */

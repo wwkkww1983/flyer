@@ -29,6 +29,13 @@
 #define MLED_CLK_ENABLE()                       __HAL_RCC_GPIOB_CLK_ENABLE()
 #define MLED_GPIO_PIN                           GPIO_PIN_4
 
+/*************************************  CRC  ***********************************/
+/* 
+ * CRC硬件用于协议crc32校验
+ * */
+#define CRC32                                   CRC
+#define CRC_CLK_ENABLE()                        __HAL_RCC_CRC_CLK_ENABLE()
+
 /************************************  PWM   ***********************************/
 /* 
  * 使用TIM2 

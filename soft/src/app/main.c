@@ -32,9 +32,10 @@
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/ 
+f32_T s_q_rotated[4] = {0.0f}; /* 旋转后的与机翼方向一致的四元数 */
 
 /********************************** 函数声明区 *********************************/
-static void idle(f32_T *quat);
+static void idle(void);
 static void init(void);
 
 #if 0
@@ -75,7 +76,6 @@ static void self_test(void);
 int main(void)
 { 
     f32_T quat[4] = {0.0f}; /* mpu9250 dmp四元数 */
-    f32_T q_rotated[4] = {0.0f}; /* 旋转后的与机翼方向一致的四元数 */
     f32_T q45[4] = {0.0f}; /* 求偏航角旋转45度pi/4(绕Z轴)的四元数表示 */
     f32_T theta = MATH_PI / 4;
 
@@ -94,21 +94,21 @@ int main(void)
         mpu9250_dmp_read(quat); 
         /* 偏航角旋转45度与机翼对应 */
         /* FIXME:可能有问题 两边都需要乘 */
-        math_quaternion_cross(q_rotated, quat, q45);
+        math_quaternion_cross(s_q_rotated, quat, q45);
         /* 动力控制 */
-        pwm_update(q_rotated);
+        pwm_update(s_q_rotated);
         /* 以上实时性要求强 否则坠机 */
 
         /* 以下实时性要求不强  */
         /* 处理交互 */
         comm_task();
         /* 收尾统计工作 */
-        idle(q_rotated);
+        idle();
     }
 }
 
 /* 每秒周期性执行 */
-static void idle(f32_T *quat)
+static void idle()
 {
     static bool_T first_run = TRUE; /* 标记是否首次运行 */
     static uint32_T ms_start = 0; /* 首次运行ms数*/
@@ -148,10 +148,10 @@ static void idle(f32_T *quat)
             ms_start = HAL_GetTick();
             debug_log("%4.1f秒:", ms_start / 1000.0f);
 
-            math_quaternion2euler(e, quat);
+            math_quaternion2euler(e, s_q_rotated);
             debug_log("姿态:%.4f, %.4f, %.4f <==> %.4f,%.4f,%.4f,%.4f\r\n",
                     math_arc2angle(e[0]), math_arc2angle(e[1]), math_arc2angle(e[2]),
-                    quat[0], quat[1], quat[2], quat[3]);
+                    s_q_rotated[0], s_q_rotated[1], s_q_rotated[2], s_q_rotated[3]);
             debug_log("主循环最大耗时:%ums,%5.2fus.\r\n",
                     max_interval.ms, 1.0f * max_interval.clk / 84);
         }
@@ -225,6 +225,15 @@ static void init(void)
     debug_log("自检完成.\r\n");
 
     debug_log("系统初始化完成.\r\n");
+}
+
+/* FIXME:考虑同步问题 */
+void get_quat(f32_T *q)
+{
+    q[0] = s_q_rotated[0];
+    q[1] = s_q_rotated[1];
+    q[2] = s_q_rotated[2];
+    q[3] = s_q_rotated[3];
 }
 
 #if 0

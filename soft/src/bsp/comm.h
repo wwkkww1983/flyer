@@ -21,6 +21,18 @@
 #include "esp8266.h"
 
 /************************************ 宏定义 ***********************************/
+/* 协议的详细定义见文档 */
+#define COMM_FRAME_FLYER_CTRL_BIT               ((uint32_T)(1 << 30))
+#define COMM_FRAME_SENSOR_DATA_BIT              ((uint32_T)(1 << 29))
+#define COMM_FRAME_DIRECTION_BIT                ((uint32_T)(1 << 28))
+
+#define COMM_FRAME_DMP_QUAT_BIT                 ((uint32_T)(1 << 1))
+#define COMM_FRAME_TIME_BIT                     ((uint32_T)(1 << 0))
+
+/* 上行帧最大帧长 */
+#define COMM_FRAME_UP_FRAME_MAX_SIZE            ((uint32_T)(20))
+
+#define COMM_FRAME_INTERVAL_MAX                 ((uint32_T)(10000))
 
 
 /*********************************** 实现函数 **********************************/
@@ -28,7 +40,7 @@
 typedef struct{ 
     uint32_T type;
     uint32_T len;
-    uint8_T data[4];  /* 下行帧数据域固定4Bytes */
+    uint32_T interval;
     uint32_T crc;
 }comm_frame_T;
 
