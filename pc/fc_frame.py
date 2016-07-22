@@ -24,7 +24,9 @@ class FCFrame():
             exit()
 
         # 调用C函数 
-        lib_handle = ctypes.CDLL('./pp.dll')
+        #lib_handle = ctypes.CDLL('pp.dll')
+        #lib_handle = ctypes.WinDLL('pp.dll')
+        ctypes.cdll.LoadLibrary("crc32.dll")
         cal_crc32 = lib_handle.cal_crc32 
         cal_crc32.argtypes = [ctypes.c_void_p, ctypes.c_uint]
         cal_crc32.restypes = ctypes.c_uint

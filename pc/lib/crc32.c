@@ -1,4 +1,3 @@
-#include <stdio.h>
 
 unsigned int cal_crc32(unsigned int *ptr, unsigned int len)
 {
@@ -35,6 +34,8 @@ unsigned int cal_crc32(unsigned int *ptr, unsigned int len)
     return crc;
 }
 
+#if 0
+#include <stdio.h>
 int main(void)
 {
     /* Ğ¡¶Ë(ÄæĞò) */
@@ -59,4 +60,5 @@ int main(void)
 
     return 0;
 }
+#endif
 
