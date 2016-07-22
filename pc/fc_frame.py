@@ -15,17 +15,19 @@ class FCFrame():
         self.mLen = struct.pack('>I', fLen)
         self.mData = struct.pack('>I', fData)
         self.mCrc32 = None
+        #self.Print()
 
     def ComputeCrc32(self):
         buf = self.mType + self.mLen + self.mData
+        #self.Print()
         #print(buf)
         #print(len(buf) % 4)
         if 0 != (len(buf) % 4):
             print("不是4字节整数倍,出错.")
             exit()
         crc32 = (binascii.crc32(buf) & 0xffffffff)
-        self.mCrc32 = struct.pack('>i', crc32)
         #print("0x%x" % crc32)
+        self.mCrc32 = struct.pack('>I', crc32)
         #print(self.mCrc32)
 
     def GetBytes(self):
