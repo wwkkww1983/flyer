@@ -226,8 +226,11 @@ static void send_capture_data(void)
         }
 
         /* 发帧 */
-        uart_send_bytes((drv_uart_T *)s_comm_uart, frame_buf, n);
-        last_ms = now_ms;
+        if(n > 0)
+        {
+            uart_send_bytes((drv_uart_T *)s_comm_uart, frame_buf, n);
+            last_ms = now_ms;
+        }
     }
    
     return;

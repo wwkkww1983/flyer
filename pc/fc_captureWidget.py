@@ -86,7 +86,7 @@ class FCCaptureWidget(QWidget):
         # TODO: 需要根据控制界面定制
         time = int(self.mIntervalLineEdit.text())
         #print(time)
-        frameType = b'\x02\x00\x00\x03'
+        frameType = b'\x20\x00\x00\x03'
         frameLen = 16
         frameData = time
 

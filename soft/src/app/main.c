@@ -112,13 +112,13 @@ static void idle()
 {
     static bool_T first_run = TRUE; /* 标记是否首次运行 */
     static uint32_T ms_start = 0; /* 首次运行ms数*/
-    static misc_time_T last_loop_start_time; /* 上次主循环启动时间 */
-    static misc_time_T max_interval; /* 存放每次主循环最大耗时(用于评估时间片) */
+    static misc_time_T last_loop_start_time = {0}; /* 上次主循环启动时间 */
+    static misc_time_T max_interval = {0}; /* 存放每次主循环最大耗时(用于评估时间片) */
 
+    misc_time_T interval = {0};
     uint32_T ms_now = 0;
-    misc_time_T now_time;
-    misc_time_T interval;
-    misc_time_T temp;
+    misc_time_T now_time = {0};
+    misc_time_T temp = {0};
 
     f32_T e[3] = {0.0f};
 
@@ -141,7 +141,7 @@ static void idle()
         }
 
         ms_now = HAL_GetTick();
-        if(ms_now - ms_start >= 2500) /* 已达2.5s 执行一次 */
+        if(ms_now - ms_start >= 1000) /* 已达2.5s 执行一次 */
         {
             /* 该处代码 每秒执行一次 */
             led_toggle(LED_MLED);
@@ -152,7 +152,7 @@ static void idle()
             debug_log("姿态:%.4f, %.4f, %.4f <==> %.4f,%.4f,%.4f,%.4f\r\n",
                     math_arc2angle(e[0]), math_arc2angle(e[1]), math_arc2angle(e[2]),
                     s_q_rotated[0], s_q_rotated[1], s_q_rotated[2], s_q_rotated[3]);
-            debug_log("主循环最大耗时:%ums,%5.2fus.\r\n",
+            debug_log("主循环最大耗时:%dms,%5.2fus.\r\n",
                     max_interval.ms, 1.0f * max_interval.clk / 84);
         }
 
