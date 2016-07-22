@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import struct
+import binascii
 
 g_file = "data.dat"
 g_frame_length = 32
@@ -14,14 +15,29 @@ class FParser():
         self.mFile.close()
 
     def ParseAFrame(self): 
-        frame = self.mFile.read(g_frame_length)
-        print('ParseAFrame')
+        frame = self.mFile.read(g_frame_length) 
 
-    def Parse(self):
-        print('Parse')
+        print("帧内容:")
+        # 字节打印
+        i = 0
+        for b in frame:
+            print("%02x" % b, end = '')
+            i = i + 1
+            if 4 == i:
+                i = 0
+                print()
 
-    def Print(self):
-        print('Print')
+        print("帧中crc32:")
+        # 解包
+        parsed_frame = struct.unpack('>HHHIHHHHHHHHHI', frame) 
+        f_crc32 = parsed_frame[13]
+        print("%0x" % f_crc32)
+        
+        #computed_crc32 = (binascii.crc32(frame) & 0xffffffff)
+        computed_crc32 = (binascii.crc32(b"\xff\xff\xff\xff" + frame) & 0xffffffff)
+        #computed_crc32 = binascii.crc32(b"\xff\xff\xff\xff" + frame)
+        print("计算的crc32:")
+        print("%0x" % computed_crc32)
 
 def Parse(file_name):
     print("从%s中读取文件分析." % (file_name))
@@ -72,13 +88,9 @@ def Parse(file_name):
 
     print()
     f.close()
-    c = input("分析完成,输入任意键退出")
 
 if __name__ == "__main__":
     parser = FParser(g_file)
-    parser.Parse()
-    parser.Print()
-    c = input("分析完成,输入任意键退出")
-
-    #Parse(g_file)
+    parser.ParseAFrame()
+    c = input("分析完成,输入回车键退出")
 
