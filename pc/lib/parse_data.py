@@ -89,7 +89,15 @@ def Parse(file_name):
     print()
     f.close()
 
-if __name__ == "__main__":
+if __name__ == "__main__": 
+    """
+    o = open("pp.data", 'wb')
+    f = open(g_file, 'rb')
+    frame = f.read(g_frame_length - 4)
+    o.write(frame)
+    """
+
+
     parser = FParser(g_file)
     parser.ParseAFrame()
     c = input("分析完成,输入回车键退出")
