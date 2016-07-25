@@ -23,19 +23,24 @@
 
 
 /*********************************** 实现函数 **********************************/
+/* DEBUG_LEVEL > 0 输出错误打印信息 */
+#if (DEBUG_LEVEL > 0)
 #define  err_log(...)   console_printf("ERR: ") ;\
                         console_printf(__VA_ARGS__);\
                         console_printf("\r\n");
+#else
+#define err_log(...)
+#endif
 
-/* DEBUG_LEVEL > 0 输出基础打印信息 */
-#if (DEBUG_LEVEL > 0)
+/* DEBUG_LEVEL > 1 输出调试打印信息 */
+#if (DEBUG_LEVEL > 1)
 #define debug_log(...)  console_printf(__VA_ARGS__);
 #else
 #define debug_log(...)
 #endif
 
-/* DEBUG_LEVEL > 1 输出跟踪信息 */
-#if (DEBUG_LEVEL > 1)
+/* DEBUG_LEVEL > 2 输出跟踪信息 */
+#if (DEBUG_LEVEL > 2)
 #define trace_log(...)  console_printf("TRACE : ") ;\
                         console_printf(__VA_ARGS__);\
                         console_printf("\r\n");
