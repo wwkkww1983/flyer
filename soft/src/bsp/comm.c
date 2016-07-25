@@ -178,55 +178,91 @@ void get_quat(f32_T *q);
 /* 发送采样数据 */
 static void send_capture_data(void)
 {
-    uint32_T now_ms = 0;
+    uint32_T type = 0;
+    uint32_T len = 0;
     uint8_T frame_buf[COMM_FRAME_UP_FRAME_MAX_SIZE] = {0};
     uint32_T n = 0;
-    f32_T q[4] = {0.0f};
+
+    uint32_T i = 0;
+    uint32_T fill_bytes_count = 0;
+    uint32_T crc32_calculated = 0;
+    uint32_T now_ms = 0;
+    f32_T q[4] = {0.0f}; 
+    uint32_T *p_q_ui32 = NULL;
     static uint32_T last_ms = 0;
 
     now_ms = HAL_GetTick();
     /* 可以发送 */
     if(now_ms - last_ms > s_send_interval)
     {
+        /* 上行且有传感数据长度32 */
+        type = COMM_FRAME_SENSOR_DATA_BIT
+             | COMM_FRAME_DIRECTION_BIT 
+             | COMM_FRAME_DMP_QUAT_BIT
+             | COMM_FRAME_TIME_BIT;
+        len = 32; /* type:4,len:4,data:4+16,crc:4 = 32 */
+
+        frame_buf[n++] = (uint8_T)(type >> 24);
+        frame_buf[n++] = (uint8_T)(type >> 16);
+        frame_buf[n++] = (uint8_T)(type >> 8);
+        frame_buf[n++] = (uint8_T)(type);
+
+        frame_buf[n++] = (uint8_T)(len >> 24);
+        frame_buf[n++] = (uint8_T)(len >> 16);
+        frame_buf[n++] = (uint8_T)(len >> 8);
+        frame_buf[n++] = (uint8_T)(len);
+
         /* 组帧 */
         if(s_send_time_flag)
         {
-            frame_buf[0] = (uint8_T)(now_ms >> 24);
-            frame_buf[1] = (uint8_T)((now_ms >> 16) & (0x00ff));
-            frame_buf[2] = (uint8_T)((now_ms >> 8) & (0x00ff));
-            frame_buf[3] = (uint8_T)(now_ms & 0x00ff);
-            n += 4;
+            frame_buf[n++] = (uint8_T)(now_ms >> 24);
+            frame_buf[n++] = (uint8_T)((now_ms >> 16));
+            frame_buf[n++] = (uint8_T)((now_ms >> 8));
+            frame_buf[n++] = (uint8_T)(now_ms);
         }
 
         if(s_send_dmp_quat_flag)
-        { 
+        {
             get_quat(q);
+            p_q_ui32 = (uint32_T *)q;
 
-            frame_buf[4] = (uint8_T)( (uint32_T)q[0] >> 24);
-            frame_buf[5] = (uint8_T)(((uint32_T)q[0] >> 16) & (0x00ff));
-            frame_buf[6] = (uint8_T)(((uint32_T)q[0] >> 8) & (0x00ff));
-            frame_buf[7] = (uint8_T)( (uint32_T)q[0] & 0x00ff);
+            frame_buf[n++] = (uint8_T)( (uint32_T)p_q_ui32[0] >> 24);
+            frame_buf[n++] = (uint8_T)(((uint32_T)p_q_ui32[0] >> 16));
+            frame_buf[n++] = (uint8_T)(((uint32_T)p_q_ui32[0] >> 8));
+            frame_buf[n++] = (uint8_T)( (uint32_T)p_q_ui32[0]);
 
-            frame_buf[8] = (uint8_T)(  (uint32_T)q[1] >> 24);
-            frame_buf[9] = (uint8_T)(( (uint32_T)q[1] >> 16) & (0x00ff));
-            frame_buf[10] = (uint8_T)(((uint32_T)q[1] >> 8) & (0x00ff));
-            frame_buf[11] = (uint8_T)( (uint32_T)q[1] & 0x00ff);
+            frame_buf[n++] = (uint8_T)(  (uint32_T)p_q_ui32[1] >> 24);
+            frame_buf[n++] = (uint8_T)(( (uint32_T)p_q_ui32[1] >> 16));
+            frame_buf[n++] = (uint8_T)(((uint32_T)p_q_ui32[1] >> 8));
+            frame_buf[n++] = (uint8_T)( (uint32_T)p_q_ui32[1]);
 
-            frame_buf[12] = (uint8_T)( (uint32_T)q[2] >> 24);
-            frame_buf[13] = (uint8_T)(((uint32_T)q[2] >> 16) & (0x00ff));
-            frame_buf[14] = (uint8_T)(((uint32_T)q[2] >> 8) & (0x00ff));
-            frame_buf[15] = (uint8_T)( (uint32_T)q[2] & 0x00ff);
+            frame_buf[n++] = (uint8_T)( (uint32_T)p_q_ui32[2] >> 24);
+            frame_buf[n++] = (uint8_T)(((uint32_T)p_q_ui32[2] >> 16));
+            frame_buf[n++] = (uint8_T)(((uint32_T)p_q_ui32[2] >> 8));
+            frame_buf[n++] = (uint8_T)( (uint32_T)p_q_ui32[2]);
 
-            frame_buf[16] = (uint8_T)( (uint32_T)q[3] >> 24);
-            frame_buf[17] = (uint8_T)(((uint32_T)q[3] >> 16) & (0x00ff));
-            frame_buf[18] = (uint8_T)(((uint32_T)q[3] >> 8) & (0x00ff));
-            frame_buf[19] = (uint8_T)( (uint32_T)q[3] & 0x00ff);
+            frame_buf[n++] = (uint8_T)( (uint32_T)p_q_ui32[3] >> 24);
+            frame_buf[n++] = (uint8_T)(((uint32_T)p_q_ui32[3] >> 16));
+            frame_buf[n++] = (uint8_T)(((uint32_T)p_q_ui32[3] >> 8));
+            frame_buf[n++] = (uint8_T)( (uint32_T)p_q_ui32[3]);
+        } 
 
-            n += 16;
+        /* 填充 */
+        fill_bytes_count = (0 != n %4) ? (4 - n % 4) : (0);
+        for(i = 0; i < fill_bytes_count; i++)
+        {
+            frame_buf[n++] = COMM_FRAME_FILLED_VAL;
         }
+        
+        /* 计算校验 */
+        crc32_calculated = HAL_CRC_Calculate(&s_crc, (uint32_T *)frame_buf, n / 4); 
+        frame_buf[n++] = (uint8_T)(crc32_calculated >> 24);
+        frame_buf[n++] = (uint8_T)(crc32_calculated >> 16);
+        frame_buf[n++] = (uint8_T)(crc32_calculated >> 8);
+        frame_buf[n++] = (uint8_T)(crc32_calculated);
 
         /* 发帧 */
-        if(n > 0)
+        if(n > COMM_FRAME_SENDED_MIN)
         {
             uart_send_bytes((drv_uart_T *)s_comm_uart, frame_buf, n);
             last_ms = now_ms;

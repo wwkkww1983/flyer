@@ -30,7 +30,10 @@
 #define COMM_FRAME_TIME_BIT                     ((uint32_T)(1 << 0))
 
 /* 上行帧最大帧长 */
-#define COMM_FRAME_UP_FRAME_MAX_SIZE            ((uint32_T)(20))
+#define COMM_FRAME_UP_FRAME_MAX_SIZE            ((uint32_T)(32))
+/* 小于以下帧长不发送(可以用于控制上行帧数) */
+#define COMM_FRAME_SENDED_MIN                   ((uint32_T)(12))
+#define COMM_FRAME_FILLED_VAL                   ((uint8_T)(0xA5))
 
 #define COMM_FRAME_INTERVAL_MAX                 ((uint32_T)(10000))
 
