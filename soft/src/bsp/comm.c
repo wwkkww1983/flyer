@@ -264,16 +264,18 @@ static void send_capture_data(void)
         /* 发帧 */
         if(n > COMM_FRAME_SENDED_MIN)
         {
-					if(0 == frame_buf[n-1])
-					{
-						int i = 0;
-						i += 1;
-					}
+#if 0
+            /* 出错 用于检查 crc是否为0 */
+            if(0 == frame_buf[n-1])
+            {
+                while(1);
+            }
+#endif
             uart_send_bytes((drv_uart_T *)s_comm_uart, frame_buf, n);
             last_ms = now_ms;
         }
     }
-   
+
     return;
 }
 

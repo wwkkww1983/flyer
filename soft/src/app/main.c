@@ -120,8 +120,6 @@ static void idle()
     misc_time_T now_time = {0};
     misc_time_T temp = {0};
 
-    f32_T e[3] = {0.0f};
-
     if(TRUE == first_run) /* 获取起始时间 仅运行一次 */
     {
         ms_start = HAL_GetTick();
@@ -146,14 +144,10 @@ static void idle()
             /* 该处代码 每秒执行一次 */
             led_toggle(LED_MLED);
             ms_start = HAL_GetTick();
-            math_quaternion2euler(e, s_q_rotated);
 
 #ifdef _DEBUG_LOOP_
             debug_log("%4.1f秒:", ms_start / 1000.0f);
-            debug_log("姿态:%.4f, %.4f, %.4f <==> %.4f,%.4f,%.4f,%.4f\r\n",
-                    math_arc2angle(e[0]), math_arc2angle(e[1]), math_arc2angle(e[2]),
-                    s_q_rotated[0], s_q_rotated[1], s_q_rotated[2], s_q_rotated[3]);
-            debug_log("主循环最大耗时:%dms,%5.2fus.\r\n", 
+            debug_log("loop max time:%dms,%5.2fus.\r\n", 
                     max_interval.ms, 1.0f * max_interval.clk / 84);
 #endif
         }

@@ -22,14 +22,20 @@
 
 /************************************ 宏定义 ***********************************/
 /* 协议的详细定义见文档 */
-#define COMM_FRAME_FLYER_CTRL_BIT               ((uint32_T)(1 << 30))
-#define COMM_FRAME_SENSOR_DATA_BIT              ((uint32_T)(1 << 29))
-#define COMM_FRAME_DIRECTION_BIT                ((uint32_T)(1 << 28))
+#define COMM_FRAME_DIRECTION_BIT                ((uint32_T)(0x80000000))
+#define COMM_FRAME_FLYER_CTRL_BIT               ((uint32_T)(0x40000000))
+#define COMM_FRAME_SENSOR_DATA_BIT              ((uint32_T)(0x20000000))
+#define COMM_FRAME_PRINTF_BIT                   ((uint32_T)(0x10000000))
+#define COMM_FRAME_PRESS_DATA_BIT               ((uint32_T)(0x10000020))
+#define COMM_FRAME_COMPASS_DATA_BIT             ((uint32_T)(0x00000010))
+#define COMM_FRAME_GYRO_DATA_BIT                ((uint32_T)(0x00000008))
+#define COMM_FRAME_ACCEL_DATA_BIT               ((uint32_T)(0x00000004))
+#define COMM_FRAME_DMP_QUAT_BIT                 ((uint32_T)(0x00000002))
+#define COMM_FRAME_TIME_BIT                     ((uint32_T)(0x00000001))
 
-#define COMM_FRAME_DMP_QUAT_BIT                 ((uint32_T)(1 << 1))
-#define COMM_FRAME_TIME_BIT                     ((uint32_T)(1 << 0))
-
-/* 上行帧最大帧长 */
+/* 上行帧最大帧长
+ * FIXME: 新增数据需要修改
+ * */
 #define COMM_FRAME_UP_FRAME_MAX_SIZE            ((uint32_T)(32))
 /* 小于以下帧长不发送(可以用于控制上行帧数) */
 #define COMM_FRAME_SENDED_MIN                   ((uint32_T)(12))
