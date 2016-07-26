@@ -342,7 +342,7 @@
               <item>
                <widget class="QLabel" name="label_8">
                 <property name="text">
-                 <string>运行:999999ms</string>
+                 <string>运行:000000ms</string>
                 </property>
                </widget>
               </item>
@@ -358,21 +358,21 @@
               <item>
                <widget class="QLabel" name="label_11">
                 <property name="text">
-                 <string>俯仰角:99.99</string>
+                 <string>俯仰角:000.0</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QLabel" name="label_9">
                 <property name="text">
-                 <string>横滚角:99.99</string>
+                 <string>横滚角:000.0</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QLabel" name="label_12">
                 <property name="text">
-                 <string>偏航角:99.99</string>
+                 <string>偏航角:000.0</string>
                 </property>
                </widget>
               </item>
@@ -392,7 +392,7 @@
               <item>
                <widget class="QLabel" name="label_14">
                 <property name="text">
-                 <string>q0:1.0000,q1:1.0000,q2:1.0000,q3:1.0000</string>
+                 <string>q0:0.0000,q1:0.0000,q2:0.0000,q3:0.0000</string>
                 </property>
                </widget>
               </item>
@@ -410,21 +410,21 @@
                 <item>
                  <widget class="QLabel" name="label_13">
                   <property name="text">
-                   <string>x:99.99</string>
+                   <string>x:00.00</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QLabel" name="label_10">
                   <property name="text">
-                   <string>y:99.99</string>
+                   <string>y:00.00</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QLabel" name="label_15">
                   <property name="text">
-                   <string>z:99.99</string>
+                   <string>z:00.00</string>
                   </property>
                  </widget>
                 </item>
@@ -440,21 +440,21 @@
                 <item>
                  <widget class="QLabel" name="label_16">
                   <property name="text">
-                   <string>x:99.99</string>
+                   <string>x:00.00</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QLabel" name="label_17">
                   <property name="text">
-                   <string>y:99.99</string>
+                   <string>y:00.00</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QLabel" name="label_18">
                   <property name="text">
-                   <string>z:99.99</string>
+                   <string>z:00.00</string>
                   </property>
                  </widget>
                 </item>
@@ -470,21 +470,21 @@
                 <item>
                  <widget class="QLabel" name="label_19">
                   <property name="text">
-                   <string>x:99.99</string>
+                   <string>x:00.00</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QLabel" name="label_20">
                   <property name="text">
-                   <string>y:99.99</string>
+                   <string>y:00.00</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QLabel" name="label_21">
                   <property name="text">
-                   <string>z:99.99</string>
+                   <string>z:00.00</string>
                   </property>
                  </widget>
                 </item>
@@ -502,7 +502,7 @@
                   <item>
                    <widget class="QLabel" name="label_24">
                     <property name="text">
-                     <string>z:99.99</string>
+                     <string>z:00.00</string>
                     </property>
                    </widget>
                   </item>
