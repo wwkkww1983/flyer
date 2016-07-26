@@ -3,7 +3,6 @@
 
 import sys
 import struct
-import ctypes
 
 def CalStm32Crc32(data):
     """
@@ -31,14 +30,14 @@ def CalStm32Crc32(data):
     # 截断 32bit
     return crc & 0xffffffff
 
-def PrintBytes(bs): 
+def PrintBytes(bs):
     for b in bs:
         print("\\x%02x" % b, end = "")
     print()
 
 class FCFrame():
-    def __init__(self, fType, fLen, fData):
-        super(FCFrame, self).__init__() 
+    def __init__(self, fType, fLen, fData = 0):
+        super(FCFrame, self).__init__()
         self.mType = fType
         self.mLen = struct.pack('>I', fLen)
         self.mData = struct.pack('>I', fData)
@@ -66,7 +65,7 @@ class FCFrame():
         idata = unpackTuple[0]
         data.append(idata)
 
-        crc32 = CalStm32Crc32(data) 
+        crc32 = CalStm32Crc32(data)
         self.mCrc32 = struct.pack('>I', crc32)
         buf = self.mType + self.mLen + self.mData + self.mCrc32
 
@@ -80,10 +79,13 @@ class FCFrame():
         print("data:  ", end = '')
         PrintBytes(self.mData)
         print("crc32: ", end = '')
-        PrintBytes(self.mCrc32)
+        if None == self.mCrc32:
+          print("None")
+        else:
+          PrintBytes(self.mCrc32)
 
 
-if __name__ == '__main__': 
+if __name__ == '__main__':
     frame = FCFrame()
 
     frame.Print()

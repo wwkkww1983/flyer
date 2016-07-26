@@ -248,7 +248,7 @@ static void send_capture_data(void)
         } 
 
         /* 填充 */
-        fill_bytes_count = (0 != n %4) ? (4 - n % 4) : (0);
+        fill_bytes_count = n & 0x03;
         for(i = 0; i < fill_bytes_count; i++)
         {
             frame_buf[n++] = COMM_FRAME_FILLED_VAL;
@@ -327,40 +327,43 @@ inline static bool_T is_time_needded(uint32_T type)
 }
 
 /* 提取构帧逻辑(type/len/crc/填充生成) */
-void comm_frame_printf_make(uint8_T *frame_buf, uint32_T n)
+void comm_frame_printf_make(uint32_T *frame_len, uint8_T *frame_buf, uint32_T n)
 { 
     uint32_T type = 0;
     uint32_T fill_bytes_count = 0;
     uint32_T crc32_calculated = 0;
+    uint32_T buf_index = 0;
     uint32_T i = 0;
-    
+	
     type = COMM_FRAME_DIRECTION_BIT
          | COMM_FRAME_PRINTF_BIT;
 
-    frame_buf[i++] = (uint8_T)(type >> 24);
-    frame_buf[i++] = (uint8_T)(type >> 16);
-    frame_buf[i++] = (uint8_T)(type >> 8);
-    frame_buf[i++] = (uint8_T)(type); 
+    frame_buf[buf_index++] = (uint8_T)(type >> 24);
+    frame_buf[buf_index++] = (uint8_T)(type >> 16);
+    frame_buf[buf_index++] = (uint8_T)(type >> 8);
+    frame_buf[buf_index++] = (uint8_T)(type); 
     
-    frame_buf[i++] = (uint8_T)(n >> 24);
-    frame_buf[i++] = (uint8_T)(n >> 16);
-    frame_buf[i++] = (uint8_T)(n >> 8);
-    frame_buf[i++] = (uint8_T)(n); 
+    frame_buf[buf_index++] = (uint8_T)(n >> 24);
+    frame_buf[buf_index++] = (uint8_T)(n >> 16);
+    frame_buf[buf_index++] = (uint8_T)(n >> 8);
+    frame_buf[buf_index++] = (uint8_T)(n); 
 
     /* 跳过printf字符串数据 */
-    i += n;
+    buf_index += n;
 
-    fill_bytes_count = (0 != i %4) ? (4 - i % 4) : (0);
+    fill_bytes_count = buf_index & 0x03;
     for(i = 0; i < fill_bytes_count; i++)
     {
-        frame_buf[i++] = COMM_FRAME_FILLED_VAL;
+        frame_buf[buf_index++] = COMM_FRAME_FILLED_VAL;
     }
 
-    crc32_calculated = HAL_CRC_Calculate(&s_crc, (uint32_T *)frame_buf, i / 4 - 1); 
-    frame_buf[i++] = (uint8_T)(crc32_calculated >> 24);
-    frame_buf[i++] = (uint8_T)(crc32_calculated >> 16);
-    frame_buf[i++] = (uint8_T)(crc32_calculated >> 8);
-    frame_buf[i++] = (uint8_T)(crc32_calculated);
+    crc32_calculated = HAL_CRC_Calculate(&s_crc, (uint32_T *)frame_buf, buf_index / 4 - 1); 
+    frame_buf[buf_index++] = (uint8_T)(crc32_calculated >> 24);
+    frame_buf[buf_index++] = (uint8_T)(crc32_calculated >> 16);
+    frame_buf[buf_index++] = (uint8_T)(crc32_calculated >> 8);
+    frame_buf[buf_index++] = (uint8_T)(crc32_calculated);
+
+    *frame_len = buf_index;
 }
 
 /************************************* 中断 ************************************/

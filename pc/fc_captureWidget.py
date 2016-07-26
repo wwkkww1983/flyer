@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import struct
 import threading
 from time import sleep
 from serial import Serial
@@ -19,7 +20,7 @@ FCWindowUIClass = loadUiType("fc_captureWidget.ui")
 
 class FCCaptureWidget(QWidget):
     def __init__(self):
-        super(FCCaptureWidget, self).__init__() 
+        super(FCCaptureWidget, self).__init__()
         # 通信线程&串口&标记
         self.mCapturing = False
         self.mSerial = None
@@ -41,9 +42,9 @@ class FCCaptureWidget(QWidget):
         self.mConsolePlainTextEdit = self.mUi.consolePlainTextEdit
         self.mTypeComboBox.addItem('串口')
         self.mTypeComboBox.addItem('WiFi')
-        self.mTypeComboBox.currentIndexChanged.connect(self.ChangeCommType) 
+        self.mTypeComboBox.currentIndexChanged.connect(self.ChangeCommType)
         allSerial = list_ports.comports()
-        for ser in allSerial: 
+        for ser in allSerial:
             self.mComNameComboBox.addItem(ser[0])
         self.mBuadLineEdit.setText("115200")
         self.mIntervalLineEdit.setText("10")
@@ -59,9 +60,9 @@ class FCCaptureWidget(QWidget):
 
     def ChangeState(self, checked):
         if self.mCapturing:
-            self.mCapturing = False 
+            self.mCapturing = False
             self.StopCapture()
-            self.mCapturePushButton.setText("开始采集") 
+            self.mCapturePushButton.setText("开始采集")
             self.mCommGroupBox.setEnabled(True)
             self.mDataGroupBox.setEnabled(True)
         else:
@@ -78,7 +79,7 @@ class FCCaptureWidget(QWidget):
         comBaudrate = self.mBuadLineEdit.text()
         self.mSerial.port = comPort
         self.mSerial.baudrate = comBaudrate
-        self.mSerial.timeout = 0 #非阻塞调用
+        self.mSerial.timeout = 1 #阻塞调用(1s)
         self.mSerial.open()
         self.mRecvThread = threading.Thread(target=self.RecvFunc)
         self.mRecvThread.daemon = True # 主线程结束 子线程也结束
@@ -108,7 +109,7 @@ class FCCaptureWidget(QWidget):
         # step2: 发帧
 
         # step3: 停止串口线程
-        self.mRecvThread.join(10) #等待10s
+        self.mRecvThread.join(3) #等待10s
         self.mSerial.close()
         self.mSerial = None
         self.mRecvThread = None
@@ -118,23 +119,43 @@ class FCCaptureWidget(QWidget):
         line_nums = 0;
         #line_bytes = ser.read(g_frame_size)
         while self.mCapturing:
+            # 接收帧头
+            fType = self.mSerial.read(4)
+            if 0 != len(fType):
+                for b in fType:
+                    print("\\x%02x" % b, end = "")
+                print()
+            fLen = self.mSerial.read(4)
+            if 0 != len(fType) and 0 != len(fLen):
+                for b in fLen:
+                    print("\\x%02x" % b, end = "")
+                print()
+
+            if 0 != len(fType) and 0 != len(fType):
+                fILen = struct.unpack('>I', fLen)[0]
+                print(fILen)
+
+                while True:
+                  pass
+            continue
+
             #line = self.mSerial.readline()
             line = self.mSerial.read(1)
-            if 0 != len(line): 
-                line_nums = line_nums + 1 
+            if 0 != len(line):
+                line_nums = line_nums + 1
                 line_str = line
-                #line_str = line.decode('utf8') 
+                #line_str = line.decode('utf8')
                 print(line_nums, end = ':')
                 print(line_str)
 
     def ChangeCommType(self, typeIndex):
-        if 0 != typeIndex: 
+        if 0 != typeIndex:
             msgBox = QMessageBox();
             msgBox.setText("暂时只实现串口.\n")
             msgBox.exec_();
             self.mTypeComboBox.setCurrentIndex(0)
 
-if __name__ == '__main__': 
+if __name__ == '__main__':
     app = QApplication(sys.argv)
     win = FCCaptureWidget()
     win.show()

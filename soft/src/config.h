@@ -23,16 +23,13 @@
  * */
 /* #define _DEBUG_PC_ */
 
-/* 主循环中打印系统状态 */
-//#define _DEBUG_LOOP_
-
 /************************************* 配置 ************************************/
 /* 调试级别 */
 /* 0: 不输出任何打印(仅输出协议帧) */
 /* 1: 输出err_log */
 /* 2: 输出debug_log */
 /* 3: 输出trace_log */
-#define DEBUG_LEVEL                                         (0)
+#define DEBUG_LEVEL                                         (2)
 /* console波特率 */
 #define CONSOLE_BAUDRATE                                    (115200U)
 /* esp8266波特率 */

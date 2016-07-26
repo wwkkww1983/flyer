@@ -67,7 +67,6 @@ void comm_init(const drv_uart_T *comm_uart);
 /* 通信任务 */
 void comm_task(void);
 
-void comm_frame_printf_make(uint8_T *buf, uint32_T n);
-
+void comm_frame_printf_make(uint32_T *frame_len, uint8_T *frame_buf, uint32_T n);
 #endif
 

@@ -146,11 +146,9 @@ static void idle()
             led_toggle(LED_MLED);
             ms_start = HAL_GetTick();
 
-#ifdef _DEBUG_LOOP_
             debug_log("%4.1f秒:", ms_start / 1000.0f);
             debug_log("loop max time:%dms,%5.2fus.\r\n", 
                     max_interval.ms, 1.0f * max_interval.clk / 84);
-#endif
         }
 
     }
@@ -189,9 +187,9 @@ static void init(void)
 
     /* 逐个初始化硬件 */
     /* 控制台串口 */
-    console_init(); /* 此后可以开始打印 */ 
-    debug_log("系统时钟频率:%dMHz\r\n", SystemCoreClock / 1000 / 1000);
+    console_init(); /* 此后可以开始打印 */
     debug_log("console初始化完成.\r\n");
+    debug_log("系统时钟频率:%dMHz\r\n", SystemCoreClock / 1000 / 1000);
 
     /* wifi 模块串口 */
     esp8266_init();
@@ -217,9 +215,11 @@ static void init(void)
     mpu9250_init();
     debug_log("MPU9250初始化完成.\r\n");
 
+#if 0
     /* 自检 */
-    //self_test();
+    self_test();
     debug_log("自检完成.\r\n");
+#endif
 
     debug_log("系统初始化完成.\r\n");
 }

@@ -109,8 +109,9 @@ inline static void uart_rx_unlock(drv_uart_T *uart)
 /* 串口发送 */
 void uart_send(drv_uart_T *uart, uint8_T *fmt, ...)
 {
-    int32_T n = 0; /* printf 调用需要发送的长度 */
-
+    int32_T n = 0; /* printf 字符串长度 */
+    uint32_T send_frame_len = 0; /* printf帧长度 */
+	
     while(uart_tc_locked(uart)); /* 等待上一次传输完成 */
     uart_tc_lock(uart); /* 锁住资源 */
     
@@ -120,9 +121,8 @@ void uart_send(drv_uart_T *uart, uint8_T *fmt, ...)
     va_end(args); 
     
     /* 构造协议帧 */
-    comm_frame_printf_make(uart->send_buf, n);
-
-    if(HAL_UART_Transmit_DMA(&uart->handle, (uint8_t *)uart->send_buf, n + UART_FRAME_HEAD_AND_TAIL_SIZE)!= HAL_OK)
+    comm_frame_printf_make(&send_frame_len, uart->send_buf, n);
+    if(HAL_UART_Transmit_DMA(&uart->handle, (uint8_t *)uart->send_buf, send_frame_len)!= HAL_OK)
     {
         /* 出错 */
         while(1);
