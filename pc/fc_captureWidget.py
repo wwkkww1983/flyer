@@ -7,8 +7,9 @@ from time import sleep
 from serial import Serial
 from serial.tools import list_ports
 
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import pyqtSignal
 from PyQt5.uic import loadUiType, loadUi
 
 from fc_waveWidget import FCWaveWidget
@@ -37,6 +38,7 @@ class FCCaptureWidget(QWidget):
         self.mIntervalLineEdit = self.mUi.intervalLineEdit
         self.mDmpQuatCheckBox = self.mUi.dmpQuatCheckBox
         self.mCapturePushButton = self.mUi.capturePushButton
+        self.mConsolePlainTextEdit = self.mUi.consolePlainTextEdit
         self.mTypeComboBox.addItem('串口')
         self.mTypeComboBox.addItem('WiFi')
         self.mTypeComboBox.currentIndexChanged.connect(self.ChangeCommType) 
@@ -92,7 +94,8 @@ class FCCaptureWidget(QWidget):
 
         frame = FCFrame(frameType, frameLen, frameData)
         buf = frame.GetBytes()
-        print(buf)
+        print("下行采集请求帧(%s:%s):" % (comPort, comBaudrate))
+        frame.Print()
 
         # step3: 发帧
         self.mSerial.write(buf)

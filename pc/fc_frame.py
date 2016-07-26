@@ -31,12 +31,18 @@ def CalStm32Crc32(data):
     # 截断 32bit
     return crc & 0xffffffff
 
+def PrintBytes(bs): 
+    for b in bs:
+        print("\\x%02x" % b, end = "")
+    print()
+
 class FCFrame():
     def __init__(self, fType, fLen, fData):
         super(FCFrame, self).__init__() 
         self.mType = fType
         self.mLen = struct.pack('>I', fLen)
         self.mData = struct.pack('>I', fData)
+        self.mCrc32 = None
         #self.Print()
 
     def GetBytes(self):
@@ -61,20 +67,21 @@ class FCFrame():
         data.append(idata)
 
         crc32 = CalStm32Crc32(data) 
-        print("计算crc32:%08x" % crc32) 
-        print("传输crc32:需要实测修改(d5b726ea)");
-        buf = self.mType + self.mLen + self.mData
-        buf = buf + struct.pack('>I', crc32)
+        self.mCrc32 = struct.pack('>I', crc32)
+        buf = self.mType + self.mLen + self.mData + self.mCrc32
 
         return buf
 
     def Print(self):
-        print("type: ", end = '')
-        print(self.mType)
-        print("len:  ", end = '')
-        print(self.mLen)
-        print("data: ", end = '')
-        print(self.mData)
+        print("type:  ", end = '')
+        PrintBytes(self.mType)
+        print("len:   ", end = '')
+        PrintBytes(self.mLen)
+        print("data:  ", end = '')
+        PrintBytes(self.mData)
+        print("crc32: ", end = '')
+        PrintBytes(self.mCrc32)
+
 
 if __name__ == '__main__': 
     frame = FCFrame()
