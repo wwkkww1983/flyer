@@ -26,6 +26,7 @@
 #include "si.h"
 #include "mpu9250.h"
 #include "console.h"
+#include "esp8266.h"
 #include "comm.h"
 #include "lib_math.h"
 

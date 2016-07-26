@@ -18,17 +18,30 @@
 #include "typedef.h"
 #include "config.h"
 
-#include "stm32f4xx_hal.h"
+#include <stm32f4xx_hal.h>
 
+/************************************ 宏定义 ***********************************/ 
+/* 由于console/esp8266提取了公用模块到uart导致层级结构被破坏,comm.h与uart.h不能相互include */
+/* 
+ * printf上行帧最大帧长: 12(type+len+crc) + UART_SEND_BUF_SIZE
+ * */
+#define UART_SEND_BUF_SIZE                  ((uint32_T)(12 + UART_LINE_BUF_SIZE))
+/* 
+ * printf帧头长: 8(type+len)
+ * */
+#define UART_FRAME_HEAD_SIZE                ((uint32_T)(8))
+/* 
+ * printf帧头长: 8(type+len)
+ * */
+#define UART_FRAME_HEAD_AND_TAIL_SIZE       ((uint32_T)(UART_FRAME_HEAD_SIZE + 4))
 
-/************************************ 宏定义 ***********************************/
 /*********************************** 类型定义 **********************************/
 typedef struct drv_uart_T_tag{
     UART_HandleTypeDef  handle;     /* stm32 halt uart句柄 */
     USART_TypeDef      *reg_base;   /* 处理器uart 寄存器地址句柄 */
     int32_T             baud_rate;  /* 波特率 */	
 
-    uint8_T             send_buf[UART_LINE_BUF_SIZE]; /* 发送缓冲 */
+    uint8_T             send_buf[UART_SEND_BUF_SIZE]; /* 发送缓冲 */
     __IO bool_T         dma_tc_lock;/* dma 传输完成 锁定 */
     __IO bool_T         dma_rx_lock;/* dma 接收完成 锁定 */
 }drv_uart_T;

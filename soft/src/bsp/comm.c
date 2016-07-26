@@ -180,7 +180,7 @@ static void send_capture_data(void)
 {
     uint32_T type = 0;
     uint32_T len = 0;
-    uint8_T frame_buf[COMM_FRAME_UP_FRAME_MAX_SIZE] = {0};
+    uint8_T frame_buf[COMM_FRAME_CAPTURE_FRAME_MAX_SIZE] = {0};
     uint32_T n = 0;
 
     uint32_T i = 0;
@@ -324,6 +324,43 @@ inline static bool_T is_dmp_quat_needded(uint32_T type)
 inline static bool_T is_time_needded(uint32_T type)
 {
     return bit_compare(type, COMM_FRAME_TIME_BIT);
+}
+
+/* 提取构帧逻辑(type/len/crc/填充生成) */
+void comm_frame_printf_make(uint8_T *frame_buf, uint32_T n)
+{ 
+    uint32_T type = 0;
+    uint32_T fill_bytes_count = 0;
+    uint32_T crc32_calculated = 0;
+    uint32_T i = 0;
+    
+    type = COMM_FRAME_DIRECTION_BIT
+         | COMM_FRAME_PRINTF_BIT;
+
+    frame_buf[i++] = (uint8_T)(type >> 24);
+    frame_buf[i++] = (uint8_T)(type >> 16);
+    frame_buf[i++] = (uint8_T)(type >> 8);
+    frame_buf[i++] = (uint8_T)(type); 
+    
+    frame_buf[i++] = (uint8_T)(n >> 24);
+    frame_buf[i++] = (uint8_T)(n >> 16);
+    frame_buf[i++] = (uint8_T)(n >> 8);
+    frame_buf[i++] = (uint8_T)(n); 
+
+    /* 跳过printf字符串数据 */
+    i += n;
+
+    fill_bytes_count = (0 != i %4) ? (4 - i % 4) : (0);
+    for(i = 0; i < fill_bytes_count; i++)
+    {
+        frame_buf[i++] = COMM_FRAME_FILLED_VAL;
+    }
+
+    crc32_calculated = HAL_CRC_Calculate(&s_crc, (uint32_T *)frame_buf, i / 4 - 1); 
+    frame_buf[i++] = (uint8_T)(crc32_calculated >> 24);
+    frame_buf[i++] = (uint8_T)(crc32_calculated >> 16);
+    frame_buf[i++] = (uint8_T)(crc32_calculated >> 8);
+    frame_buf[i++] = (uint8_T)(crc32_calculated);
 }
 
 /************************************* 中断 ************************************/

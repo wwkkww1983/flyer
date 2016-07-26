@@ -30,6 +30,8 @@
 #include "console.h"
 #include "esp8266.h"
 
+#include "comm.h"
+
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/
@@ -114,10 +116,13 @@ void uart_send(drv_uart_T *uart, uint8_T *fmt, ...)
     
     va_list args;
     va_start(args, fmt); 
-    n = vsnprintf((char *)uart->send_buf, UART_LINE_BUF_SIZE, (char *)fmt, args);
+    n = vsnprintf((char *)(uart->send_buf + UART_FRAME_HEAD_SIZE), UART_LINE_BUF_SIZE, (char *)fmt, args);
     va_end(args); 
+    
+    /* 构造协议帧 */
+    comm_frame_printf_make(uart->send_buf, n);
 
-    if(HAL_UART_Transmit_DMA(&uart->handle, (uint8_t *)uart->send_buf, n)!= HAL_OK)
+    if(HAL_UART_Transmit_DMA(&uart->handle, (uint8_t *)uart->send_buf, n + UART_FRAME_HEAD_AND_TAIL_SIZE)!= HAL_OK)
     {
         /* 出错 */
         while(1);
