@@ -14,6 +14,7 @@ from PyQt5.uic import loadUiType, loadUi
 from fc_waveWidget import FCWaveWidget
 from fc_frame import FCDownFrame
 from fc_frame import FCUpFrame
+from fc_frame import FCFrameType
 from fc_serial import FCSerial
 
 FCWindowUIClass = loadUiType("fc_captureWidget.ui")
@@ -47,7 +48,7 @@ class FCCaptureWidget(QWidget):
         for portName in allPortsName:
             self.mComNameComboBox.addItem(portName)
         self.mBuadLineEdit.setText("115200")
-        self.mIntervalLineEdit.setText("10")
+        self.mIntervalLineEdit.setText("100")
         self.mDmpQuatCheckBox.setChecked(True)
         self.mCapturePushButton.clicked.connect(self.ChangeState)
 
@@ -73,6 +74,7 @@ class FCCaptureWidget(QWidget):
             self.mDataGroupBox.setEnabled(False)
 
     def StartCapture(self):
+        # TODO: 需要根据控制界面定制
         # step1: 启动串口线程
         self.mSerial = FCSerial()
         comPort = self.mComNameComboBox.currentText()
@@ -86,10 +88,10 @@ class FCCaptureWidget(QWidget):
         self.mRecvThread.start()
 
         # step2: 组请求帧
-        # TODO: 需要根据控制界面定制
         time = int(self.mIntervalLineEdit.text())
         #print(time)
-        frameType = b'\x20\x00\x00\x03'
+
+        frameType = FCFrameType.FrameRequestTimeAndDmpQuat
         frameLen = 4
         frameData = time
 
@@ -109,7 +111,7 @@ class FCCaptureWidget(QWidget):
         # step2: 发帧
 
         # step3: 停止串口线程
-        self.mRecvThread.join(3) #等待10s
+        self.mRecvThread.join(2) #等待10s
         self.mSerial.close()
         self.mSerial = None
         self.mRecvThread = None
@@ -123,25 +125,34 @@ class FCCaptureWidget(QWidget):
 
         # 接收帧头  type + len = 8Bytes
         # 计算循环使用的常量
-        frame_head_len = 8
-        frame_crc32_len = 4
+        frameHeadLen = 8
+        frameCrc32Len = 4
 
         while self.mCapturing:
-            frame_head = self.mSerial.ReadWithTimeout(frame_head_len)
-            if 8 == len(frame_head):
-                for b in frame_head:
+            # 获取type+len
+            frameHead = self.mSerial.ReadWithTimeout(frameHeadLen)
+            if 8 == len(frameHead):
+                for b in frameHead:
                     print("\\x%02x" % b, end = "")
                 print()
 
-                frame_len = FCUpFrame.ParseLen(frame_head)
-                frame_data = self.mSerial.ReadWithTimeout(frame_int_Len)
-                frame_crc32 = self.mSerial.ReadWithTimeout(frame_crc32_len)
-                buf = frame_head + frame_data + frame_crc32
+                # 获取data+crc32
+                frameLen = FCUpFrame.ParseLen(frameHead)
+                frameData = self.mSerial.ReadWithTimeout(frameLen)
+                frameCrc32 = self.mSerial.ReadWithTimeout(frameCrc32Len)
+                buf = frameHead + frameData + frameCrc32
 
                 # 解析帧
                 frame = FCUpFrame(buf) 
                 print("接收上行帧(%s:%s):" % (self.mSerial.port, self.mSerial.baudrate))
                 frame.Print()
+
+                # 使用帧 更新界面
+                if frame.isValid():
+                    self.UpdateByNewFrame(frame)
+
+    def UpdateByNewFrame(self, frame):
+        pass
 
     def ChangeCommType(self, typeIndex):
         if 0 != typeIndex:
