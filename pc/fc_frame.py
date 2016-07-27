@@ -36,12 +36,17 @@ def PrintBytes(bs):
     print()
 
 class FCFrame():
-    def __init__(self, fType, fLen, fData = 0):
+    def __init__(self, fType, fLen, fData = 0, fCrc32 = None, fBuf = None):
         super(FCFrame, self).__init__()
+
+        # 构造下行帧时使用
         self.mType = fType
         self.mLen = struct.pack('>I', fLen)
         self.mData = struct.pack('>I', fData)
-        self.mCrc32 = None
+        self.mCrc32 = fCrc32
+
+        # 接收上行帧时使用
+        self.mBuf = fBuf
         #self.Print()
 
     def GetBytes(self):

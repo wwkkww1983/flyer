@@ -79,7 +79,7 @@ class FCCaptureWidget(QWidget):
         comBaudrate = self.mBuadLineEdit.text()
         self.mSerial.port = comPort
         self.mSerial.baudrate = comBaudrate
-        self.mSerial.timeout = 1 #阻塞调用(1s)
+        self.mSerial.timeout = 0 # 非阻塞调用 立即返回
         self.mSerial.open()
         self.mRecvThread = threading.Thread(target=self.RecvFunc)
         self.mRecvThread.daemon = True # 主线程结束 子线程也结束
@@ -90,12 +90,12 @@ class FCCaptureWidget(QWidget):
         time = int(self.mIntervalLineEdit.text())
         #print(time)
         frameType = b'\x20\x00\x00\x03'
-        frameLen = 16
+        frameLen = 4
         frameData = time
 
         frame = FCFrame(frameType, frameLen, frameData)
         buf = frame.GetBytes()
-        print("下行采集请求帧(%s:%s):" % (comPort, comBaudrate))
+        print("发送下行采集请求帧(%s:%s):" % (comPort, comBaudrate))
         frame.Print()
 
         # step3: 发帧
@@ -116,27 +116,41 @@ class FCCaptureWidget(QWidget):
         print("停止采集")
 
     def RecvFunc(self):
-        line_nums = 0;
-        #line_bytes = ser.read(g_frame_size)
+        """
+        TODO: 封装串口read设置超时
+        """
+        line_nums = 0; 
+
+        # 接收帧头  type + len = 8Bytes
+        # 计算循环使用的常量
+        frame_head_len = 8
+        frame_crc32_len = 4
+        a_byte_bit_nums = 10
+        comBaudrate = int(self.mBuadLineEdit.text())
+        a_byte_trans_time = 1 / (comBaudrate / a_byte_bit_nums)
+
         while self.mCapturing:
-            # 接收帧头
-            fType = self.mSerial.read(4)
-            if 0 != len(fType):
-                for b in fType:
-                    print("\\x%02x" % b, end = "")
-                print()
-            fLen = self.mSerial.read(4)
-            if 0 != len(fType) and 0 != len(fLen):
-                for b in fLen:
+            #self.mSerial.timeout = a_byte_trans_time * (frame_head_len + 1) # 留1Bytes余量
+            self.mSerial.timeout = a_byte_trans_time * frame_head_len
+            frame_head = self.mSerial.read(frame_head_len)
+            if 8 == (frame_head):
+                for b in frame_head:
                     print("\\x%02x" % b, end = "")
                 print()
 
-            if 0 != len(fType) and 0 != len(fType):
-                fILen = struct.unpack('>I', fLen)[0]
-                print(fILen)
+                frame_type = frame_head[0:4]
+                frame_len = frame_head[4:8]
+                frame_int_Len = struct.unpack('>I', fLen)[0] 
 
-                while True:
-                  pass
+                self.mSerial.timeout = a_byte_trans_time * frame_int_Len
+                frame_data = self.mSerial.read(frame_int_Len)
+                self.mSerial.timeout = a_byte_trans_time * frame_crc32_len
+                frame_crc32 = self.mSerial.read(frame_crc32_len)
+                buf = frame_head + frame_data + frame_crc32
+
+                #构造帧
+                frame = FCFrame(fBuf = buf)
+
             continue
 
             #line = self.mSerial.readline()
