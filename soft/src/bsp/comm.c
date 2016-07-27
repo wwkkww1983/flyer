@@ -125,8 +125,8 @@ static void parse(const uint8_T *buf)
     frame.crc  |= buf[14] << 8;
     frame.crc  |= buf[15];
 
-    /* 长度检查 固定长度 16Bytes */
-    if(COMM_DOWN_FRAME_BUF_SIZE != frame.len) /* 错误帧 不处理 */
+    /* 长度检查 固定长度 data+crc32 8Bytes */
+    if(COMM_DOWN_FRAME_DATA_AND_CRC32_SIZE != frame.len) /* 错误帧 不处理 */
     {
         return;
     }
@@ -330,34 +330,37 @@ inline static bool_T is_time_needded(uint32_T type)
 void comm_frame_printf_make(uint32_T *frame_len, uint8_T *frame_buf, uint32_T n)
 { 
     uint32_T type = 0;
+    uint32_T len = 0;
     uint32_T fill_bytes_count = 0;
     uint32_T crc32_calculated = 0;
     uint32_T buf_index = 0;
     uint32_T i = 0;
-	
+
+    /* 需要填充的字节数: &0x03 等效于 %4 */
+    fill_bytes_count = 4 - n & 0x03;
+
     type = COMM_FRAME_DIRECTION_BIT
          | COMM_FRAME_PRINTF_BIT;
+    len = n + fill_bytes_count + sizeof(int); /* 数据+填充+crc32 */
 
     frame_buf[buf_index++] = (uint8_T)(type >> 24);
     frame_buf[buf_index++] = (uint8_T)(type >> 16);
     frame_buf[buf_index++] = (uint8_T)(type >> 8);
     frame_buf[buf_index++] = (uint8_T)(type); 
     
-    frame_buf[buf_index++] = (uint8_T)(n >> 24);
-    frame_buf[buf_index++] = (uint8_T)(n >> 16);
-    frame_buf[buf_index++] = (uint8_T)(n >> 8);
-    frame_buf[buf_index++] = (uint8_T)(n); 
+    frame_buf[buf_index++] = (uint8_T)(len >> 24);
+    frame_buf[buf_index++] = (uint8_T)(len >> 16);
+    frame_buf[buf_index++] = (uint8_T)(len >> 8);
+    frame_buf[buf_index++] = (uint8_T)(len); 
 
-    /* 跳过printf字符串数据 */
-    buf_index += n;
-
-    fill_bytes_count = buf_index & 0x03;
+    /* 填充 */
+    buf_index += n; /* 跳过打印数据 */
     for(i = 0; i < fill_bytes_count; i++)
     {
         frame_buf[buf_index++] = COMM_FRAME_FILLED_VAL;
     }
 
-    crc32_calculated = HAL_CRC_Calculate(&s_crc, (uint32_T *)frame_buf, buf_index / 4 - 1); 
+    crc32_calculated = HAL_CRC_Calculate(&s_crc, (uint32_T *)frame_buf, buf_index / sizeof(int)); 
     frame_buf[buf_index++] = (uint8_T)(crc32_calculated >> 24);
     frame_buf[buf_index++] = (uint8_T)(crc32_calculated >> 16);
     frame_buf[buf_index++] = (uint8_T)(crc32_calculated >> 8);

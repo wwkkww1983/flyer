@@ -12,21 +12,21 @@ g_a_byte_bit_nums = 10
 
 class FCSerial(Serial):
     def __init__(self):
-        super(FCSerial, self).__init__() 
+        super(FCSerial, self).__init__()
 
-    def ReadWithTimeout(self, length): 
+    def ReadWithTimeout(self, length):
         # 设置延迟与读取数据长度相关
         baudrate = self.baudrate
-        a_byte_trans_time = 1 / (baudrate/ g_a_byte_bit_nums) 
-        
-        #self.timeout = a_byte_trans_time * (length + 1) # 留1Bytes余量
-        self.timeout = a_byte_trans_time * length 
+        a_byte_trans_time = 1 / (baudrate/ g_a_byte_bit_nums)
+
+        self.timeout = a_byte_trans_time * (length + 1) # 留1Bytes超时余量
+        #self.timeout = a_byte_trans_time * length
 
         # 读取
         return self.read(length)
 
     @staticmethod
-    def ListAllPorts(): 
+    def ListAllPorts():
         portsList = []
         allSerial = list_ports.comports()
         for ser in allSerial:
@@ -34,6 +34,6 @@ class FCSerial(Serial):
 
         return portsList
 
-if __name__ == '__main__': 
+if __name__ == '__main__':
     ser = FCSerial()
 

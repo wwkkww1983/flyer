@@ -81,8 +81,9 @@ class FCCaptureWidget(QWidget):
         comBaudrate = self.mBuadLineEdit.text()
         self.mSerial.port = comPort
         self.mSerial.baudrate = comBaudrate
-        self.mSerial.timeout = 0 # 非阻塞调用 立即返回
+        self.mSerial.timeout = None # 阻塞调用
         self.mSerial.open()
+        self.mSerial.reset_input_buffer() # 复位缓存
         self.mRecvThread = threading.Thread(target=self.RecvFunc)
         self.mRecvThread.daemon = True # 主线程结束 子线程也结束
         self.mRecvThread.start()
@@ -92,7 +93,7 @@ class FCCaptureWidget(QWidget):
         #print(time)
 
         frameType = FCFrameType.FrameRequestTimeAndDmpQuat
-        frameLen = 4
+        frameLen = 8
         frameData = time
 
         frame = FCDownFrame(frameType, frameLen, frameData)
@@ -111,7 +112,7 @@ class FCCaptureWidget(QWidget):
         # step2: 发帧
 
         # step3: 停止串口线程
-        self.mRecvThread.join(2) #等待10s
+        self.mRecvThread.join(1) #等待0s
         self.mSerial.close()
         self.mSerial = None
         self.mRecvThread = None
@@ -132,27 +133,26 @@ class FCCaptureWidget(QWidget):
             # 获取type+len
             frameHead = self.mSerial.ReadWithTimeout(frameHeadLen)
             if 8 == len(frameHead):
-                for b in frameHead:
-                    print("\\x%02x" % b, end = "")
-                print()
+                #FCUpFrame.PrintBytes(frameHead)
 
                 # 获取data+crc32
-                frameLen = FCUpFrame.ParseLen(frameHead)
-                frameData = self.mSerial.ReadWithTimeout(frameLen)
-                frameCrc32 = self.mSerial.ReadWithTimeout(frameCrc32Len)
-                buf = frameHead + frameData + frameCrc32
+                frameDataAndCrc32Len = FCUpFrame.ParseLen(frameHead)
+                frameDataAndrCrc32 = self.mSerial.ReadWithTimeout(frameDataAndCrc32Len)
+                buf = frameHead + frameDataAndrCrc32
 
                 # 解析帧
                 frame = FCUpFrame(buf) 
-                print("接收上行帧(%s:%s):" % (self.mSerial.port, self.mSerial.baudrate))
-                frame.Print()
+                #print("接收上行帧(%s:%s):" % (self.mSerial.port, self.mSerial.baudrate))
+                #frame.Print() 
 
                 # 使用帧 更新界面
                 if frame.isValid():
                     self.UpdateByNewFrame(frame)
 
-    def UpdateByNewFrame(self, frame):
-        pass
+    def UpdateByNewFrame(self, frame): 
+        # TODO:使用接收帧更新界面
+        print("接收合法上行帧(%s:%s):" % (self.mSerial.port, self.mSerial.baudrate))
+        frame.Print() 
 
     def ChangeCommType(self, typeIndex):
         if 0 != typeIndex:

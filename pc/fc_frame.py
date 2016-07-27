@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import *
 
 class FCFrameType():
     # 以下类型用户不使用
-    FrameUP             = 0x80000000
+    FrameUp             = 0x80000000
     FrameDown           = 0x00000000
     FrameCtrl           = 0x40000000
     FrameNoCtrl         = 0x00000000
@@ -33,9 +33,9 @@ class FCFrameType():
     # 以下类型用户使用
     # dmp四元数采集帧
     FrameRequestTimeAndDmpQuat = struct.pack('>I', FrameDown | FrameCapture | FrameDataDmpQuat | FrameDataTime)
+    FrameText = struct.pack('>I', FrameUp | FrameText)
 
 class FCBaseFrame():
-    # 抽象类用户不使用
     def __init__(self):
         super(FCBaseFrame, self).__init__()
 
@@ -67,7 +67,6 @@ class FCBaseFrame():
     def isLenValid(self):
         buf = self.mData
         dataLen = len(buf)
-        #print(len(buf))
         if 0 == (dataLen % 4):
             return True
         else:
@@ -90,14 +89,19 @@ class FCBaseFrame():
 
         # crc32校验使用的字节序与解析使用相反的大小端
         dataLen = int(struct.unpack('>I', self.mLen)[0] / 4)
+        dataLen = dataLen - 1 #除去 crc32的长度
         dataUnpackStr = '<' + 'I' * dataLen
         #FCBaseFrame.PrintBytes(self.mLen)
         #print(dataLen)
         #print(dataUnpackStr)
+        #print(len(self.mData))
 
         unpackTuple = struct.unpack(dataUnpackStr, self.mData)
-        idata = unpackTuple[0]
-        data.append(idata)
+        for i in range(0, dataLen):
+            val = unpackTuple[i]
+            data.append(val) 
+            #FCBaseFrame.PrintBytes(struct.pack('>I', val))
+            #print()
 
         return data
 
@@ -159,8 +163,10 @@ class FCDownFrame(FCBaseFrame):
 # 上行帧 上位机解析
 class FCUpFrame(FCBaseFrame):
     def __init__(self, frameBuf = None):
-        super(FCDownFrame, self).__init__()
-        frameLen = len(frameBuf)
+        super(FCUpFrame, self).__init__()
+        frameLen = len(frameBuf) 
+        #print(frameLen)
+        #FCBaseFrame.PrintBytes(frameBuf)
         if frameLen < 16: # type + len + data + crc
             msgBox = QMessageBox();
             msgBox.setText("上行帧解析失败:帧长至少为16,实际为:%d.\n" % frameLen)
@@ -169,17 +175,22 @@ class FCUpFrame(FCBaseFrame):
         self.mType = frameBuf[0:4]
         self.mLen = frameBuf[4:8]
         self.mData = frameBuf[8:-4]
-        self.mCrc32 = frameBuf[-4:-1]
+        self.mCrc32 = frameBuf[-4:]
 
     def isValid(self):
-        #计算校验值
+        # 校验
         wordList = self.GetCrc32WordList()
         calCrc32 = FCBaseFrame.CalStm32Crc32(wordList)
-        recvCrc32 = struct.pack('>I', self.mCrc32)
+        recvCrc32 = struct.unpack('>I', self.mCrc32)[0]
 
-        # TODO:比较是否一样
-        print(calCrc32)
-        print(recvCrc32)
+        #print("计算crc", end = ':')
+        #FCBaseFrame.PrintBytes(struct.pack('>I', calCrc32))
+        #print("接收crc", end = ':')
+        #FCBaseFrame.PrintBytes(self.mCrc32)
+        if recvCrc32 == calCrc32:
+            return True
+        else:
+            return False
 
     @staticmethod
     def ParseLen(buf):
@@ -191,11 +202,10 @@ class FCUpFrame(FCBaseFrame):
         dataLen = buf[4:8]
         length = struct.unpack('>I', dataLen)
 
-        return length
+        return length[0]
 
 if __name__ == '__main__':
     frame = FCBaseFrame()
 
     frame.Print()
-
 

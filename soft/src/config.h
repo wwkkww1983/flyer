@@ -35,11 +35,12 @@
 /* esp8266波特率 */
 #define ESP8266_BAUDRATE                                    (115200U)
 
-/* uart 行缓冲的长度 128Bytes */
-#define UART_LINE_BUF_SIZE                                  (128U)
+/* uart 行缓冲的长度 64Bytes */
+#define UART_LINE_BUF_SIZE                                  (64U)
 
-/* 下行协议帧长16Bytes = 12Bytes(type 4Bytes, len 4Bytes, crc32 4Bytes) + data(interval 4Bytes) */
+/* 下行协议帧长16Bytes = type 4Bytes + len 4Bytes + crc32 4Bytes + data(interval 4Bytes) */
 #define COMM_DOWN_FRAME_BUF_SIZE                            (16U)
+#define COMM_DOWN_FRAME_DATA_AND_CRC32_SIZE                 (8U)
 
 /* Sensor i2c速度 */
 #define SENSOR_I2C_RATE                                     (400000U)

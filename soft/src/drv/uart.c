@@ -64,6 +64,9 @@ void uart_init(drv_uart_T *uart)
     {
         while(1);
     } 
+
+    /* 延迟10ms 保证不会发送0x00 */
+    HAL_Delay(50);
     
     /* 解锁保证可用 */
     uart_tc_unlock(uart);
@@ -119,7 +122,7 @@ void uart_send(drv_uart_T *uart, uint8_T *fmt, ...)
     va_start(args, fmt); 
     n = vsnprintf((char *)(uart->send_buf + UART_FRAME_HEAD_SIZE), UART_LINE_BUF_SIZE, (char *)fmt, args);
     va_end(args); 
-    
+
     /* 构造协议帧 */
     comm_frame_printf_make(&send_frame_len, uart->send_buf, n);
     if(HAL_UART_Transmit_DMA(&uart->handle, (uint8_t *)uart->send_buf, send_frame_len)!= HAL_OK)

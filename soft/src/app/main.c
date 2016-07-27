@@ -188,15 +188,14 @@ static void init(void)
     /* 逐个初始化硬件 */
     /* 控制台串口 */
     console_init(); /* 此后可以开始打印 */
-    debug_log("console初始化完成.\r\n");
-    debug_log("系统时钟频率:%dMHz\r\n", SystemCoreClock / 1000 / 1000);
-
     /* wifi 模块串口 */
     esp8266_init();
-    debug_log("esp8266 wifi模块初始化完成.\r\n");
-
     /* 配置交互协议模块(必须等待console和esp8266初始化完成) */
-    comm_init(&g_console);
+    comm_init(&g_console); /* 此函数中初始化crc,此后才发协议帧,串口和esp8266文本帧才可正常发送 */
+    debug_log("1234");
+    debug_log("系统时钟频率:%dMHz\r\n", SystemCoreClock / 1000 / 1000);
+    debug_log("console初始化完成.\r\n");
+    debug_log("esp8266 wifi模块初始化完成.\r\n");
     debug_log("交互模块初始化完成.\r\n");
 
     /* led */
