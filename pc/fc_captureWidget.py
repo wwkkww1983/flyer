@@ -5,8 +5,6 @@ import sys
 import struct
 import threading
 from time import sleep
-from serial import Serial
-from serial.tools import list_ports
 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -15,6 +13,7 @@ from PyQt5.uic import loadUiType, loadUi
 
 from fc_waveWidget import FCWaveWidget
 from fc_frame import FCFrame
+from fc_serial import FCSerial
 
 FCWindowUIClass = loadUiType("fc_captureWidget.ui")
 
@@ -43,9 +42,9 @@ class FCCaptureWidget(QWidget):
         self.mTypeComboBox.addItem('串口')
         self.mTypeComboBox.addItem('WiFi')
         self.mTypeComboBox.currentIndexChanged.connect(self.ChangeCommType)
-        allSerial = list_ports.comports()
-        for ser in allSerial:
-            self.mComNameComboBox.addItem(ser[0])
+        allPortsName = FCSerial.ListAllPorts()
+        for portName in allPortsName:
+            self.mComNameComboBox.addItem(portName)
         self.mBuadLineEdit.setText("115200")
         self.mIntervalLineEdit.setText("10")
         self.mDmpQuatCheckBox.setChecked(True)
@@ -74,7 +73,7 @@ class FCCaptureWidget(QWidget):
 
     def StartCapture(self):
         # step1: 启动串口线程
-        self.mSerial = Serial()
+        self.mSerial = FCSerial()
         comPort = self.mComNameComboBox.currentText()
         comBaudrate = self.mBuadLineEdit.text()
         self.mSerial.port = comPort
@@ -125,15 +124,10 @@ class FCCaptureWidget(QWidget):
         # 计算循环使用的常量
         frame_head_len = 8
         frame_crc32_len = 4
-        a_byte_bit_nums = 10
-        comBaudrate = int(self.mBuadLineEdit.text())
-        a_byte_trans_time = 1 / (comBaudrate / a_byte_bit_nums)
 
         while self.mCapturing:
-            #self.mSerial.timeout = a_byte_trans_time * (frame_head_len + 1) # 留1Bytes余量
-            self.mSerial.timeout = a_byte_trans_time * frame_head_len
-            frame_head = self.mSerial.read(frame_head_len)
-            if 8 == (frame_head):
+            frame_head = self.mSerial.ReadWithTimeout(frame_head_len)
+            if 8 == len(frame_head):
                 for b in frame_head:
                     print("\\x%02x" % b, end = "")
                 print()
@@ -142,25 +136,12 @@ class FCCaptureWidget(QWidget):
                 frame_len = frame_head[4:8]
                 frame_int_Len = struct.unpack('>I', fLen)[0] 
 
-                self.mSerial.timeout = a_byte_trans_time * frame_int_Len
-                frame_data = self.mSerial.read(frame_int_Len)
-                self.mSerial.timeout = a_byte_trans_time * frame_crc32_len
-                frame_crc32 = self.mSerial.read(frame_crc32_len)
+                frame_data = self.mSerial.ReadWithTimeout(frame_int_Len)
+                frame_crc32 = self.mSerial.ReadWithTimeout(frame_crc32_len)
                 buf = frame_head + frame_data + frame_crc32
 
                 #构造帧
-                frame = FCFrame(fBuf = buf)
-
-            continue
-
-            #line = self.mSerial.readline()
-            line = self.mSerial.read(1)
-            if 0 != len(line):
-                line_nums = line_nums + 1
-                line_str = line
-                #line_str = line.decode('utf8')
-                print(line_nums, end = ':')
-                print(line_str)
+                #frame = FCFrame(fBuf = buf)
 
     def ChangeCommType(self, typeIndex):
         if 0 != typeIndex:
