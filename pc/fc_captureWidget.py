@@ -12,7 +12,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.uic import loadUiType, loadUi
 
 from fc_waveWidget import FCWaveWidget
-from fc_frame import FCFrame
+from fc_frame import FCDownFrame
+from fc_frame import FCUpFrame
 from fc_serial import FCSerial
 
 FCWindowUIClass = loadUiType("fc_captureWidget.ui")
@@ -92,9 +93,9 @@ class FCCaptureWidget(QWidget):
         frameLen = 4
         frameData = time
 
-        frame = FCFrame(frameType, frameLen, frameData)
+        frame = FCDownFrame(frameType, frameLen, frameData)
         buf = frame.GetBytes()
-        print("发送下行采集请求帧(%s:%s):" % (comPort, comBaudrate))
+        print("发送下行帧(%s:%s):" % (self.mSerial.port, self.mSerial.baudrate))
         frame.Print()
 
         # step3: 发帧
@@ -132,16 +133,15 @@ class FCCaptureWidget(QWidget):
                     print("\\x%02x" % b, end = "")
                 print()
 
-                frame_type = frame_head[0:4]
-                frame_len = frame_head[4:8]
-                frame_int_Len = struct.unpack('>I', fLen)[0] 
-
+                frame_len = FCUpFrame.ParseLen(frame_head)
                 frame_data = self.mSerial.ReadWithTimeout(frame_int_Len)
                 frame_crc32 = self.mSerial.ReadWithTimeout(frame_crc32_len)
                 buf = frame_head + frame_data + frame_crc32
 
-                #构造帧
-                #frame = FCFrame(fBuf = buf)
+                # 解析帧
+                frame = FCUpFrame(buf) 
+                print("接收上行帧(%s:%s):" % (self.mSerial.port, self.mSerial.baudrate))
+                frame.Print()
 
     def ChangeCommType(self, typeIndex):
         if 0 != typeIndex:
