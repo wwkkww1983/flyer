@@ -6,6 +6,8 @@ import struct
 
 from enum import Enum
 
+gFillByte = b'\xa5'
+
 class FCFrameType(Enum):
     # 以下类型基本帧类型(用户不使用)
     _Up             = 0x80000000
@@ -31,8 +33,11 @@ class FCFrameType(Enum):
     _NoDataTime     = 0x00000000
 
     # 以下类型用户使用
-    # dmp四元数采集帧
+    # dmp四元数采集请求帧
     FrameRequestTimeAndDmpQuat = _Down | _Capture | _DataDmpQuat | _DataTime
+
+    # dmp四元数采集数据帧
+    FrameDataTimeAndDmpQuat = _Up | _Capture | _DataDmpQuat | _DataTime
     # 文本输出帧
     FramePrintText = _Up | _Text
     # 错误帧
@@ -179,8 +184,14 @@ class FCRequestTimeAndDmpQuatFrame(_FCDownFrame):
 
 # 上行帧 上位机解析
 class FCUpFrame(_FCBaseFrame):
-    def __init__(self, frameBuf = None):
+    def __init__(self, frameBuf):
         super(FCUpFrame, self).__init__()
+        # 表驱动
+        self.mTypeDict = {
+                FCFrameType.FramePrintText : FCPrintTextFrame,
+                FCFrameType.FrameDataTimeAndDmpQuat: FCDataTimeAndDmpQuat,
+                FCFrameType.FrameError : FCErrorFrame,}
+
         frameLen = len(frameBuf) 
         #print(frameLen)
         #_FCBaseFrame.PrintBytes(frameBuf)
@@ -194,17 +205,33 @@ class FCUpFrame(_FCBaseFrame):
         self.mData = frameBuf[8:-4]
         self.mCrc32 = frameBuf[-4:]
 
-    def Type(self): 
-        # 错误帧
-        if not frame.isValid():
-            return FCFrameType.FrameError
+    @staticmethod
+    def ParseLen(buf):
+        bufLen = len(buf)
+        if 8 < bufLen:
+            msgBox = QMessageBox();
+            msgBox.setText("上行帧的帧长解析失败:%d.\n" % bufLen)
+            msgBox.exec_();
+        dataLen = buf[4:8]
+        length = struct.unpack('>I', dataLen)
 
+        return length[0]
+
+    def Parse(self, buf):
         frameTypeValue = struct.unpack('>I', self.mType)[0]
-        typeEnum = FCFrameType(frameTypeValue)
-        #print(frameTypeValue)
-        #print(FCFrameType.FrameRequestTimeAndDmpQuat.value)
-        #print(typeEnum)
-        return typeEnum
+        try:
+            frameType = FCFrameType(frameTypeValue)
+        except Exception as e: # 处理无效类型
+            print(e)
+            typeEnum = FCFrameType.FrameError
+        else: # 有效类型
+            typeEnum = FCFrameType(frameTypeValue)
+
+        # 校验
+        if not self.isValid():
+            typeEnum = FCFrameType.FrameError
+
+        return self.mTypeDict[typeEnum](buf)
 
     def isValid(self):
         # 校验
@@ -221,20 +248,63 @@ class FCUpFrame(_FCBaseFrame):
         else:
             return False
 
-    @staticmethod
-    def ParseLen(buf):
-        bufLen = len(buf)
-        if 8 < bufLen:
-            msgBox = QMessageBox();
-            msgBox.setText("上行帧的帧长解析失败:%d.\n" % bufLen)
-            msgBox.exec_();
-        dataLen = buf[4:8]
-        length = struct.unpack('>I', dataLen)
+    """
+    def Type(self): 
+        # 错误帧
+        if not frame.isValid():
+            return FCFrameType.FrameError
 
-        return length[0]
+        frameTypeValue = struct.unpack('>I', self.mType)[0]
+        typeEnum = FCFrameType(frameTypeValue)
+        #print(frameTypeValue)
+        #print(FCFrameType.FrameRequestTimeAndDmpQuat.value)
+        #print(typeEnum)
+        return typeEnum
+    """
+
+class FCPrintTextFrame(FCUpFrame):
+    def __init__(self, frameBuf): 
+        super(FCPrintTextFrame, self).__init__(frameBuf)
+
+    def Type(self): 
+        return FCFrameType.FramePrintText
+
+    def GetText(self):
+        # 清理末尾的填充
+        textBuf = self.mData
+        i = -1
+        while gFillByte == textBuf[i]:
+            i = i - 1
+        textBuf = textBuf[:i]
+
+        # 生成字符串 
+        text = textBuf.decode('utf8')
+        return text
+
+class FCDataTimeAndDmpQuat(FCUpFrame):
+    def __init__(self, frameBuf): 
+        super(FCPrintTextFrame, self).__init__(frameBuf)
+
+    def Type(self): 
+        return FCFrameType.FrameDataTimeAndDmpQuat
+
+    def GetTime(self):
+        timeBuf = self.mData[0:4]
+        time = struct.unpack('<I', timeBuf)[0]
+        return time
+
+    def GetGmpQuat(self):
+        gmpQuatBuf = self.mData[4:]
+        gmpQuat = struct.unpack('<ffff', gmpQuatBuf)
+        return gmpQuat
+
+class FCErrorFrame(FCUpFrame):
+    def __init__(self, frameBuf): 
+        super(FCErrorFrame, self).__init__(frameBuf)
+
+    def Type(self): 
+        return FCFrameType.FrameError
 
 if __name__ == '__main__':
-    frame = _FCBaseFrame()
-
-    frame.Print()
+    print("偷懒,先不写单元测试")
 

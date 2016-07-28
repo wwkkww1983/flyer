@@ -49,6 +49,8 @@ class FCCaptureWidget(QWidget):
         self.mDmpQuatCheckBox = self.mUi.dmpQuatCheckBox
         self.mCapturePushButton = self.mUi.capturePushButton
         self.mConsolePlainTextEdit = self.mUi.consolePlainTextEdit
+        self.mRunTimeLabel = self.mUi.runTimeLabel
+        self.mDmpQuatLabel = self.mUi.dmpQuatLabel
         self.mTypeComboBox.addItem('串口')
         self.mTypeComboBox.addItem('WiFi')
         self.mTypeComboBox.currentIndexChanged.connect(self.ChangeCommType)
@@ -130,11 +132,6 @@ class FCCaptureWidget(QWidget):
         print("停止采集")
 
     def RecvFunc(self):
-        """
-        TODO: 封装串口read设置超时
-        """
-        line_nums = 0; 
-
         # 接收帧头  type + len = 8Bytes
         # 计算循环使用的常量
         frameHeadLen = 8
@@ -150,9 +147,7 @@ class FCCaptureWidget(QWidget):
                 buf = frameHead + frameDataAndrCrc32
 
                 # 解析帧
-                frame = FCUpFrame(buf) 
-                #print("接收上行帧(%s:%s):" % (self.mSerial.port, self.mSerial.baudrate))
-                #frame.Print() 
+                frame = FCUpFrame.Parse(buf)
 
                 # 使用帧 更新界面
                 self.UpdateByNewFrame(frame)
@@ -160,24 +155,30 @@ class FCCaptureWidget(QWidget):
     def UpdateByNewFrame(self, frame): 
         frameType = frame.Type()
 
-        print("接收上行帧(%s:%s):" % (self.mSerial.port, self.mSerial.baudrate))
-        frame.Print() 
-        
         # 表驱动
         updateFunc = self.updateFuncDict[frameType]
         self.updateFunc(frame)
+        #self.update()
 
     def UpdateTimeAndDmpQuat(self, frame):
         print("UpdateTimeAndDmpQuat")
-        pass
+        time = frame.GetTime()
+        dmpQuat = frame.GetGmpQuat()
+
+        timeText = "运行:%7.2s" % time / 1000.0
+        self.mRunTimeLabel.setText(timeText)
+
+        dmpQuatText = "q0:%5.4f,q1:%5.4f,q2:%5.4f,q3:%5.4f" % (dmpQuat[0], dmpQuat[1], dmpQuat[2], dmpQuat[3])
+        self.mDmpQuatLabel.setText(timeText)
 
     def UpdatePrintText(self, frame):
         print("UpdatePrintText")
-        pass
+        text = frame.GetText()
+        self.mConsolePlainTextEdit.appendPlainText(text)
 
     def UpdateErrorFrame(self, frame):
-        print("UpdateErrorFrame")
-        pass
+        print("接收错误帧(%s:%s):" % (self.mSerial.port, self.mSerial.baudrate))
+        frame.Print()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

@@ -373,7 +373,7 @@
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_11">
               <item>
-               <widget class="QLabel" name="label_8">
+               <widget class="QLabel" name="runTimeLabel">
                 <property name="text">
                  <string>运行:000000ms</string>
                 </property>
@@ -429,7 +429,7 @@
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_9">
               <item>
-               <widget class="QLabel" name="label_14">
+               <widget class="QLabel" name="dmpQuatLabel">
                 <property name="text">
                  <string>q0:0.0000,q1:0.0000,q2:0.0000,q3:0.0000</string>
                 </property>
