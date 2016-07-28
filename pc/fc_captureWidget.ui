@@ -375,7 +375,7 @@
               <item>
                <widget class="QLabel" name="runTimeLabel">
                 <property name="text">
-                 <string>运行:000000ms</string>
+                 <string>运行:0000.0s</string>
                 </property>
                </widget>
               </item>
@@ -385,27 +385,27 @@
            <item>
             <widget class="QGroupBox" name="groupBox_6">
              <property name="title">
-              <string>姿态角</string>
+              <string>欧拉姿态角</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_6">
               <item>
-               <widget class="QLabel" name="label_11">
+               <widget class="QLabel" name="thetaLabel">
                 <property name="text">
-                 <string>俯仰角:000.0</string>
+                 <string>俯仰:+000.0</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="label_9">
+               <widget class="QLabel" name="phiLabel">
                 <property name="text">
-                 <string>横滚角:000.0</string>
+                 <string>横滚:+000.0</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="label_12">
+               <widget class="QLabel" name="psiLabel">
                 <property name="text">
-                 <string>偏航角:000.0</string>
+                 <string>偏航:+000.0</string>
                 </property>
                </widget>
               </item>
@@ -431,7 +431,7 @@
               <item>
                <widget class="QLabel" name="dmpQuatLabel">
                 <property name="text">
-                 <string>q0:0.0000,q1:0.0000,q2:0.0000,q3:0.0000</string>
+                 <string>+0.0000,+0.0000,+0.0000,+0.0000</string>
                 </property>
                </widget>
               </item>

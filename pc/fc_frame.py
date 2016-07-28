@@ -6,6 +6,8 @@ import struct
 
 from enum import Enum
 
+from algo.quat import FCQuat
+
 gFillByte = b'\xa5'
 
 class FCFrameType(Enum):
@@ -295,7 +297,10 @@ class FCDataTimeAndDmpQuat(FCUpFrame):
 
     def GetGmpQuat(self):
         gmpQuatBuf = self.mData[4:]
-        gmpQuat = struct.unpack('<ffff', gmpQuatBuf)
+        gmpQuatTuplle = struct.unpack('<ffff', gmpQuatBuf)
+
+        gmpQuat = FCQuat(*gmpQuatTuplle)
+
         return gmpQuat
 
 class FCErrorFrame(FCUpFrame):

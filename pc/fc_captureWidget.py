@@ -51,6 +51,9 @@ class FCCaptureWidget(QWidget):
         self.mConsolePlainTextEdit = self.mUi.consolePlainTextEdit
         self.mRunTimeLabel = self.mUi.runTimeLabel
         self.mDmpQuatLabel = self.mUi.dmpQuatLabel
+        self.mThetaLabel = self.mUi.thetaLabel
+        self.mphiLabel = self.mUi.phiLabel
+        self.mpsiLabel = self.mUi.psiLabel
         self.mTypeComboBox.addItem('串口')
         self.mTypeComboBox.addItem('WiFi')
         self.mTypeComboBox.currentIndexChanged.connect(self.ChangeCommType)
@@ -164,12 +167,20 @@ class FCCaptureWidget(QWidget):
         print("UpdateTimeAndDmpQuat")
         time = frame.GetTime()
         dmpQuat = frame.GetGmpQuat()
+        euler = dmpQuat.ToEuler()
 
         timeText = "运行:%7.2s" % time / 1000.0
         self.mRunTimeLabel.setText(timeText)
 
-        dmpQuatText = "q0:%5.4f,q1:%5.4f,q2:%5.4f,q3:%5.4f" % (dmpQuat[0], dmpQuat[1], dmpQuat[2], dmpQuat[3])
-        self.mDmpQuatLabel.setText(timeText)
+        dmpQuatText = dmpQuat.ToString()
+        self.mDmpQuatLabel.setText(dmpQuatText)
+
+        thetaText = "俯仰角:%+4.1s" % euler.Theta()
+        phiText   = "横滚角:%+4.1s" % euler.Phi()
+        psiText   = "偏航角:%+4.1s" % euler.Psi()
+        self.mThetaLabel.setText(thetaText)
+        self.mphiLabel.setText(phiText)
+        self.mpsiLabel.setText(psiText)
 
     def UpdatePrintText(self, frame):
         print("UpdatePrintText")

@@ -7,4 +7,5 @@ rm -rf soft/prj/obj/
 
 rm -rf pc/__pycache__/
 rm -rf pc/bak/__pycache__/
+rm -rf pc/algo/__pycache__/
 
