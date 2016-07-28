@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.uic import loadUiType, loadUi
 
 from fc_waveWidget import FCWaveWidget
-from fc_frame import FCDownFrame
+from fc_frame import FCRequestTimeAndDmpQuatFrame
 from fc_frame import FCUpFrame
 from fc_frame import FCFrameType
 from fc_serial import FCSerial
@@ -94,11 +94,7 @@ class FCCaptureWidget(QWidget):
         time = int(self.mIntervalLineEdit.text())
         #print(time)
 
-        frameType = FCFrameType.FrameRequestTimeAndDmpQuat
-        frameLen = 8
-        frameData = time
-
-        frame = FCDownFrame(frameType, frameLen, frameData)
+        frame = FCRequestTimeAndDmpQuatFrame(time)
         buf = frame.GetBytes()
         print("发送下行帧(%s:%s):" % (self.mSerial.port, self.mSerial.baudrate))
         frame.Print()

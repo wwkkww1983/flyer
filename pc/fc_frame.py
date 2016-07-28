@@ -6,8 +6,6 @@ import struct
 
 from enum import Enum
 
-from PyQt5.QtWidgets import *
-
 class FCFrameType(Enum):
     # 以下类型基本帧类型(用户不使用)
     _Up             = 0x80000000
@@ -38,9 +36,9 @@ class FCFrameType(Enum):
     # 文本输出帧
     FramePrintText = _Up | _Text
 
-class FCBaseFrame():
+class _FCBaseFrame():
     def __init__(self):
-        super(FCBaseFrame, self).__init__()
+        super(_FCBaseFrame, self).__init__()
 
     def Print(self):
         print("类型:  ", end = '')
@@ -49,33 +47,26 @@ class FCBaseFrame():
         if None == self.mType:
             print("None")
         else:
-            FCBaseFrame.PrintBytes(self.mType) 
+            _FCBaseFrame.PrintBytes(self.mType) 
 
         print("len:   ", end = '')
         if None == self.mLen:
             print("None")
         else:
-            FCBaseFrame.PrintBytes(self.mLen)
+            _FCBaseFrame.PrintBytes(self.mLen)
 
         print("data:  ", end = '')
         if None == self.mData:
             print("None")
         else:
-            FCBaseFrame.PrintBytes(self.mData)
+            _FCBaseFrame.PrintBytes(self.mData)
 
         print("crc32: ", end = '')
         if None == self.mCrc32:
             print("None")
         else:
-            FCBaseFrame.PrintBytes(self.mCrc32)
+            _FCBaseFrame.PrintBytes(self.mCrc32)
 
-    def Type(self):
-        frameTypeValue = struct.unpack('>I', self.mType)[0]
-        typeEnum = FCFrameType(frameTypeValue)
-        #print(frameTypeValue)
-        #print(FCFrameType.FrameRequestTimeAndDmpQuat.value)
-        #print(typeEnum)
-        return typeEnum
 
     def isLenValid(self):
         buf = self.mData
@@ -104,7 +95,7 @@ class FCBaseFrame():
         dataLen = int(struct.unpack('>I', self.mLen)[0] / 4)
         dataLen = dataLen - 1 #除去 crc32的长度
         dataUnpackStr = '<' + 'I' * dataLen
-        #FCBaseFrame.PrintBytes(self.mLen)
+        #_FCBaseFrame.PrintBytes(self.mLen)
         #print(dataLen)
         #print(dataUnpackStr)
         #print(len(self.mData))
@@ -113,7 +104,7 @@ class FCBaseFrame():
         for i in range(0, dataLen):
             val = unpackTuple[i]
             data.append(val) 
-            #FCBaseFrame.PrintBytes(struct.pack('>I', val))
+            #_FCBaseFrame.PrintBytes(struct.pack('>I', val))
             #print()
 
         return data
@@ -154,9 +145,10 @@ class FCBaseFrame():
         return crc & 0xffffffff
 
 # 下行帧 上位机构造
-class FCDownFrame(FCBaseFrame):
-    def __init__(self, frameType = None , dataLen = 4, frameData = 0):
-        super(FCDownFrame, self).__init__()
+class _FCDownFrame(_FCBaseFrame):
+    # 抽象类 用户不使用
+    def __init__(self, frameType = None , dataLen = 8, frameData = 0):
+        super(_FCDownFrame, self).__init__()
 
         if dataLen < 4: # 小于4 则无数据
             msgBox = QMessageBox();
@@ -170,19 +162,26 @@ class FCDownFrame(FCBaseFrame):
 
     def GetBytes(self):
         wordList = self.GetCrc32WordList()
-        crc32 = FCBaseFrame.CalStm32Crc32(wordList)
+        crc32 = _FCBaseFrame.CalStm32Crc32(wordList)
         self.mCrc32 = struct.pack('>I', crc32)
         buf = self.mType + self.mLen + self.mData + self.mCrc32
 
         return buf
 
+class FCRequestTimeAndDmpQuatFrame(_FCDownFrame):
+    def __init__(self, time = 100):
+        super(FCRequestTimeAndDmpQuatFrame, self).__init__(frameType = FCFrameType.FrameRequestTimeAndDmpQuat, 
+                frameData =time)
+    def Type(self):
+        return FCFrameType.FrameRequestTimeAndDmpQuat
+
 # 上行帧 上位机解析
-class FCUpFrame(FCBaseFrame):
+class FCUpFrame(_FCBaseFrame):
     def __init__(self, frameBuf = None):
         super(FCUpFrame, self).__init__()
         frameLen = len(frameBuf) 
         #print(frameLen)
-        #FCBaseFrame.PrintBytes(frameBuf)
+        #_FCBaseFrame.PrintBytes(frameBuf)
         if frameLen < 16: # type + len + data + crc
             msgBox = QMessageBox();
             msgBox.setText("上行帧解析失败:帧长至少为16,实际为:%d.\n" % frameLen)
@@ -193,16 +192,24 @@ class FCUpFrame(FCBaseFrame):
         self.mData = frameBuf[8:-4]
         self.mCrc32 = frameBuf[-4:]
 
+    def Type(self):
+        frameTypeValue = struct.unpack('>I', self.mType)[0]
+        typeEnum = FCFrameType(frameTypeValue)
+        #print(frameTypeValue)
+        #print(FCFrameType.FrameRequestTimeAndDmpQuat.value)
+        #print(typeEnum)
+        return typeEnum
+
     def isValid(self):
         # 校验
         wordList = self.GetCrc32WordList()
-        calCrc32 = FCBaseFrame.CalStm32Crc32(wordList)
+        calCrc32 = _FCBaseFrame.CalStm32Crc32(wordList)
         recvCrc32 = struct.unpack('>I', self.mCrc32)[0]
 
         #print("计算crc", end = ':')
-        #FCBaseFrame.PrintBytes(struct.pack('>I', calCrc32))
+        #_FCBaseFrame.PrintBytes(struct.pack('>I', calCrc32))
         #print("接收crc", end = ':')
-        #FCBaseFrame.PrintBytes(self.mCrc32)
+        #_FCBaseFrame.PrintBytes(self.mCrc32)
         if recvCrc32 == calCrc32:
             return True
         else:
@@ -221,7 +228,7 @@ class FCUpFrame(FCBaseFrame):
         return length[0]
 
 if __name__ == '__main__':
-    frame = FCBaseFrame()
+    frame = _FCBaseFrame()
 
     frame.Print()
 
