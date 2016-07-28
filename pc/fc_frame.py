@@ -4,47 +4,52 @@
 import sys
 import struct
 
+from enum import Enum
+
 from PyQt5.QtWidgets import *
 
-class FCFrameType():
-    # 以下类型用户不使用
-    FrameUp             = 0x80000000
-    FrameDown           = 0x00000000
-    FrameCtrl           = 0x40000000
-    FrameNoCtrl         = 0x00000000
-    FrameCapture        = 0x20000000
-    FrameNoCapture      = 0x00000000
-    FrameText           = 0x10000000
-    FrameNoText         = 0x00000000
+class FCFrameType(Enum):
+    # 以下类型基本帧类型(用户不使用)
+    _Up             = 0x80000000
+    _Down           = 0x00000000
+    _Ctrl           = 0x40000000
+    _NoCtrl         = 0x00000000
+    _Capture        = 0x20000000
+    _NoCapture      = 0x00000000
+    _Text           = 0x10000000
+    _NoText         = 0x00000000
 
-    FrameDataPress      = 0x00000020
-    FrameNoDataPress    = 0x00000000
-    FrameDataCompass    = 0x00000010
-    FrameNoDataCompass  = 0x00000000
-    FrameDataGyro       = 0x00000008
-    FrameNoDataGyro     = 0x00000000
-    FrameDataAccel      = 0x00000004
-    FrameNoDataAccel    = 0x00000000
-    FrameDataDmpQuat    = 0x00000002
-    FrameNoDataDmpQuat  = 0x00000000
-    FrameDataTime       = 0x00000001
-    FrameNoDataTime     = 0x00000000
+    _DataPress      = 0x00000020
+    _NoDataPress    = 0x00000000
+    _DataCompass    = 0x00000010
+    _NoDataCompass  = 0x00000000
+    _DataGyro       = 0x00000008
+    _NoDataGyro     = 0x00000000
+    _DataAccel      = 0x00000004
+    _NoDataAccel    = 0x00000000
+    _DataDmpQuat    = 0x00000002
+    _NoDataDmpQuat  = 0x00000000
+    _DataTime       = 0x00000001
+    _NoDataTime     = 0x00000000
 
     # 以下类型用户使用
     # dmp四元数采集帧
-    FrameRequestTimeAndDmpQuat = struct.pack('>I', FrameDown | FrameCapture | FrameDataDmpQuat | FrameDataTime)
-    FrameText = struct.pack('>I', FrameUp | FrameText)
+    FrameRequestTimeAndDmpQuat = _Down | _Capture | _DataDmpQuat | _DataTime
+    # 文本输出帧
+    FramePrintText = _Up | _Text
 
 class FCBaseFrame():
     def __init__(self):
         super(FCBaseFrame, self).__init__()
 
     def Print(self):
+        print("类型:  ", end = '')
+        print(self.Type())
         print("type:  ", end = '')
         if None == self.mType:
             print("None")
         else:
-            FCBaseFrame.PrintBytes(self.mType)
+            FCBaseFrame.PrintBytes(self.mType) 
 
         print("len:   ", end = '')
         if None == self.mLen:
@@ -63,6 +68,14 @@ class FCBaseFrame():
             print("None")
         else:
             FCBaseFrame.PrintBytes(self.mCrc32)
+
+    def Type(self):
+        frameTypeValue = struct.unpack('>I', self.mType)[0]
+        typeEnum = FCFrameType(frameTypeValue)
+        #print(frameTypeValue)
+        #print(FCFrameType.FrameRequestTimeAndDmpQuat.value)
+        #print(typeEnum)
+        return typeEnum
 
     def isLenValid(self):
         buf = self.mData
@@ -106,6 +119,10 @@ class FCBaseFrame():
         return data
 
     @staticmethod
+    def PackType(frameType):
+        return struct.pack('>I', frameType)
+
+    @staticmethod
     def PrintBytes(bs):
         for b in bs:
             print("\\x%02x" % b, end = "")
@@ -138,7 +155,7 @@ class FCBaseFrame():
 
 # 下行帧 上位机构造
 class FCDownFrame(FCBaseFrame):
-    def __init__(self, frame_type = None , dataLen = 4, frameData = 0):
+    def __init__(self, frameType = None , dataLen = 4, frameData = 0):
         super(FCDownFrame, self).__init__()
 
         if dataLen < 4: # 小于4 则无数据
@@ -146,8 +163,7 @@ class FCDownFrame(FCBaseFrame):
             msgBox.setText("下行帧构造失败:数据长至少为4,实际为:%d.\n" % dataLen)
             msgBox.exec_();
 
-        # 构造下行帧
-        self.mType = frame_type
+        self.mType = struct.pack('>I', frameType.value)
         self.mLen = struct.pack('>I', dataLen)
         self.mData = struct.pack('>I', frameData)
         self.mCrc32 = None

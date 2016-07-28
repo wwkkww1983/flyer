@@ -19,6 +19,8 @@ from fc_serial import FCSerial
 
 FCWindowUIClass = loadUiType("fc_captureWidget.ui")
 
+gUpdateDict = { }
+
 class FCCaptureWidget(QWidget):
     def __init__(self):
         super(FCCaptureWidget, self).__init__()
@@ -153,6 +155,7 @@ class FCCaptureWidget(QWidget):
         # TODO:使用接收帧更新界面
         print("接收合法上行帧(%s:%s):" % (self.mSerial.port, self.mSerial.baudrate))
         frame.Print() 
+        print(frame.Type())
 
     def ChangeCommType(self, typeIndex):
         if 0 != typeIndex:
