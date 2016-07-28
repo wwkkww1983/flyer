@@ -8,7 +8,7 @@ from enum import Enum
 
 from algo.quat import FCQuat
 
-gFillByte = b'\xa5'
+gFillByte = 165 # b'\xa5' 
 
 class FCFrameType(Enum):
     # 以下类型基本帧类型(用户不使用)
@@ -160,9 +160,7 @@ class _FCDownFrame(_FCBaseFrame):
         super(_FCDownFrame, self).__init__()
 
         if dataLen < 4: # 小于4 则无数据
-            msgBox = QMessageBox();
-            msgBox.setText("下行帧构造失败:数据长至少为4,实际为:%d.\n" % dataLen)
-            msgBox.exec_();
+            print("下行帧构造失败:数据长至少为4,实际为:%d.\n" % dataLen)
 
         self.mType = struct.pack('>I', frameType.value)
         self.mLen = struct.pack('>I', dataLen)
@@ -185,22 +183,15 @@ class FCRequestTimeAndDmpQuatFrame(_FCDownFrame):
         return FCFrameType.FrameRequestTimeAndDmpQuat
 
 # 上行帧 上位机解析
-class FCUpFrame(_FCBaseFrame):
+class FCUpFrame(_FCBaseFrame): 
     def __init__(self, frameBuf):
         super(FCUpFrame, self).__init__()
-        # 表驱动
-        self.mTypeDict = {
-                FCFrameType.FramePrintText : FCPrintTextFrame,
-                FCFrameType.FrameDataTimeAndDmpQuat: FCDataTimeAndDmpQuat,
-                FCFrameType.FrameError : FCErrorFrame,}
 
         frameLen = len(frameBuf) 
         #print(frameLen)
         #_FCBaseFrame.PrintBytes(frameBuf)
         if frameLen < 16: # type + len + data + crc
-            msgBox = QMessageBox();
-            msgBox.setText("上行帧解析失败:帧长至少为16,实际为:%d.\n" % frameLen)
-            msgBox.exec_();
+            print("上行帧解析失败:帧长至少为16,实际为:%d.\n" % frameLen)
 
         self.mType = frameBuf[0:4]
         self.mLen = frameBuf[4:8]
@@ -211,29 +202,35 @@ class FCUpFrame(_FCBaseFrame):
     def ParseLen(buf):
         bufLen = len(buf)
         if 8 < bufLen:
-            msgBox = QMessageBox();
-            msgBox.setText("上行帧的帧长解析失败:%d.\n" % bufLen)
-            msgBox.exec_();
+            print("上行帧的帧长解析失败:%d.\n" % bufLen)
         dataLen = buf[4:8]
         length = struct.unpack('>I', dataLen)
 
         return length[0]
 
-    def Parse(self, buf):
-        frameTypeValue = struct.unpack('>I', self.mType)[0]
+    @staticmethod
+    def Parse(buf):
+        # 表驱动
+        upFrameClassDict = {FCFrameType.FramePrintText:             FCPrintTextFrame,
+                            FCFrameType.FrameDataTimeAndDmpQuat:    FCDataTimeAndDmpQuat}
+        # 解析上行帧
+        frameTypeValue = struct.unpack('>I', buf[0:4])[0]
         try:
             frameType = FCFrameType(frameTypeValue)
         except Exception as e: # 处理无效类型
-            print(e)
-            typeEnum = FCFrameType.FrameError
-        else: # 有效类型
-            typeEnum = FCFrameType(frameTypeValue)
-
-        # 校验
-        if not self.isValid():
-            typeEnum = FCFrameType.FrameError
-
-        return self.mTypeDict[typeEnum](buf)
+            return FCErrorFrame(buf)
+        else: # 有效类型 
+            # TODO:使用表驱动方案
+            if frameType in upFrameClassDict:
+                frameClass = upFrameClassDict[frameType]
+                #print(frameClass)
+                frame = frameClass(buf) 
+                if frame.isValid(): 
+                    return frame
+                else:
+                    return FCErrorFrame(buf)
+            else:
+                return FCErrorFrame(buf)
 
     def isValid(self):
         # 校验
@@ -275,9 +272,12 @@ class FCPrintTextFrame(FCUpFrame):
         # 清理末尾的填充
         textBuf = self.mData
         i = -1
+
         while gFillByte == textBuf[i]:
             i = i - 1
-        textBuf = textBuf[:i]
+        # 仅处理有尾部填充的情况
+        if i < -1:
+            textBuf = textBuf[:i+1]
 
         # 生成字符串 
         text = textBuf.decode('utf8')
@@ -285,7 +285,7 @@ class FCPrintTextFrame(FCUpFrame):
 
 class FCDataTimeAndDmpQuat(FCUpFrame):
     def __init__(self, frameBuf): 
-        super(FCPrintTextFrame, self).__init__(frameBuf)
+        super(FCDataTimeAndDmpQuat, self).__init__(frameBuf)
 
     def Type(self): 
         return FCFrameType.FrameDataTimeAndDmpQuat

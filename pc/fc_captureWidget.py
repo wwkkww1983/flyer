@@ -20,6 +20,8 @@ from fc_serial import FCSerial
 FCWindowUIClass = loadUiType("fc_captureWidget.ui")
 
 class FCCaptureWidget(QWidget): 
+    sAppendConsole = pyqtSignal(str, name='sAppendConsole')
+
     def __init__(self):
         super(FCCaptureWidget, self).__init__() 
         
@@ -49,6 +51,7 @@ class FCCaptureWidget(QWidget):
         self.mDmpQuatCheckBox = self.mUi.dmpQuatCheckBox
         self.mCapturePushButton = self.mUi.capturePushButton
         self.mConsolePlainTextEdit = self.mUi.consolePlainTextEdit
+        self.sAppendConsole.connect(self.AppendConsole)
         self.mRunTimeLabel = self.mUi.runTimeLabel
         self.mDmpQuatLabel = self.mUi.dmpQuatLabel
         self.mThetaLabel = self.mUi.thetaLabel
@@ -160,7 +163,7 @@ class FCCaptureWidget(QWidget):
 
         # 表驱动
         updateFunc = self.updateFuncDict[frameType]
-        self.updateFunc(frame)
+        updateFunc(frame)
         #self.update()
 
     def UpdateTimeAndDmpQuat(self, frame):
@@ -183,9 +186,21 @@ class FCCaptureWidget(QWidget):
         self.mpsiLabel.setText(psiText)
 
     def UpdatePrintText(self, frame):
-        print("UpdatePrintText")
+        #print("接收文本帧(%s:%s):" % (self.mSerial.port, self.mSerial.baudrate))
+        #frame.Print()
         text = frame.GetText()
-        self.mConsolePlainTextEdit.appendPlainText(text)
+        #print(1)
+        #print(text)
+        #print(2)
+        #self.mConsolePlainTextEdit.appendPlainText(text) 
+        self.sAppendConsole.emit(text)
+
+    def AppendConsole(self, text):
+        # 有额外的换行
+        #self.mConsolePlainTextEdit.appendPlainText(text)
+        self.mConsolePlainTextEdit.moveCursor(QTextCursor.End)
+        self.mConsolePlainTextEdit.insertPlainText(text)
+        self.mConsolePlainTextEdit.moveCursor(QTextCursor.End)
 
     def UpdateErrorFrame(self, frame):
         print("接收错误帧(%s:%s):" % (self.mSerial.port, self.mSerial.baudrate))
