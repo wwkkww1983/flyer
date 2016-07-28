@@ -35,6 +35,8 @@ class FCFrameType(Enum):
     FrameRequestTimeAndDmpQuat = _Down | _Capture | _DataDmpQuat | _DataTime
     # 文本输出帧
     FramePrintText = _Up | _Text
+    # 错误帧
+    FrameError = 0xffffffff
 
 class _FCBaseFrame():
     def __init__(self):
@@ -192,7 +194,11 @@ class FCUpFrame(_FCBaseFrame):
         self.mData = frameBuf[8:-4]
         self.mCrc32 = frameBuf[-4:]
 
-    def Type(self):
+    def Type(self): 
+        # 错误帧
+        if not frame.isValid():
+            return FCFrameType.FrameError
+
         frameTypeValue = struct.unpack('>I', self.mType)[0]
         typeEnum = FCFrameType(frameTypeValue)
         #print(frameTypeValue)

@@ -19,11 +19,17 @@ from fc_serial import FCSerial
 
 FCWindowUIClass = loadUiType("fc_captureWidget.ui")
 
-gUpdateDict = { }
-
-class FCCaptureWidget(QWidget):
+class FCCaptureWidget(QWidget): 
     def __init__(self):
-        super(FCCaptureWidget, self).__init__()
+        super(FCCaptureWidget, self).__init__() 
+        
+        # 上行帧 表驱动 字典 
+        self.updateFuncDict = {
+                FCFrameType.FrameRequestTimeAndDmpQuat : self.UpdateTimeAndDmpQuat,
+                FCFrameType.FramePrintText : self.UpdatePrintText,
+                FCFrameType.FrameError : self.UpdateErrorFrame,
+            }
+
         # 通信线程&串口&标记
         self.mCapturing = False
         self.mSerial = None
@@ -75,6 +81,13 @@ class FCCaptureWidget(QWidget):
             self.mCommGroupBox.setEnabled(False)
             self.mDataGroupBox.setEnabled(False)
 
+    def ChangeCommType(self, typeIndex):
+        if 0 != typeIndex:
+            msgBox = QMessageBox();
+            msgBox.setText("暂时只实现串口.\n")
+            msgBox.exec_();
+            self.mTypeComboBox.setCurrentIndex(0)
+
     def StartCapture(self):
         # TODO: 需要根据控制界面定制
         # step1: 启动串口线程
@@ -125,12 +138,10 @@ class FCCaptureWidget(QWidget):
         # 接收帧头  type + len = 8Bytes
         # 计算循环使用的常量
         frameHeadLen = 8
-        frameCrc32Len = 4
-
         while self.mCapturing:
             # 获取type+len
             frameHead = self.mSerial.ReadWithTimeout(frameHeadLen)
-            if 8 == len(frameHead):
+            if frameHeadLen == len(frameHead):
                 #FCUpFrame.PrintBytes(frameHead)
 
                 # 获取data+crc32
@@ -144,21 +155,29 @@ class FCCaptureWidget(QWidget):
                 #frame.Print() 
 
                 # 使用帧 更新界面
-                if frame.isValid():
-                    self.UpdateByNewFrame(frame)
+                self.UpdateByNewFrame(frame)
 
     def UpdateByNewFrame(self, frame): 
-        # TODO:使用接收帧更新界面
-        print("接收合法上行帧(%s:%s):" % (self.mSerial.port, self.mSerial.baudrate))
-        frame.Print() 
-        print(frame.Type())
+        frameType = frame.Type()
 
-    def ChangeCommType(self, typeIndex):
-        if 0 != typeIndex:
-            msgBox = QMessageBox();
-            msgBox.setText("暂时只实现串口.\n")
-            msgBox.exec_();
-            self.mTypeComboBox.setCurrentIndex(0)
+        print("接收上行帧(%s:%s):" % (self.mSerial.port, self.mSerial.baudrate))
+        frame.Print() 
+        
+        # 表驱动
+        updateFunc = self.updateFuncDict[frameType]
+        self.updateFunc(frame)
+
+    def UpdateTimeAndDmpQuat(self, frame):
+        print("UpdateTimeAndDmpQuat")
+        pass
+
+    def UpdatePrintText(self, frame):
+        print("UpdatePrintText")
+        pass
+
+    def UpdateErrorFrame(self, frame):
+        print("UpdateErrorFrame")
+        pass
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
