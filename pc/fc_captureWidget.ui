@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>880</width>
-    <height>534</height>
+    <width>704</width>
+    <height>563</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -312,9 +312,42 @@
      <property name="title">
       <string>采样结果</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
+     <layout class="QVBoxLayout" name="verticalLayout_14">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_12">
+        <item>
+         <widget class="QCheckBox" name="checkBox">
+          <property name="text">
+           <string>信息保存到</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineEdit"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>浏览</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
        <widget class="QGroupBox" name="groupBox_4">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
           <width>400</width>
@@ -323,8 +356,8 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>400</width>
-          <height>170</height>
+          <width>16777215</width>
+          <height>16777215</height>
          </size>
         </property>
         <property name="title">
@@ -385,6 +418,12 @@
           <layout class="QVBoxLayout" name="verticalLayout_13">
            <item>
             <widget class="QGroupBox" name="groupBox_7">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="title">
               <string>四元数</string>
              </property>
@@ -528,10 +567,45 @@
            </item>
           </layout>
          </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
         </layout>
        </widget>
       </item>
-      <item row="0" column="1">
+      <item>
+       <widget class="QGroupBox" name="waveGroupBox">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>500</width>
+          <height>200</height>
+         </size>
+        </property>
+        <property name="title">
+         <string>长时波形图</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QGroupBox" name="groupBox_3">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -554,11 +628,11 @@
         <property name="title">
          <string>控制台</string>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_12">
+        <layout class="QHBoxLayout" name="horizontalLayout_14">
          <item>
           <widget class="QPlainTextEdit" name="consolePlainTextEdit">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -584,28 +658,6 @@ selection-background-color:green;</string>
           </widget>
          </item>
         </layout>
-       </widget>
-      </item>
-      <item row="1" column="0" colspan="2">
-       <widget class="QGroupBox" name="waveGroupBox">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>500</width>
-          <height>200</height>
-         </size>
-        </property>
-        <property name="title">
-         <string>长时波形图</string>
-        </property>
        </widget>
       </item>
      </layout>
