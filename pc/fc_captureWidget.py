@@ -169,16 +169,15 @@ class FCCaptureWidget(QWidget):
         #self.update()
 
     def UpdateTimeAndDmpQuat(self, frame):
-        print("UpdateTimeAndDmpQuat")
         time = frame.GetTime()
         dmpQuat = frame.GetGmpQuat()
         euler = dmpQuat.ToEuler()
 
-        timeText = "运行:%7.2fs" % (time / 1000.0)
+        timeText = "运行:%7.1fs" % (time / 1000.0)
         dmpQuatText = dmpQuat.ToString()
-        thetaText = "俯仰角:%+4.1fs" % euler.Theta()
-        phiText   = "横滚角:%+4.1fs" % euler.Phi()
-        psiText   = "偏航角:%+4.1fs" % euler.Psi()
+        thetaText = "俯仰角:%+04.2fd" % euler.Theta()
+        phiText   = "横滚角:%+04.2fd" % euler.Phi()
+        psiText   = "偏航角:%+04.2fd" % euler.Psi()
 
         self.sUpdateQuat.emit(timeText, dmpQuatText, thetaText, phiText, psiText)
 

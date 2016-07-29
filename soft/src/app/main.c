@@ -140,7 +140,7 @@ static void idle()
         }
 
         ms_now = HAL_GetTick();
-        if(ms_now - ms_start >= 1000) /* 已达2.5s 执行一次 */
+        if(ms_now - ms_start >= 10000) /* 已达10s 执行一次 */
         {
             /* 该处代码 每秒执行一次 */
             led_toggle(LED_MLED);
