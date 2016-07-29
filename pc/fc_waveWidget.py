@@ -13,6 +13,12 @@ class FCWaveWidget(QWidget):
 
     def __init__(self, parent=None):
         super(FCWaveWidget, self).__init__(parent) 
+
+        #
+        self.mConfig = {
+                '横坐标单位' : 'deg',
+                '纵坐标单位' : 'ms'
+                }
         
         self.setMouseTracking(True) # 鼠标跟踪
         self.setCursor(Qt.BlankCursor) # 隐藏鼠标
@@ -25,10 +31,43 @@ class FCWaveWidget(QWidget):
         painter.fillRect(0, 0, self.width(), self.height(), Qt.black)
         # 绘制坐标系
         self.drawAxes(painter)
+        #self.drawAxes2(painter)
         # 绘制鼠标位置十字线
         self.drawMouseCross(painter)
 
         painter.end() 
+
+    def drawAxes2(self, painter): 
+        xMax = self.width()
+        yMax = self.height()
+
+        metrics = painter.fontMetrics() 
+        xUnit = self.mConfig['横坐标单位']
+        yUnit = self.mConfig['纵坐标单位']
+        #print(xUnit)
+        #print(yUnit)
+        leftWidth = metrics.width(yUnit)
+        downHeight = metrics.ascent() + metrics.descent()
+        #print(leftWidth)
+        #print(downHeight)
+
+        # 绘制坐标系
+        pen = QPen(Qt.red)
+        pen.setWidth(1)
+        painter.setPen(pen)
+
+        # 坐标原点
+        x = leftWidth
+        y = yMax - downHeight
+        painter.rotate(270)
+        painter.drawText(x, y, "O");
+
+        # 横坐标 
+        x = leftWidth
+        y = yMax - downHeight
+        painter.drawLine(x, y, xMax, y); 
+
+        # 画纵坐标 
 
     def drawAxes(self, painter): 
         metrics = painter.fontMetrics() 

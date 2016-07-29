@@ -21,6 +21,7 @@ FCWindowUIClass = loadUiType("fc_captureWidget.ui")
 
 class FCCaptureWidget(QWidget): 
     sAppendConsole = pyqtSignal(str, name='sAppendConsole')
+    sUpdateQuat = pyqtSignal((str, str, str, str, str), name='sUpdateQuat')
 
     def __init__(self):
         super(FCCaptureWidget, self).__init__() 
@@ -57,6 +58,7 @@ class FCCaptureWidget(QWidget):
         self.mThetaLabel = self.mUi.thetaLabel
         self.mphiLabel = self.mUi.phiLabel
         self.mpsiLabel = self.mUi.psiLabel
+        self.sUpdateQuat.connect(self.UpdateQuat)
         self.mTypeComboBox.addItem('串口')
         self.mTypeComboBox.addItem('WiFi')
         self.mTypeComboBox.currentIndexChanged.connect(self.ChangeCommType)
@@ -173,17 +175,12 @@ class FCCaptureWidget(QWidget):
         euler = dmpQuat.ToEuler()
 
         timeText = "运行:%7.2s" % time / 1000.0
-        self.mRunTimeLabel.setText(timeText)
-
         dmpQuatText = dmpQuat.ToString()
-        self.mDmpQuatLabel.setText(dmpQuatText)
-
         thetaText = "俯仰角:%+4.1s" % euler.Theta()
         phiText   = "横滚角:%+4.1s" % euler.Phi()
         psiText   = "偏航角:%+4.1s" % euler.Psi()
-        self.mThetaLabel.setText(thetaText)
-        self.mphiLabel.setText(phiText)
-        self.mpsiLabel.setText(psiText)
+
+        self.sUpdateQuat.emit(timeText, dmpQuatText, thetaText, phiText, psiText)
 
     def UpdatePrintText(self, frame):
         #print("接收文本帧(%s:%s):" % (self.mSerial.port, self.mSerial.baudrate))
@@ -201,6 +198,13 @@ class FCCaptureWidget(QWidget):
         self.mConsolePlainTextEdit.moveCursor(QTextCursor.End)
         self.mConsolePlainTextEdit.insertPlainText(text)
         self.mConsolePlainTextEdit.moveCursor(QTextCursor.End)
+
+    def UpdateQuat(sefl, timeText, dmpQuatText, thetaText, phiText, psiText):
+        self.mRunTimeLabel.setText(timeText)
+        self.mDmpQuatLabel.setText(dmpQuatText)
+        self.mThetaLabel.setText(thetaText)
+        self.mphiLabel.setText(phiText)
+        self.mpsiLabel.setText(psiText)
 
     def UpdateErrorFrame(self, frame):
         print("接收错误帧(%s:%s):" % (self.mSerial.port, self.mSerial.baudrate))
