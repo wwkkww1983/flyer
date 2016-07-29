@@ -124,10 +124,6 @@ class FCCaptureWidget(QWidget):
 
         # step3: 发帧
         self.mSerial.write(buf)
-        self.mSerial.write(buf)
-        self.mSerial.write(buf)
-        print(buf)
-
         print("开始采集")
 
     def StopCapture(self):

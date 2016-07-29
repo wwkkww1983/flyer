@@ -38,7 +38,7 @@ static bool_T s_send_time_flag = FALSE;
 static bool_T s_send_dmp_quat_flag = FALSE;
 
 /********************************** 函数声明区 *********************************/
-static void parse(const uint8_T *frame);
+static bool_T parse(const uint8_T *frame);
 static void send_capture_data(void);
 inline static bool_T is_down_frame(uint32_T type);
 inline static bool_T bit_compare(uint32_T type, uint32_T bit_mask);
@@ -46,6 +46,7 @@ inline static bool_T is_flyer_crtl_frame(uint32_T type);
 inline static bool_T is_sensor_data_frame(uint32_T type);
 inline static bool_T is_dmp_quat_needded(uint32_T type);
 inline static bool_T is_time_needded(uint32_T type);
+static void comm_wait_start(void);
 
 /********************************** 函数实现区 *********************************/
 void comm_init(const drv_uart_T *comm_uart)
@@ -69,14 +70,22 @@ void comm_init(const drv_uart_T *comm_uart)
     comm_wait_start();
 }
 
-void comm_wait_start(void)
+static void comm_wait_start(void)
 {
-    uint8_T frame_buf[COMM_DOWN_FRAME_BUF_SIZE] = {0};
-
-    /* 阻塞等待启动信号 */
-    while(!uart_frame_ready(s_comm_uart)); 
+    uint8_T frame_buf[COMM_DOWN_FRAME_BUF_SIZE] = {0}; 
+    bool_T frameIsValid = FALSE;
     
-    parse(frame_buf); 
+    do
+    { 
+        /* 启动下行帧接收 */
+        uart_recv_bytes((drv_uart_T *)s_comm_uart, frame_buf, COMM_DOWN_FRAME_BUF_SIZE); 
+        
+        /* 阻塞等待上位机启动信号 */
+        while(!uart_frame_ready(s_comm_uart));
+
+        /* 解析 */
+        frameIsValid = parse(frame_buf); 
+    }while(!frameIsValid);
 }
 
 /* 通信交互任务 */
@@ -113,7 +122,7 @@ void comm_task(void)
     }
 }
 
-static void parse(const uint8_T *buf)
+static bool_T parse(const uint8_T *buf)
 {
     comm_frame_T frame = {0};
     uint32_T crc32_calculated = 0;
@@ -141,20 +150,20 @@ static void parse(const uint8_T *buf)
     /* 长度检查 固定长度 data+crc32 8Bytes */
     if(COMM_DOWN_FRAME_DATA_AND_CRC32_SIZE != frame.len) /* 错误帧 不处理 */
     {
-        return;
+        return FALSE;
     }
 
     /* CRC检查 */ 
     crc32_calculated = HAL_CRC_Calculate(&s_crc, (uint32_T *)buf, COMM_DOWN_FRAME_BUF_SIZE / sizeof(uint32_T) - 1); 
     if(crc32_calculated != frame.crc) /* 校验失败*/
     {
-        return;
+        return FALSE;
     }
 
     /* 类型检查 */ 
     if(!is_down_frame(frame.type)) /* 错 收到上行帧 */
     {
-        return;
+        return FALSE;
     }
    
     /* 未实现飞控帧 */
@@ -179,10 +188,12 @@ static void parse(const uint8_T *buf)
         s_send_time_flag = TRUE;
         s_send_dmp_quat_flag = TRUE;
         s_send_interval = frame.interval;
+
+        return TRUE;
     }
     else /* 暂时不支持其他采样 */
     {
-        return;
+        return FALSE;
     }
 }
 
