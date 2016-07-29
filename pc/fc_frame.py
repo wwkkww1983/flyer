@@ -88,6 +88,8 @@ class _FCBaseFrame():
     def GetCrc32WordList(self):
         if not self.isLenValid():
             print("帧长度错误.")
+            print("错误帧如下:.")
+            self.Print()
             exit()
 
         # 构造32bit字列表
