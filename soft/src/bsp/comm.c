@@ -204,7 +204,7 @@ static void send_capture_data(void)
 {
     uint32_T type = 0;
     uint32_T len = 0;
-    uint8_T frame_buf[COMM_FRAME_CAPTURE_FRAME_MAX_SIZE] = {0};
+    static uint8_T frame_buf[COMM_FRAME_CAPTURE_FRAME_MAX_SIZE] = {0}; /* 避免函数退出 栈内存被破坏 */
     uint32_T n = 0;
 
     uint32_T i = 0;

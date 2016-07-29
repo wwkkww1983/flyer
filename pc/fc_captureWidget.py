@@ -149,7 +149,8 @@ class FCCaptureWidget(QWidget):
             
             # 获取data+crc32
             frameDataAndCrc32Len = FCUpFrame.ParseLen(frameHead)
-            print(frameDataAndCrc32Len)
+            #print(frameDataAndCrc32Len)
+            #FCUpFrame.PrintBytes(frameHead)
             frameDataAndrCrc32 = self.mSerial.read(frameDataAndCrc32Len)
             buf = frameHead + frameDataAndrCrc32 
             
