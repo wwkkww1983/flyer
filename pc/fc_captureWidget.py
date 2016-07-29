@@ -28,7 +28,7 @@ class FCCaptureWidget(QWidget):
         
         # 上行帧 表驱动 字典 
         self.updateFuncDict = {
-                FCFrameType.FrameRequestTimeAndDmpQuat : self.UpdateTimeAndDmpQuat,
+                FCFrameType.FrameDataTimeAndDmpQuat: self.UpdateTimeAndDmpQuat,
                 FCFrameType.FramePrintText : self.UpdatePrintText,
                 FCFrameType.FrameError : self.UpdateErrorFrame,
             }
@@ -140,25 +140,24 @@ class FCCaptureWidget(QWidget):
 
     def RecvFunc(self):
         # 接收帧头  type + len = 8Bytes
-        # 计算循环使用的常量
         frameHeadLen = 8
+        # 计算循环使用的常量
         while self.mCapturing:
             # 获取type+len
-            frameHead = self.mSerial.ReadWithTimeout(frameHeadLen)
-            if frameHeadLen == len(frameHead):
-                #FCUpFrame.PrintBytes(frameHead)
-
-                # 获取data+crc32
-                frameDataAndCrc32Len = FCUpFrame.ParseLen(frameHead)
-                frameDataAndrCrc32 = self.mSerial.ReadWithTimeout(frameDataAndCrc32Len)
-                buf = frameHead + frameDataAndrCrc32
-
-                # 解析帧
-                frame = FCUpFrame.Parse(buf)
-
-                # 使用帧 更新界面
-                self.UpdateByNewFrame(frame)
-            sleep(0.5) # 休眠500ms 保证系统不死机
+            frameHead = self.mSerial.read(frameHeadLen)
+            #FCUpFrame.PrintBytes(frameHead) 
+            
+            # 获取data+crc32
+            frameDataAndCrc32Len = FCUpFrame.ParseLen(frameHead)
+            print(frameDataAndCrc32Len)
+            frameDataAndrCrc32 = self.mSerial.read(frameDataAndCrc32Len)
+            buf = frameHead + frameDataAndrCrc32 
+            
+            # 解析帧
+            frame = FCUpFrame.Parse(buf) 
+            
+            # 使用帧 更新界面
+            self.UpdateByNewFrame(frame)
 
     def UpdateByNewFrame(self, frame): 
         frameType = frame.Type()
@@ -174,11 +173,11 @@ class FCCaptureWidget(QWidget):
         dmpQuat = frame.GetGmpQuat()
         euler = dmpQuat.ToEuler()
 
-        timeText = "运行:%7.2s" % time / 1000.0
+        timeText = "运行:%7.2fs" % (time / 1000.0)
         dmpQuatText = dmpQuat.ToString()
-        thetaText = "俯仰角:%+4.1s" % euler.Theta()
-        phiText   = "横滚角:%+4.1s" % euler.Phi()
-        psiText   = "偏航角:%+4.1s" % euler.Psi()
+        thetaText = "俯仰角:%+4.1fs" % euler.Theta()
+        phiText   = "横滚角:%+4.1fs" % euler.Phi()
+        psiText   = "偏航角:%+4.1fs" % euler.Psi()
 
         self.sUpdateQuat.emit(timeText, dmpQuatText, thetaText, phiText, psiText)
 
@@ -199,7 +198,7 @@ class FCCaptureWidget(QWidget):
         self.mConsolePlainTextEdit.insertPlainText(text)
         self.mConsolePlainTextEdit.moveCursor(QTextCursor.End)
 
-    def UpdateQuat(sefl, timeText, dmpQuatText, thetaText, phiText, psiText):
+    def UpdateQuat(self, timeText, dmpQuatText, thetaText, phiText, psiText):
         self.mRunTimeLabel.setText(timeText)
         self.mDmpQuatLabel.setText(dmpQuatText)
         self.mThetaLabel.setText(thetaText)

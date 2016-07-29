@@ -296,12 +296,12 @@ class FCDataTimeAndDmpQuat(FCUpFrame):
 
     def GetTime(self):
         timeBuf = self.mData[0:4]
-        time = struct.unpack('<I', timeBuf)[0]
+        time = struct.unpack('>I', timeBuf)[0]
         return time
 
     def GetGmpQuat(self):
         gmpQuatBuf = self.mData[4:]
-        gmpQuatTuplle = struct.unpack('<ffff', gmpQuatBuf)
+        gmpQuatTuplle = struct.unpack('>ffff', gmpQuatBuf)
 
         gmpQuat = FCQuat(*gmpQuatTuplle)
 

@@ -17,7 +17,7 @@ class FCQuat():
         theta =  atan2(self.mQ2 * self.mQ3 + self.mQ0 * self.mQ1, self.mQ0 * self.mQ0 + self.mQ3 * self.mQ3 - 0.5)
         phi   = -asin(2 * (self.mQ1 * self.mQ3 - self.mQ0 * self.mQ2))
         psi   =  atan2(self.mQ1 * self.mQ2 + self.mQ0 * self.mQ3, self.mQ0 * self.mQ0 + self.mQ1 * self.mQ1 - 0.5)
-        euler = FCEuler(theta, phi, psi)
+        euler =  FCEuler(theta, phi, psi)
         return euler
 
     def ToString(self):

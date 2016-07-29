@@ -160,7 +160,7 @@ void uart_recv_bytes(drv_uart_T *uart, uint8_T *buf, uint32_T n)
 
 inline bool_T uart_frame_ready(const drv_uart_T *uart)
 {
-    return uart_rx_locked(uart);
+    return !uart_rx_locked(uart);
 }
 
 /* FIXME: 新增串口 家分支 */

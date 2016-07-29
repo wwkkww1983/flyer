@@ -106,7 +106,7 @@ void comm_task(void)
     else /* 非首次运行 等待帧 & 解析帧 & 启动串口接收 */
     { 
         /* 等待上一帧接收完成 */
-        if(uart_frame_ready(s_comm_uart))
+        if(!uart_frame_ready(s_comm_uart))
         {
             /* 帧未到达 退出(等待下一轮) */
             return;
@@ -224,7 +224,7 @@ static void send_capture_data(void)
              | COMM_FRAME_DIRECTION_BIT 
              | COMM_FRAME_DMP_QUAT_BIT
              | COMM_FRAME_TIME_BIT;
-        len = 32; /* type:4,len:4,data:4+16,crc:4 = 32 */
+        len = 24; /* data:4+16,crc:4 = 24 */
 
         frame_buf[n++] = (uint8_T)(type >> 24);
         frame_buf[n++] = (uint8_T)(type >> 16);
