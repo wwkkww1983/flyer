@@ -64,6 +64,19 @@ void comm_init(const drv_uart_T *comm_uart)
     {
         while(1);
     }
+
+    /* 阻塞等待启动信号 */
+    comm_wait_start();
+}
+
+void comm_wait_start(void)
+{
+    uint8_T frame_buf[COMM_DOWN_FRAME_BUF_SIZE] = {0};
+
+    /* 阻塞等待启动信号 */
+    while(!uart_frame_ready(s_comm_uart)); 
+    
+    parse(frame_buf); 
 }
 
 /* 通信交互任务 */
@@ -335,9 +348,20 @@ void comm_frame_printf_make(uint32_T *frame_len, uint8_T *frame_buf, uint32_T n)
     uint32_T crc32_calculated = 0;
     uint32_T buf_index = 0;
     uint32_T i = 0;
+    uint32_T left = 0;
 
     /* 需要填充的字节数: &0x03 等效于 %4 */
-    fill_bytes_count = 4 - n & 0x03;
+    left = n % 4;
+    if(0 != left) /* 需要填充 */
+    { 
+        fill_bytes_count = 4 - left;
+    }
+
+    /* 必然是4的倍数 */
+    if(0 != (n + fill_bytes_count) % 4)
+    {
+        while(1);
+    }
 
     type = COMM_FRAME_DIRECTION_BIT
          | COMM_FRAME_PRINTF_BIT;

@@ -124,6 +124,9 @@ class FCCaptureWidget(QWidget):
 
         # step3: 发帧
         self.mSerial.write(buf)
+        self.mSerial.write(buf)
+        self.mSerial.write(buf)
+        print(buf)
 
         print("开始采集")
 
@@ -159,6 +162,7 @@ class FCCaptureWidget(QWidget):
 
                 # 使用帧 更新界面
                 self.UpdateByNewFrame(frame)
+            sleep(0.5) # 休眠500ms 保证系统不死机
 
     def UpdateByNewFrame(self, frame): 
         frameType = frame.Type()
@@ -207,6 +211,7 @@ class FCCaptureWidget(QWidget):
         self.mpsiLabel.setText(psiText)
 
     def UpdateErrorFrame(self, frame):
+        return
         print("接收错误帧(%s:%s):" % (self.mSerial.port, self.mSerial.baudrate))
         frame.Print()
 

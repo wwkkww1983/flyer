@@ -65,7 +65,9 @@ typedef struct{
 /*********************************** 接口函数 **********************************/ 
 void comm_init(const drv_uart_T *comm_uart);
 /* 通信任务 */
-void comm_task(void);
+void comm_task(void); 
+/* 阻塞等待启动信号 */
+void comm_wait_start(void);
 
 void comm_frame_printf_make(uint32_T *frame_len, uint8_T *frame_buf, uint32_T n);
 #endif

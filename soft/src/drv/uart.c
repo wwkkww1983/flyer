@@ -65,8 +65,8 @@ void uart_init(drv_uart_T *uart)
         while(1);
     } 
 
-    /* 延迟10ms 保证不会发送0x00 */
-    HAL_Delay(50);
+    /* 延迟100ms 保证不会发送0x00 */
+    HAL_Delay(100);
     
     /* 解锁保证可用 */
     uart_tc_unlock(uart);
