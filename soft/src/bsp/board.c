@@ -57,6 +57,7 @@ void HAL_MspInit()
 
     GPIO_InitTypeDef GPIO_InitStruct_Uart;
     GPIO_InitTypeDef GPIO_InitStruct_Led;
+    GPIO_InitTypeDef GPIO_InitStruct_ESP8266_PWR;
     GPIO_InitTypeDef GPIO_InitStruct_Pwm;
     GPIO_InitTypeDef GPIO_InitStruct_Sensor; 
     GPIO_InitTypeDef GPIO_InitStruct_Int;
@@ -118,9 +119,9 @@ void HAL_MspInit()
     /* INT */
     HAL_NVIC_SetPriority(CONSOLE_UART_IRQn, PER_INT_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(CONSOLE_UART_IRQn); 
-    HAL_NVIC_SetPriority(CONSOLE_UART_DMA_TX_IRQn, 0, 1);
+    HAL_NVIC_SetPriority(CONSOLE_UART_DMA_TX_IRQn, PER_INT_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(CONSOLE_UART_DMA_TX_IRQn);
-    HAL_NVIC_SetPriority(CONSOLE_UART_DMA_RX_IRQn, 0, 1);
+    HAL_NVIC_SetPriority(CONSOLE_UART_DMA_RX_IRQn, PER_UART_RX_DMA_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(CONSOLE_UART_DMA_RX_IRQn);
 
     /************************* ESP8266串口初始化 ****************************/
@@ -179,11 +180,18 @@ void HAL_MspInit()
     /* INT */
     HAL_NVIC_SetPriority(ESP8266_UART_IRQn, PER_INT_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(ESP8266_UART_IRQn); 
-    HAL_NVIC_SetPriority(ESP8266_UART_DMA_TX_IRQn, 0, 1);
+    HAL_NVIC_SetPriority(ESP8266_UART_DMA_TX_IRQn, PER_INT_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(ESP8266_UART_DMA_TX_IRQn);
-    HAL_NVIC_SetPriority(ESP8266_UART_DMA_RX_IRQn, 0, 1);
+    HAL_NVIC_SetPriority(ESP8266_UART_DMA_RX_IRQn, PER_UART_RX_DMA_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(ESP8266_UART_DMA_RX_IRQn);
-    
+    /* CH_PD(WPWR) GPIO  */
+    ESP8266_PWR_PORT_CLK_ENABLE();
+    GPIO_InitStruct_ESP8266_PWR.Pin   = ESP8266_PWR_GPIO_PIN;
+    GPIO_InitStruct_ESP8266_PWR.Mode  = GPIO_MODE_OUTPUT_PP; 
+    GPIO_InitStruct_ESP8266_PWR.Pull  = GPIO_PULLUP;
+    GPIO_InitStruct_ESP8266_PWR.Speed = GPIO_SPEED_FAST; 
+    HAL_GPIO_Init(ESP8266_PWR_PORT, &GPIO_InitStruct_ESP8266_PWR); 
+
     /***************************** LED初始化 ********************************/
     /* MLED 时钟使能 */
     MLED_CLK_ENABLE();
@@ -249,7 +257,6 @@ void HAL_MspInit()
     HAL_NVIC_EnableIRQ(SENSOR_I2C_EV_IRQn);
     HAL_NVIC_SetPriority(SENSOR_I2C_ER_IRQn, PER_INT_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(SENSOR_I2C_ER_IRQn); 
-
     /* 配置DMA(仅RX) */
     sensor_hdma_rx.Instance                    = SENSOR_I2C_RX_DMA_STREAM; 
     sensor_hdma_rx.Init.Channel                = SENSOR_I2C_RX_DMA_CHANNEL;
@@ -268,7 +275,7 @@ void HAL_MspInit()
     /* 关联DMA与I2C */
     __HAL_LINKDMA(&g_si_handle, hdmarx, sensor_hdma_rx); 
     /* INT */
-    HAL_NVIC_SetPriority(SENSOR_I2C_DMA_RX_IRQn, PER_SI_INT_PRIORITY, 0);
+    HAL_NVIC_SetPriority(SENSOR_I2C_DMA_RX_IRQn, PER_SI_RX_DMA_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(SENSOR_I2C_DMA_RX_IRQn);
 
     /************************* SENSOR 中断初始化 ****************************/

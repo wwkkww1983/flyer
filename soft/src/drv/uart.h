@@ -57,6 +57,10 @@ void uart_init(drv_uart_T *uart);
 void uart_send_bytes(drv_uart_T *uart, uint8_T *buf, uint32_T n);
 void uart_recv_bytes(drv_uart_T *uart, uint8_T *buf, uint32_T n);
 
+/* 轮询模式 */
+void uart_send_bytes_poll(drv_uart_T *uart, uint8_T *buf, uint32_T n);
+void uart_recv_bytes_poll(drv_uart_T *uart, uint8_T *buf, uint32_T n);
+
 /* 供comm模块判断是否到达一帧 */
 bool_T uart_frame_ready(const drv_uart_T *uart);
 

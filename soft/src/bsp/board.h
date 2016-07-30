@@ -126,6 +126,9 @@
 #define ESP8266_UART_RX_DMA_STREAM              DMA2_Stream2
 #define ESP8266_UART_DMA_RX_IRQn                DMA2_Stream2_IRQn
 #define ESP8266_UART_DMA_RX_IRQHandler          DMA2_Stream2_IRQHandler
+#define ESP8266_PWR_PORT                        GPIOC
+#define ESP8266_PWR_PORT_CLK_ENABLE()           __HAL_RCC_GPIOC_CLK_ENABLE()
+#define ESP8266_PWR_GPIO_PIN                    GPIO_PIN_9
 
 /********************************** SENSOR I2C 定义 ****************************/
 /*

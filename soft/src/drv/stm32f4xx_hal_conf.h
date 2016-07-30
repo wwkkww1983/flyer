@@ -100,8 +100,9 @@
 #define  MEM_INT_PRIORITY             ((uint32_t)0) /* Memory Management 中断优先级 */
 #define  BUS_INT_PRIORITY             ((uint32_t)0) /* Bus Fault 中断优先级 */
 #define  USAGE_INT_PRIORITY           ((uint32_t)0) /* Usage Fault 中断优先级 */
-#define  PER_SI_INT_PRIORITY          ((uint32_t)12) /* I2C DMA读取优先级需要较高 否则同步会故障 */
-#define  PER_INT_PRIORITY             ((uint32_t)13) /* UART|I2C|LED|PWM等外设的中断的优先级 */
+#define  PER_UART_RX_DMA_PRIORITY     ((uint32_t)1) /* UART DMA读取优先级最高(频率低) */
+#define  PER_SI_RX_DMA_PRIORITY       ((uint32_t)2) /* I2C DMA读取优先级需要较高 否则同步会故障 */
+#define  PER_INT_PRIORITY             ((uint32_t)13) /* 其他外设(UART|I2C|LED|PWM)的中断的优先级 */
 #define  TICK_INT_PRIORITY            ((uint32_t)14) /* SysTick 中断优先级较低 */
 /* 最低优先级15预留给PendSV做任务切换 */
 

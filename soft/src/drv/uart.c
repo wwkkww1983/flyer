@@ -146,6 +146,48 @@ void uart_send_bytes(drv_uart_T *uart, uint8_T *buf, uint32_T n)
     }
 }
 
+/* 仅仅在初始化阶段使用 */
+inline void uart_recv_bytes_poll(drv_uart_T *uart, uint8_T *buf, uint32_T n)
+{
+    HAL_StatusTypeDef status = HAL_TIMEOUT;
+
+    /* 轮询等待n ms 与获取数目成正比 */
+    status = HAL_UART_Receive(&uart->handle, buf, n, n <<  1);
+    if(HAL_OK == status) /* 正常 */
+    {
+        return;
+    }
+    else if(HAL_TIMEOUT == status) /* 超时, FIXME:出错处理 */
+    {
+        return;
+    }
+    else /* 出错 */
+    {
+        while(1);
+    }
+}
+
+/* 仅仅在初始化阶段使用 */
+inline void uart_send_bytes_poll(drv_uart_T *uart, uint8_T *buf, uint32_T n)
+{
+    HAL_StatusTypeDef status = HAL_TIMEOUT;
+
+    /* 轮询等待 2*n ms 与获取数目成正比 */
+    status = HAL_UART_Transmit(&uart->handle, buf, n, n << 1);
+    if(HAL_OK == status) /* 正常 */
+    {
+        return;
+    }
+    else if(HAL_TIMEOUT == status) /* 超时 */
+    {
+        while(1);
+    }
+    else /* 出错 */
+    {
+        while(1);
+    }
+}
+
 void uart_recv_bytes(drv_uart_T *uart, uint8_T *buf, uint32_T n)
 {
     while(uart_rx_locked(uart)); /* 等待上一次接收完成 */
