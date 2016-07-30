@@ -19,6 +19,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stm32f4xx_hal.h>
 
 #include "board.h"
@@ -36,6 +37,7 @@ static CRC_HandleTypeDef s_crc;
 static uint32_T s_send_interval = 0;
 static bool_T s_send_time_flag = FALSE;
 static bool_T s_send_dmp_quat_flag = FALSE;
+static const uint8_T *s_hello = "Hello,i'm waitting.";
 
 /********************************** 函数声明区 *********************************/
 static bool_T parse(const uint8_T *frame);
@@ -79,6 +81,9 @@ static void comm_wait_start(void)
     { 
         /* 启动下行帧接收 */
         uart_recv_bytes((drv_uart_T *)s_comm_uart, frame_buf, COMM_DOWN_FRAME_BUF_SIZE); 
+
+        /* 加入发帧(告诉上位机,目前在等待) */
+        uart_send_bytes_poll((drv_uart_T *)s_comm_uart, (uint8_T *)s_hello, strlen((const char*)s_hello)); 
         
         /* 阻塞等待上位机启动信号 */
         while(!uart_frame_ready(s_comm_uart));

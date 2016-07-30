@@ -28,18 +28,10 @@ class FCCaptureWidget(QWidget):
     def __init__(self):
         super(FCCaptureWidget, self).__init__() 
         
-        # 上行帧 表驱动 字典 
-        self.updateFuncDict = {
-                FCFrameType.FrameDataTimeAndDmpQuat: self.UpdateTimeAndDmpQuat,
-                FCFrameType.FramePrintText : self.UpdatePrintText,
-                FCFrameType.FrameError : self.UpdateErrorFrame,
-            }
-
         # 通信线程&串口&标记
         self.mCapturing = False
         self.mComm = None
-        self.mCommType = "网络" # 默认使用网络
-        self.mRecvThread = None
+        self.mCommType = '网络' # 默认使用网络
 
         # 初始化UI
         self.mUi = FCWindowUIClass[0]()
@@ -64,8 +56,7 @@ class FCCaptureWidget(QWidget):
         self.sUpdateQuat.connect(self.UpdateQuat)
         self.mIpLabel = self.mUi.ipLabel
         localIP = socket.gethostbyname(socket.gethostname()) # 获取本地IP
-        localIPStr = "%s" % localIP
-        localIPStr = "IP:" + localIP.rjust(15, ' ')
+        localIPStr = ("%s" % localIP)
         self.mIpLabel.setText(localIPStr)
         self.mPortLineEdit = self.mUi.portLineEdit 
         self.mNetGroupBox = self.mUi.netGroupBox
@@ -88,6 +79,20 @@ class FCCaptureWidget(QWidget):
         vbox.addWidget(self.mWaveWidget)
         self.mWaveGroupBox.setLayout(vbox)
 
+        # 上行帧 表驱动 字典 
+        self.updateFuncDict = {
+                FCFrameType.FrameDataTimeAndDmpQuat: self.UpdateTimeAndDmpQuat,
+                FCFrameType.FramePrintText : self.UpdatePrintText,
+                FCFrameType.FrameError : self.UpdateErrorFrame,
+            }
+
+        self.commDict = {
+                #键   : (类,        通信参数)
+                '网络': (FCUdp,     (self.mIpLabel.text(), int(self.mPortLineEdit.text()))),
+                '串口': (FCSerial,  (self.mComNameComboBox.currentText(), self.mBuadLineEdit.text())),
+                }
+
+
     def ChangeState(self, checked):
         if self.mCapturing:
             self.mCapturing = False
@@ -104,41 +109,22 @@ class FCCaptureWidget(QWidget):
 
     def ChangeCommType(self, typeIndex):
         if 0 == typeIndex: # 网络
+            self.mCommType = "网络"
             self.mNetGroupBox.setEnabled(True)
             self.mSerGroupBox.setEnabled(False)
-            self.mCommType = "网络"
             return
         if 1 == typeIndex: # 串口
+            self.mCommType = "串口"
             self.mSerGroupBox.setEnabled(True)
             self.mNetGroupBox.setEnabled(False)
-            self.mCommType = "串口"
             return
 
     def StartCapture(self):
-        # TODO: 需要根据控制界面定制
-        paras = None
-        commClass = None
-        # 根据类型构造参数
-        if "网络" == self.mCommType:
-            ip = self.mIpLabel.text()
-            port = self.mPortLineEdit.text()
-            paras = (comPort, comBaudrate)
-            commClass = FCUdp
-        if "串口" == self.mCommType: 
-            comPort = self.mComNameComboBox.currentText()
-            comBaudrate = self.mBuadLineEdit.text()
-            paras = (comPort, comBaudrate)
-            commClass = FCSerial
-
         # 构造通信链路
+        commClass = self.commDict[self.mCommType][0]
+        paras = self.commDict[self.mCommType][1]
         print(paras)
         self.mComm = commClass(*paras)
-        while True:
-            pass
-
-        self.mRecvThread = threading.Thread(target=self.RecvFunc)
-        self.mRecvThread.daemon = True # 主线程结束 子线程也结束
-        self.mRecvThread.start()
 
         # step2: 组请求帧
         time = int(self.mIntervalLineEdit.text())
@@ -146,11 +132,12 @@ class FCCaptureWidget(QWidget):
 
         frame = FCRequestTimeAndDmpQuatFrame(time)
         buf = frame.GetBytes()
-        print("发送下行帧(%s:%s):" % (self.mComm.port, self.mComm.baudrate))
+        print("发送下行帧" , end = ':')
+        print(paras)
         frame.Print()
 
         # step3: 发帧
-        self.mComm.write(buf)
+        self.mComm.Write(buf)
         print("开始采集")
 
     def StopCapture(self):
@@ -159,10 +146,8 @@ class FCCaptureWidget(QWidget):
         # step2: 发帧
 
         # step3: 停止串口线程
-        self.mRecvThread.join(1) #等待0s
-        self.mComm.close()
+        self.mComm.Close()
         self.mComm = None
-        self.mRecvThread = None
         print("停止采集")
 
     def RecvFunc(self):

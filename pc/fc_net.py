@@ -3,6 +3,7 @@
 
 import sys
 import time
+import struct
 import socket
 import threading
 
@@ -20,9 +21,10 @@ class FCUdp():
         self.mPort = port
         self.mUdpSerSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # 监听套接字
         self.mUdpSerSock.bind((ip, port))
+        self.mUdpSerSock.settimeout(0.1) # 100ms 超时值
 
-        self.mUdpSendSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # 发送套接字(广播)
-        self.mUdpSendSocket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        self.mUdpSendSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # 发送套接字(广播)
+        self.mUdpSendSock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 
         # 启动后台线程 读数据
         self.mRecvThread = threading.Thread(target=self._RecvFunc)
@@ -32,9 +34,11 @@ class FCUdp():
 
         self._StartRecvThread()
 
-        # 线程停止时关闭
+    def Close(self): 
+        self._StopRecvThread()
+        # FIXME: 关闭会出错
         #self.mUdpSerSock.close()
-        #self,mUdpSendSocket.close()
+        #self.mUdpSendSock.close()
 
     def _StartRecvThread(self):
         self.mRunning = True
@@ -42,20 +46,27 @@ class FCUdp():
 
     def _StopRecvThread(self):
         self.mRunning = False
-        self.mRecvThread.join(0.01) # 等待10ms
+        self.mRecvThread.join(0.2) # 等待200ms 需要与recv超时值配合
 
     def _RecvFunc(self): 
-        print("开始等待udp数据:")
+        print("udp接收线程启动.")
         while self.mRunning: 
-            (recvData, clientAddr) = self.mUdpSerSock.recvfrom(gBufSize)
-            print(clientAddr, end = ":")
-
-            # 更新 ip
-            self.mTargetIpList.append(clientAddr[0])
-            for c in recvData:
-                print("\\x%02x" % c, end = "")
-            print()
-            self.mRecvBuf = self.mRecvBuf + recvData
+            try:
+                (recvData, clientAddr) = self.mUdpSerSock.recvfrom(gBufSize)
+            except Exception as e:  
+                if isinstance(e, socket.timeout):  
+                    #  超时
+                    continue
+            else:
+                print(clientAddr, end = ":")
+                # 更新 ip
+                #self.mTargetIpList.append(clientAddr[0])
+                print(recvData.decode('utf8'), end = ':')
+                for c in recvData:
+                    print("\\x%02x" % c, end = "")
+                print()
+                self.mRecvBuf = self.mRecvBuf + recvData
+        print("udp接收线程结束.")
 
     def Read(self, length):
         rstBuf = b''
@@ -76,8 +87,9 @@ class FCUdp():
 
     def Write(self, buf):
         # FIXME:使用广播可能会成环
-        targetAddr = (<'broadcast'>, self.mPort)
-        self.mUdpSendSocket.sendto(buf, targetAddr)
+        #targetAddr = ('<broadcast>', self.mPort)
+        #self.mUdpSendSock.sendto(buf, targetAddr)
+        pass
 
 if __name__ == '__main__': 
     localIP = socket.gethostbyname(socket.gethostname()) # 获取本地IP
@@ -91,4 +103,6 @@ if __name__ == '__main__':
         if 0 != len(data):
             print(data)
             udp.Write(data)
+
+    udp.Close()
 

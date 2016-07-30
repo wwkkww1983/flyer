@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>890</width>
+    <width>899</width>
     <height>557</height>
    </rect>
   </property>
@@ -24,7 +24,7 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>171</width>
+       <width>190</width>
        <height>0</height>
       </size>
      </property>
@@ -97,11 +97,11 @@
            <property name="title">
             <string>网络参数</string>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_2">
-            <item>
+           <layout class="QGridLayout" name="gridLayout_2">
+            <item row="0" column="1">
              <widget class="QLabel" name="ipLabel">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+               <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -113,27 +113,36 @@
                </size>
               </property>
               <property name="text">
-               <string>IP:192.168.111.111</string>
+               <string>192.168.111.111</string>
               </property>
              </widget>
             </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_5">
-              <item>
-               <widget class="QLabel" name="label_7">
-                <property name="text">
-                 <string>端口:</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLineEdit" name="portLineEdit">
-                <property name="text">
-                 <string>8080</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_7">
+              <property name="text">
+               <string>端口:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="portLineEdit">
+              <property name="text">
+               <string>8080</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_4">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>IP:</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
