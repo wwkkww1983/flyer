@@ -3,6 +3,7 @@
 
 import sys
 import struct
+import socket
 import threading
 from time import sleep
 
@@ -16,6 +17,7 @@ from fc_frame import FCRequestTimeAndDmpQuatFrame
 from fc_frame import FCUpFrame
 from fc_frame import FCFrameType
 from fc_serial import FCSerial
+from fc_net import FCUdp
 
 FCWindowUIClass = loadUiType("fc_captureWidget.ui")
 
@@ -35,7 +37,8 @@ class FCCaptureWidget(QWidget):
 
         # 通信线程&串口&标记
         self.mCapturing = False
-        self.mSerial = None
+        self.mComm = None
+        self.mCommType = "网络" # 默认使用网络
         self.mRecvThread = None
 
         # 初始化UI
@@ -56,11 +59,19 @@ class FCCaptureWidget(QWidget):
         self.mRunTimeLabel = self.mUi.runTimeLabel
         self.mDmpQuatLabel = self.mUi.dmpQuatLabel
         self.mThetaLabel = self.mUi.thetaLabel
-        self.mphiLabel = self.mUi.phiLabel
-        self.mpsiLabel = self.mUi.psiLabel
+        self.mPhiLabel = self.mUi.phiLabel
+        self.mPsiLabel = self.mUi.psiLabel
         self.sUpdateQuat.connect(self.UpdateQuat)
-        self.mTypeComboBox.addItem('串口')
-        self.mTypeComboBox.addItem('WiFi')
+        self.mIpLabel = self.mUi.ipLabel
+        localIP = socket.gethostbyname(socket.gethostname()) # 获取本地IP
+        localIPStr = "%s" % localIP
+        localIPStr = "IP:" + localIP.rjust(15, ' ')
+        self.mIpLabel.setText(localIPStr)
+        self.mPortLineEdit = self.mUi.portLineEdit 
+        self.mNetGroupBox = self.mUi.netGroupBox
+        self.mSerGroupBox = self.mUi.serGroupBox
+        self.mTypeComboBox.addItem('网络') # 0
+        self.mTypeComboBox.addItem('串口') # 1 
         self.mTypeComboBox.currentIndexChanged.connect(self.ChangeCommType)
         allPortsName = FCSerial.ListAllPorts()
         for portName in allPortsName:
@@ -92,23 +103,39 @@ class FCCaptureWidget(QWidget):
             self.mDataGroupBox.setEnabled(False)
 
     def ChangeCommType(self, typeIndex):
-        if 0 != typeIndex:
-            msgBox = QMessageBox();
-            msgBox.setText("暂时只实现串口.\n")
-            msgBox.exec_();
-            self.mTypeComboBox.setCurrentIndex(0)
+        if 0 == typeIndex: # 网络
+            self.mNetGroupBox.setEnabled(True)
+            self.mSerGroupBox.setEnabled(False)
+            self.mCommType = "网络"
+            return
+        if 1 == typeIndex: # 串口
+            self.mSerGroupBox.setEnabled(True)
+            self.mNetGroupBox.setEnabled(False)
+            self.mCommType = "串口"
+            return
 
     def StartCapture(self):
         # TODO: 需要根据控制界面定制
-        # step1: 启动串口线程
-        self.mSerial = FCSerial()
-        comPort = self.mComNameComboBox.currentText()
-        comBaudrate = self.mBuadLineEdit.text()
-        self.mSerial.port = comPort
-        self.mSerial.baudrate = comBaudrate
-        self.mSerial.timeout = None # 阻塞调用
-        self.mSerial.open()
-        self.mSerial.reset_input_buffer() # 复位缓存
+        paras = None
+        commClass = None
+        # 根据类型构造参数
+        if "网络" == self.mCommType:
+            ip = self.mIpLabel.text()
+            port = self.mPortLineEdit.text()
+            paras = (comPort, comBaudrate)
+            commClass = FCUdp
+        if "串口" == self.mCommType: 
+            comPort = self.mComNameComboBox.currentText()
+            comBaudrate = self.mBuadLineEdit.text()
+            paras = (comPort, comBaudrate)
+            commClass = FCSerial
+
+        # 构造通信链路
+        print(paras)
+        self.mComm = commClass(*paras)
+        while True:
+            pass
+
         self.mRecvThread = threading.Thread(target=self.RecvFunc)
         self.mRecvThread.daemon = True # 主线程结束 子线程也结束
         self.mRecvThread.start()
@@ -119,11 +146,11 @@ class FCCaptureWidget(QWidget):
 
         frame = FCRequestTimeAndDmpQuatFrame(time)
         buf = frame.GetBytes()
-        print("发送下行帧(%s:%s):" % (self.mSerial.port, self.mSerial.baudrate))
+        print("发送下行帧(%s:%s):" % (self.mComm.port, self.mComm.baudrate))
         frame.Print()
 
         # step3: 发帧
-        self.mSerial.write(buf)
+        self.mComm.write(buf)
         print("开始采集")
 
     def StopCapture(self):
@@ -133,8 +160,8 @@ class FCCaptureWidget(QWidget):
 
         # step3: 停止串口线程
         self.mRecvThread.join(1) #等待0s
-        self.mSerial.close()
-        self.mSerial = None
+        self.mComm.close()
+        self.mComm = None
         self.mRecvThread = None
         print("停止采集")
 
@@ -144,14 +171,14 @@ class FCCaptureWidget(QWidget):
         # 计算循环使用的常量
         while self.mCapturing:
             # 获取type+len
-            frameHead = self.mSerial.read(frameHeadLen)
+            frameHead = self.mComm.read(frameHeadLen)
             #FCUpFrame.PrintBytes(frameHead) 
             
             # 获取data+crc32
             frameDataAndCrc32Len = FCUpFrame.ParseLen(frameHead)
             #print(frameDataAndCrc32Len)
             #FCUpFrame.PrintBytes(frameHead)
-            frameDataAndrCrc32 = self.mSerial.read(frameDataAndCrc32Len)
+            frameDataAndrCrc32 = self.mComm.read(frameDataAndCrc32Len)
             buf = frameHead + frameDataAndrCrc32 
             
             # 解析帧
@@ -182,7 +209,7 @@ class FCCaptureWidget(QWidget):
         self.sUpdateQuat.emit(timeText, dmpQuatText, thetaText, phiText, psiText)
 
     def UpdatePrintText(self, frame):
-        #print("接收文本帧(%s:%s):" % (self.mSerial.port, self.mSerial.baudrate))
+        #print("接收文本帧(%s:%s):" % (self.mComm.port, self.mComm.baudrate))
         #frame.Print()
         text = frame.GetText()
         #print(1)
@@ -202,12 +229,12 @@ class FCCaptureWidget(QWidget):
         self.mRunTimeLabel.setText(timeText)
         self.mDmpQuatLabel.setText(dmpQuatText)
         self.mThetaLabel.setText(thetaText)
-        self.mphiLabel.setText(phiText)
-        self.mpsiLabel.setText(psiText)
+        self.mPhiLabel.setText(phiText)
+        self.mPsiLabel.setText(psiText)
 
     def UpdateErrorFrame(self, frame):
         return
-        print("接收错误帧(%s:%s):" % (self.mSerial.port, self.mSerial.baudrate))
+        print("接收错误帧(%s:%s):" % (self.mComm.port, self.mComm.baudrate))
         frame.Print()
 
 if __name__ == '__main__':

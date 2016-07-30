@@ -11,8 +11,13 @@ from serial.tools import list_ports
 g_a_byte_bit_nums = 10
 
 class FCSerial(Serial):
-    def __init__(self):
+    def __init__(self, port, baudrate):
         super(FCSerial, self).__init__()
+        self.port = port
+        self.baudrate = baudrate
+        self.timeout = None # 阻塞调用
+        self.open()
+        self.reset_input_buffer() # 复位缓存
 
     def ReadWithTimeout(self, length):
         # 设置延迟与读取数据长度相关
