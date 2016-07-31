@@ -30,9 +30,9 @@
 
 /*----------------------------------- 声明区 ----------------------------------*/
 /* 经验值 */
-#define ESP8266_DELAY           (100)
+#define ESP8266_DELAY           (200)
 /* 经验值 */
-#define ESP8266_CONNECT_DELAY   (8000)
+#define ESP8266_CONNECT_DELAY   (5000)
 #define ESP8266_READY_STR       ("Ai-Thinker Technology Co. Ltd.\r\n\r\nready\r\n")
 #define ESP8266_READY_STR_SIZE  (strlen(ESP8266_READY_STR))
 
@@ -48,17 +48,17 @@ drv_uart_T g_esp8266 = {
 static uint8_t s_recv_buf[ESP8266_BUF_SIZE] = {0};
 
 static esp8266_cmd_T s_cmd_list[] = {
-    {"ATE0\r\n", ESP8266_DELAY, TRUE},                                /* 关闭回显 */
-    {"AT+CWMODE=1\r\n", ESP8266_DELAY, TRUE},                         /* 设置STA共存模式 */
-    /* 加入路由器,与服务器在同一局域网下,该命令需要连接AP 比较费时 */
-    {"AT+CWJAP=\"22-2-3303\",\"pp866158\"\r\n", ESP8266_CONNECT_DELAY, TRUE},
-    {"AT+CIPMUX=0\r\n", ESP8266_DELAY, TRUE},                         /* 设置单链接 */
-    {"AT+CIPMODE=1\r\n", ESP8266_DELAY, TRUE},                        /* 设置透传模式 */
-    /* 正常udp连接测试(IP和端口为PC服务器的) */
-    {"AT+CIPSTART=\"UDP\",\"192.168.2.101\",8080\r\n", ESP8266_DELAY, TRUE},
-    {"AT+CIPSTATUS\r\n", ESP8266_DELAY, TRUE},                         /* 获取连接状态 */
-    {"AT+CIPSEND\r\n", ESP8266_DELAY, TRUE},                          /* 发送数据 */
-    NULL
+    {"ATE0\r\n", "ATE0\r\r\n\r\nOK\r\n", 1},                                   /* 关闭回显 */
+    {"AT+CWMODE=1\r\n", "\r\nOK\r\n", 1},                                      /* 设置STA共存模式 */ 
+    
+    /* 该命令不检查回显(耗时较长,未完成的话会返回busy,AT+CIPMUX=0会检查) */
+    {"AT+CWJAP=\"22-2-3303\",\"pp866158\"\r\n", "\n", 1},                  /* 加入路由器,与服务器在同一局域网下,该命令需要连接AP 比较费时 */
+    {"AT+CIPMUX=0\r\n", "\r\nOK\r\n", 1},                                      /* 设置单链接 */
+    {"AT+CIPMODE=1\r\n", "\r\nOK\r\n", 1},                                     /* 设置透传模式 */
+    {"AT+CIPSTART=\"UDP\",\"192.168.2.101\",8080\r\n", "CONNECT\r\n\r\nOK\r\n", 1},/* 正常udp连接测试(IP和端口为PC服务器的) */
+    {"AT+CIPSTATUS\r\n", "STATUS:2\r\n", 1},                                   /* 获取连接状态 */
+    {"AT+CIPSEND\r\n", ">", 1},                                                /* 启动透传 */
+    {NULL, NULL}
 };
 
 /********************************** 函数声明区 *********************************/
@@ -71,6 +71,7 @@ void esp8266_init(void)
 { 
     uint32_T i = 0;
     uint8_T *cmd = NULL;
+    uint8_T *echo = NULL;
 
     uart_init(&g_esp8266); 
     
@@ -82,32 +83,52 @@ void esp8266_init(void)
     do
     {
         cmd = s_cmd_list[i].cmd;
+        echo = s_cmd_list[i].echo;
         if(NULL == cmd)
         {
             break;
         }
 
-        memset(s_recv_buf, NUL, ESP8266_BUF_SIZE);
+        do
+        { 
+            memset(s_recv_buf, NUL, ESP8266_BUF_SIZE);
 
-        uart_send_bytes_poll(&g_esp8266, cmd, strlen((const char*)cmd)); 
-        if(s_cmd_list[i].read_back)
-        {
-            uart_recv_bytes_poll(&g_esp8266, s_recv_buf, ESP8266_BUF_SIZE);
-        }
+            /* 输出AT命令 */
+            uart_send_bytes_poll(&g_esp8266, cmd, strlen((const char*)cmd));
+
+            /* 阻塞等待esp8266回显 */
+            uart_recv_bytes_poll(&g_esp8266, s_recv_buf, ESP8266_BUF_SIZE); 
 
 #if 0
-/* 避免未连接AP */
-if(0 == strncmp((const char*)cmd , "AT+CIPMUX=0\r\n", strlen((const char*)cmd)))
-{
-	int i = 0;
-	i = 1;
-}
+            /* 检查命令是否成功 */
+            if(0 == i)
+            {
+                int j = 0;
+                j = 1;
+            }
 #endif
+        
+            /* 检查回显 确认设置成功 */
+            if(NULL != strstr((const char *)s_recv_buf, (const char *)echo))
+            {
+                break;
+            }
+            else /* 回显错误 延迟后重发命令 */
+            { 
+                /* 延迟 避免出问题 */
+                HAL_Delay(s_cmd_list[i].delay);
 
-        HAL_Delay(s_cmd_list[i].delay);
+#if 1
+                /* 统计命令列表中命令 错误数 */
+                uint32_T cmd_error_times[10] = {0};
+                cmd_error_times[i]++;
+#endif
+            }
+        }while(1);
+
         i++;
+
     }while(1); 
-    HAL_Delay(ESP8266_DELAY); 
 }
 
 /* 复位esp8266模块 */

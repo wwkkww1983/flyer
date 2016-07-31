@@ -32,6 +32,7 @@ class FCCaptureWidget(QWidget):
         self.mCapturing = False
         self.mComm = None
         self.mCommType = '网络' # 默认使用网络
+        self.mFlyerHello = 'Hello,I am waitting.'
 
         # 初始化UI
         self.mUi = FCWindowUIClass[0]()
@@ -96,16 +97,16 @@ class FCCaptureWidget(QWidget):
     def ChangeState(self, checked):
         if self.mCapturing:
             self.mCapturing = False
-            self.StopCapture()
             self.mCapturePushButton.setText("开始采集")
             self.mCommGroupBox.setEnabled(True)
             self.mDataGroupBox.setEnabled(True)
+            self.StopCapture()
         else:
             self.mCapturing = True
-            self.StartCapture()
             self.mCapturePushButton.setText("停止采集")
             self.mCommGroupBox.setEnabled(False)
             self.mDataGroupBox.setEnabled(False)
+            self.StartCapture()
 
     def ChangeCommType(self, typeIndex):
         if 0 == typeIndex: # 网络
@@ -125,6 +126,18 @@ class FCCaptureWidget(QWidget):
         paras = self.commDict[self.mCommType][1]
         print(paras)
         self.mComm = commClass(*paras)
+
+        # step1: 获取下位机握手
+        print(1)
+        helloLen = len(self.mFlyerHello)
+        print(helloLen)
+        while True:
+            recvBuf = self.mComm.Read(helloLen)
+            #print(2)
+            if 0 != len(recvBuf):
+                print(self.mFlyerHello)
+                print(recvBuf)
+                print(recvBuf == self.mFlyerHello)
 
         # step2: 组请求帧
         time = int(self.mIntervalLineEdit.text())
