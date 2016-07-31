@@ -24,6 +24,7 @@ FCWindowUIClass = loadUiType("fc_captureWidget.ui")
 class FCCaptureWidget(QWidget): 
     sAppendConsole = pyqtSignal(str, name='sAppendConsole')
     sUpdateQuat = pyqtSignal((str, str, str, str, str), name='sUpdateQuat')
+    sHelloArived = pyqtSignal(name='sAppendConsole')
 
     def __init__(self):
         super(FCCaptureWidget, self).__init__() 
@@ -32,7 +33,7 @@ class FCCaptureWidget(QWidget):
         self.mCapturing = False
         self.mComm = None
         self.mCommType = '网络' # 默认使用网络
-        self.mFlyerHello = 'Hello,I am waitting.'
+        self.mFlyerHello = b'Hello,I am waitting.'
 
         # 初始化UI
         self.mUi = FCWindowUIClass[0]()
@@ -93,6 +94,8 @@ class FCCaptureWidget(QWidget):
                 '串口': (FCSerial,  (self.mComNameComboBox.currentText(), self.mBuadLineEdit.text())),
                 }
 
+        # 握手到达的信号与对应曹绑定
+        self.sHelloArived.connect(self.HelloArived)
 
     def ChangeState(self, checked):
         if self.mCapturing:
@@ -120,33 +123,36 @@ class FCCaptureWidget(QWidget):
             self.mNetGroupBox.setEnabled(False)
             return
 
+    def _RecvHelloFunc(self):
+        helloLen = len(self.mFlyerHello)
+        print("等待下位机握手信号...")
+        while True:
+            recvBuf = self.mComm.Read(helloLen)
+            if recvBuf == self.mFlyerHello: #找到
+                break
+        print('握手信号到达.')
+        self.sHelloArived.emit()
+
     def StartCapture(self):
-        # 构造通信链路
+        # step1: 构造通信链路
         commClass = self.commDict[self.mCommType][0]
         paras = self.commDict[self.mCommType][1]
         print(paras)
         self.mComm = commClass(*paras)
 
-        # step1: 获取下位机握手
-        print(1)
-        helloLen = len(self.mFlyerHello)
-        print(helloLen)
-        while True:
-            recvBuf = self.mComm.Read(helloLen)
-            #print(2)
-            if 0 != len(recvBuf):
-                print(self.mFlyerHello)
-                print(recvBuf)
-                print(recvBuf == self.mFlyerHello)
+        # step2: 获取下位机握手(有阻塞,所以使用后台线)
+        recvHelloThread = threading.Thread(target=self._RecvHelloFunc)
+        recvHelloThread.start()
 
-        # step2: 组请求帧
+    def HelloArived(self):
+        # 由界面定制
+        # step1: 组请求帧
         time = int(self.mIntervalLineEdit.text())
         #print(time)
 
         frame = FCRequestTimeAndDmpQuatFrame(time)
         buf = frame.GetBytes()
         print("发送下行帧" , end = ':')
-        print(paras)
         frame.Print()
 
         # step3: 发帧

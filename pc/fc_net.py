@@ -19,6 +19,7 @@ class FCUdp():
         super(FCUdp, self).__init__()
         self.mIp = ip
         self.mPort = port
+        self.mTargetAddrList = []
         self.mUdpSerSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # 监听套接字
         self.mUdpSerSock.bind((ip, port))
         self.mUdpSerSock.settimeout(0.1) # 100ms 超时值
@@ -60,7 +61,7 @@ class FCUdp():
             else:
                 print(clientAddr, end = ":")
                 # 更新 ip
-                #self.mTargetIpList.append(clientAddr[0])
+                self.mTargetAddrList.append(clientAddr)
                 print(recvData.decode('utf8'), end = ':')
                 for c in recvData:
                     print("\\x%02x" % c, end = "")
@@ -87,9 +88,9 @@ class FCUdp():
 
     def Write(self, buf):
         # FIXME:使用广播可能会成环
-        #targetAddr = ('<broadcast>', self.mPort)
-        #self.mUdpSendSock.sendto(buf, targetAddr)
-        pass
+        for addr in self.mTargetAddrList: 
+            print(addr)
+            self.mUdpSendSock.sendto(buf, addr) 
 
 if __name__ == '__main__': 
     localIP = socket.gethostbyname(socket.gethostname()) # 获取本地IP

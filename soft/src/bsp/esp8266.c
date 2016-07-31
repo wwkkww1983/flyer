@@ -45,8 +45,6 @@ drv_uart_T g_esp8266 = {
     .baud_rate = ESP8266_BAUDRATE,
 };
 
-static uint8_t s_recv_buf[ESP8266_BUF_SIZE] = {0};
-
 static esp8266_cmd_T s_cmd_list[] = {
     {"ATE0\r\n", "ATE0\r\r\n\r\nOK\r\n", 1},                                   /* 关闭回显 */
     {"AT+CWMODE=1\r\n", "\r\nOK\r\n", 1},                                      /* 设置STA共存模式 */ 
@@ -57,6 +55,8 @@ static esp8266_cmd_T s_cmd_list[] = {
     {"AT+CIPMODE=1\r\n", "\r\nOK\r\n", 1},                                     /* 设置透传模式 */
     {"AT+CIPSTART=\"UDP\",\"192.168.2.101\",8080\r\n", "CONNECT\r\n\r\nOK\r\n", 1},/* 正常udp连接测试(IP和端口为PC服务器的) */
     {"AT+CIPSTATUS\r\n", "STATUS:2\r\n", 1},                                   /* 获取连接状态 */
+    //{"AT+CIFSR\r\n", "\r\nOK\r\n", 1},                                          /* 获取本地ip状态 */
+		//{"AT+CIPSTART=0,\"UDP\",\"255.255.255.255\",1000,50000,1", "\r\nOK\r\n", 1},   /* 启动udp服务器 */
     {"AT+CIPSEND\r\n", ">", 1},                                                /* 启动透传 */
     {NULL, NULL}
 };
@@ -71,7 +71,9 @@ void esp8266_init(void)
 { 
     uint32_T i = 0;
     uint8_T *cmd = NULL;
-    uint8_T *echo = NULL;
+    uint8_T *echo = NULL; 
+    
+    uint8_t recv_buf[ESP8266_BUF_SIZE] = {0};
 
     uart_init(&g_esp8266); 
     
@@ -91,13 +93,13 @@ void esp8266_init(void)
 
         do
         { 
-            memset(s_recv_buf, NUL, ESP8266_BUF_SIZE);
+            memset(recv_buf, NUL, ESP8266_BUF_SIZE);
 
             /* 输出AT命令 */
             uart_send_bytes_poll(&g_esp8266, cmd, strlen((const char*)cmd));
 
             /* 阻塞等待esp8266回显 */
-            uart_recv_bytes_poll(&g_esp8266, s_recv_buf, ESP8266_BUF_SIZE); 
+            uart_recv_bytes_poll(&g_esp8266, recv_buf, ESP8266_BUF_SIZE); 
 
 #if 0
             /* 检查命令是否成功 */
@@ -109,7 +111,7 @@ void esp8266_init(void)
 #endif
         
             /* 检查回显 确认设置成功 */
-            if(NULL != strstr((const char *)s_recv_buf, (const char *)echo))
+            if(NULL != strstr((const char *)recv_buf, (const char *)echo))
             {
                 break;
             }
@@ -151,6 +153,7 @@ void esp8266_test(void)
 void esp8266_wati_reset_ok(void)
 { 
     uint8_t ch = 0;
+    uint8_t recv_buf[ESP8266_BUF_SIZE] = {0};
     while(1)
     { 
         uart_recv_bytes_poll(&g_esp8266, &ch, 1);
@@ -164,8 +167,8 @@ void esp8266_wati_reset_ok(void)
         if('\n' == ch) /* 找到 */
         { 
             /* 接收后面连续5个字符 */
-            uart_recv_bytes_poll(&g_esp8266, s_recv_buf, ESP8266_READY_STR_SIZE);
-            if(0 == strncmp((const char *)s_recv_buf, ESP8266_READY_STR, ESP8266_READY_STR_SIZE)) /* 找到 */
+            uart_recv_bytes_poll(&g_esp8266, recv_buf, ESP8266_READY_STR_SIZE);
+            if(0 == strncmp((const char *)recv_buf, ESP8266_READY_STR, ESP8266_READY_STR_SIZE)) /* 找到 */
             {
                 break;
             }
