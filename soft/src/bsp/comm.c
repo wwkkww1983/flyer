@@ -75,8 +75,34 @@ void comm_init(const drv_uart_T *comm_uart)
 static void comm_wait_start(void)
 {
     uint8_T frame_buf[COMM_DOWN_FRAME_BUF_SIZE] = {0}; 
-    bool_T frame_ready = FALSE;
+    bool_T frame_is_valid = FALSE;
 
+
+    while(1)
+    { 
+        /* 启动上位机帧接收 */
+        uart_recv_bytes((drv_uart_T *)s_comm_uart, frame_buf, COMM_DOWN_FRAME_BUF_SIZE); 
+
+        /* 发送握手(告诉上位机,目前在等待,发送合法启动帧) */
+        uart_send_bytes_poll((drv_uart_T *)s_comm_uart, (uint8_T *)s_hello, strlen((const char*)s_hello)); 
+
+        HAL_Delay(COMM_SEND_HELLO_DELAY);
+
+        /* 阻塞等待接收就绪 */
+        while(!uart_frame_ready(s_comm_uart)); 
+        
+        frame_is_valid = parse(frame_buf); 
+        if(frame_is_valid) /* 合法帧 */ 
+        {
+            break;
+        }
+        else /* 接收到上位机非法帧 重新等待合法帧 */
+        {
+            continue;
+        }
+    }
+
+#if 0
     /* 启动上位机帧接收 */
     uart_recv_bytes((drv_uart_T *)s_comm_uart, frame_buf, COMM_DOWN_FRAME_BUF_SIZE); 
 
@@ -90,6 +116,7 @@ static void comm_wait_start(void)
     }while(!frame_ready);
 
     parse(frame_buf); 
+#endif
 
 #if 0
     while(1)
@@ -116,7 +143,6 @@ static void comm_wait_start(void)
         }
     }
 #endif
-
 }
 
 /* 通信交互任务 */
