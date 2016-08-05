@@ -38,22 +38,18 @@ drv_uart_T g_esp8266 = {
 };
 
 static esp8266_cmd_T s_cmd_list[] = {
-    {"ATE0\r\n", "ATE0\r\r\n\r\nOK\r\n", 1},                /* 关闭回显 */
-    {"AT+CWMODE=1\r\n", "\r\nOK\r\n", 1},                   /* 设置STA共存模式 */ 
+    {"ATE0\r\n", "ATE0\r\r\n\r\nOK\r\n", 1},                                    /* 关闭回显 */
+    {"AT+CWMODE=1\r\n", "\r\nOK\r\n", 1},                                       /* 设置STA共存模式 */ 
     
     /* 该命令不检查回显(耗时较长,未完成的话会返回busy,AT+CIPMUX=0会检查) */
-    /* 加入路由器,与服务器在同一局域网下,该命令需要连接AP 比较费时 */
-    {"AT+CWJAP=\"22-2-3303\",\"pp866158\"\r\n", "\n", 1},
-    {"AT+CIPMUX=0\r\n", "\r\nOK\r\n", 1},                   /* 设置单链接 */
-    {"AT+CIPMODE=1\r\n", "\r\nOK\r\n", 1},                  /* 设置透传模式 */
-   
-    /* 正常udp连接测试(IP和端口为PC服务器的) */
-    {"AT+CIPSTART=\"UDP\",\"192.168.2.101\",8080\r\n", "CONNECT\r\n\r\nOK\r\n", 1},
-    {"AT+CIPSTATUS\r\n", "STATUS:2\r\n", 1},                /* 获取连接状态 */
-
-    //{"AT+CIFSR\r\n", "\r\nOK\r\n", 1},                    /* 获取本地ip状态 */
-    
-    {"AT+CIPSEND\r\n", ">", 1},                             /* 启动透传 */
+    {"AT+CWJAP=\"pc4esp8266\",\"pp866158\"\r\n", "\n", 1},                      /* 加入路由器,与服务器在同一局域网下,该命令需要连接AP 比较费时 */
+    {"AT+CIPMUX=0\r\n", "\r\nOK\r\n", 1},                                       /* 设置单链接 */
+    {"AT+CIPMODE=1\r\n", "\r\nOK\r\n", 1},                                      /* 设置透传模式 */
+    {"AT+CIPSTART=\"UDP\",\"192.168.1.2\",8080\r\n", "CONNECT\r\n\r\nOK\r\n", 1},/* 正常udp连接测试(IP和端口为PC服务器的) */
+    {"AT+CIPSTATUS\r\n", "STATUS:2\r\n", 1},                                    /* 获取连接状态 */
+    //{"AT+CIFSR\r\n", "\r\nOK\r\n", 1},                                        /* 获取本地ip状态 */
+    //{"AT+CIPSTART=0,\"UDP\",\"255.255.255.255\",1000,50000,1", "\r\nOK\r\n", 1}, /* 启动udp服务器 */
+    {"AT+CIPSEND\r\n", ">", 1},                                                 /* 启动透传 */
     {NULL, NULL}
 };
 
