@@ -78,6 +78,7 @@ static void comm_wait_start(void)
     bool_T frame_is_valid = FALSE;
 
 
+    /* TODO:完善握手协议 */
     while(1)
     { 
         /* 启动上位机帧接收 */
