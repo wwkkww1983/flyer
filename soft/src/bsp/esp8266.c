@@ -47,7 +47,7 @@ static esp8266_cmd_T s_cmd_list[] = {
     {"AT+CIPMODE=1\r\n", "\r\nOK\r\n", 1},                                      /* 设置透传模式 */
     {"AT+CIPSTART=\"UDP\",\"192.168.1.2\",8080\r\n", "CONNECT\r\n\r\nOK\r\n", 1},/* 正常udp连接测试(IP和端口为PC服务器的) */
     {"AT+CIPSTATUS\r\n", "STATUS:2\r\n", 1},                                    /* 获取连接状态 */
-    //{"AT+CIFSR\r\n", "\r\nOK\r\n", 1},                                        /* 获取本地ip状态 */
+    {"AT+CIFSR\r\n", "192.168.1.", 1},                                        /* 获取本地ip状态 */
     //{"AT+CIPSTART=0,\"UDP\",\"255.255.255.255\",1000,50000,1", "\r\nOK\r\n", 1}, /* 启动udp服务器 */
     {"AT+CIPSEND\r\n", ">", 1},                                                 /* 启动透传 */
     {NULL, NULL}

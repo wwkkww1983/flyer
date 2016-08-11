@@ -3,11 +3,11 @@
 from socket import *
 
 #recvHost = '127.0.0.1'
-recvHost = '192.168.2.101'
+recvHost = '192.168.1.2'
 recvPort = 8080
 recvAddr = (recvHost, recvPort)
 
-sendData = b'123'
+sendData = b'123abc123abc'
 
 udpSendSocket = socket(AF_INET, SOCK_DGRAM)
 

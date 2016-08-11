@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>899</width>
+    <width>909</width>
     <height>557</height>
    </rect>
   </property>
@@ -345,7 +345,7 @@
          </size>
         </property>
         <property name="text">
-         <string>开始采集</string>
+         <string>开始监控</string>
         </property>
        </widget>
       </item>
