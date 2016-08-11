@@ -37,7 +37,7 @@ static CRC_HandleTypeDef s_crc;
 static uint32_T s_send_interval = 0;
 static bool_T s_send_time_flag = FALSE;
 static bool_T s_send_dmp_quat_flag = FALSE;
-static const uint8_T *s_hello = "Hello,I am waitting.";
+//static const uint8_T *s_hello = "Hello,I am waitting.";
 
 /********************************** 函数声明区 *********************************/
 static bool_T parse(const uint8_T *frame);
@@ -48,7 +48,7 @@ inline static bool_T is_flyer_crtl_frame(uint32_T type);
 inline static bool_T is_sensor_data_frame(uint32_T type);
 inline static bool_T is_dmp_quat_needded(uint32_T type);
 inline static bool_T is_time_needded(uint32_T type);
-static void comm_wait_start(void);
+//static void comm_wait_start(void);
 
 /********************************** 函数实现区 *********************************/
 void comm_init(const drv_uart_T *comm_uart)
@@ -69,9 +69,10 @@ void comm_init(const drv_uart_T *comm_uart)
     }
 
     /* 阻塞等待启动信号 */
-    comm_wait_start();
+    //comm_wait_start();
 }
 
+#if 0
 static void comm_wait_start(void)
 {
     uint8_T frame_buf[COMM_DOWN_FRAME_BUF_SIZE] = {0}; 
@@ -155,6 +156,7 @@ static void comm_wait_start(void)
     }
 #endif
 }
+#endif
 
 /* 通信交互任务 */
 void comm_task(void)

@@ -24,7 +24,7 @@ FCWindowUIClass = loadUiType("fc_captureWidget.ui")
 class FCCaptureWidget(QWidget): 
     sAppendConsole = pyqtSignal(str, name='sAppendConsole')
     sUpdateQuat = pyqtSignal((str, str, str, str, str), name='sUpdateQuat')
-    sHelloArived = pyqtSignal(name='sAppendConsole')
+    sHelloArived = pyqtSignal(name='sHelloArived')
 
     def __init__(self):
         super(FCCaptureWidget, self).__init__() 
@@ -32,8 +32,9 @@ class FCCaptureWidget(QWidget):
         # 通信线程&串口&标记
         self.mCapturing = False
         self.mComm = None
+        self.mRecvThread = None
         self.mCommType = '网络' # 默认使用网络
-        self.mFlyerHello = b'Hello,I am waitting.'
+        self.mNewFlyerStr = b'Hello,I am waitting.'
 
         # 初始化UI
         self.mUi = FCWindowUIClass[0]()
@@ -128,7 +129,7 @@ class FCCaptureWidget(QWidget):
         print("等待下位机握手信号...")
         while True:
             recvBuf = self.mComm.Read(helloLen)
-            if recvBuf == self.mFlyerHello: #找到
+            if recvBuf == self.mNewFlyerStr: #找到
                 break
         print('握手信号到达.')
         self.sHelloArived.emit()
@@ -141,8 +142,8 @@ class FCCaptureWidget(QWidget):
         self.mComm = commClass(*paras)
 
         # step2: 获取下位机握手(有阻塞,所以使用后台线)
-        recvHelloThread = threading.Thread(target=self._RecvHelloFunc)
-        recvHelloThread.start()
+        self.mRecvThread = threading.Thread(target=self._RecvFunc)
+        self.mRecvThread.start()
 
     def HelloArived(self):
         # 由界面定制
@@ -157,7 +158,7 @@ class FCCaptureWidget(QWidget):
 
         # step3: 发帧
         self.mComm.Write(buf)
-        print("开始采集")
+        print("开始监控")
 
     def StopCapture(self):
         # step1: 组停止帧
@@ -167,22 +168,26 @@ class FCCaptureWidget(QWidget):
         # step3: 停止串口线程
         self.mComm.Close()
         self.mComm = None
-        print("停止采集")
+        print("停止监控")
 
-    def RecvFunc(self):
+    def _RecvFunc(self):
         # 接收帧头  type + len = 8Bytes
         frameHeadLen = 8
         # 计算循环使用的常量
         while self.mCapturing:
             # 获取type+len
-            frameHead = self.mComm.read(frameHeadLen)
+            frameHead = self.mComm.Read(frameHeadLen)
+            # 未获取到有效数据
+            if not frameHead:
+                continue
+            print(frameHead)
             #FCUpFrame.PrintBytes(frameHead) 
             
             # 获取data+crc32
             frameDataAndCrc32Len = FCUpFrame.ParseLen(frameHead)
             #print(frameDataAndCrc32Len)
             #FCUpFrame.PrintBytes(frameHead)
-            frameDataAndrCrc32 = self.mComm.read(frameDataAndCrc32Len)
+            frameDataAndrCrc32 = self.mComm.Read(frameDataAndCrc32Len)
             buf = frameHead + frameDataAndrCrc32 
             
             # 解析帧
@@ -213,8 +218,8 @@ class FCCaptureWidget(QWidget):
         self.sUpdateQuat.emit(timeText, dmpQuatText, thetaText, phiText, psiText)
 
     def UpdatePrintText(self, frame):
-        #print("接收文本帧(%s:%s):" % (self.mComm.port, self.mComm.baudrate))
-        #frame.Print()
+        print("接收文本帧:")
+        frame.Print()
         text = frame.GetText()
         #print(1)
         #print(text)

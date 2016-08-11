@@ -71,18 +71,17 @@ class FCUdp():
 
     def Read(self, length):
         rstBuf = b''
-        recvBufLen = len(self.mRecvBuf)
         
-        if length <= recvBufLen: # 数据够
+        if length <= len(self.mRecvBuf): # 数据够
             rstBuf = self.mRecvBuf[:length]
             self.mRecvBuf = self.mRecvBuf[length:]
         else: # 数据不够
             time.sleep(0.001 * length) # 一个byte等1ms 
-            if length <= recvBufLen: # 数据够 
+            if length <= len(self.mRecvBuf): # 数据够 
                 rstBuf = self.mRecvBuf[:length]
                 self.mRecvBuf = self.mRecvBuf[length:]
             else:
-                return rstBuf
+                return None
 
         return rstBuf
 
@@ -100,10 +99,12 @@ if __name__ == '__main__':
     time.sleep(1)
 
     while True: 
-        data = udp.Read(10)
-        if 0 != len(data):
-            print(data)
-            udp.Write(data)
+        data = udp.Read(1)
+        if not data:
+            continue
+            #print(data)
+            #udp.Write(data)
+        print(data)
 
     udp.Close()
 
