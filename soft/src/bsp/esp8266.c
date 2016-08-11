@@ -27,6 +27,7 @@
 #include "uart.h"
 #include "esp8266.h"
 #include "console.h"
+#include "debug.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
 

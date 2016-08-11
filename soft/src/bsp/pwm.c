@@ -19,7 +19,7 @@
 #include "board.h"
 #include "stm32f4xx_hal.h"
 #include "pwm.h"
-#include "console.h"
+#include "debug.h"
 #include "lib_math.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/

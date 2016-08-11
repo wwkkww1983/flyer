@@ -18,7 +18,7 @@
 #include <stm32f4xx_hal.h>
 #include "typedef.h"
 #include "config.h"
-#include "console.h"
+#include "debug.h"
 
 /************************************ 宏定义 ***********************************/
 

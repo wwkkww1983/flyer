@@ -26,6 +26,7 @@
 #include "uart.h"
 #include "esp8266.h"
 #include "console.h"
+#include "debug.h"
 #include "comm.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
@@ -37,7 +38,9 @@ static CRC_HandleTypeDef s_crc;
 static uint32_T s_send_interval = 0;
 static bool_T s_send_time_flag = FALSE;
 static bool_T s_send_dmp_quat_flag = FALSE;
-//static const uint8_T *s_hello = "Hello,I am waitting.";
+//static const uint8_T *s_hello = "flyer ok.\r\n"; 
+
+static uint8_T s_recv_frame_buf[COMM_DOWN_FRAME_BUF_SIZE] = {0};
 
 /********************************** 函数声明区 *********************************/
 static bool_T parse(const uint8_T *frame);
@@ -66,7 +69,11 @@ void comm_init(const drv_uart_T *comm_uart)
     if(HAL_OK != HAL_CRC_Init(&s_crc))
     {
         while(1);
-    }
+    } 
+    
+    /* 初始化中 启动串口接收 */
+    /* 启动下行帧接收 */
+    uart_recv_bytes((drv_uart_T *)s_comm_uart, s_recv_frame_buf, COMM_DOWN_FRAME_BUF_SIZE);
 
     /* 阻塞等待启动信号 */
     //comm_wait_start();
@@ -161,34 +168,21 @@ static void comm_wait_start(void)
 /* 通信交互任务 */
 void comm_task(void)
 { 
-    static bool_T first_run = TRUE; 
-    static uint8_T frame_buf[COMM_DOWN_FRAME_BUF_SIZE] = {0};
-
-    send_capture_data();
-
-    if(first_run) /* 首次运行启动串口接收 */
+    send_capture_data(); 
+    
+    /* 第一帧在comm_init中启动接收 等待上一帧接收完成 */
+    if(!uart_frame_ready(s_comm_uart))
     {
-        first_run = FALSE; 
-        
-        /* 启动下行帧接收 */
-        uart_recv_bytes((drv_uart_T *)s_comm_uart, frame_buf, COMM_DOWN_FRAME_BUF_SIZE);
+        /* 帧未到达 退出(等待下一轮) */
+        return;
     }
-    else /* 非首次运行 等待帧 & 解析帧 & 启动串口接收 */
+    else
     { 
-        /* 等待上一帧接收完成 */
-        if(!uart_frame_ready(s_comm_uart))
-        {
-            /* 帧未到达 退出(等待下一轮) */
-            return;
-        }
-        else
-        { 
-            /* 解析(包含处理) */
-            parse(frame_buf); 
-            
-            /* 启动下行帧接收 */
-            uart_recv_bytes((drv_uart_T *)s_comm_uart, frame_buf, COMM_DOWN_FRAME_BUF_SIZE);
-        }
+        /* 解析(包含处理) */
+        parse(s_recv_frame_buf);
+
+        /* 启动下行帧接收 */
+        uart_recv_bytes((drv_uart_T *)s_comm_uart, s_recv_frame_buf, COMM_DOWN_FRAME_BUF_SIZE);
     }
 }
 

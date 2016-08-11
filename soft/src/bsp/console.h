@@ -23,36 +23,6 @@
 
 
 /*********************************** 实现函数 **********************************/
-/* DEBUG_LEVEL > 0 输出错误打印信息 */
-#if (DEBUG_LEVEL > 0)
-#define  err_log(...)   console_printf("ERR: ") ;\
-                        console_printf(__VA_ARGS__);\
-                        console_printf("\r\n");
-#else
-#define err_log(...)
-#endif
-
-/* DEBUG_LEVEL > 1 输出调试打印信息 */
-#if (DEBUG_LEVEL > 1)
-#define debug_log(...)  console_printf(__VA_ARGS__);
-#else
-#define debug_log(...)
-#endif
-
-/* DEBUG_LEVEL > 2 输出跟踪信息 */
-#if (DEBUG_LEVEL > 2)
-#define trace_log(...)  console_printf("TRACE : ") ;\
-                        console_printf(__VA_ARGS__);\
-                        console_printf("\r\n");
-#else
-#define trace_log(...)
-#endif
-
-#define TRACE_FUNC_IN   trace_log("[IN]  %-8s:%-8d%-20s", __FILE__, __LINE__, __func__)
-#define TRACE_FUNC_OUT  trace_log("[OUT] %-8s:%-8d%-20s", __FILE__, __LINE__, __func__)
-#define TRACE_STR(str)  trace_log("[TRC] %-8s:%-8d%-20s\t\t%s" , __FILE__, __LINE__, __func__, str)
-
-#define ERR_STR(str)    err_log("%-8s%-8d%-20s\t\t%s" , __FILE__, __LINE__, __func__, str)
 /*********************************** 类型定义 **********************************/
 /*--------------------------------- 接口声明区 --------------------------------*/
 

@@ -24,6 +24,7 @@
 #include "board.h"
 #include "console.h"
 #include "uart.h"
+#include "debug.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
 

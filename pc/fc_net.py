@@ -59,13 +59,15 @@ class FCUdp():
                     #  超时
                     continue
             else:
-                print(clientAddr, end = ":")
+                #print(clientAddr, end = ":")
                 # 更新 ip
                 self.mTargetAddrList.append(clientAddr)
-                print(recvData.decode('utf8'), end = ':')
+                #print(recvData.decode('utf8'), end = ':')
+                """
                 for c in recvData:
                     print("\\x%02x" % c, end = "")
                 print()
+                """
                 self.mRecvBuf = self.mRecvBuf + recvData
         print("udp接收线程结束.")
 
@@ -88,7 +90,7 @@ class FCUdp():
     def Write(self, buf):
         # FIXME:使用广播可能会成环
         for addr in self.mTargetAddrList: 
-            print(addr)
+            #print(addr)
             self.mUdpSendSock.sendto(buf, addr) 
 
 if __name__ == '__main__': 

@@ -24,7 +24,6 @@ FCWindowUIClass = loadUiType("fc_captureWidget.ui")
 class FCCaptureWidget(QWidget): 
     sAppendConsole = pyqtSignal(str, name='sAppendConsole')
     sUpdateQuat = pyqtSignal((str, str, str, str, str), name='sUpdateQuat')
-    sHelloArived = pyqtSignal(name='sHelloArived')
 
     def __init__(self):
         super(FCCaptureWidget, self).__init__() 
@@ -34,7 +33,7 @@ class FCCaptureWidget(QWidget):
         self.mComm = None
         self.mRecvThread = None
         self.mCommType = '网络' # 默认使用网络
-        self.mNewFlyerStr = b'Hello,I am waitting.'
+        self.mNewFlyerInitDoneStr = '初始化完成,进入主循环.'
 
         # 初始化UI
         self.mUi = FCWindowUIClass[0]()
@@ -95,9 +94,6 @@ class FCCaptureWidget(QWidget):
                 '串口': (FCSerial,  (self.mComNameComboBox.currentText(), self.mBuadLineEdit.text())),
                 }
 
-        # 握手到达的信号与对应曹绑定
-        self.sHelloArived.connect(self.HelloArived)
-
     def ChangeState(self, checked):
         if self.mCapturing:
             self.mCapturing = False
@@ -124,16 +120,6 @@ class FCCaptureWidget(QWidget):
             self.mNetGroupBox.setEnabled(False)
             return
 
-    def _RecvHelloFunc(self):
-        helloLen = len(self.mFlyerHello)
-        print("等待下位机握手信号...")
-        while True:
-            recvBuf = self.mComm.Read(helloLen)
-            if recvBuf == self.mNewFlyerStr: #找到
-                break
-        print('握手信号到达.')
-        self.sHelloArived.emit()
-
     def StartCapture(self):
         # step1: 构造通信链路
         commClass = self.commDict[self.mCommType][0]
@@ -145,7 +131,7 @@ class FCCaptureWidget(QWidget):
         self.mRecvThread = threading.Thread(target=self._RecvFunc)
         self.mRecvThread.start()
 
-    def HelloArived(self):
+    def SendRequestCaptureDataCmd(self):
         # 由界面定制
         # step1: 组请求帧
         time = int(self.mIntervalLineEdit.text())
@@ -180,7 +166,7 @@ class FCCaptureWidget(QWidget):
             # 未获取到有效数据
             if not frameHead:
                 continue
-            print(frameHead)
+            #print(frameHead)
             #FCUpFrame.PrintBytes(frameHead) 
             
             # 获取data+crc32
@@ -218,14 +204,22 @@ class FCCaptureWidget(QWidget):
         self.sUpdateQuat.emit(timeText, dmpQuatText, thetaText, phiText, psiText)
 
     def UpdatePrintText(self, frame):
-        print("接收文本帧:")
-        frame.Print()
+        #print("接收文本帧:")
+        #frame.Print()
         text = frame.GetText()
         #print(1)
         #print(text)
         #print(2)
         #self.mConsolePlainTextEdit.appendPlainText(text) 
+
+        #print(text)
+        #print(self.mNewFlyerInitDoneStr in text)
+        # 飞控初始化完成 发送命令
+        if self.mNewFlyerInitDoneStr in text:
+            self.SendRequestCaptureDataCmd()
+
         self.sAppendConsole.emit(text)
+
 
     def AppendConsole(self, text):
         # 有额外的换行
@@ -251,4 +245,5 @@ if __name__ == '__main__':
     win = FCCaptureWidget()
     win.show()
     sys.exit(app.exec_())
+
 
