@@ -26,8 +26,8 @@ class FCWaveWidget(QWidget):
                 }
         
         # TODO: 使用参数传入
-        self.mXPhyStep = 100  #每个像素点为100ms间隔
-        #self.mYPhyStep = 0.1  #每个像素点为0.01deg间隔
+        self.mXPhyStep = 100  # 每个像素点为100ms间隔
+        self.mYPhyRange = 10 # 纵坐标角度范围 [-5, 5]
 
         self.setMouseTracking(True) # 鼠标跟踪
         self.setCursor(Qt.BlankCursor) # 隐藏鼠标
@@ -114,7 +114,7 @@ class FCWaveWidget(QWidget):
         # 计算纵向范围 
         yRange = shortLineNums * yStep
         # 每个像素代表的物理角度
-        yPhyPerPix = 360 / yRange
+        yPhyPerPix = self.mYPhyRange / yRange
         #print(yRange) 
         #print(yPhyPerPix) 
         for i in range(0, shortLineNums):
@@ -123,7 +123,7 @@ class FCWaveWidget(QWidget):
             y1 = yStart - (i + 1) * yStep
             y2 = y1
             painter.drawLine(x1, y1, x2, y2)
-            text = "%.1f" % ( ((i + 1 ) * yStep) * yPhyPerPix - 180.0)
+            text = "%.1f" % ((((i + 1 ) * yStep) * yPhyPerPix) - (self.mYPhyRange / 2))
             #print(text)
             # +/-1 显示美观
             painter.drawText(0 + 1, y1 + 1, text)
