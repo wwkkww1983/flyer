@@ -14,7 +14,7 @@ class FCWaveWidget(QWidget):
     def __init__(self):
         super(FCWaveWidget, self).__init__() 
 
-        #
+        # 配置
         self.mConfig = {
                 '横坐标单位' : '秒',
                 '横坐标步长' : 50,
@@ -29,9 +29,15 @@ class FCWaveWidget(QWidget):
         self.mXPhyStep = 100  # 每个像素点为100ms间隔
         self.mYPhyRange = 10 # 纵坐标角度范围 [-5, 5]
 
+        # 存放 下位机采样的数据
+        self.mData = {}
+
         self.setMouseTracking(True) # 鼠标跟踪
         self.setCursor(Qt.BlankCursor) # 隐藏鼠标
         self.mPos = None # 鼠标当前点
+
+    def Append(self, time, euler):
+        self.mData[time] = (euler)
 
     def paintEvent(self, paintEvent):
         painter = QPainter(self) 
@@ -40,6 +46,8 @@ class FCWaveWidget(QWidget):
         painter.fillRect(0, 0, self.width(), self.height(), Qt.black)
         # 绘制坐标系
         self.drawAxes(painter)
+        # 绘制波形
+        self.drawWave(painter)
         # 绘制鼠标位置十字线
         self.drawMouseCross(painter)
 
@@ -139,6 +147,11 @@ class FCWaveWidget(QWidget):
             painter.setPen(pen)
             painter.drawLine(x, 0, x, self.height())
             painter.drawLine(0, y, self.width(), y)
+
+    def drawWave(self, painter): 
+        for time in self.mData:
+            print(time)
+            print(self.mData[time])
 
     def leaveEvent(self, event):
         self.mPos = None

@@ -27,7 +27,7 @@ class FCCaptureWidget(QWidget):
 
     def __init__(self):
         super(FCCaptureWidget, self).__init__() 
-        
+
         # 通信线程&串口&标记
         self.mCapturing = False
         self.mComm = None
@@ -195,6 +195,9 @@ class FCCaptureWidget(QWidget):
         dmpQuat = frame.GetGmpQuat()
         euler = dmpQuat.ToEuler()
 
+        # 加入数据
+        self.mWaveWidget.Append(time, euler)
+
         timeText = "运行:%7.1fs" % (time / 1000.0)
         dmpQuatText = dmpQuat.ToString()
         thetaText = "俯仰角:%+04.2fd" % euler.Theta()
@@ -219,7 +222,6 @@ class FCCaptureWidget(QWidget):
             self.SendRequestCaptureDataCmd()
 
         self.sAppendConsole.emit(text)
-
 
     def AppendConsole(self, text):
         # 有额外的换行
