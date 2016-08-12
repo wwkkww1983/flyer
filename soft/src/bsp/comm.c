@@ -312,6 +312,15 @@ static void send_capture_data(void)
         if(s_send_dmp_quat_flag)
         {
             get_quat(q);
+
+#if 0
+            /* 调试上位机绘图基准 */
+            q[0] = 1.0f;
+            q[1] = 0.0f;
+            q[2] = 0.0f;
+            q[3] = 0.0f;
+#endif
+
             p_q_ui32 = (uint32_T *)q;
 
             frame_buf[n++] = (uint8_T)( (uint32_T)p_q_ui32[0] >> 24);

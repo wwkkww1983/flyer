@@ -18,19 +18,17 @@ class FCWaveWidget(QWidget):
         self.mConfig = {
                 '横坐标单位' : '秒',
                 '横坐标步长' : 50,
-                '横坐标短线边界' : 8,
 
                 '纵坐标单位' : '  度  ',
                 '纵坐标步长' : 30,
-                '纵坐标短线边界' : 32,
                 }
         
         # TODO: 使用参数传入
         self.mXPhyStep = 100  # 每个像素点为100ms间隔
-        self.mYPhyRange = 0.4 # 纵坐标角度范围 [-0.2, 0.2]
+        self.mYPhyRange = 150 # 纵坐标角度范围 120deg
         self.mYPhyPerPix = 0
-        self.mXStart = 0
-        self.mYStart = 0
+        self.mXOrig = 0
+        self.mYOrig = 0
 
         # 存放 下位机采样的数据
         self.mData = []
@@ -63,11 +61,8 @@ class FCWaveWidget(QWidget):
         metrics = painter.fontMetrics() 
         xUnit = self.mConfig['横坐标单位']
         xStep = self.mConfig['横坐标步长']
-        xShortLineMagin = self.mConfig['横坐标短线边界']
-
         yUnit = self.mConfig['纵坐标单位']
         yStep = self.mConfig['纵坐标步长']
-        yShortLineMagin = self.mConfig['纵坐标短线边界']
 
         #print(xUnit)
         #print(yUnit)
@@ -77,35 +72,25 @@ class FCWaveWidget(QWidget):
         #print(downHeight)
 
         # 绘制坐标系
-        pen = QPen(Qt.red)
+        pen = QPen(Qt.gray)
         pen.setWidth(1)
         painter.setPen(pen)
 
-        # 坐标原点
-        # +/-1避免被截断
-        x = leftWidth + 1
-        y = yMax - 1
-        #painter.rotate(270)
-        painter.drawText(x, y, "0");
-
         xStart = leftWidth
         yStart = yMax - downHeight
+
         # 横坐标 
         painter.drawLine(xStart, yStart, xMax, yStart); 
         # 坐标短线
         length = xMax - xStart
-        shortLineNums = int(length / xStep) - 1 # -1 预留单位text输出的位置
-        shortLineLength = downHeight - xShortLineMagin
-        if shortLineLength < 0:
-            print("""短线边界过大,修改 = self.mConfig['短线边界']""")
-            return
+        shortLineNums = int(length / xStep)
         for i in range(0, shortLineNums):
-            x1 = (i + 1) * xStep + xStart
+            x1 = i * xStep + xStart
             x2 = x1
             y1 = yStart
-            y2 = yStart + shortLineLength
-            painter.drawLine(x1, y1, x2, y2 )
-            text = "%.1f" % ((x1 - xStart) * self.mXPhyStep / 1000)
+            y2 = 0
+            painter.drawLine(x1, y1, x2, 0)
+            text = "%+.1f" % ((x1 - xStart) * self.mXPhyStep / 1000)
             #print(text)
             # +/-1 显示美观
             painter.drawText(x2 + 1, yMax - 1, text)
@@ -115,11 +100,7 @@ class FCWaveWidget(QWidget):
         painter.drawLine(xStart, yStart, xStart, 0); 
         # 坐标短线
         length = yStart - 0 # 起点的y值为最大值
-        shortLineNums = int(length / yStep) - 1 # -1 预留单位text输出的位置
-        shortLineLength = leftWidth - yShortLineMagin
-        if shortLineLength < 0:
-            print("""短线边界过大,修改 = self.mConfig['短线边界']""")
-            return
+        shortLineNums = int(length / yStep)
         # 计算纵向范围 
         yRange = shortLineNums * yStep
         # 每个像素代表的物理角度
@@ -128,18 +109,24 @@ class FCWaveWidget(QWidget):
         #print(self.mYPhyPerPix) 
         for i in range(0, shortLineNums):
             x1 = xStart
-            x2 = xStart - shortLineLength
-            y1 = yStart - (i + 1) * yStep
+            x2 = xMax
+            y1 = yStart - i * yStep
             y2 = y1
             painter.drawLine(x1, y1, x2, y2)
-            text = "%.1f" % ((((i + 1 ) * yStep) * self.mYPhyPerPix) - (self.mYPhyRange / 2))
+            text = "%+.2f" % ((i * yStep * self.mYPhyPerPix) - (self.mYPhyRange / 2))
             #print(text)
             # +/-1 显示美观
             painter.drawText(0 + 1, y1 + 1, text)
         painter.drawText(0 + 1, 0 + downHeight, yUnit)
 
-        self.mXStart = xStart
-        self.mYStart = yStart
+        # 坐标原点
+        xOrig = xStart
+        yOrig = yStart - yRange / 2
+        # 标示原点比较不协调
+        #painter.drawText(xOrig + 1, yOrig - 1, "0");
+
+        self.mXOrig = xOrig
+        self.mYOrig = yOrig
 
     def drawMouseCross(self, painter): 
         if None != self.mPos:
@@ -153,10 +140,6 @@ class FCWaveWidget(QWidget):
             painter.drawLine(0, y, self.width(), y)
 
     def drawWave(self, painter): 
-        pen = QPen(Qt.green)
-        pen.setWidth(1)
-        painter.setPen(pen) 
-
         # 无数据不绘制
         if not self.mData:
             return
@@ -184,13 +167,30 @@ class FCWaveWidget(QWidget):
             eulerNow = dataNow[1]
 
             # 转换为绘制坐标
-            xLast = int(timeLast - timeStart) + self.mXStart
-            yThetaLast = int(self.mYStart / 2) - int(eulerLast.Theta() / self.mYPhyPerPix)
+            xLast = int(timeLast - timeStart) + self.mXOrig
+            yThetaLast = self.mYOrig - int(eulerLast.Theta() / self.mYPhyPerPix)
+            yPhiLast = self.mYOrig - int(eulerLast.Phi() / self.mYPhyPerPix)
+            yPsiLast = self.mYOrig - int(eulerLast.Psi() / self.mYPhyPerPix)
 
-            xNow = int(timeNow - timeStart) + self.mXStart
-            yThetaNow = int(self.mYStart / 2) - int(eulerNow.Theta() / self.mYPhyPerPix)
-
+            xNow = int(timeNow - timeStart) + self.mXOrig
+            yThetaNow = self.mYOrig - int(eulerNow.Theta() / self.mYPhyPerPix)
+            yPhiNow = self.mYOrig - int(eulerNow.Phi() / self.mYPhyPerPix)
+            yPsiNow = self.mYOrig - int(eulerNow.Psi() / self.mYPhyPerPix) 
+            
+            pen = QPen(Qt.red)
+            pen.setWidth(1)
+            painter.setPen(pen) 
             painter.drawLine(xLast, yThetaLast, xNow, yThetaNow)
+
+            pen = QPen(Qt.green)
+            pen.setWidth(1)
+            painter.setPen(pen) 
+            painter.drawLine(xLast, yPhiLast, xNow, yPhiNow)
+
+            pen = QPen(Qt.blue)
+            pen.setWidth(1)
+            painter.setPen(pen) 
+            painter.drawLine(xLast, yPsiLast, xNow, yPsiNow)
 
             #print(time)
             #print((yTheta, yPhi, yPsi))

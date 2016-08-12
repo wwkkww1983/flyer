@@ -88,7 +88,6 @@ int main(void)
 
     init();
     debug_log("\r\n初始化完成,进入主循环.\r\n");
-
     /* 实际运行 */
     while(1)
     { 
