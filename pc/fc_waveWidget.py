@@ -27,17 +27,20 @@ class FCWaveWidget(QWidget):
         
         # TODO: 使用参数传入
         self.mXPhyStep = 100  # 每个像素点为100ms间隔
-        self.mYPhyRange = 10 # 纵坐标角度范围 [-5, 5]
+        self.mYPhyRange = 0.4 # 纵坐标角度范围 [-0.2, 0.2]
+        self.mYPhyPerPix = 0
+        self.mXStart = 0
+        self.mYStart = 0
 
         # 存放 下位机采样的数据
-        self.mData = {}
+        self.mData = []
 
         self.setMouseTracking(True) # 鼠标跟踪
         self.setCursor(Qt.BlankCursor) # 隐藏鼠标
         self.mPos = None # 鼠标当前点
 
     def Append(self, time, euler):
-        self.mData[time] = (euler)
+        self.mData.append((time, euler))
 
     def paintEvent(self, paintEvent):
         painter = QPainter(self) 
@@ -85,9 +88,9 @@ class FCWaveWidget(QWidget):
         #painter.rotate(270)
         painter.drawText(x, y, "0");
 
-        # 横坐标 
         xStart = leftWidth
         yStart = yMax - downHeight
+        # 横坐标 
         painter.drawLine(xStart, yStart, xMax, yStart); 
         # 坐标短线
         length = xMax - xStart
@@ -109,8 +112,6 @@ class FCWaveWidget(QWidget):
         painter.drawText(xMax - leftWidth, yMax - 1, xUnit)
 
         # 画纵坐标 
-        xStart = leftWidth
-        yStart = yMax - downHeight
         painter.drawLine(xStart, yStart, xStart, 0); 
         # 坐标短线
         length = yStart - 0 # 起点的y值为最大值
@@ -122,20 +123,23 @@ class FCWaveWidget(QWidget):
         # 计算纵向范围 
         yRange = shortLineNums * yStep
         # 每个像素代表的物理角度
-        yPhyPerPix = self.mYPhyRange / yRange
+        self.mYPhyPerPix = self.mYPhyRange / yRange
         #print(yRange) 
-        #print(yPhyPerPix) 
+        #print(self.mYPhyPerPix) 
         for i in range(0, shortLineNums):
             x1 = xStart
             x2 = xStart - shortLineLength
             y1 = yStart - (i + 1) * yStep
             y2 = y1
             painter.drawLine(x1, y1, x2, y2)
-            text = "%.1f" % ((((i + 1 ) * yStep) * yPhyPerPix) - (self.mYPhyRange / 2))
+            text = "%.1f" % ((((i + 1 ) * yStep) * self.mYPhyPerPix) - (self.mYPhyRange / 2))
             #print(text)
             # +/-1 显示美观
             painter.drawText(0 + 1, y1 + 1, text)
         painter.drawText(0 + 1, 0 + downHeight, yUnit)
+
+        self.mXStart = xStart
+        self.mYStart = yStart
 
     def drawMouseCross(self, painter): 
         if None != self.mPos:
@@ -149,9 +153,47 @@ class FCWaveWidget(QWidget):
             painter.drawLine(0, y, self.width(), y)
 
     def drawWave(self, painter): 
-        for time in self.mData:
-            print(time)
-            print(self.mData[time])
+        pen = QPen(Qt.green)
+        pen.setWidth(1)
+        painter.setPen(pen) 
+
+        # 无数据不绘制
+        if not self.mData:
+            return
+        
+        timeStart = self.mData[0][0] / 100
+
+        length = len(self.mData)
+        for i in range(0, length):
+            #thetaText = "俯仰角:%+04.2fd" % euler.Theta()
+            #phiText   = "横滚角:%+04.2fd" % euler.Phi()
+            #psiText   = "偏航角:%+04.2fd" % euler.Psi()
+
+            # 首尾不绘制
+            if 0 == i:
+                continue
+            if length - 1 == i:
+                break
+
+            dataLast = self.mData[i - 1]
+            timeLast = dataLast[0] / 100
+            eulerLast = dataLast[1]
+
+            dataNow = self.mData[i]
+            timeNow = dataNow[0] / 100
+            eulerNow = dataNow[1]
+
+            # 转换为绘制坐标
+            xLast = int(timeLast - timeStart) + self.mXStart
+            yThetaLast = int(self.mYStart / 2) - int(eulerLast.Theta() / self.mYPhyPerPix)
+
+            xNow = int(timeNow - timeStart) + self.mXStart
+            yThetaNow = int(self.mYStart / 2) - int(eulerNow.Theta() / self.mYPhyPerPix)
+
+            painter.drawLine(xLast, yThetaLast, xNow, yThetaNow)
+
+            #print(time)
+            #print((yTheta, yPhi, yPsi))
 
     def leaveEvent(self, event):
         self.mPos = None
