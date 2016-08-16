@@ -20,6 +20,7 @@
 
 /************************************ 宏定义 ***********************************/
 #define PWM_MAX_VAL             (1000U)
+#define PWM_ADJ_STEP            (1)
 
 /*********************************** 类型定义 **********************************/
 /* LED名字 编号 */
@@ -38,7 +39,7 @@ typedef struct pwm_list_tag
     PWM_NAME    name; /* 通道名字 */
     TIM_TypeDef *tim; /* 计时器 */
     uint32_T    ch;   /* 通道 */
-    uint32_T    val;  /* 占空值 */
+    int32_T     val;  /* 占空值 */
 }PWM_LIST_T;
 
 /*--------------------------------- 接口声明区 --------------------------------*/
@@ -49,11 +50,13 @@ typedef struct pwm_list_tag
 /* 初始化 */
 void pwm_init(void);
 /* 设置pwm输出 */
-void pwm_set(PWM_NAME pwm, uint32_T val);
+void pwm_set(PWM_NAME pwm, int32_T val);
 /* 测试pwm */
 void pwm_test(void);
-/* 动力控制 */
+/* 姿态控制 */
 void pwm_update(void);
+/* 动力控制 */
+void pwm_set_acceleralor(int32_T val);
 
 #endif
 

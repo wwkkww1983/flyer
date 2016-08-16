@@ -26,6 +26,7 @@
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/
+/* val域表示基础值(用于运动) pwm_update中计算矫正值(用于平衡) */
 PWM_LIST_T g_pwm_list[] = {
     {
         .name = PWM_FRONT,
@@ -61,7 +62,7 @@ static TIM_HandleTypeDef s_tim_handle;
 /* pwm_init和pwm_set中都使用 */
 static TIM_OC_InitTypeDef s_sConfig;
 /* PWM一次脉冲的周期 */
-uint32_T s_period = 0;
+int32_T s_period = 0;
 /********************************** 函数声明区 *********************************/
 static uint32_T pwm_get_period(void);
 
@@ -145,7 +146,7 @@ void pwm_init(void)
     return;
 }
 
-void pwm_set(PWM_NAME pwm, uint32_T val)
+void pwm_set(PWM_NAME pwm, int32_T val)
 {
     uint32_T period = 0;
 
@@ -155,6 +156,11 @@ void pwm_set(PWM_NAME pwm, uint32_T val)
         while(1);
     }
 
+    /* val >= 0 */
+    if(val < 0)
+    {
+        val = 0;
+    }
     /* 最大占空比为1 */
     period = pwm_get_period();
     if(val > period)
@@ -202,18 +208,80 @@ void pwm_update(void)
 {
     f32_T e[3] = {0.0f};
     f32_T q[4] = {0.0f}; 
-    
+    f32_T theta = 0.0f;
+    f32_T psi = 0.0f;
+    int32_T m = 0;
+    /* f32_T phi = 0.0f; */
+    static int32_T adj_val[4] = {0}; /* 前右后左矫正值 */ 
+
     mpu9250_get_quat(q);
     math_quaternion2euler(e, q);
 
-    /* 实现控制 */
-    /* 俯仰角 + 前减后加 */
+    theta = e[0];
+    psi = e[1];
 
+    /* 计算矫正值 */
+    /* 俯仰角 + 前减后加 */
+    if(theta > 0)
+    {
+        adj_val[PWM_FRONT] -= PWM_ADJ_STEP;
+        adj_val[PWM_BACK] += PWM_ADJ_STEP;
+    }
     /* 俯仰角 - 前加后减 */
+    else if(theta < 0)
+    {
+        adj_val[PWM_FRONT] += PWM_ADJ_STEP;
+        adj_val[PWM_BACK] -= PWM_ADJ_STEP;
+    }
+    else
+    {
+        ;
+    }
 
     /* 横滚角 + 左减右加 */
-
+    if(psi > 0)
+    {
+        adj_val[PWM_LEFT] -= PWM_ADJ_STEP;
+        adj_val[PWM_RIGHT] += PWM_ADJ_STEP;
+    }
     /* 横滚角 - 左加右减 */
+    else if(psi < 0)
+    {
+        adj_val[PWM_LEFT] += PWM_ADJ_STEP;
+        adj_val[PWM_RIGHT] -= PWM_ADJ_STEP;
+    }
+    else
+    {
+        ;
+    }
 
+    m = pwm_get_period();
+    m /= 100;
+    /* 实际值 = 基础值 + 矫正值 */
+    for(int32_T i = 0; i < PWM_MAX; i++)
+    { 
+        int32_T adj = adj_val[i];
+        int32_T base = g_pwm_list[i].val;
+
+        pwm_set((PWM_NAME)i, m * (adj + base));
+    }
+}
+
+void pwm_set_acceleralor(int32_T val)
+{
+    /* 限制val在[0,100] */
+    if(val < 0)
+    {
+        val = 0;
+    }
+    if(val > 100)
+    {
+        val = 100;
+    }
+
+    for(int32_T i = 0; i < PWM_MAX; i++)
+    { 
+        g_pwm_list[i].val = val;
+    }
 }
 

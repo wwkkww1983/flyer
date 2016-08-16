@@ -57,7 +57,7 @@
 typedef struct{ 
     uint32_T type;
     uint32_T len;
-    uint32_T interval;
+    uint32_T data;
     uint32_T crc;
 }comm_frame_T;
 

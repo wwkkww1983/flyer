@@ -27,6 +27,7 @@
 #include "esp8266.h"
 #include "console.h"
 #include "mpu9250.h"
+#include "pwm.h"
 #include "debug.h"
 #include "comm.h"
 
@@ -48,7 +49,7 @@ static bool_T parse(const uint8_T *frame);
 static void send_capture_data(void);
 inline static bool_T is_down_frame(uint32_T type);
 inline static bool_T bit_compare(uint32_T type, uint32_T bit_mask);
-inline static bool_T is_flyer_crtl_frame(uint32_T type);
+inline static bool_T is_flyer_ctrl_frame(uint32_T type);
 inline static bool_T is_sensor_data_frame(uint32_T type);
 inline static bool_T is_dmp_quat_needded(uint32_T type);
 inline static bool_T is_time_needded(uint32_T type);
@@ -202,11 +203,6 @@ static bool_T parse(const uint8_T *buf)
     frame.len  |= buf[6] << 8;
     frame.len  |= buf[7];
 
-    frame.interval  = buf[8] << 24;
-    frame.interval |= buf[9] << 16;
-    frame.interval |= buf[10] << 8;
-    frame.interval |= buf[11];
-
     frame.crc   = buf[12] << 24;
     frame.crc  |= buf[13] << 16;
     frame.crc  |= buf[14] << 8;
@@ -231,10 +227,38 @@ static bool_T parse(const uint8_T *buf)
         return FALSE;
     }
    
-    /* 未实现飞控帧 */
-    if(is_flyer_crtl_frame(frame.type))
+    /* 飞控帧 */
+    if(is_flyer_ctrl_frame(frame.type))
     {
-        while(1);
+        int32_T ctrl_type = buf[8];
+        int32_T val = 0;
+
+        /* 填充字节 */
+        if(COMM_FRAME_FILLED_VAL != buf[11])
+        {
+            return FALSE;
+        }
+
+        val  = buf[9] << 8;
+        val |= buf[10];
+
+        switch(ctrl_type)
+        {
+            /* 油门 */
+            case 0x00:
+                pwm_set_acceleralor(val);
+                break;
+
+            /* 以下未实现 */
+            case 0x01: /* 前 */
+            case 0x02: /* 后 */
+            case 0x03: /* 左 */
+            case 0x04: /* 右 */
+            case 0x05: /* 左旋(逆时针旋转) */
+            case 0x06: /* 右旋(顺时针旋转) */
+            default:
+                return FALSE;
+        }
     }
 
     /* 传感数据请求帧 */
@@ -243,16 +267,21 @@ static bool_T parse(const uint8_T *buf)
      && (is_dmp_quat_needded(frame.type))
      && (is_time_needded(frame.type)))
     { 
+        frame.data  = buf[8] << 24;
+        frame.data |= buf[9] << 16;
+        frame.data |= buf[10] << 8;
+        frame.data |= buf[11];
+
         /* 限制时间间隔(无符号32位 必然大于0不用比下界) */
-        if(frame.interval > COMM_FRAME_INTERVAL_MAX)
+        if(frame.data > COMM_FRAME_INTERVAL_MAX)
         {
-            frame.interval = COMM_FRAME_INTERVAL_MAX;
+            frame.data = COMM_FRAME_INTERVAL_MAX;
         }
 
         /* 启动time + dmp quat发送 */
         s_send_time_flag = TRUE;
         s_send_dmp_quat_flag = TRUE;
-        s_send_interval = frame.interval;
+        s_send_interval = frame.data;
 
         return TRUE;
     }
@@ -402,7 +431,7 @@ inline static bool_T bit_compare(uint32_T type, uint32_T bit_mask)
     }
 }
 
-inline static bool_T is_flyer_crtl_frame(uint32_T type)
+inline static bool_T is_flyer_ctrl_frame(uint32_T type)
 { 
     return bit_compare(type, COMM_FRAME_FLYER_CTRL_BIT);
 }
