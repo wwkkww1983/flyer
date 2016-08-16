@@ -76,7 +76,7 @@ static void self_test(void);
 *
 ******************************************************************************/
 int main(void)
-{ 
+{
     f32_T quat[4] = {0.0f}; /* mpu9250 dmp四元数 */
     f32_T q45[4] = {0.0f}; /* 求偏航角旋转45度pi/4(绕Z轴)的四元数表示 */
     f32_T theta = MATH_PI / 4;
@@ -90,12 +90,12 @@ int main(void)
     debug_log("\r\n初始化完成,进入主循环.\r\n");
     /* 实际运行 */
     while(1)
-    { 
+    {
         /* 采样 */
         mpu9250_dmp_read(quat); 
         /* 偏航角旋转45度与机翼对应 */
-        /* FIXME:可能有问题 两边都需要乘 */
         math_quaternion_cross(s_q_rotated, quat, q45);
+
         /* 动力控制 */
         pwm_update(s_q_rotated);
         /* 以上实时性要求强 否则坠机 */

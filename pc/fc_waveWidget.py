@@ -176,7 +176,7 @@ class FCWaveWidget(QWidget):
             yThetaNow = self.mYOrig - int(eulerNow.Theta() / self.mYPhyPerPix)
             yPhiNow = self.mYOrig - int(eulerNow.Phi() / self.mYPhyPerPix)
             yPsiNow = self.mYOrig - int(eulerNow.Psi() / self.mYPhyPerPix) 
-            
+
             pen = QPen(Qt.red)
             pen.setWidth(1)
             painter.setPen(pen) 
