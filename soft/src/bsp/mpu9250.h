@@ -48,8 +48,9 @@ void mpu9250_init(void);
 /* 测试 */
 void mpu9250_test(void);
 /* 读取 */
-void mpu9250_dmp_read(f32_T *quat_f32);
-
+void mpu9250_dmp_read(void);
+/* 获取四元数 */
+void mpu9250_get_quat(f32_T *quat);
 
 #endif /* _MPU9250_H_ */
 

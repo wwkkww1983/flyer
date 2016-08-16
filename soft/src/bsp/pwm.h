@@ -53,7 +53,7 @@ void pwm_set(PWM_NAME pwm, uint32_T val);
 /* 测试pwm */
 void pwm_test(void);
 /* 动力控制 */
-void pwm_update(f32_T *q);
+void pwm_update(void);
 
 #endif
 

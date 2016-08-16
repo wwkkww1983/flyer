@@ -19,6 +19,7 @@
 #include "board.h"
 #include "stm32f4xx_hal.h"
 #include "pwm.h"
+#include "mpu9250.h"
 #include "debug.h"
 #include "lib_math.h"
 
@@ -197,9 +198,12 @@ void pwm_test(void)
 } 
 
 /* 动力控制 */
-void pwm_update(f32_T *q)
+void pwm_update(void)
 {
     f32_T e[3] = {0.0f};
+    f32_T q[4] = {0.0f}; 
+    
+    mpu9250_get_quat(q);
     math_quaternion2euler(e, q);
 
     /* 实现控制 */

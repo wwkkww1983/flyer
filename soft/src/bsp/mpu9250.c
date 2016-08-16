@@ -19,6 +19,7 @@
 #include "config.h"
 #include "typedef.h"
 #include "misc.h"
+#include <math.h>
 #include <stm32f4xx_hal.h>
 #include "inv_mpu.h"
 #include "inv_mpu_dmp_motion_driver.h"
@@ -26,18 +27,21 @@
 #include "exti.h"
 #include "si.h"
 #include "mpu9250.h"
+#include "lib_math.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/
 static bool_T s_mpu9250_fifo_ready = FALSE; 
 static uint8_T s_int_status = 0;
-static f32_T s_quat[4] = {1.0f, 0.0f, 0.0f, 0.0f}; /* 四元数默认值 */
+static f32_T s_quat[4] = {1.0f, 0.0f, 0.0f, 0.0f}; /* 最终的四元数(初始值必须为:1,0,0,0 表示无旋转) */
+static f32_T s_q45[4] = {0.0f}; /* 求偏航角旋转45度pi/4(绕Z轴)的四元数表示 */
 static const signed char s_orientation[9] = MPU9250_ORIENTATION;
 
 /********************************** 函数声明区 *********************************/
 static void run_self_test(void);
 static void int_callback(void *argv);
+static void mpu9250_set_quat(const f32_T *quat);
 
 #if 0
 static void tap_callback(unsigned char direction, unsigned char count);
@@ -50,6 +54,13 @@ void mpu9250_init(void)
 {
     uint8_T who_am_i = 0;
     uint16_T dmp_features = 0;
+
+    /* 由于硬件PCB布局的原因,导致姿态四元数需要旋转45度,保证桨与方位对应 */
+    f32_T theta = MATH_PI / 4;
+    s_q45[0] = cos(theta / 2);
+    s_q45[1] = 0;
+    s_q45[2] = 0;
+    s_q45[3] = sin(theta / 2);
 
     /* 测试i2c是否正常工作 */
     si_read_poll(MPU9250_DEV_ADDR, MPU9250_WHO_AM_I_REG_ADDR, &who_am_i, 1); 
@@ -140,14 +151,16 @@ void mpu9250_init(void)
 
 void mpu9250_test(void) { ; } 
 
-void mpu9250_dmp_read(f32_T *quat_f32)
+void mpu9250_dmp_read(void)
 {
-    static int16_T gyro[3] = {0};
-    static int16_T accel_short[3] = {0};
-    static int32_T quat[4] = {0};
-    static uint32_T sensor_timestamp = 0;
-    static int16_T sensors = 0;
-    static uint8_T more = 0; 
+    int16_T gyro[3] = {0};
+    int16_T accel_short[3] = {0};
+    int32_T quat[4] = {0};
+    f32_T mpu9250_dmp_quat[4] = {0.0f};
+    f32_T q_rotated[4] = {0.0f};
+    uint32_T sensor_timestamp = 0;
+    int16_T sensors = 0;
+    uint8_T more = 0; 
     
     if(s_mpu9250_fifo_ready) /* 四元数 就绪 */
     { 
@@ -170,17 +183,36 @@ void mpu9250_dmp_read(f32_T *quat_f32)
 
         if (sensors & INV_WXYZ_QUAT)
         {
-            s_quat[0] = (f32_T) quat[0] / ((f32_T)(1L << 30));
-            s_quat[1] = (f32_T) quat[1] / ((f32_T)(1L << 30));
-            s_quat[2] = (f32_T) quat[2] / ((f32_T)(1L << 30));
-            s_quat[3] = (f32_T) quat[3] / ((f32_T)(1L << 30));
+            mpu9250_dmp_quat[0] = (f32_T) quat[0] / ((f32_T)(1L << 30));
+            mpu9250_dmp_quat[1] = (f32_T) quat[1] / ((f32_T)(1L << 30));
+            mpu9250_dmp_quat[2] = (f32_T) quat[2] / ((f32_T)(1L << 30));
+            mpu9250_dmp_quat[3] = (f32_T) quat[3] / ((f32_T)(1L << 30)); 
+            
+            /* 偏航角旋转45度与机翼对应 */
+            math_quaternion_cross(q_rotated, mpu9250_dmp_quat, s_q45); 
+
+            mpu9250_set_quat(q_rotated);
         }
     } 
     
-    quat_f32[0] = s_quat[0];
-    quat_f32[1] = s_quat[1];
-    quat_f32[2] = s_quat[2];
-    quat_f32[3] = s_quat[3];
+}
+
+/* TODO:设置和获取四元数 加锁 */
+static void mpu9250_set_quat(const f32_T *quat)
+{ 
+    s_quat[0] = quat[0];
+    s_quat[1] = quat[1];
+    s_quat[2] = quat[2];
+    s_quat[3] = quat[3];
+} 
+
+/* TODO:设置和获取四元数 加锁 */
+void mpu9250_get_quat(f32_T *quat)
+{ 
+    quat[0] = s_quat[0];
+    quat[1] = s_quat[1];
+    quat[2] = s_quat[2];
+    quat[3] = s_quat[3];
 }
 
 static void run_self_test(void)

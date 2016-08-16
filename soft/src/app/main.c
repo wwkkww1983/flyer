@@ -19,7 +19,6 @@
 #include "config.h"
 #include "board.h"
 #include <stm32f4xx_hal.h>
-#include <math.h>
 #include "misc.h"
 #include "led.h"
 #include "pwm.h"
@@ -29,12 +28,10 @@
 #include "esp8266.h"
 #include "debug.h"
 #include "comm.h"
-#include "lib_math.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/ 
-f32_T s_q_rotated[4] = {0.0f}; /* 旋转后的与机翼方向一致的四元数 */
 
 /********************************** 函数声明区 *********************************/
 static void idle(void);
@@ -77,27 +74,16 @@ static void self_test(void);
 ******************************************************************************/
 int main(void)
 {
-    f32_T quat[4] = {0.0f}; /* mpu9250 dmp四元数 */
-    f32_T q45[4] = {0.0f}; /* 求偏航角旋转45度pi/4(绕Z轴)的四元数表示 */
-    f32_T theta = MATH_PI / 4;
-
-    q45[0] = cos(theta / 2);
-    q45[1] = 0;
-    q45[2] = 0;
-    q45[3] = sin(theta / 2);
-
     init();
     debug_log("\r\n初始化完成,进入主循环.\r\n");
     /* 实际运行 */
     while(1)
     {
         /* 采样 */
-        mpu9250_dmp_read(quat); 
-        /* 偏航角旋转45度与机翼对应 */
-        math_quaternion_cross(s_q_rotated, quat, q45);
+        mpu9250_dmp_read(); 
 
         /* 动力控制 */
-        pwm_update(s_q_rotated);
+        pwm_update();
         /* 以上实时性要求强 否则坠机 */
 
         /* 以下实时性要求不强  */
@@ -221,15 +207,6 @@ static void init(void)
 #endif
 
     debug_log("系统初始化完成.\r\n");
-}
-
-/* FIXME:考虑同步问题 */
-void get_quat(f32_T *q)
-{
-    q[0] = s_q_rotated[0];
-    q[1] = s_q_rotated[1];
-    q[2] = s_q_rotated[2];
-    q[3] = s_q_rotated[3];
 }
 
 #if 0

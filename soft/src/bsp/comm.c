@@ -26,6 +26,7 @@
 #include "uart.h"
 #include "esp8266.h"
 #include "console.h"
+#include "mpu9250.h"
 #include "debug.h"
 #include "comm.h"
 
@@ -261,8 +262,6 @@ static bool_T parse(const uint8_T *buf)
     }
 }
 
-/* main.c中定义 */
-void get_quat(f32_T *q);
 /* 发送采样数据 */
 static void send_capture_data(void)
 {
@@ -311,7 +310,7 @@ static void send_capture_data(void)
 
         if(s_send_dmp_quat_flag)
         {
-            get_quat(q);
+            mpu9250_get_quat(q);
 
 #if 0
             /* 调试上位机绘图基准 */
