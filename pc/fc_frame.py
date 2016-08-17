@@ -177,11 +177,11 @@ class _FCDownFrame(_FCBaseFrame):
         return buf
 
 class FCRequestTimeAcceleratorDmpQuatFrame(_FCDownFrame):
-    def __init__(self, time = 100):
-        super(FCRequestTimeAcceleratorDmpQuatFrame, self).__init__(frameType = FCFrameType.FrameRequestTimeAndDmpQuat, 
-                frameData = time)
+    def __init__(self, interval = 100):
+        super(FCRequestTimeAcceleratorDmpQuatFrame, self).__init__(frameType = FCFrameType.FrameRequestTimeAcceleratorDmpQuat, 
+                frameData = interval)
     def Type(self):
-        return FCFrameType.FrameRequestTimeAndDmpQuat
+        return FCFrameType.FrameRequestTimeAcceleratorDmpQuat
 
 class FCAcceleratorFrame(_FCDownFrame):
     def __init__(self, accelerator = 0):
@@ -265,20 +265,6 @@ class FCUpFrame(_FCBaseFrame):
         else:
             return False
 
-    """
-    def Type(self): 
-        # 错误帧
-        if not frame.isValid():
-            return FCFrameType.FrameError
-
-        frameTypeValue = struct.unpack('>I', self.mType)[0]
-        typeEnum = FCFrameType(frameTypeValue)
-        #print(frameTypeValue)
-        #print(FCFrameType.FrameRequestTimeAndDmpQuat.value)
-        #print(typeEnum)
-        return typeEnum
-    """
-
 class FCPrintTextFrame(FCUpFrame):
     def __init__(self, frameBuf): 
         super(FCPrintTextFrame, self).__init__(frameBuf)
@@ -310,8 +296,8 @@ class FCDataTimeAcceleratorDmpQuat(FCUpFrame):
 
     def GetTime(self):
         timeBuf = self.mData[0:4]
-        time = struct.unpack('>I', timeBuf)[0]
-        return time
+        interval = struct.unpack('>I', timeBuf)[0]
+        return interval
 
     def GetGmpQuat(self):
         dmpQuatBuf = self.mData[4:20]

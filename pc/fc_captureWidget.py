@@ -48,6 +48,7 @@ class FCCaptureWidget(QWidget):
         self.mBuadLineEdit = self.mUi.buadLineEdit
         self.mIntervalLineEdit = self.mUi.intervalLineEdit
         self.mDmpQuatCheckBox = self.mUi.dmpQuatCheckBox
+        self.mAcceleratorCheckBox = self.mUi.acceleratorCheckBox
         self.mCapturePushButton = self.mUi.capturePushButton
         self.mCommandPushButton = self.mUi.commandPushButton
         self.mAcceleratorSpinBox = self.mUi.acceleratorSpinBox
@@ -83,6 +84,7 @@ class FCCaptureWidget(QWidget):
         self.mBuadLineEdit.setText("115200")
         self.mIntervalLineEdit.setText("100")
         self.mDmpQuatCheckBox.setChecked(True)
+        self.mAcceleratorCheckBox.setChecked(True)
         self.mCapturePushButton.clicked.connect(self.ChangeState)
         self.mCommandPushButton.clicked.connect(self.SencCommand)
 
@@ -168,11 +170,10 @@ class FCCaptureWidget(QWidget):
     def SendRequestCaptureDataCmd(self):
         # TODO:由界面定制
         # step1: 组请求帧
-        time = int(self.mIntervalLineEdit.text())
-        accelerator = self.mAcceleratorSpinBox.value()
-        #print(time) 
+        interval = int(self.mIntervalLineEdit.text())
+        #print(interval) 
 
-        frame = FCRequestTimeAndDmpQuatFrame(time)
+        frame = FCRequestTimeAcceleratorDmpQuatFrame(interval)
         buf = frame.GetBytes()
         print("发送数据请求帧" , end = ':')
         frame.Print()
