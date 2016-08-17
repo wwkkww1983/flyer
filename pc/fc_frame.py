@@ -12,35 +12,31 @@ gFillByte = 165 # b'\xa5'
 
 class FCFrameType(Enum):
     # 以下类型基本帧类型(用户不使用)
-    _Up             = 0x80000000
-    _Down           = 0x00000000
-    _Ctrl           = 0x40000000
-    _NoCtrl         = 0x00000000
-    _Capture        = 0x20000000
-    _NoCapture      = 0x00000000
-    _Text           = 0x10000000
-    _NoText         = 0x00000000
+    _Up                 = 0x80000000
+    _Down               = 0x00000000
+    _Ctrl               = 0x40000000
+    _Capture            = 0x20000000
+    _Text               = 0x10000000
 
-    _DataPress      = 0x00000020
-    _NoDataPress    = 0x00000000
-    _DataCompass    = 0x00000010
-    _NoDataCompass  = 0x00000000
-    _DataGyro       = 0x00000008
-    _NoDataGyro     = 0x00000000
-    _DataAccel      = 0x00000004
-    _NoDataAccel    = 0x00000000
-    _DataDmpQuat    = 0x00000002
-    _NoDataDmpQuat  = 0x00000000
-    _DataTime       = 0x00000001
-    _NoDataTime     = 0x00000000
+    _LeftAccelerator    = 0x00000800
+    _BackAccelerator    = 0x00000400
+    _RightAccelerator   = 0x00000200
+    _FrontAccelerator   = 0x00000100
+
+    _DataPress          = 0x00000020
+    _DataCompass        = 0x00000010
+    _DataGyro           = 0x00000008
+    _DataAccel          = 0x00000004
+    _DataDmpQuat        = 0x00000002
+    _DataTime           = 0x00000001
 
     # 以下类型用户使用
     # dmp四元数采集请求帧
-    FrameRequestTimeAndDmpQuat = _Down | _Capture | _DataDmpQuat | _DataTime
+    FrameRequestTimeAcceleratorDmpQuat = _Down | _Capture | _LeftAccelerator | _BackAccelerator | _RightAccelerator | _FrontAccelerator | _DataDmpQuat | _DataTime
     FrameAccelerator = _Down | _Ctrl
 
     # dmp四元数采集数据帧
-    FrameDataTimeAndDmpQuat = _Up | _Capture | _DataDmpQuat | _DataTime
+    FrameDataTimeAcceleratorDmpQuat = _Up | _Capture | _LeftAccelerator | _BackAccelerator | _RightAccelerator | _FrontAccelerator | _DataDmpQuat | _DataTime
     # 文本输出帧
     FramePrintText = _Up | _Text
     # 错误帧
@@ -180,9 +176,9 @@ class _FCDownFrame(_FCBaseFrame):
 
         return buf
 
-class FCRequestTimeAndDmpQuatFrame(_FCDownFrame):
+class FCRequestTimeAcceleratorDmpQuatFrame(_FCDownFrame):
     def __init__(self, time = 100):
-        super(FCRequestTimeAndDmpQuatFrame, self).__init__(frameType = FCFrameType.FrameRequestTimeAndDmpQuat, 
+        super(FCRequestTimeAcceleratorDmpQuatFrame, self).__init__(frameType = FCFrameType.FrameRequestTimeAndDmpQuat, 
                 frameData = time)
     def Type(self):
         return FCFrameType.FrameRequestTimeAndDmpQuat
@@ -233,8 +229,8 @@ class FCUpFrame(_FCBaseFrame):
     @staticmethod
     def Parse(buf):
         # 表驱动
-        upFrameClassDict = {FCFrameType.FramePrintText:             FCPrintTextFrame,
-                            FCFrameType.FrameDataTimeAndDmpQuat:    FCDataTimeAndDmpQuat}
+        upFrameClassDict = {FCFrameType.FramePrintText:                     FCPrintTextFrame,
+                            FCFrameType.FrameDataTimeAcceleratorDmpQuat:    FCDataTimeAcceleratorDmpQuat}
         # 解析上行帧
         frameTypeValue = struct.unpack('>I', buf[0:4])[0]
         try:
@@ -305,12 +301,12 @@ class FCPrintTextFrame(FCUpFrame):
         text = textBuf.decode('utf8')
         return text
 
-class FCDataTimeAndDmpQuat(FCUpFrame):
+class FCDataTimeAcceleratorDmpQuat(FCUpFrame):
     def __init__(self, frameBuf): 
-        super(FCDataTimeAndDmpQuat, self).__init__(frameBuf)
+        super(FCDataTimeAcceleratorDmpQuat, self).__init__(frameBuf)
 
     def Type(self): 
-        return FCFrameType.FrameDataTimeAndDmpQuat
+        return FCFrameType.FrameDataTimeAcceleratorDmpQuat
 
     def GetTime(self):
         timeBuf = self.mData[0:4]
@@ -318,12 +314,17 @@ class FCDataTimeAndDmpQuat(FCUpFrame):
         return time
 
     def GetGmpQuat(self):
-        gmpQuatBuf = self.mData[4:]
-        gmpQuatTuplle = struct.unpack('>ffff', gmpQuatBuf)
+        dmpQuatBuf = self.mData[4:20]
+        dmpQuatTuplle = struct.unpack('>ffff', dmpQuatBuf)
 
-        gmpQuat = FCQuat(*gmpQuatTuplle)
+        dmpQuat = FCQuat(*dmpQuatTuplle)
 
-        return gmpQuat
+        return dmpQuat
+
+    def GetAccelrator(self):
+        dmpQuatBuf = self.mData[20:]
+        acceleratorTuplle = struct.unpack('>hhhh', accelerator)
+        return acceleratorTuplle
 
 class FCErrorFrame(FCUpFrame):
     def __init__(self, frameBuf): 

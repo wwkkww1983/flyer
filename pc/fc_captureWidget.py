@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.uic import loadUiType, loadUi
 
 from fc_waveWidget import FCWaveWidget
-from fc_frame import FCRequestTimeAndDmpQuatFrame
+from fc_frame import FCDataTimeAcceleratorDmpQuat
 from fc_frame import FCAcceleratorFrame
 from fc_frame import FCUpFrame
 from fc_frame import FCFrameType
@@ -24,7 +24,7 @@ FCWindowUIClass = loadUiType("fc_captureWidget.ui")
 
 class FCCaptureWidget(QWidget): 
     sAppendConsole = pyqtSignal(str, name='sAppendConsole')
-    sUpdateQuat = pyqtSignal((str, str, str, str, str), name='sUpdateQuat')
+    sUpdateAcceleratorQuat = pyqtSignal((str, str, str, str, str, int, int, int, int), name='sUpdateAcceleratorQuat')
 
     def __init__(self):
         super(FCCaptureWidget, self).__init__() 
@@ -58,7 +58,15 @@ class FCCaptureWidget(QWidget):
         self.mThetaLabel = self.mUi.thetaLabel
         self.mPhiLabel = self.mUi.phiLabel
         self.mPsiLabel = self.mUi.psiLabel
-        self.sUpdateQuat.connect(self.UpdateQuat)
+        self.mFrontLabel = self.mUi.frontLabel
+        self.mRightLabel = self.mUi.rightLabel
+        self.mBackLabel = self.mUi.backLabel
+        self.mLeftLabel = self.mUi.leftLabel
+        self.mFrontProgressBar = self.mUi.frontProgressBar
+        self.mRightProgressBar = self.mUi.rightProgressBar
+        self.mBackProgressBar = self.mUi.backProgressBar
+        self.mLeftProgressBar = self.mUi.leftProgressBar
+        self.sUpdateAcceleratorQuat.connect(self.UpdateAcceleratorQuat)
         self.mIpLabel = self.mUi.ipLabel
         localIP = socket.gethostbyname(socket.gethostname()) # 获取本地IP
         localIPStr = ("%s" % localIP)
@@ -87,7 +95,7 @@ class FCCaptureWidget(QWidget):
 
         # 上行帧 表驱动 字典 
         self.updateFuncDict = {
-                FCFrameType.FrameDataTimeAndDmpQuat: self.UpdateTimeAndDmpQuat,
+                FCFrameType.FrameDataTimeAcceleratorDmpQuat: self.UpdateTimeAcceleratorDmpQuat,
                 FCFrameType.FramePrintText : self.UpdatePrintText,
                 FCFrameType.FrameError : self.UpdateErrorFrame,
             }
@@ -158,10 +166,11 @@ class FCCaptureWidget(QWidget):
         self.mRecvThread.start()
 
     def SendRequestCaptureDataCmd(self):
-        # 由界面定制
+        # TODO:由界面定制
         # step1: 组请求帧
         time = int(self.mIntervalLineEdit.text())
-        #print(time)
+        accelerator = self.mAcceleratorSpinBox.value()
+        #print(time) 
 
         frame = FCRequestTimeAndDmpQuatFrame(time)
         buf = frame.GetBytes()
@@ -173,6 +182,8 @@ class FCCaptureWidget(QWidget):
         print("开始监控")
 
     def StopCapture(self):
+        if not self.mComm:
+            return
         # step1: 组停止帧
 
         # step2: 发帧
@@ -216,9 +227,10 @@ class FCCaptureWidget(QWidget):
         updateFunc(frame)
         #self.update()
 
-    def UpdateTimeAndDmpQuat(self, frame):
+    def UpdateTimeAcceleratorDmpQuat(self, frame):
         time = frame.GetTime()
         dmpQuat = frame.GetGmpQuat()
+        accelerator = frame.GetAccelrator()
         euler = dmpQuat.ToEuler()
 
         # 加入数据
@@ -230,7 +242,8 @@ class FCCaptureWidget(QWidget):
         phiText   = "横滚角:%+04.2fd" % euler.Phi()
         psiText   = "偏航角:%+04.2fd" % euler.Psi()
 
-        self.sUpdateQuat.emit(timeText, dmpQuatText, thetaText, phiText, psiText)
+        self.sUpdateAcceleratorQuat.emit(timeText, dmpQuatText, thetaText, phiText, psiText,
+                accelerator[0], accelerator[1], accelerator[2], accelerator[3])
 
     def UpdatePrintText(self, frame):
         #print("接收文本帧:")
@@ -256,12 +269,23 @@ class FCCaptureWidget(QWidget):
         self.mConsolePlainTextEdit.insertPlainText(text)
         self.mConsolePlainTextEdit.moveCursor(QTextCursor.End)
 
-    def UpdateQuat(self, timeText, dmpQuatText, thetaText, phiText, psiText):
+    def UpdateAcceleratorQuat(self, timeText, dmpQuatText, thetaText, phiText, psiText,
+            frontAccelerator, rightAccelerator, backAccelerator, leftAccelerator):
         self.mRunTimeLabel.setText(timeText)
         self.mDmpQuatLabel.setText(dmpQuatText)
         self.mThetaLabel.setText(thetaText)
         self.mPhiLabel.setText(phiText)
         self.mPsiLabel.setText(psiText)
+
+        # 更新油门
+        self.mFrontLabel.setText("%02d" % frontAccelerator)
+        self.mRightLabel.setText("%02d" % rightAccelerator)
+        self.mBackLabel.setText("%02d" % backAccelerator)
+        self.mLeftLabel.setText("%02d" %leftAccelerator)
+        self.mFrontProgressBar.setValue(frontAccelerator)
+        self.mRightProgressBar.setValue(rightAccelerator)
+        self.mBackProgressBar.setValue(backAccelerator)
+        self.mLeftProgressBar.setValue(leftAccelerator)
 
     def UpdateErrorFrame(self, frame):
         return
