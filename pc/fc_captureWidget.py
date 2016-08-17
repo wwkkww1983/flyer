@@ -14,6 +14,7 @@ from PyQt5.uic import loadUiType, loadUi
 
 from fc_waveWidget import FCWaveWidget
 from fc_frame import FCRequestTimeAndDmpQuatFrame
+from fc_frame import FCAcceleratorFrame
 from fc_frame import FCUpFrame
 from fc_frame import FCFrameType
 from fc_serial import FCSerial
@@ -48,6 +49,8 @@ class FCCaptureWidget(QWidget):
         self.mIntervalLineEdit = self.mUi.intervalLineEdit
         self.mDmpQuatCheckBox = self.mUi.dmpQuatCheckBox
         self.mCapturePushButton = self.mUi.capturePushButton
+        self.mCommandPushButton = self.mUi.commandPushButton
+        self.mAcceleratorSpinBox = self.mUi.acceleratorSpinBox
         self.mConsolePlainTextEdit = self.mUi.consolePlainTextEdit
         self.sAppendConsole.connect(self.AppendConsole)
         self.mRunTimeLabel = self.mUi.runTimeLabel
@@ -73,6 +76,7 @@ class FCCaptureWidget(QWidget):
         self.mIntervalLineEdit.setText("100")
         self.mDmpQuatCheckBox.setChecked(True)
         self.mCapturePushButton.clicked.connect(self.ChangeState)
+        self.mCommandPushButton.clicked.connect(self.SencCommand)
 
         # 加入波形控件
         self.mWaveWidget = FCWaveWidget()
@@ -108,6 +112,23 @@ class FCCaptureWidget(QWidget):
             self.mDataGroupBox.setEnabled(False)
             self.StartCapture()
 
+    def SencCommand(self, checked):
+        if (not self.mCapturing) or (None == self.mComm):
+            print("尚未链接")
+            return
+        else: 
+            # step1: 组控制帧
+            accelerator = int(self.mAcceleratorSpinBox.value())
+            print(accelerator) 
+            
+            frame = FCAcceleratorFrame(accelerator)
+            buf = frame.GetBytes()
+            print("发送加速帧" , end = ':')
+            frame.Print() 
+            
+            # step3: 发帧
+            self.mComm.Write(buf)
+
     def ChangeCommType(self, typeIndex):
         if 0 == typeIndex: # 网络
             self.mCommType = "网络"
@@ -139,7 +160,7 @@ class FCCaptureWidget(QWidget):
 
         frame = FCRequestTimeAndDmpQuatFrame(time)
         buf = frame.GetBytes()
-        print("发送下行帧" , end = ':')
+        print("发送数据请求帧" , end = ':')
         frame.Print()
 
         # step3: 发帧

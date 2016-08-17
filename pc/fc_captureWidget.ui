@@ -352,7 +352,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="spinBox">
+            <widget class="QSpinBox" name="acceleratorSpinBox">
              <property name="maximum">
               <number>100</number>
              </property>
@@ -364,7 +364,7 @@
           </layout>
          </item>
          <item>
-          <widget class="QPushButton" name="capturePushButton_2">
+          <widget class="QPushButton" name="commandPushButton">
            <property name="enabled">
             <bool>true</bool>
            </property>
@@ -830,7 +830,6 @@ selection-background-color:green;</string>
         <property name="title">
          <string>长时波形图</string>
         </property>
-        <zorder>commGroupBox</zorder>
        </widget>
       </item>
      </layout>

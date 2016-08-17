@@ -37,6 +37,7 @@ class FCFrameType(Enum):
     # 以下类型用户使用
     # dmp四元数采集请求帧
     FrameRequestTimeAndDmpQuat = _Down | _Capture | _DataDmpQuat | _DataTime
+    FrameAccelerator = _Down | _Ctrl
 
     # dmp四元数采集数据帧
     FrameDataTimeAndDmpQuat = _Up | _Capture | _DataDmpQuat | _DataTime
@@ -163,8 +164,8 @@ class _FCDownFrame(_FCBaseFrame):
     def __init__(self, frameType = None , dataLen = 8, frameData = 0):
         super(_FCDownFrame, self).__init__()
 
-        if dataLen < 4: # 小于4 则无数据
-            print("下行帧构造失败:数据长至少为4,实际为:%d.\n" % dataLen)
+        if dataLen < 8: # 小于4 则无数据
+            print("下行帧构造失败:数据长错误,为:%d.\n" % dataLen)
 
         self.mType = struct.pack('>I', frameType.value)
         self.mLen = struct.pack('>I', dataLen)
@@ -182,9 +183,16 @@ class _FCDownFrame(_FCBaseFrame):
 class FCRequestTimeAndDmpQuatFrame(_FCDownFrame):
     def __init__(self, time = 100):
         super(FCRequestTimeAndDmpQuatFrame, self).__init__(frameType = FCFrameType.FrameRequestTimeAndDmpQuat, 
-                frameData =time)
+                frameData = time)
     def Type(self):
         return FCFrameType.FrameRequestTimeAndDmpQuat
+
+class FCAcceleratorFrame(_FCDownFrame):
+    def __init__(self, accelerator = 0):
+        super(FCAcceleratorFrame, self).__init__(frameType = FCFrameType.FrameAccelerator,
+                frameData = accelerator)
+    def Type(self):
+        return FCFrameType.FrameAccelerator
 
 # 上行帧 上位机解析
 class FCUpFrame(_FCBaseFrame): 
