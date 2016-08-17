@@ -189,8 +189,18 @@ class FCRequestTimeAndDmpQuatFrame(_FCDownFrame):
 
 class FCAcceleratorFrame(_FCDownFrame):
     def __init__(self, accelerator = 0):
+        # byte0 : 0(加速)
+        # val   : byte1 << 8 | byte2
+        # byte3 : 0xA5
+        byte0 = b'\0'
+        acceleratorVal = struct.pack('>h', accelerator)
+        byte3 = b'\xA5'
+        bytesVal = byte0 + acceleratorVal + byte3
+        #print(bytesVal)
+        data = struct.unpack('>I', bytesVal)[0]
+        #print(data)
         super(FCAcceleratorFrame, self).__init__(frameType = FCFrameType.FrameAccelerator,
-                frameData = accelerator)
+                frameData = data)
     def Type(self):
         return FCFrameType.FrameAccelerator
 

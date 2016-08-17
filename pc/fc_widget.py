@@ -18,11 +18,14 @@ class FCWidget(QTabWidget):
         self.mFlyerWidget = QLabel("未实现")
         self.addTab(self.mFlyerWidget, "飞行控制")
         # 数据采集控件
-        self.mCpatureWidget = FCCaptureWidget()
-        self.addTab(self.mCpatureWidget, "数据采集")
+        self.mCaptureWidget = FCCaptureWidget()
+        self.addTab(self.mCaptureWidget, "数据采集")
 
         # 默认数据采集有效
         self.setCurrentIndex(1)
+
+    def closeEvent(self, event):
+        self.mCaptureWidget.close()
 
 if __name__ == '__main__': 
     app = QApplication(sys.argv)

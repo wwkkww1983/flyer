@@ -98,6 +98,11 @@ class FCCaptureWidget(QWidget):
                 '串口': (FCSerial,  (self.mComNameComboBox.currentText(), self.mBuadLineEdit.text())),
                 }
 
+    def closeEvent(self, event):
+        # 关闭后台接收线程
+        self.mCapturing = False
+        self.StopCapture()
+
     def ChangeState(self, checked):
         if self.mCapturing:
             self.mCapturing = False

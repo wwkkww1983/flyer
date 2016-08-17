@@ -32,6 +32,9 @@ class FCWindow(QMainWindow):
         self.mFCWidget = FCWidget()
         self.setCentralWidget(self.mFCWidget)
 
+    def closeEvent(self, event):
+        self.mFCWidget.close()
+
 if __name__ == '__main__': 
     app = QApplication(sys.argv)
     win = FCWindow()
