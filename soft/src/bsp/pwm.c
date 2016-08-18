@@ -72,7 +72,6 @@ static TIM_OC_InitTypeDef s_sConfig;
 /* PWM一次脉冲的周期 */
 static int32_T s_period = 0;
 /********************************** 函数声明区 *********************************/
-static uint32_T pwm_get_period(void);
 static void pwm_set(PWM_NAME pwm, int32_T val);
 
 /********************************** 函数实现区 *********************************/
@@ -199,7 +198,7 @@ static void pwm_set(PWM_NAME pwm, int32_T val)
 
 }
 
-static uint32_T pwm_get_period(void)
+int32_T pwm_get_period(void)
 {
     return s_period;
 }
@@ -227,8 +226,8 @@ void pwm_update(void)
     f32_T q[4] = {0.0f}; 
     f32_T theta = 0.0f;
     f32_T psi = 0.0f;
-    int32_T m = 0;
     /* f32_T phi = 0.0f; */
+    int32_T val[PWM_MAX] = {0};
 
     mpu9250_get_quat(q);
     math_quaternion2euler(e, q);
@@ -269,17 +268,13 @@ void pwm_update(void)
     else
     {
         ;
-    }
+    } 
+    
+    pwm_get_acceleralor(val);
 
-    m = pwm_get_period();
-    m /= 100;
-    /* 实际值 = 基础值 + 矫正值 */
     for(int32_T i = 0; i < PWM_MAX; i++)
     { 
-        int32_T adj_val = g_pwm_list[i].adj_val;
-        int32_T base = g_pwm_list[i].base;
-
-        pwm_set((PWM_NAME)i, m * base + adj_val);
+        pwm_set((PWM_NAME)i, val[i]);
     }
 }
 
@@ -301,6 +296,23 @@ void pwm_set_acceleralor(const int32_T *val_list)
         } 
         
         g_pwm_list[i].base = val;
+    }
+}
+
+void pwm_get_acceleralor(int32_T *val)
+{ 
+    int32_T m = 0; 
+    int32_T adj_val = 0;
+    int32_T base = 0;
+
+    m = pwm_get_period();
+    m /= 100;
+
+    for(int32_T i = 0; i < PWM_MAX; i++)
+    {
+        adj_val = g_pwm_list[i].adj_val;
+        base = g_pwm_list[i].base;
+        val[i] = m * base + adj_val;
     }
 }
 

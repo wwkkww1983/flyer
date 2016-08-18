@@ -25,7 +25,12 @@
 #define COMM_FRAME_FLYER_CTRL_BIT               ((uint32_T)(0x40000000))
 #define COMM_FRAME_SENSOR_DATA_BIT              ((uint32_T)(0x20000000))
 #define COMM_FRAME_PRINTF_BIT                   ((uint32_T)(0x10000000))
-#define COMM_FRAME_PRESS_DATA_BIT               ((uint32_T)(0x10000020))
+
+#define COMM_FRAME_LEFT_ACCELERATOR_DATA_BIT    ((uint32_T)(0x00000800))
+#define COMM_FRAME_BACK_ACCELERATOR_DATA_BIT    ((uint32_T)(0x00000400))
+#define COMM_FRAME_RIGHT_ACCELERATOR_DATA_BIT   ((uint32_T)(0x00000200))
+#define COMM_FRAME_FRONT_ACCELERATOR_DATA_BIT   ((uint32_T)(0x00000100))
+#define COMM_FRAME_PRESS_DATA_BIT               ((uint32_T)(0x00000020))
 #define COMM_FRAME_COMPASS_DATA_BIT             ((uint32_T)(0x00000010))
 #define COMM_FRAME_GYRO_DATA_BIT                ((uint32_T)(0x00000008))
 #define COMM_FRAME_ACCEL_DATA_BIT               ((uint32_T)(0x00000004))

@@ -39,6 +39,7 @@ static CRC_HandleTypeDef s_crc;
 
 static uint32_T s_send_interval = 0;
 static bool_T s_send_time_flag = FALSE;
+static bool_T s_send_accelerator_flag = FALSE;
 static bool_T s_send_dmp_quat_flag = FALSE;
 //static const uint8_T *s_hello = "flyer ok.\r\n"; 
 
@@ -53,6 +54,7 @@ inline static bool_T is_flyer_ctrl_frame(uint32_T type);
 inline static bool_T is_sensor_data_frame(uint32_T type);
 inline static bool_T is_dmp_quat_needded(uint32_T type);
 inline static bool_T is_time_needded(uint32_T type);
+inline static bool_T is_acceletorater_needded(uint32_T type);
 //static void comm_wait_start(void);
 
 /********************************** 函数实现区 *********************************/
@@ -265,8 +267,9 @@ static bool_T parse(const uint8_T *buf)
     }
 
     /* 传感数据请求帧 */
-    /* 目前仅支持time+dmp_quat采样 */
+    /* 目前仅支持time+accelerator+dmp_quat采样 */
     if( (is_sensor_data_frame(frame.type))
+     && (is_acceletorater_needded(frame.type))
      && (is_dmp_quat_needded(frame.type))
      && (is_time_needded(frame.type)))
     { 
@@ -283,6 +286,7 @@ static bool_T parse(const uint8_T *buf)
 
         /* 启动time + dmp quat发送 */
         s_send_time_flag = TRUE;
+        s_send_accelerator_flag = TRUE;
         s_send_dmp_quat_flag = TRUE;
         s_send_interval = frame.data;
 
@@ -307,6 +311,8 @@ static void send_capture_data(void)
     uint32_T crc32_calculated = 0;
     uint32_T now_ms = 0;
     f32_T q[4] = {0.0f}; 
+    int32_T period = 0;
+    int32_T accelerator[PWM_MAX] = {0};
     uint32_T *p_q_ui32 = NULL;
     static uint32_T last_ms = 0;
 
@@ -374,6 +380,26 @@ static void send_capture_data(void)
             frame_buf[n++] = (uint8_T)(((uint32_T)p_q_ui32[3] >> 8));
             frame_buf[n++] = (uint8_T)( (uint32_T)p_q_ui32[3]);
         } 
+
+        /* 油门数据 */
+        if(s_send_accelerator_flag)
+        { 
+            pwm_get_acceleralor(accelerator);
+            period = pwm_get_period();
+
+            for(i = 0; i < PWM_MAX; i++) 
+            { 
+                frame_buf[n++] = (uint8_T)(accelerator[i] >> 24);
+                frame_buf[n++] = (uint8_T)(accelerator[i] >> 16);
+                frame_buf[n++] = (uint8_T)(accelerator[i] >> 8);
+                frame_buf[n++] = (uint8_T)(accelerator[i]);
+            } 
+            
+            frame_buf[n++] = (uint8_T)(period >> 24);
+            frame_buf[n++] = (uint8_T)(period >> 16);
+            frame_buf[n++] = (uint8_T)(period >> 8);
+            frame_buf[n++] = (uint8_T)(period);
+        }
 
         /* 填充 */
         fill_bytes_count = n & 0x03;
@@ -452,6 +478,18 @@ inline static bool_T is_dmp_quat_needded(uint32_T type)
 inline static bool_T is_time_needded(uint32_T type)
 {
     return bit_compare(type, COMM_FRAME_TIME_BIT);
+}
+
+inline static bool_T is_acceletorater_needded(uint32_T type)
+{
+    bool_T needed = FALSE;
+
+    needed = bit_compare(type, COMM_FRAME_FRONT_ACCELERATOR_DATA_BIT)
+        &&   bit_compare(type, COMM_FRAME_RIGHT_ACCELERATOR_DATA_BIT)
+        &&   bit_compare(type, COMM_FRAME_BACK_ACCELERATOR_DATA_BIT)
+        &&   bit_compare(type, COMM_FRAME_LEFT_ACCELERATOR_DATA_BIT);
+
+    return needed;
 }
 
 /* 提取构帧逻辑(type/len/crc/填充生成) */

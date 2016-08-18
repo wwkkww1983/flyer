@@ -166,20 +166,20 @@ class _FCDownFrame(_FCBaseFrame):
         self.mType = struct.pack('>I', frameType.value)
         self.mLen = struct.pack('>I', dataLen)
         self.mData = struct.pack('>I', frameData)
-        self.mCrc32 = None
 
-    def GetBytes(self):
+        # 生产CRC32
         wordList = self.GetCrc32WordList()
         crc32 = _FCBaseFrame.CalStm32Crc32(wordList)
         self.mCrc32 = struct.pack('>I', crc32)
+
+    def GetBytes(self):
         buf = self.mType + self.mLen + self.mData + self.mCrc32
 
         return buf
 
 class FCRequestTimeAcceleratorDmpQuatFrame(_FCDownFrame):
     def __init__(self, interval = 100):
-        super(FCRequestTimeAcceleratorDmpQuatFrame, self).__init__(frameType = FCFrameType.FrameRequestTimeAcceleratorDmpQuat, 
-                frameData = interval)
+        super(FCRequestTimeAcceleratorDmpQuatFrame, self).__init__(frameType = FCFrameType.FrameRequestTimeAcceleratorDmpQuat, frameData = interval)
     def Type(self):
         return FCFrameType.FrameRequestTimeAcceleratorDmpQuat
 
@@ -309,7 +309,7 @@ class FCDataTimeAcceleratorDmpQuat(FCUpFrame):
 
     def GetAccelrator(self):
         dmpQuatBuf = self.mData[20:]
-        acceleratorTuplle = struct.unpack('>hhhh', accelerator)
+        acceleratorTuplle = struct.unpack('>IIIII', accelerator)
         return acceleratorTuplle
 
 class FCErrorFrame(FCUpFrame):

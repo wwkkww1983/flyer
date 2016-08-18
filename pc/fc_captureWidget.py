@@ -13,10 +13,16 @@ from PyQt5.QtWidgets import *
 from PyQt5.uic import loadUiType, loadUi
 
 from fc_waveWidget import FCWaveWidget
-from fc_frame import FCDataTimeAcceleratorDmpQuat
+# 下行帧
+from fc_frame import FCRequestTimeAcceleratorDmpQuatFrame
 from fc_frame import FCAcceleratorFrame
+# 上行帧
+from fc_frame import FCDataTimeAcceleratorDmpQuat
+# 上行帧基类(用于解析帧长)
 from fc_frame import FCUpFrame
+# 帧类型枚举 用于实现表驱动
 from fc_frame import FCFrameType
+
 from fc_serial import FCSerial
 from fc_net import FCUdp
 
@@ -24,7 +30,7 @@ FCWindowUIClass = loadUiType("fc_captureWidget.ui")
 
 class FCCaptureWidget(QWidget): 
     sAppendConsole = pyqtSignal(str, name='sAppendConsole')
-    sUpdateAcceleratorQuat = pyqtSignal((str, str, str, str, str, int, int, int, int), name='sUpdateAcceleratorQuat')
+    sUpdateAcceleratorQuat = pyqtSignal((str, str, str, str, str, int, int, int, int, int), name='sUpdateAcceleratorQuat')
 
     def __init__(self):
         super(FCCaptureWidget, self).__init__() 
@@ -244,7 +250,7 @@ class FCCaptureWidget(QWidget):
         psiText   = "偏航角:%+04.2fd" % euler.Psi()
 
         self.sUpdateAcceleratorQuat.emit(timeText, dmpQuatText, thetaText, phiText, psiText,
-                accelerator[0], accelerator[1], accelerator[2], accelerator[3])
+                accelerator[0], accelerator[1], accelerator[2], accelerator[3], accelerator[4])
 
     def UpdatePrintText(self, frame):
         #print("接收文本帧:")
@@ -271,18 +277,28 @@ class FCCaptureWidget(QWidget):
         self.mConsolePlainTextEdit.moveCursor(QTextCursor.End)
 
     def UpdateAcceleratorQuat(self, timeText, dmpQuatText, thetaText, phiText, psiText,
-            frontAccelerator, rightAccelerator, backAccelerator, leftAccelerator):
+            frontAccelerator, rightAccelerator, backAccelerator, leftAccelerator, motherAccelerator):
         self.mRunTimeLabel.setText(timeText)
         self.mDmpQuatLabel.setText(dmpQuatText)
         self.mThetaLabel.setText(thetaText)
         self.mPhiLabel.setText(phiText)
         self.mPsiLabel.setText(psiText)
 
+        accelerator = (100 * frontAccelerator / motherAccelerator,
+                       100 * rightAccelerator / motherAccelerator,
+                       100 * backAccelerator  / motherAccelerator,
+                       100 * leftAccelerator  / motherAccelerator)
+        print(accelerator)
+
+        frontAccelerator = int(accelerator[0])
+        rightAccelerator = int(accelerator[1])
+        backAccelerator  = int(accelerator[2])
+        leftAccelerator  = int(accelerator[3])
         # 更新油门
         self.mFrontLabel.setText("%02d" % frontAccelerator)
         self.mRightLabel.setText("%02d" % rightAccelerator)
-        self.mBackLabel.setText("%02d" % backAccelerator)
-        self.mLeftLabel.setText("%02d" %leftAccelerator)
+        self.mBackLabel.setText("%02d"  % backAccelerator)
+        self.mLeftLabel.setText("%02d"  % leftAccelerator)
         self.mFrontProgressBar.setValue(frontAccelerator)
         self.mRightProgressBar.setValue(rightAccelerator)
         self.mBackProgressBar.setValue(backAccelerator)
