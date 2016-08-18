@@ -228,6 +228,9 @@ void pwm_update(void)
     f32_T psi = 0.0f;
     /* f32_T phi = 0.0f; */
     int32_T val[PWM_MAX] = {0};
+    int32_T period = 0;
+
+    period = pwm_get_period();
 
     mpu9250_get_quat(q);
     math_quaternion2euler(e, q);
@@ -270,6 +273,20 @@ void pwm_update(void)
         ;
     } 
     
+    /* 限幅 */
+    for(int32_T i = 0; i < PWM_MAX; i++)
+    {
+        if(g_pwm_list[i].adj_val < - period * PWM_ADJ_MAX_RATE)
+        { 
+            g_pwm_list[i].adj_val = - period * PWM_ADJ_MAX_RATE;
+        }
+
+        if(g_pwm_list[i].adj_val > period * PWM_ADJ_MAX_RATE)
+        {
+            g_pwm_list[i].adj_val = period * PWM_ADJ_MAX_RATE;
+        }
+    }
+    
     pwm_get_acceleralor(val);
 
     for(int32_T i = 0; i < PWM_MAX; i++)
@@ -304,15 +321,26 @@ void pwm_get_acceleralor(int32_T *val)
     int32_T m = 0; 
     int32_T adj_val = 0;
     int32_T base = 0;
+    int32_T period = 0;
 
-    m = pwm_get_period();
-    m /= 100;
+    period = pwm_get_period();
+    m = period / 100;
 
     for(int32_T i = 0; i < PWM_MAX; i++)
     {
         adj_val = g_pwm_list[i].adj_val;
         base = g_pwm_list[i].base;
         val[i] = m * base + adj_val;
+
+        /* 限幅 */
+        if(val[i] < 0)
+        {
+            val[i] = 0;
+        }
+        if(val[i] > period)
+        {
+            val[i] = period;
+        }
     }
 }
 

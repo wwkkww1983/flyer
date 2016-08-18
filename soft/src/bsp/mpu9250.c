@@ -154,8 +154,9 @@ void mpu9250_test(void) { ; }
 
 /* 更新姿态 */
 void mpu9250_update(void)
-{ 
-    f32_T quat[4] = {0.0f};
+{
+    /* mpu9250_dmp_read并非每次更新 所以需要有记忆性 */
+    static f32_T quat[4] = {1.0f, 0.0f, 0.0f, 0.0f};
     f32_T quat_rotated[4] = {0.0f};
 
     mpu9250_dmp_read(quat); 

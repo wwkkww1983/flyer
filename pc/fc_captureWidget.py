@@ -295,17 +295,17 @@ class FCCaptureWidget(QWidget):
                        100 * rightAccelerator / motherAccelerator,
                        100 * backAccelerator  / motherAccelerator,
                        100 * leftAccelerator  / motherAccelerator)
-        print(accelerator)
+        #print(accelerator)
 
         frontAccelerator = int(accelerator[0])
         rightAccelerator = int(accelerator[1])
         backAccelerator  = int(accelerator[2])
         leftAccelerator  = int(accelerator[3])
         # 更新油门
-        self.mFrontLabel.setText("%02d" % frontAccelerator)
-        self.mRightLabel.setText("%02d" % rightAccelerator)
-        self.mBackLabel.setText("%02d"  % backAccelerator)
-        self.mLeftLabel.setText("%02d"  % leftAccelerator)
+        self.mFrontLabel.setText("%03d" % frontAccelerator)
+        self.mRightLabel.setText("%03d" % rightAccelerator)
+        self.mBackLabel.setText( "%03d" % backAccelerator)
+        self.mLeftLabel.setText( "%03d" % leftAccelerator)
         self.mFrontProgressBar.setValue(frontAccelerator)
         self.mRightProgressBar.setValue(rightAccelerator)
         self.mBackProgressBar.setValue(backAccelerator)

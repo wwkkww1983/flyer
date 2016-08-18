@@ -304,7 +304,7 @@ class FCDataTimeAcceleratorDmpQuat(FCUpFrame):
         return dmpQuat
 
     def GetAccelrator(self):
-        dmpQuatBuf = self.mData[20:]
+        accelerator = self.mData[20:]
         acceleratorTuplle = struct.unpack('>IIIII', accelerator)
         return acceleratorTuplle
 

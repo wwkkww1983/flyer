@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>984</width>
+    <width>1034</width>
     <height>557</height>
    </rect>
   </property>
@@ -448,7 +448,7 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>750</width>
+          <width>800</width>
           <height>170</height>
          </size>
         </property>
@@ -516,7 +516,7 @@
           <widget class="QGroupBox" name="groupBox_2">
            <property name="minimumSize">
             <size>
-             <width>90</width>
+             <width>120</width>
              <height>0</height>
             </size>
            </property>
@@ -535,7 +535,7 @@
               <item>
                <widget class="QLabel" name="frontLabel">
                 <property name="text">
-                 <string>00</string>
+                 <string>000</string>
                 </property>
                </widget>
               </item>
@@ -563,7 +563,7 @@
               <item>
                <widget class="QLabel" name="rightLabel">
                 <property name="text">
-                 <string>00</string>
+                 <string>000</string>
                 </property>
                </widget>
               </item>
@@ -591,7 +591,7 @@
               <item>
                <widget class="QLabel" name="backLabel">
                 <property name="text">
-                 <string>00</string>
+                 <string>000</string>
                 </property>
                </widget>
               </item>
@@ -619,7 +619,7 @@
               <item>
                <widget class="QLabel" name="leftLabel">
                 <property name="text">
-                 <string>00</string>
+                 <string>000</string>
                 </property>
                </widget>
               </item>
