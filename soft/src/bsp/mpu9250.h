@@ -47,8 +47,9 @@ typedef struct{
 void mpu9250_init(void);
 /* 测试 */
 void mpu9250_test(void);
-/* 读取 */
-void mpu9250_dmp_read(void);
+/* 更新姿态 */
+void mpu9250_update(void);
+
 /* 获取四元数 */
 void mpu9250_get_quat(f32_T *quat);
 

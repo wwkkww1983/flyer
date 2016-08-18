@@ -170,7 +170,7 @@ static void comm_wait_start(void)
 #endif
 
 /* 通信交互任务 */
-void comm_task(void)
+void comm_update(void)
 { 
     send_capture_data(); 
     
@@ -241,18 +241,17 @@ static bool_T parse(const uint8_T *buf)
             return FALSE;
         }
 
-        for(int32_T i = 0; i < PWM_MAX; i++)
-        {
-            val[i]  = buf[9] << 8;
-            val[i] |= buf[10];
-        }
-
         switch(ctrl_type)
         {
             /* 油门 */
-            case 0x00:
+            case 0x00: 
+                for(int32_T i = 0; i < PWM_MAX; i++)
+                {
+                    val[i]  = buf[9] << 8;
+                    val[i] |= buf[10];
+                }
                 pwm_set_acceleralor(val);
-                break;
+                return TRUE;
 
             /* 以下未实现 */
             case 0x01: /* 前 */
@@ -324,8 +323,9 @@ static void send_capture_data(void)
         type = COMM_FRAME_SENSOR_DATA_BIT
              | COMM_FRAME_DIRECTION_BIT 
              | COMM_FRAME_DMP_QUAT_BIT
+             | COMM_FRAME_ACCELERATOR_DATA_BIT
              | COMM_FRAME_TIME_BIT;
-        len = 24; /* data:4+16,crc:4 = 24 */
+        len = 44; /* data:4+16+20,crc:4 = 44 */
 
         frame_buf[n++] = (uint8_T)(type >> 24);
         frame_buf[n++] = (uint8_T)(type >> 16);
@@ -482,14 +482,7 @@ inline static bool_T is_time_needded(uint32_T type)
 
 inline static bool_T is_acceletorater_needded(uint32_T type)
 {
-    bool_T needed = FALSE;
-
-    needed = bit_compare(type, COMM_FRAME_FRONT_ACCELERATOR_DATA_BIT)
-        &&   bit_compare(type, COMM_FRAME_RIGHT_ACCELERATOR_DATA_BIT)
-        &&   bit_compare(type, COMM_FRAME_BACK_ACCELERATOR_DATA_BIT)
-        &&   bit_compare(type, COMM_FRAME_LEFT_ACCELERATOR_DATA_BIT);
-
-    return needed;
+    return bit_compare(type, COMM_FRAME_ACCELERATOR_DATA_BIT);
 }
 
 /* 提取构帧逻辑(type/len/crc/填充生成) */

@@ -18,11 +18,7 @@ class FCFrameType(Enum):
     _Capture            = 0x20000000
     _Text               = 0x10000000
 
-    _LeftAccelerator    = 0x00000800
-    _BackAccelerator    = 0x00000400
-    _RightAccelerator   = 0x00000200
-    _FrontAccelerator   = 0x00000100
-
+    _Accelerator        = 0x00000040
     _DataPress          = 0x00000020
     _DataCompass        = 0x00000010
     _DataGyro           = 0x00000008
@@ -32,11 +28,11 @@ class FCFrameType(Enum):
 
     # 以下类型用户使用
     # dmp四元数采集请求帧
-    FrameRequestTimeAcceleratorDmpQuat = _Down | _Capture | _LeftAccelerator | _BackAccelerator | _RightAccelerator | _FrontAccelerator | _DataDmpQuat | _DataTime
+    FrameRequestTimeAcceleratorDmpQuat = _Down | _Capture | _Accelerator | _DataDmpQuat | _DataTime
     FrameAccelerator = _Down | _Ctrl
 
     # dmp四元数采集数据帧
-    FrameDataTimeAcceleratorDmpQuat = _Up | _Capture | _LeftAccelerator | _BackAccelerator | _RightAccelerator | _FrontAccelerator | _DataDmpQuat | _DataTime
+    FrameDataTimeAcceleratorDmpQuat = _Up | _Capture | _Accelerator | _DataDmpQuat | _DataTime
     # 文本输出帧
     FramePrintText = _Up | _Text
     # 错误帧

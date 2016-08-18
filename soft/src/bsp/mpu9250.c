@@ -42,6 +42,7 @@ static const signed char s_orientation[9] = MPU9250_ORIENTATION;
 static void run_self_test(void);
 static void int_callback(void *argv);
 static void mpu9250_set_quat(const f32_T *quat);
+static void mpu9250_dmp_read(f32_T *f32_quat);
 
 #if 0
 static void tap_callback(unsigned char direction, unsigned char count);
@@ -151,13 +152,25 @@ void mpu9250_init(void)
 
 void mpu9250_test(void) { ; } 
 
-void mpu9250_dmp_read(void)
+/* 更新姿态 */
+void mpu9250_update(void)
+{ 
+    f32_T quat[4] = {0.0f};
+    f32_T quat_rotated[4] = {0.0f};
+
+    mpu9250_dmp_read(quat); 
+    
+    /* 偏航角旋转45度与机翼对应 */
+    math_quaternion_cross(quat_rotated, quat, s_q45); 
+
+    mpu9250_set_quat(quat_rotated);
+}
+
+static void mpu9250_dmp_read(f32_T *f32_quat)
 {
     int16_T gyro[3] = {0};
     int16_T accel_short[3] = {0};
     int32_T quat[4] = {0};
-    f32_T mpu9250_dmp_quat[4] = {0.0f};
-    f32_T q_rotated[4] = {0.0f};
     uint32_T sensor_timestamp = 0;
     int16_T sensors = 0;
     uint8_T more = 0; 
@@ -183,18 +196,12 @@ void mpu9250_dmp_read(void)
 
         if (sensors & INV_WXYZ_QUAT)
         {
-            mpu9250_dmp_quat[0] = (f32_T) quat[0] / ((f32_T)(1L << 30));
-            mpu9250_dmp_quat[1] = (f32_T) quat[1] / ((f32_T)(1L << 30));
-            mpu9250_dmp_quat[2] = (f32_T) quat[2] / ((f32_T)(1L << 30));
-            mpu9250_dmp_quat[3] = (f32_T) quat[3] / ((f32_T)(1L << 30)); 
-            
-            /* 偏航角旋转45度与机翼对应 */
-            math_quaternion_cross(q_rotated, mpu9250_dmp_quat, s_q45); 
-
-            mpu9250_set_quat(q_rotated);
+            f32_quat[0] = (f32_T) quat[0] / ((f32_T)(1L << 30));
+            f32_quat[1] = (f32_T) quat[1] / ((f32_T)(1L << 30));
+            f32_quat[2] = (f32_T) quat[2] / ((f32_T)(1L << 30));
+            f32_quat[3] = (f32_T) quat[3] / ((f32_T)(1L << 30)); 
         }
     } 
-    
 }
 
 /* TODO:设置和获取四元数 加锁 */

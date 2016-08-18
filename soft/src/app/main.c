@@ -79,16 +79,15 @@ int main(void)
     /* 实际运行 */
     while(1)
     {
-        /* 采样 */
-        mpu9250_dmp_read(); 
-
+        /* 姿态更新 */
+        mpu9250_update(); 
         /* 动力控制 */
         pwm_update();
         /* 以上实时性要求强 否则坠机 */
 
         /* 以下实时性要求不强  */
         /* 处理交互 */
-        comm_task();
+        comm_update();
         /* 收尾统计工作 */
         idle();
     }

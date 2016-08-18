@@ -114,6 +114,13 @@ class FCCaptureWidget(QWidget):
                 '串口': (FCSerial,  (self.mComNameComboBox.currentText(), self.mBuadLineEdit.text())),
                 }
 
+        """
+        interval = int(self.mIntervalLineEdit.text())
+        frame = FCRequestTimeAcceleratorDmpQuatFrame(interval)
+        print("采样数据请求帧" , end = ':')
+        frame.Print()
+        """
+
     def closeEvent(self, event):
         # 关闭后台接收线程
         self.mCapturing = False
@@ -181,7 +188,7 @@ class FCCaptureWidget(QWidget):
 
         frame = FCRequestTimeAcceleratorDmpQuatFrame(interval)
         buf = frame.GetBytes()
-        print("发送数据请求帧" , end = ':')
+        print("采样数据请求帧" , end = ':')
         frame.Print()
 
         # step3: 发帧

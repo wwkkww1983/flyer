@@ -26,10 +26,7 @@
 #define COMM_FRAME_SENSOR_DATA_BIT              ((uint32_T)(0x20000000))
 #define COMM_FRAME_PRINTF_BIT                   ((uint32_T)(0x10000000))
 
-#define COMM_FRAME_LEFT_ACCELERATOR_DATA_BIT    ((uint32_T)(0x00000800))
-#define COMM_FRAME_BACK_ACCELERATOR_DATA_BIT    ((uint32_T)(0x00000400))
-#define COMM_FRAME_RIGHT_ACCELERATOR_DATA_BIT   ((uint32_T)(0x00000200))
-#define COMM_FRAME_FRONT_ACCELERATOR_DATA_BIT   ((uint32_T)(0x00000100))
+#define COMM_FRAME_ACCELERATOR_DATA_BIT         ((uint32_T)(0x00000040))
 #define COMM_FRAME_PRESS_DATA_BIT               ((uint32_T)(0x00000020))
 #define COMM_FRAME_COMPASS_DATA_BIT             ((uint32_T)(0x00000010))
 #define COMM_FRAME_GYRO_DATA_BIT                ((uint32_T)(0x00000008))
@@ -39,6 +36,7 @@
 
 #define COMM_FRAME_TIME_DATA_SIZE               (4)
 #define COMM_FRAME_DMP_QUAT_DATA_SIZE           (16)
+#define COMM_FRAME_ACCELERATOR_QUAT_DATA_SIZE   (20)
 
 
 /* type+len+crc长度 12Bytes */
@@ -47,7 +45,7 @@
  * 1: time+dmp_quat 12 + 4 + 16 = 32Bytes
  * FIXME: 有新的采样帧需要修改
  * */
-#define COMM_FRAME_CAPTURE_FRAME_MAX_SIZE       ((uint32_T)(COMM_FRAME_TYPE_LEN_CRC_SIZE + COMM_FRAME_TIME_DATA_SIZE + COMM_FRAME_DMP_QUAT_DATA_SIZE))
+#define COMM_FRAME_CAPTURE_FRAME_MAX_SIZE       ((uint32_T)(COMM_FRAME_TYPE_LEN_CRC_SIZE + COMM_FRAME_TIME_DATA_SIZE + COMM_FRAME_DMP_QUAT_DATA_SIZE + COMM_FRAME_ACCELERATOR_QUAT_DATA_SIZE))
 /* 小于以下帧长不发送(可以用于控制上行帧数) */
 #define COMM_FRAME_SENDED_MIN                   (COMM_FRAME_TYPE_LEN_CRC_SIZE)
 #define COMM_FRAME_FILLED_VAL                   ((uint8_T)(0xA5))
@@ -73,7 +71,7 @@ typedef struct{
 /*********************************** 接口函数 **********************************/ 
 void comm_init(const drv_uart_T *comm_uart);
 /* 通信任务 */
-void comm_task(void); 
+void comm_update(void); 
 
 void comm_frame_printf_make(uint32_T *frame_len, uint8_T *frame_buf, uint32_T n);
 #endif
