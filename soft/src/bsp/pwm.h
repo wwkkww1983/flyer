@@ -20,7 +20,6 @@
 
 /************************************ 宏定义 ***********************************/
 #define PWM_MAX_VAL             (1000U)
-#define PWM_ADJ_STEP            (1)
 
 /*********************************** 类型定义 **********************************/
 /* LED名字 编号 */
@@ -36,10 +35,13 @@ typedef enum
 /* pwm硬件 */
 typedef struct pwm_list_tag
 {
-    PWM_NAME    name; /* 通道名字 */
-    TIM_TypeDef *tim; /* 计时器 */
-    uint32_T    ch;   /* 通道 */
-    int32_T     val;  /* 占空值 */
+    PWM_NAME    name;       /* 通道名字 */
+    TIM_TypeDef *tim;       /* 计时器 */
+    uint32_T    ch;         /* 通道 */
+
+    int32_T     base;       /* 基础值 表示该桨油门 */
+    int32_T     adj_val;    /* 调整值 用于控制姿态 */
+    int32_T     adj_step;   /* 调整值的步长,计算adj时使用的步长 与抖动成正比与调整速度成反比 */
 }PWM_LIST_T;
 
 /*--------------------------------- 接口声明区 --------------------------------*/
@@ -49,14 +51,12 @@ typedef struct pwm_list_tag
 /*********************************** 接口函数 **********************************/
 /* 初始化 */
 void pwm_init(void);
-/* 设置pwm输出 */
-void pwm_set(PWM_NAME pwm, int32_T val);
 /* 测试pwm */
 void pwm_test(void);
 /* 姿态控制 */
 void pwm_update(void);
-/* 动力控制 */
-void pwm_set_acceleralor(int32_T val);
+/* 油门设置 */
+void pwm_set_acceleralor(const int32_T *val);
 
 #endif
 

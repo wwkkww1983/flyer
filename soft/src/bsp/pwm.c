@@ -26,31 +26,39 @@
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/
-/* val域表示基础值(用于运动) pwm_update中计算矫正值(用于平衡) */
+/* base域表示基础值(用于运动) pwm_update中计算矫正值(用于平衡) */
 PWM_LIST_T g_pwm_list[] = {
     {
         .name = PWM_FRONT,
         .tim  = PWM_TIM, 
         .ch   = TIM_CHANNEL_1,
-        .val = 0
+        .base = 0,
+        .adj_val  = 0,
+        .adj_step = 0
     },
     {
         .name = PWM_RIGHT,
         .tim  = PWM_TIM, 
         .ch   = TIM_CHANNEL_2,
-        .val = 0
+        .base = 0,
+        .adj_val  = 0,
+        .adj_step = 0
     },
     {
         .name = PWM_BACK,
         .tim  = PWM_TIM, 
         .ch   = TIM_CHANNEL_3,
-        .val = 0
+        .base = 0,
+        .adj_val  = 0,
+        .adj_step = 0
     },
     {
         .name = PWM_LEFT,
         .tim  = PWM_TIM, 
         .ch   = TIM_CHANNEL_4,
-        .val = 0
+        .base = 0,
+        .adj_val  = 0,
+        .adj_step = 0
     }
 };
 
@@ -62,9 +70,10 @@ static TIM_HandleTypeDef s_tim_handle;
 /* pwm_init和pwm_set中都使用 */
 static TIM_OC_InitTypeDef s_sConfig;
 /* PWM一次脉冲的周期 */
-int32_T s_period = 0;
+static int32_T s_period = 0;
 /********************************** 函数声明区 *********************************/
 static uint32_T pwm_get_period(void);
+static void pwm_set(PWM_NAME pwm, int32_T val);
 
 /********************************** 函数实现区 *********************************/
 
@@ -72,6 +81,14 @@ void pwm_init(void)
 {
     uint32_T pre_scale_val = 0;
     int32_T i = 0;
+
+    /* 数据结构初始化 */
+    for(i = 0; i < PWM_MAX; i++)
+    { 
+        g_pwm_list[i].base = 0;
+        g_pwm_list[i].adj_val = 0;
+        g_pwm_list[i].adj_step = 1; /* 初始步长定小 */
+    }
 
     /* 
      *
@@ -146,7 +163,7 @@ void pwm_init(void)
     return;
 }
 
-void pwm_set(PWM_NAME pwm, int32_T val)
+static void pwm_set(PWM_NAME pwm, int32_T val)
 {
     uint32_T period = 0;
 
@@ -203,7 +220,7 @@ void pwm_test(void)
 
 } 
 
-/* 动力控制 */
+/* 平衡控制 */
 void pwm_update(void)
 {
     f32_T e[3] = {0.0f};
@@ -212,7 +229,6 @@ void pwm_update(void)
     f32_T psi = 0.0f;
     int32_T m = 0;
     /* f32_T phi = 0.0f; */
-    static int32_T adj_val[4] = {0}; /* 前右后左矫正值 */ 
 
     mpu9250_get_quat(q);
     math_quaternion2euler(e, q);
@@ -224,14 +240,14 @@ void pwm_update(void)
     /* 俯仰角 + 前减后加 */
     if(theta > 0)
     {
-        adj_val[PWM_FRONT] -= PWM_ADJ_STEP;
-        adj_val[PWM_BACK] += PWM_ADJ_STEP;
+        g_pwm_list[PWM_FRONT].adj_val -= g_pwm_list[PWM_FRONT].adj_step;
+        g_pwm_list[PWM_BACK].adj_val += g_pwm_list[PWM_BACK].adj_step;
     }
     /* 俯仰角 - 前加后减 */
     else if(theta < 0)
     {
-        adj_val[PWM_FRONT] += PWM_ADJ_STEP;
-        adj_val[PWM_BACK] -= PWM_ADJ_STEP;
+        g_pwm_list[PWM_FRONT].adj_val += g_pwm_list[PWM_FRONT].adj_step;
+        g_pwm_list[PWM_BACK].adj_val -= g_pwm_list[PWM_BACK].adj_step;
     }
     else
     {
@@ -241,14 +257,14 @@ void pwm_update(void)
     /* 横滚角 + 左减右加 */
     if(psi > 0)
     {
-        adj_val[PWM_LEFT] -= PWM_ADJ_STEP;
-        adj_val[PWM_RIGHT] += PWM_ADJ_STEP;
+        g_pwm_list[PWM_LEFT].adj_val -= g_pwm_list[PWM_LEFT].adj_step;
+        g_pwm_list[PWM_RIGHT].adj_val += g_pwm_list[PWM_RIGHT].adj_step;
     }
     /* 横滚角 - 左加右减 */
     else if(psi < 0)
     {
-        adj_val[PWM_LEFT] += PWM_ADJ_STEP;
-        adj_val[PWM_RIGHT] -= PWM_ADJ_STEP;
+        g_pwm_list[PWM_LEFT].adj_val += g_pwm_list[PWM_LEFT].adj_step;
+        g_pwm_list[PWM_RIGHT].adj_val -= g_pwm_list[PWM_RIGHT].adj_step;
     }
     else
     {
@@ -260,28 +276,31 @@ void pwm_update(void)
     /* 实际值 = 基础值 + 矫正值 */
     for(int32_T i = 0; i < PWM_MAX; i++)
     { 
-        int32_T adj = adj_val[i];
-        int32_T base = g_pwm_list[i].val;
+        int32_T adj_val = g_pwm_list[i].adj_val;
+        int32_T base = g_pwm_list[i].base;
 
-        pwm_set((PWM_NAME)i, m * (adj + base));
+        pwm_set((PWM_NAME)i, m * base + adj_val);
     }
 }
 
-void pwm_set_acceleralor(int32_T val)
+void pwm_set_acceleralor(const int32_T *val_list)
 {
-    /* 限制val在[0,100] */
-    if(val < 0)
-    {
-        val = 0;
-    }
-    if(val > 100)
-    {
-        val = 100;
-    }
+    int32_T val = 0;
 
     for(int32_T i = 0; i < PWM_MAX; i++)
     { 
-        g_pwm_list[i].val = val;
+        val = val_list[i];
+        /* 限制val在[0,100] */
+        if(val < 0)
+        {
+            val = 0;
+        }
+        if(val > 100)
+        {
+            val = 100;
+        } 
+        
+        g_pwm_list[i].base = val;
     }
 }
 

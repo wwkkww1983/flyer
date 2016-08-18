@@ -231,7 +231,7 @@ static bool_T parse(const uint8_T *buf)
     if(is_flyer_ctrl_frame(frame.type))
     {
         int32_T ctrl_type = buf[8];
-        int32_T val = 0;
+        int32_T val[PWM_MAX] = {0};
 
         /* 填充字节 */
         if(COMM_FRAME_FILLED_VAL != buf[11])
@@ -239,8 +239,11 @@ static bool_T parse(const uint8_T *buf)
             return FALSE;
         }
 
-        val  = buf[9] << 8;
-        val |= buf[10];
+        for(int32_T i = 0; i < PWM_MAX; i++)
+        {
+            val[i]  = buf[9] << 8;
+            val[i] |= buf[10];
+        }
 
         switch(ctrl_type)
         {
