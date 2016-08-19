@@ -58,6 +58,7 @@ class FCCaptureWidget(QWidget):
         self.mCapturePushButton = self.mUi.capturePushButton
         self.mCommandPushButton = self.mUi.commandPushButton
         self.mAcceleratorSpinBox = self.mUi.acceleratorSpinBox
+        self.mAcceleratorLabel = self.mUi.acceleratorLabel
         self.mConsolePlainTextEdit = self.mUi.consolePlainTextEdit
         self.sAppendConsole.connect(self.AppendConsole)
         self.mRunTimeLabel = self.mUi.runTimeLabel
@@ -73,6 +74,7 @@ class FCCaptureWidget(QWidget):
         self.mRightProgressBar = self.mUi.rightProgressBar
         self.mBackProgressBar = self.mUi.backProgressBar
         self.mLeftProgressBar = self.mUi.leftProgressBar
+        self.mFlyerCtrlGroupBox = self.mUi.flyerCtrlGroupBox
         self.sUpdateAcceleratorQuat.connect(self.UpdateAcceleratorQuat)
         self.mIpLabel = self.mUi.ipLabel
         localIP = socket.gethostbyname(socket.gethostname()) # 获取本地IP
@@ -291,25 +293,30 @@ class FCCaptureWidget(QWidget):
         self.mPhiLabel.setText(phiText)
         self.mPsiLabel.setText(psiText)
 
-        accelerator = (100 * frontAccelerator / motherAccelerator,
-                       100 * rightAccelerator / motherAccelerator,
-                       100 * backAccelerator  / motherAccelerator,
-                       100 * leftAccelerator  / motherAccelerator)
+        #accelerator = (frontAccelerator, rightAccelerator, backAccelerator, leftAccelerator, motherAccelerator)
         #print(accelerator)
 
-        frontAccelerator = int(accelerator[0])
-        rightAccelerator = int(accelerator[1])
-        backAccelerator  = int(accelerator[2])
-        leftAccelerator  = int(accelerator[3])
         # 更新油门
-        self.mFrontLabel.setText("%03d" % frontAccelerator)
-        self.mRightLabel.setText("%03d" % rightAccelerator)
-        self.mBackLabel.setText( "%03d" % backAccelerator)
-        self.mLeftLabel.setText( "%03d" % leftAccelerator)
+        # 设置最值
+        self.mFrontProgressBar.setMaximum(motherAccelerator)
+        self.mRightProgressBar.setMaximum(motherAccelerator)
+        self.mBackProgressBar.setMaximum(motherAccelerator)
+        self.mLeftProgressBar.setMaximum(motherAccelerator)
+
         self.mFrontProgressBar.setValue(frontAccelerator)
         self.mRightProgressBar.setValue(rightAccelerator)
         self.mBackProgressBar.setValue(backAccelerator)
         self.mLeftProgressBar.setValue(leftAccelerator)
+
+        self.mFrontLabel.setText("%03d" % int((frontAccelerator / motherAccelerator) * 100))
+        self.mRightLabel.setText("%03d" % int((rightAccelerator / motherAccelerator) * 100))
+        self.mBackLabel.setText( "%03d" % int((backAccelerator  / motherAccelerator) * 100))
+        self.mLeftLabel.setText( "%03d" % int((leftAccelerator  / motherAccelerator) * 100))
+
+        # 使能控件
+        self.mFlyerCtrlGroupBox.setEnabled(True)
+        self.mAcceleratorSpinBox.setMaximum(motherAccelerator)
+        self.mAcceleratorLabel.setText("of % 4d" % motherAccelerator)
 
     def UpdateErrorFrame(self, frame):
         return

@@ -198,24 +198,32 @@ static void pwm_set(PWM_NAME pwm, int32_T val)
 
 }
 
-int32_T pwm_get_period(void)
+inline int32_T pwm_get_period(void)
 {
     return s_period;
 }
 
+inline int32_T pwm_get_step(void)
+{
+    int32_T period = 0;
+
+    period = pwm_get_period();
+
+    return period / 100;
+}
+
 void pwm_test(void)
 {
-    uint32_T m = 0;
+    int32_T period = 0;
 
     debug_log("前右后左四个pwm分别为 0%% 33%% 77%% 100%%.\r\n");
 
-    m = pwm_get_period();
-    m /= 100;
+    period = pwm_get_period();
 
-    pwm_set(PWM_FRONT, m * 0);
-    pwm_set(PWM_RIGHT, m * 33);
-    pwm_set(PWM_BACK, m * 77);
-    pwm_set(PWM_LEFT, m * 100);
+    pwm_set(PWM_FRONT, (int32_T)(period * 0.0));
+    pwm_set(PWM_RIGHT, (int32_T)(period * 0.33));
+    pwm_set(PWM_BACK,  (int32_T)(period * 0.77));
+    pwm_set(PWM_LEFT,  (int32_T)(period * 1.0));
 
 } 
 
@@ -298,18 +306,21 @@ void pwm_update(void)
 void pwm_set_acceleralor(const int32_T *val_list)
 {
     int32_T val = 0;
+    int32_T period = 0;
+
+    period = pwm_get_period();
 
     for(int32_T i = 0; i < PWM_MAX; i++)
     { 
         val = val_list[i];
-        /* 限制val在[0,100] */
+        /* 限幅 */
         if(val < 0)
         {
             val = 0;
         }
-        if(val > 100)
+        if(val > period)
         {
-            val = 100;
+            val = period;
         } 
         
         g_pwm_list[i].base = val;
@@ -318,19 +329,17 @@ void pwm_set_acceleralor(const int32_T *val_list)
 
 void pwm_get_acceleralor(int32_T *val)
 { 
-    int32_T m = 0; 
     int32_T adj_val = 0;
     int32_T base = 0;
     int32_T period = 0;
 
     period = pwm_get_period();
-    m = period / 100;
 
     for(int32_T i = 0; i < PWM_MAX; i++)
     {
         adj_val = g_pwm_list[i].adj_val;
         base = g_pwm_list[i].base;
-        val[i] = m * base + adj_val;
+        val[i] = base + adj_val;
 
         /* 限幅 */
         if(val[i] < 0)
