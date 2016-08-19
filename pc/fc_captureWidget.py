@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import os
 import sys
 import struct
 import socket
 import threading
-from time import sleep
+from datetime import datetime
 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -34,6 +35,9 @@ class FCCaptureWidget(QWidget):
 
     def __init__(self):
         super(FCCaptureWidget, self).__init__() 
+
+        # 采集数据文件
+        self.mDataFile = None
 
         # 通信线程&串口&标记
         self.mCapturing = False
@@ -77,6 +81,9 @@ class FCCaptureWidget(QWidget):
         self.mFlyerCtrlGroupBox = self.mUi.flyerCtrlGroupBox
         self.sUpdateAcceleratorQuat.connect(self.UpdateAcceleratorQuat)
         self.mIpLabel = self.mUi.ipLabel
+        self.mSaveCheckBox = self.mUi.saveCheckBox
+        self.mSaveLineEdit = self.mUi.saveLineEdit
+        self.mSavePushButton = self.mUi.savePushButton
         localIP = socket.gethostbyname(socket.gethostname()) # 获取本地IP
         localIPStr = ("%s" % localIP)
         self.mIpLabel.setText(localIPStr)
@@ -93,8 +100,10 @@ class FCCaptureWidget(QWidget):
         self.mIntervalLineEdit.setText("100")
         self.mDmpQuatCheckBox.setChecked(True)
         self.mAcceleratorCheckBox.setChecked(True)
+        self.mSaveCheckBox.setChecked(True)
         self.mCapturePushButton.clicked.connect(self.ChangeState)
         self.mCommandPushButton.clicked.connect(self.SencCommand)
+        self.mSavePushButton.clicked.connect(self.SetSaveFileDir)
 
         # 加入波形控件
         self.mWaveWidget = FCWaveWidget()
@@ -128,14 +137,28 @@ class FCCaptureWidget(QWidget):
         self.mCapturing = False
         self.StopCapture()
 
+    def SetSaveFileDir(self):
+        print("未实现")
+
     def ChangeState(self, checked):
-        if self.mCapturing:
+        if self.mCapturing: # 停止采集
+            # 关闭保存的文件
+            dataFilePath = self.mSaveLineEdit.text()
+            self.mDataFile.close()
+
             self.mCapturing = False
             self.mCapturePushButton.setText("开始采集")
             self.mCommGroupBox.setEnabled(True)
             self.mDataGroupBox.setEnabled(True)
             self.StopCapture()
-        else:
+        else: # 开始采集
+            # 打开保存的文件
+            dirPath = self.mSaveLineEdit.text()
+            fileName = datetime.now().strftime('%Y_%m_%d_%H_%M_%S') + ".dat"
+            fullName = os.path.join(dirPath, fileName)
+            self.mDataFile = open(fullName, mode = 'bw')
+            self.mDataFile.write("数据如下:\n".encode('utf-8'))
+
             self.mCapturing = True
             self.mCapturePushButton.setText("停止采集")
             self.mCommGroupBox.setEnabled(False)
@@ -257,6 +280,12 @@ class FCCaptureWidget(QWidget):
         thetaText = "俯仰角:%+04.2fd" % euler.Theta()
         phiText   = "横滚角:%+04.2fd" % euler.Phi()
         psiText   = "偏航角:%+04.2fd" % euler.Psi()
+
+        # 保存到文件
+        self.mDataFile.write(b"\r\n")
+        self.mDataFile.write(b"new:\r\n")
+        self.mDataFile.write(frame.GetBytes())
+        self.mDataFile.write(b"\r\n")
 
         self.sUpdateAcceleratorQuat.emit(timeText, dmpQuatText, thetaText, phiText, psiText,
                 accelerator[0], accelerator[1], accelerator[2], accelerator[3], accelerator[4])

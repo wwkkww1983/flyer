@@ -115,6 +115,10 @@ class _FCBaseFrame():
 
         return data
 
+    def GetBytes(self):
+        buf = self.mType + self.mLen + self.mData + self.mCrc32
+        return buf
+
     @staticmethod
     def PackType(frameType):
         return struct.pack('>I', frameType)
@@ -167,11 +171,6 @@ class _FCDownFrame(_FCBaseFrame):
         wordList = self.GetCrc32WordList()
         crc32 = _FCBaseFrame.CalStm32Crc32(wordList)
         self.mCrc32 = struct.pack('>I', crc32)
-
-    def GetBytes(self):
-        buf = self.mType + self.mLen + self.mData + self.mCrc32
-
-        return buf
 
 class FCRequestTimeAcceleratorDmpQuatFrame(_FCDownFrame):
     def __init__(self, interval = 100):
