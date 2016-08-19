@@ -250,14 +250,14 @@ void pwm_update(void)
     /* 俯仰角 + 前减后加 */
     if(theta > 0)
     {
-        g_pwm_list[PWM_FRONT].adj_val -= g_pwm_list[PWM_FRONT].adj_step;
-        g_pwm_list[PWM_BACK].adj_val += g_pwm_list[PWM_BACK].adj_step;
+        g_pwm_list[PWM_FRONT].adj_val += g_pwm_list[PWM_FRONT].adj_step;
+        g_pwm_list[PWM_BACK].adj_val -= g_pwm_list[PWM_BACK].adj_step;
     }
     /* 俯仰角 - 前加后减 */
     else if(theta < 0)
     {
-        g_pwm_list[PWM_FRONT].adj_val += g_pwm_list[PWM_FRONT].adj_step;
-        g_pwm_list[PWM_BACK].adj_val -= g_pwm_list[PWM_BACK].adj_step;
+        g_pwm_list[PWM_FRONT].adj_val -= g_pwm_list[PWM_FRONT].adj_step;
+        g_pwm_list[PWM_BACK].adj_val += g_pwm_list[PWM_BACK].adj_step;
     }
     else
     {
@@ -267,14 +267,14 @@ void pwm_update(void)
     /* 横滚角 + 左减右加 */
     if(psi > 0)
     {
-        g_pwm_list[PWM_LEFT].adj_val -= g_pwm_list[PWM_LEFT].adj_step;
-        g_pwm_list[PWM_RIGHT].adj_val += g_pwm_list[PWM_RIGHT].adj_step;
+        g_pwm_list[PWM_LEFT].adj_val += g_pwm_list[PWM_LEFT].adj_step;
+        g_pwm_list[PWM_RIGHT].adj_val -= g_pwm_list[PWM_RIGHT].adj_step;
     }
     /* 横滚角 - 左加右减 */
     else if(psi < 0)
     {
-        g_pwm_list[PWM_LEFT].adj_val += g_pwm_list[PWM_LEFT].adj_step;
-        g_pwm_list[PWM_RIGHT].adj_val -= g_pwm_list[PWM_RIGHT].adj_step;
+        g_pwm_list[PWM_LEFT].adj_val -= g_pwm_list[PWM_LEFT].adj_step;
+        g_pwm_list[PWM_RIGHT].adj_val += g_pwm_list[PWM_RIGHT].adj_step;
     }
     else
     {
