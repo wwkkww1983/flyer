@@ -243,14 +243,6 @@ static bool_T parse(const uint8_T *buf)
             return FALSE;
         }
 
-    static int32_T pppp = 0;
-    if(2 == pppp)
-    {
-        pppp = 8888;
-    }
-    pppp++;
-
-
         switch(ctrl_type)
         {
             /* 油门 */
