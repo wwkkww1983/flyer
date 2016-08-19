@@ -346,7 +346,7 @@
       <item>
        <widget class="QGroupBox" name="flyerCtrlGroupBox">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="title">
          <string>飞行控制</string>
@@ -363,6 +363,9 @@
            </item>
            <item>
             <widget class="QSpinBox" name="acceleratorSpinBox">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                <horstretch>0</horstretch>

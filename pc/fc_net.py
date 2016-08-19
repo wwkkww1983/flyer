@@ -19,7 +19,7 @@ class FCUdp():
         super(FCUdp, self).__init__()
         self.mIp = ip
         self.mPort = port
-        self.mTargetAddrList = []
+        self.mTargetAddrList = {}
         self.mUdpSerSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # 监听套接字
         self.mUdpSerSock.bind((ip, port))
         self.mUdpSerSock.settimeout(0.1) # 100ms 超时值
@@ -61,7 +61,7 @@ class FCUdp():
             else:
                 #print(clientAddr, end = ":")
                 # 更新 ip
-                self.mTargetAddrList.append(clientAddr)
+                self.mTargetAddrList[clientAddr] = None
                 #print(recvData.decode('utf8'), end = ':')
                 """
                 for c in recvData:

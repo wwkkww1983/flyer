@@ -301,15 +301,14 @@ void pwm_update(void)
     { 
         pwm_set((PWM_NAME)i, val[i]);
     }
-}
+} 
 
 void pwm_set_acceleralor(const int32_T *val_list)
 {
     int32_T val = 0;
     int32_T period = 0;
-
-    period = pwm_get_period();
-
+    period = pwm_get_period(); 
+    
     for(int32_T i = 0; i < PWM_MAX; i++)
     { 
         val = val_list[i];
@@ -325,6 +324,7 @@ void pwm_set_acceleralor(const int32_T *val_list)
         
         g_pwm_list[i].base = val;
     }
+
 }
 
 void pwm_get_acceleralor(int32_T *val)

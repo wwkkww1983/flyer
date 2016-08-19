@@ -163,7 +163,7 @@ class FCCaptureWidget(QWidget):
             self.mCapturePushButton.setText("停止采集")
             self.mCommGroupBox.setEnabled(False)
             self.mDataGroupBox.setEnabled(False)
-            self.StartCapture()
+            self.StartCapture() 
 
     def SencCommand(self, checked):
         if (not self.mCapturing) or (None == self.mComm):
@@ -337,15 +337,16 @@ class FCCaptureWidget(QWidget):
         self.mBackProgressBar.setValue(backAccelerator)
         self.mLeftProgressBar.setValue(leftAccelerator)
 
-        self.mFrontLabel.setText("%03d" % int((frontAccelerator / motherAccelerator) * 100))
-        self.mRightLabel.setText("%03d" % int((rightAccelerator / motherAccelerator) * 100))
-        self.mBackLabel.setText( "%03d" % int((backAccelerator  / motherAccelerator) * 100))
-        self.mLeftLabel.setText( "%03d" % int((leftAccelerator  / motherAccelerator) * 100))
+        self.mFrontLabel.setText("% 3d" % int((frontAccelerator / motherAccelerator) * 100))
+        self.mRightLabel.setText("% 3d" % int((rightAccelerator / motherAccelerator) * 100))
+        self.mBackLabel.setText( "% 3d" % int((backAccelerator  / motherAccelerator) * 100))
+        self.mLeftLabel.setText( "% 3d" % int((leftAccelerator  / motherAccelerator) * 100))
 
         # 使能控件
-        self.mFlyerCtrlGroupBox.setEnabled(True)
         self.mAcceleratorSpinBox.setMaximum(motherAccelerator)
-        self.mAcceleratorLabel.setText("of % 4d" % motherAccelerator)
+        self.mAcceleratorLabel.setText("of % 4d" % motherAccelerator) 
+        self.mAcceleratorSpinBox.setEnabled(True)
+        self.mCommandPushButton.setEnabled(True)
 
     def UpdateErrorFrame(self, frame):
         return

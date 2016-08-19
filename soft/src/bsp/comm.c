@@ -42,7 +42,6 @@ static bool_T s_send_time_flag = FALSE;
 static bool_T s_send_accelerator_flag = FALSE;
 static bool_T s_send_dmp_quat_flag = FALSE;
 //static const uint8_T *s_hello = "flyer ok.\r\n"; 
-
 static uint8_T s_recv_frame_buf[COMM_DOWN_FRAME_BUF_SIZE] = {0};
 
 /********************************** 函数声明区 *********************************/
@@ -185,6 +184,9 @@ void comm_update(void)
         /* 解析(包含处理) */
         parse(s_recv_frame_buf);
 
+        /* 解析后清零 避免多次解析 */
+        memset(s_recv_frame_buf, 0, COMM_DOWN_FRAME_BUF_SIZE);
+
         /* 启动下行帧接收 */
         uart_recv_bytes((drv_uart_T *)s_comm_uart, s_recv_frame_buf, COMM_DOWN_FRAME_BUF_SIZE);
     }
@@ -241,6 +243,14 @@ static bool_T parse(const uint8_T *buf)
             return FALSE;
         }
 
+    static int32_T pppp = 0;
+    if(2 == pppp)
+    {
+        pppp = 8888;
+    }
+    pppp++;
+
+
         switch(ctrl_type)
         {
             /* 油门 */
@@ -250,7 +260,9 @@ static bool_T parse(const uint8_T *buf)
                     val[i]  = buf[9] << 8;
                     val[i] |= buf[10];
                 }
+
                 pwm_set_acceleralor(val);
+
                 return TRUE;
 
             /* 以下未实现 */
