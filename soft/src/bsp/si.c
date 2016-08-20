@@ -124,7 +124,6 @@ inline static void si_tc_unlock(void)
     s_rx_lock = FALSE;
 }
 
-
 /* SENSOR_I2C_EV_IRQHandler & SENSOR_I2C_ER_IRQHandler 未使用 使用DMA提高效率 */
 /* 发生EV ER中断表示出错 */
 void SENSOR_I2C_EV_IRQHandler(void)

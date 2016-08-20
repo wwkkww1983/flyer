@@ -71,9 +71,12 @@ static TIM_HandleTypeDef s_tim_handle;
 static TIM_OC_InitTypeDef s_sConfig;
 /* PWM一次脉冲的周期 */
 static int32_T s_period = 0; 
+/* PWM启动标记 */ 
+static bool_T s_running = FALSE;
 
 /********************************** 函数声明区 *********************************/
 static void pwm_set(PWM_NAME pwm, int32_T val);
+static inline bool_T pwm_is_running(void);
 
 /********************************** 函数实现区 *********************************/
 
@@ -194,6 +197,18 @@ static void pwm_set(PWM_NAME pwm, int32_T val)
     {
         while(1);
     } 
+
+    /* 启动后才能使能马达 */
+    if(!pwm_is_running())
+    {
+        return;
+    }
+    
+    /* 启动PWM */
+    if (HAL_TIM_PWM_Start(&s_tim_handle, g_pwm_list[pwm].ch) != HAL_OK)
+    {
+        while(1);
+    }
 }
 
 inline int32_T pwm_get_period(void)
@@ -222,7 +237,6 @@ void pwm_test(void)
     pwm_set(PWM_RIGHT, (int32_T)(period * 0.33));
     pwm_set(PWM_BACK,  (int32_T)(period * 0.77));
     pwm_set(PWM_LEFT,  (int32_T)(period * 1.0));
-
 } 
 
 /* 平衡控制 */
@@ -351,28 +365,19 @@ void pwm_get_acceleralor(int32_T *val)
 }
 
 /* 停止PWM周期 */
-void pwm_stop(void)
+inline void pwm_stop(void)
 {
-    for(int32_T i = 0; i < PWM_MAX; i++)
-    {
-        /* 启动PWM */
-        if (HAL_TIM_PWM_Stop(&s_tim_handle, g_pwm_list[i].ch) != HAL_OK)
-        {
-            while(1);
-        }
-    }
+    s_running = FALSE;
 }
 
 /* 启动PWM周期 */
-void pwm_start(void)
+inline void pwm_start(void)
 {
-    for(int32_T i = 0; i < PWM_MAX; i++)
-    {
-        /* 启动PWM */
-        if (HAL_TIM_PWM_Start(&s_tim_handle, g_pwm_list[i].ch) != HAL_OK)
-        {
-            while(1);
-        }
-    }
+    s_running = TRUE;
+}
+
+static inline bool_T pwm_is_running(void)
+{
+    return s_running;
 }
 

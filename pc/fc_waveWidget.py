@@ -25,12 +25,13 @@ class FCWaveWidget(QWidget):
         # 坐标颜色(字典无顺序,使用列表)
         self.mColor = [
                 ('俯仰角', Qt.red),
-                ('横滚角', Qt.green),
+                #('横滚角', Qt.green),
                 #('偏航角', Qt.blue),
                 ('前油门',Qt.blue,),
                 ('后油门', Qt.yellow),
-                ('左油门', Qt.cyan),
-                ('右油门', Qt.magenta)]
+                #('左油门', Qt.cyan),
+                #('右油门', Qt.magenta),
+                ]
 
 
         
@@ -50,7 +51,7 @@ class FCWaveWidget(QWidget):
         self.setCursor(Qt.BlankCursor) # 隐藏鼠标
         self.mPos = None # 鼠标当前点
 
-    def Append(self, time, euler):
+    def Append(self, time, euler, accelerator):
         self.mData.append((time, euler, accelerator))
 
     def paintEvent(self, paintEvent):
@@ -171,15 +172,12 @@ class FCWaveWidget(QWidget):
         yStep = metrics.ascent() + metrics.descent() + 10
         x = self.mWaveWidth
         i = 0 
-        print(1)
         for val in self.mColor: 
             y = i * yStep
             text = val[0]
             color = val[1]
             i = i + 1 
             self._drawAIcon(painter, x, y, text, color)
-            print(x, y)
-        print(2)
 
     def drawWave(self, painter): 
         # 无数据不绘制
@@ -200,9 +198,6 @@ class FCWaveWidget(QWidget):
             if length - 1 == i:
                 break
 
-            acceleratorMax = acceleratorLast[4]
-            pixelPerAccelerator = self.mWaveHeight / acceleratorMax
-
             dataLast = self.mData[i - 1]
             timeLast = dataLast[0] / 100
             eulerLast = dataLast[1]
@@ -213,24 +208,27 @@ class FCWaveWidget(QWidget):
             eulerNow = dataNow[1]
             acceleratorNow = dataLast[2]
 
-            # 转换为绘制坐标
-            xLast = int(timeLast - timeStart) + self.mXOrig
-            yThetaLast = self.mYOrig - int(eulerLast.Theta() / self.mYPhyPerPix)
-            yPhiLast = self.mYOrig - int(eulerLast.Phi() / self.mYPhyPerPix)
-            yPsiLast = self.mYOrig - int(eulerLast.Psi() / self.mYPhyPerPix) 
-            yFrontLast = acceleratorLast[0] * pixelPerAccelerator
-            yRightLast = acceleratorLast[1] * pixelPerAccelerator
-            yBackLast  = acceleratorLast[2] * pixelPerAccelerator
-            yLeftLast  = acceleratorLast[3] * pixelPerAccelerator
+            acceleratorMax = acceleratorLast[4]
+            pixelPerAccelerator = self.mWaveHeight / acceleratorMax
 
-            xNow = int(timeNow - timeStart) + self.mXOrig
-            yThetaNow = self.mYOrig - int(eulerNow.Theta() / self.mYPhyPerPix)
-            yPhiNow = self.mYOrig - int(eulerNow.Phi() / self.mYPhyPerPix)
-            yPsiNow = self.mYOrig - int(eulerNow.Psi() / self.mYPhyPerPix) 
-            yFrontNow = acceleratorNow[0] * pixelPerAccelerator
-            yRightNow = acceleratorNow[1] * pixelPerAccelerator
-            yBackLNow = acceleratorNow[2] * pixelPerAccelerator
-            yLeftLNow = acceleratorNow[3] * pixelPerAccelerator
+            # 转换为绘制坐标
+            xLast = timeLast - timeStart + self.mXOrig
+            yThetaLast = self.mYOrig - eulerLast.Theta() / self.mYPhyPerPix
+            yPhiLast = self.mYOrig - eulerLast.Phi() / self.mYPhyPerPix
+            yPsiLast = self.mYOrig - eulerLast.Psi() / self.mYPhyPerPix
+            yFrontLast = self.mWaveHeight - acceleratorLast[0] * pixelPerAccelerator
+            yRightLast = self.mWaveHeight - acceleratorLast[1] * pixelPerAccelerator
+            yBackLast  = self.mWaveHeight - acceleratorLast[2] * pixelPerAccelerator
+            yLeftLast  = self.mWaveHeight - acceleratorLast[3] * pixelPerAccelerator
+
+            xNow = timeNow - timeStart + self.mXOrig
+            yThetaNow = self.mYOrig - eulerNow.Theta() / self.mYPhyPerPix
+            yPhiNow = self.mYOrig - eulerNow.Phi() / self.mYPhyPerPix
+            yPsiNow = self.mYOrig - eulerNow.Psi() / self.mYPhyPerPix
+            yFrontNow = self.mWaveHeight - acceleratorNow[0] * pixelPerAccelerator
+            yRightNow = self.mWaveHeight - acceleratorNow[1] * pixelPerAccelerator
+            yBackLNow = self.mWaveHeight - acceleratorNow[2] * pixelPerAccelerator
+            yLeftLNow = self.mWaveHeight - acceleratorNow[3] * pixelPerAccelerator
 
             # theta 俯仰角
             pen = QPen(Qt.red)
@@ -238,13 +236,12 @@ class FCWaveWidget(QWidget):
             painter.setPen(pen) 
             painter.drawLine(xLast, yThetaLast, xNow, yThetaNow)
 
+            """
             # phi 横滚角度
             pen = QPen(Qt.green)
             pen.setWidth(1)
             painter.setPen(pen) 
             painter.drawLine(xLast, yPhiLast, xNow, yPhiNow)
-
-            """
             # psi 偏航角度
             pen = QPen(Qt.blue)
             pen.setWidth(1)
@@ -263,6 +260,13 @@ class FCWaveWidget(QWidget):
             painter.setPen(pen) 
             painter.drawLine(xLast, yBackLast, xNow, yBackLNow)
 
+            print("begin")
+            print((xLast, yThetaLast), (xNow, yThetaNow))
+            print((xLast, yFrontLast), (xNow, yFrontNow))
+            print((xLast, yBackLast), (xNow, yBackLNow))
+            print("end")
+
+            """
             # 左油门
             pen = QPen(Qt.cyan)
             pen.setWidth(1)
@@ -274,7 +278,7 @@ class FCWaveWidget(QWidget):
             pen.setWidth(1)
             painter.setPen(pen) 
             painter.drawLine(xLast, yRightLast, xNow, yRightNow)
-
+            """
 
             #print(time)
             #print((yTheta, yPhi, yPsi))

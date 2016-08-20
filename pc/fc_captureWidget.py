@@ -187,7 +187,8 @@ class FCCaptureWidget(QWidget):
             
             frame = FCStartFrame(accelerator)
             buf = frame.GetBytes()
-            print("发送停止帧" , end = ':')
+            print("发送加速帧" , end = ':')
+            frame.Print()
             
             self.mComm.Write(buf)
 
@@ -195,7 +196,8 @@ class FCCaptureWidget(QWidget):
         if self._IsConnectted():
             frame = FCStopFrame()
             buf = frame.GetBytes()
-            print("发送加速帧" , end = ':')
+            print("发送停止帧" , end = ':')
+            frame.Print()
 
             self.mComm.Write(buf)
 
@@ -236,6 +238,7 @@ class FCCaptureWidget(QWidget):
         frame = FCRequestTimeAcceleratorDmpQuatFrame(interval)
         buf = frame.GetBytes()
         print("采样数据请求帧" , end = ':')
+        frame.Print()
 
         self.mComm.Write(buf)
         print("开始监控")
