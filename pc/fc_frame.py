@@ -14,7 +14,7 @@ class FCFrameType(Enum):
     # 以下类型基本帧类型(用户不使用)
     _Up                 = 0x80000000
     _Down               = 0x00000000
-    _Ctrl               = 0x40000000
+    FrameFlyerCtrl      = 0x40000000
     _Capture            = 0x20000000
     _Text               = 0x10000000
 
@@ -29,7 +29,6 @@ class FCFrameType(Enum):
     # 以下类型用户使用
     # dmp四元数采集请求帧
     FrameRequestTimeAcceleratorDmpQuat = _Down | _Capture | _Accelerator | _DataDmpQuat | _DataTime
-    FrameAccelerator = _Down | _Ctrl
 
     # dmp四元数采集数据帧
     FrameDataTimeAcceleratorDmpQuat = _Up | _Capture | _Accelerator | _DataDmpQuat | _DataTime
@@ -178,22 +177,33 @@ class FCRequestTimeAcceleratorDmpQuatFrame(_FCDownFrame):
     def Type(self):
         return FCFrameType.FrameRequestTimeAcceleratorDmpQuat
 
-class FCAcceleratorFrame(_FCDownFrame):
-    def __init__(self, accelerator = 0):
+class _FCFlyerCtrlFrame(_FCDownFrame):
+    def __init__(self, type_byte = b'\x00', data = b'\xA5\xA5'):
         # byte0 : 0(加速)
         # val   : byte1 << 8 | byte2
         # byte3 : 0xA5
-        byte0 = b'\0'
-        acceleratorVal = struct.pack('>h', accelerator)
+        byte0 = type_byte
+        byte2_byte3 = data
         byte3 = b'\xA5'
-        bytesVal = byte0 + acceleratorVal + byte3
+        bytesVal = byte0 + byte2_byte3 + byte3
         #print(bytesVal)
         data = struct.unpack('>I', bytesVal)[0]
         #print(data)
-        super(FCAcceleratorFrame, self).__init__(frameType = FCFrameType.FrameAccelerator,
+        super(_FCFlyerCtrlFrame, self).__init__(frameType = FCFrameType.FrameFlyerCtrl,
                 frameData = data)
     def Type(self):
-        return FCFrameType.FrameAccelerator
+        return FCFrameType.FrameFlyerCtrl
+
+class FCStopFrame(_FCFlyerCtrlFrame):
+    def __init__(self):
+        # 基类默认参数实现赋值
+        super(FCStopFrame, self).__init__()
+
+class FCStartFrame(_FCFlyerCtrlFrame):
+    def __init__(self, accelerator = 0): 
+        t_b = b'\x01'
+        accelerator_bytes = struct.pack('>h', accelerator)
+        super(FCStartFrame, self).__init__(type_byte = t_b, data = accelerator_bytes)
 
 # 上行帧 上位机解析
 class FCUpFrame(_FCBaseFrame): 

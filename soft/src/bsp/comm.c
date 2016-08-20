@@ -243,27 +243,35 @@ static bool_T parse(const uint8_T *buf)
             return FALSE;
         }
 
+        /* return 替代break */
         switch(ctrl_type)
         {
-            /* 油门 */
+            /* 熄火 */
             case 0x00: 
+                if((COMM_FRAME_FILLED_VAL == buf[9])
+                && (COMM_FRAME_FILLED_VAL == buf[10]))
+                { 
+                    pwm_stop();
+                    return TRUE;
+                }
+                else
+                {
+                    return FALSE;
+                }
+
+            /* 油门 */
+            case 0x01: 
                 for(int32_T i = 0; i < PWM_MAX; i++)
                 {
                     val[i]  = buf[9] << 8;
                     val[i] |= buf[10];
                 }
 
-                pwm_set_acceleralor(val);
-
+                pwm_set_acceleralor(val); 
+                pwm_start();
                 return TRUE;
 
-            /* 以下未实现 */
-            case 0x01: /* 前 */
-            case 0x02: /* 后 */
-            case 0x03: /* 左 */
-            case 0x04: /* 右 */
-            case 0x05: /* 左旋(逆时针旋转) */
-            case 0x06: /* 右旋(顺时针旋转) */
+            /* 错误类型 */
             default:
                 return FALSE;
         }

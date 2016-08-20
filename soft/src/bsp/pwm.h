@@ -57,9 +57,13 @@ void pwm_test(void);
 /* 姿态控制 */
 void pwm_update(void);
 /* 获取PWM周期 */
-int32_T pwm_get_period(void);
+int32_T pwm_get_period(void); 
+/* 停止PWM周期 */
+void pwm_stop(void);
+/* 启动PWM周期 */
+void pwm_start(void);
 
-/* 油门设置:未加入adj_val, 0 <= val <= 100 */
+/* 油门设置:未加入adj_val, 0 <= val <= 1000 */
 void pwm_set_acceleralor(const int32_T *val);
 /* 油门获取:加入了adj_val, 0 <= val <= s_period(1000) */
 void pwm_get_acceleralor(int32_T *val);

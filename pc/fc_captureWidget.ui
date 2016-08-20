@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1034</width>
-    <height>557</height>
+    <height>564</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -376,7 +376,7 @@
               <number>1000</number>
              </property>
              <property name="value">
-              <number>300</number>
+              <number>200</number>
              </property>
             </widget>
            </item>
@@ -405,21 +405,21 @@
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="QPushButton" name="stopPushButton">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>40</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>停止</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
-      </item>
-      <item>
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
       </item>
      </layout>
     </widget>

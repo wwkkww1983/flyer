@@ -70,7 +70,8 @@ static TIM_HandleTypeDef s_tim_handle;
 /* pwm_init和pwm_set中都使用 */
 static TIM_OC_InitTypeDef s_sConfig;
 /* PWM一次脉冲的周期 */
-static int32_T s_period = 0;
+static int32_T s_period = 0; 
+
 /********************************** 函数声明区 *********************************/
 static void pwm_set(PWM_NAME pwm, int32_T val);
 
@@ -159,12 +160,15 @@ void pwm_init(void)
         pwm_set((PWM_NAME)i, 0);
     }
 
+    /* 关闭pwm */
+    pwm_stop();
+
     return;
 }
 
 static void pwm_set(PWM_NAME pwm, int32_T val)
 {
-    uint32_T period = 0;
+    int32_T period = 0;
 
     /* 参数检查 */
     if(pwm > PWM_MAX)
@@ -190,12 +194,6 @@ static void pwm_set(PWM_NAME pwm, int32_T val)
     {
         while(1);
     } 
-    /* 启动PWM */
-    if (HAL_TIM_PWM_Start(&s_tim_handle, g_pwm_list[pwm].ch) != HAL_OK)
-    {
-        while(1);
-    }
-
 }
 
 inline int32_T pwm_get_period(void)
@@ -324,7 +322,6 @@ void pwm_set_acceleralor(const int32_T *val_list)
         
         g_pwm_list[i].base = val;
     }
-
 }
 
 void pwm_get_acceleralor(int32_T *val)
@@ -349,6 +346,32 @@ void pwm_get_acceleralor(int32_T *val)
         if(val[i] > period)
         {
             val[i] = period;
+        }
+    }
+}
+
+/* 停止PWM周期 */
+void pwm_stop(void)
+{
+    for(int32_T i = 0; i < PWM_MAX; i++)
+    {
+        /* 启动PWM */
+        if (HAL_TIM_PWM_Stop(&s_tim_handle, g_pwm_list[i].ch) != HAL_OK)
+        {
+            while(1);
+        }
+    }
+}
+
+/* 启动PWM周期 */
+void pwm_start(void)
+{
+    for(int32_T i = 0; i < PWM_MAX; i++)
+    {
+        /* 启动PWM */
+        if (HAL_TIM_PWM_Start(&s_tim_handle, g_pwm_list[i].ch) != HAL_OK)
+        {
+            while(1);
         }
     }
 }

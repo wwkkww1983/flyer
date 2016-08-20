@@ -14,11 +14,14 @@ from PyQt5.QtWidgets import *
 from PyQt5.uic import loadUiType, loadUi
 
 from fc_waveWidget import FCWaveWidget
+
 # 下行帧
 from fc_frame import FCRequestTimeAcceleratorDmpQuatFrame
-from fc_frame import FCAcceleratorFrame
+from fc_frame import FCStopFrame
+from fc_frame import FCStartFrame
 # 上行帧
 from fc_frame import FCDataTimeAcceleratorDmpQuat
+
 # 上行帧基类(用于解析帧长)
 from fc_frame import FCUpFrame
 # 帧类型枚举 用于实现表驱动
@@ -61,6 +64,7 @@ class FCCaptureWidget(QWidget):
         self.mAcceleratorCheckBox = self.mUi.acceleratorCheckBox
         self.mCapturePushButton = self.mUi.capturePushButton
         self.mCommandPushButton = self.mUi.commandPushButton
+        self.mStopPushButton = self.mUi.stopPushButton
         self.mAcceleratorSpinBox = self.mUi.acceleratorSpinBox
         self.mAcceleratorLabel = self.mUi.acceleratorLabel
         self.mConsolePlainTextEdit = self.mUi.consolePlainTextEdit
@@ -102,8 +106,9 @@ class FCCaptureWidget(QWidget):
         self.mAcceleratorCheckBox.setChecked(True)
         self.mSaveCheckBox.setChecked(True)
         self.mCapturePushButton.clicked.connect(self.ChangeState)
-        self.mCommandPushButton.clicked.connect(self.SencCommand)
+        self.mCommandPushButton.clicked.connect(self.StartFlyer)
         self.mSavePushButton.clicked.connect(self.SetSaveFileDir)
+        self.mStopPushButton.clicked.connect(self.StopFlyer)
 
         # 加入波形控件
         self.mWaveWidget = FCWaveWidget()
@@ -130,6 +135,16 @@ class FCCaptureWidget(QWidget):
         frame = FCRequestTimeAcceleratorDmpQuatFrame(interval)
         print("采样数据请求帧" , end = ':')
         frame.Print()
+
+        accelerator = int(self.mAcceleratorSpinBox.value())
+        frame = FCStartFrame(accelerator)
+        print("发送加速帧" , end = ':')
+        frame.Print() 
+        
+        frame = FCStopFrame()
+        buf = frame.GetBytes()
+        print("发送停止帧" , end = ':')
+        frame.Print() 
         """
 
     def closeEvent(self, event):
@@ -165,22 +180,30 @@ class FCCaptureWidget(QWidget):
             self.mDataGroupBox.setEnabled(False)
             self.StartCapture() 
 
-    def SencCommand(self, checked):
-        if (not self.mCapturing) or (None == self.mComm):
-            print("尚未链接")
-            return
-        else: 
-            # step1: 组控制帧
+    def StartFlyer(self, checked):
+        if self._IsConnectted():
             accelerator = int(self.mAcceleratorSpinBox.value())
             print(accelerator) 
             
-            frame = FCAcceleratorFrame(accelerator)
+            frame = FCStartFrame(accelerator)
+            buf = frame.GetBytes()
+            print("发送停止帧" , end = ':')
+            
+            self.mComm.Write(buf)
+
+    def StopFlyer(self, checked):
+        if self._IsConnectted():
+            frame = FCStopFrame()
             buf = frame.GetBytes()
             print("发送加速帧" , end = ':')
-            frame.Print() 
-            
-            # step3: 发帧
+
             self.mComm.Write(buf)
+
+    def _IsConnectted(self):
+        if self.mCapturing and self.mComm:
+            return True
+        else:
+            return False
 
     def ChangeCommType(self, typeIndex):
         if 0 == typeIndex: # 网络
@@ -207,16 +230,13 @@ class FCCaptureWidget(QWidget):
 
     def SendRequestCaptureDataCmd(self):
         # TODO:由界面定制
-        # step1: 组请求帧
         interval = int(self.mIntervalLineEdit.text())
         #print(interval) 
 
         frame = FCRequestTimeAcceleratorDmpQuatFrame(interval)
         buf = frame.GetBytes()
         print("采样数据请求帧" , end = ':')
-        frame.Print()
 
-        # step3: 发帧
         self.mComm.Write(buf)
         print("开始监控")
 
@@ -269,11 +289,11 @@ class FCCaptureWidget(QWidget):
     def UpdateTimeAcceleratorDmpQuat(self, frame):
         time = frame.GetTime()
         dmpQuat = frame.GetGmpQuat()
-        accelerator = frame.GetAccelrator()
         euler = dmpQuat.ToEuler()
+        accelerator = frame.GetAccelrator()
 
         # 加入数据
-        self.mWaveWidget.Append(time, euler)
+        self.mWaveWidget.Append(time, euler, accelerator)
 
         timeText = "运行:%7.1fs" % (time / 1000.0)
         dmpQuatText = dmpQuat.ToString()
