@@ -37,6 +37,7 @@ static uint8_T s_int_status = 0;
 static f32_T s_quat[4] = {1.0f, 0.0f, 0.0f, 0.0f}; /* 最终的四元数(初始值必须为:1,0,0,0 表示无旋转) */
 static f32_T s_q45[4] = {0.0f}; /* 求偏航角旋转45度pi/4(绕Z轴)的四元数表示 */
 static const signed char s_orientation[9] = MPU9250_ORIENTATION;
+static bool_T s_quat_arrived = FALSE; /* 是否生成新的四元数 */
 
 /********************************** 函数声明区 *********************************/
 static void run_self_test(void);
@@ -160,6 +161,10 @@ void mpu9250_update(void)
     f32_T quat_rotated[4] = {0.0f};
 
     mpu9250_dmp_read(quat); 
+    if(!mpu9250_quat_arrived())
+    {
+        return;
+    }
     
     /* 偏航角旋转45度与机翼对应 */
     math_quaternion_cross(quat_rotated, quat, s_q45); 
@@ -201,6 +206,7 @@ static void mpu9250_dmp_read(f32_T *f32_quat)
             f32_quat[1] = (f32_T) quat[1] / ((f32_T)(1L << 30));
             f32_quat[2] = (f32_T) quat[2] / ((f32_T)(1L << 30));
             f32_quat[3] = (f32_T) quat[3] / ((f32_T)(1L << 30)); 
+            s_quat_arrived = TRUE;
         }
     } 
 }
@@ -221,6 +227,17 @@ void mpu9250_get_quat(f32_T *quat)
     quat[1] = s_quat[1];
     quat[2] = s_quat[2];
     quat[3] = s_quat[3];
+}
+
+void mpu9250_get_quat_with_clear(f32_T *quat)
+{
+    mpu9250_get_quat(quat);
+    s_quat_arrived = FALSE;
+}
+
+bool_T mpu9250_quat_arrived(void)
+{
+    return s_quat_arrived;
 }
 
 static void run_self_test(void)

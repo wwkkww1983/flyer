@@ -260,11 +260,13 @@ class FCWaveWidget(QWidget):
             painter.setPen(pen) 
             painter.drawLine(xLast, yBackLast, xNow, yBackLNow)
 
+            """
             print("begin")
             print((xLast, yThetaLast), (xNow, yThetaNow))
             print((xLast, yFrontLast), (xNow, yFrontNow))
             print((xLast, yBackLast), (xNow, yBackLNow))
             print("end")
+            """
 
             """
             # 左油门

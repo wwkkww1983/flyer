@@ -50,8 +50,14 @@ void mpu9250_test(void);
 /* 更新姿态 */
 void mpu9250_update(void);
 
+/* 判断有效四元数是否到达 */
+bool_T mpu9250_quat_arrived(void);
+
 /* 获取四元数 */
 void mpu9250_get_quat(f32_T *quat);
+
+/* 获取四元数 且 标记四元数(已经使用) */
+void mpu9250_get_quat_with_clear(f32_T *quat);
 
 #endif /* _MPU9250_H_ */
 

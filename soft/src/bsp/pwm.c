@@ -90,7 +90,7 @@ void pwm_init(void)
     { 
         g_pwm_list[i].base = 0;
         g_pwm_list[i].adj_val = 0;
-        g_pwm_list[i].adj_step = 1; /* 初始步长定小 */
+        g_pwm_list[i].adj_step = PWM_STEP; /* 初始步长定小 */
     }
 
     /* 
@@ -203,6 +203,17 @@ static void pwm_set(PWM_NAME pwm, int32_T val)
     {
         return;
     }
+
+    /* 关闭左/后 用于调试 */
+    if(
+             (PWM_LEFT == pwm)
+            || (PWM_RIGHT == pwm)
+            //|| (PWM_BACK == pwm)
+            //|| (PWM_FRONT == pwm)
+            )
+    {
+        //return;
+    }
     
     /* 启动PWM */
     if (HAL_TIM_PWM_Start(&s_tim_handle, g_pwm_list[pwm].ch) != HAL_OK)
@@ -252,7 +263,13 @@ void pwm_update(void)
 
     period = pwm_get_period();
 
-    mpu9250_get_quat(q);
+    /* 无新四元数 故无需更新pwm */
+    if(!mpu9250_quat_arrived())
+    {
+        return;
+    }
+    mpu9250_get_quat_with_clear(q); /* 获取且标记 */
+
     math_quaternion2euler(e, q);
 
     theta = e[0];
