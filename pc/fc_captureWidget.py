@@ -172,7 +172,7 @@ class FCCaptureWidget(QWidget):
             fileName = datetime.now().strftime('%Y_%m_%d_%H_%M_%S') + ".dat"
             fullName = os.path.join(dirPath, fileName)
             self.mDataFile = open(fullName, mode = 'bw')
-            self.mDataFile.write("数据如下:\n".encode('utf-8'))
+            #self.mDataFile.write("数据如下:\n".encode('utf-8'))
 
             self.mCapturing = True
             self.mCapturePushButton.setText("停止采集")
@@ -305,10 +305,10 @@ class FCCaptureWidget(QWidget):
         psiText   = "偏航角:%+04.2fd" % euler.Psi()
 
         # 保存到文件
-        self.mDataFile.write(b"\r\n")
-        self.mDataFile.write(b"new:\r\n")
+        #self.mDataFile.write(b"\r\n")
+        #self.mDataFile.write(b"new:\r\n")
         self.mDataFile.write(frame.GetBytes())
-        self.mDataFile.write(b"\r\n")
+        #self.mDataFile.write(b"\r\n")
 
         self.sUpdateAcceleratorQuat.emit(timeText, dmpQuatText, thetaText, phiText, psiText,
                 accelerator[0], accelerator[1], accelerator[2], accelerator[3], accelerator[4])

@@ -57,13 +57,11 @@ class FCAnalysisWidget(QWidget):
             
             time = frame.GetTime()
             dmpQuat = frame.GetGmpQuat()
-            print(time)
-            print(dmpQuat.ToString())
-            #euler = dmpQuat.ToEuler()
-            #accelerator = frame.GetAccelrator() 
-            
-            #self.mWaveWidget.Append(time, euler, accelerator)
+            euler = dmpQuat.ToEuler()
+            accelerator = frame.GetAccelrator() 
+            self.mWaveWidget.Append(time, euler, accelerator)
 
+        self.mWaveWidget.update()
         data_file.close()
         print("绘制完成.")
 

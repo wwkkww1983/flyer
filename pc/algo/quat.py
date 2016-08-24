@@ -15,11 +15,11 @@ class FCQuat():
 
     def ToEuler(self):
         theta =  atan2(self.mQ2 * self.mQ3 + self.mQ0 * self.mQ1, self.mQ0 * self.mQ0 + self.mQ3 * self.mQ3 - 0.5)
-        print(theta)
+        #print(theta)
         phi   = -asin(2 * (self.mQ1 * self.mQ3 - self.mQ0 * self.mQ2))
-        print(phi)
+        #print(phi)
         psi   =  atan2(self.mQ1 * self.mQ2 + self.mQ0 * self.mQ3, self.mQ0 * self.mQ0 + self.mQ1 * self.mQ1 - 0.5)
-        print(psi)
+        #print(psi)
         euler =  FCEuler(theta, phi, psi)
         return euler
 

@@ -206,7 +206,7 @@ class FCWaveWidget(QWidget):
             dataNow = self.mData[i]
             timeNow = dataNow[0] / 100
             eulerNow = dataNow[1]
-            acceleratorNow = dataLast[2]
+            acceleratorNow = dataNow[2]
 
             acceleratorMax = acceleratorLast[4]
             pixelPerAccelerator = self.mWaveHeight / acceleratorMax
@@ -254,21 +254,19 @@ class FCWaveWidget(QWidget):
             painter.setPen(pen) 
             painter.drawLine(xLast, yFrontLast, xNow, yFrontNow)
 
+            """
             # 后油门
             pen = QPen(Qt.yellow)
             pen.setWidth(1)
             painter.setPen(pen) 
             painter.drawLine(xLast, yBackLast, xNow, yBackLNow)
 
-            """
             print("begin")
             print((xLast, yThetaLast), (xNow, yThetaNow))
             print((xLast, yFrontLast), (xNow, yFrontNow))
             print((xLast, yBackLast), (xNow, yBackLNow))
             print("end")
-            """
 
-            """
             # 左油门
             pen = QPen(Qt.cyan)
             pen.setWidth(1)
