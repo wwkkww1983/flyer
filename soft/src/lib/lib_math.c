@@ -211,8 +211,8 @@ void math_quaternion2euler(f32_T *euler, const float *q)
     f32_T phi = 0.0f;
     f32_T psi = 0.0f;
 
-    theta =  atan2(q[2]*q[3] + q[0]*q[1], q[0]*q[0] + q[3]*q[3] - 0.5f);
-    phi   = -asin(2*(q[1]*q[3] - q[0]*q[2]));
+    theta = -atan2(q[2]*q[3] + q[0]*q[1], q[0]*q[0] + q[3]*q[3] - 0.5f);
+    phi   = +asin(2*(q[1]*q[3] - q[0]*q[2]));
     psi   =  atan2(q[1]*q[2] + q[0]*q[3], q[0]*q[0] + q[1]*q[1] - 0.5f);
 
     euler[0] = theta;
