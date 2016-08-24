@@ -45,7 +45,6 @@ void led_init(void);
 void led_on(LED_NAME led);
 void led_off(LED_NAME led);
 void led_toggle(LED_NAME led);
-void led_test(void);
 
 #endif
 

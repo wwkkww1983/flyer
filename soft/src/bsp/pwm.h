@@ -53,8 +53,6 @@ typedef struct pwm_list_tag
 /*********************************** 接口函数 **********************************/
 /* 初始化 */
 void pwm_init(void);
-/* 测试pwm */
-void pwm_test(void);
 /* 姿态控制 */
 void pwm_update(void);
 /* 获取PWM周期 */

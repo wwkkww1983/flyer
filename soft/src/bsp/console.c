@@ -36,18 +36,20 @@ drv_uart_T g_console = {
 };
 
 /********************************** 函数声明区 *********************************/
+static void console_test(void);
 
 /********************************** 函数实现区 *********************************/
 /* 控制台初始化 */
 void console_init(void)
 { 
     uart_init(&g_console);
+    console_test();
 }
 
 /* 控制台测试 */
-void console_test(void)
+static void console_test(void)
 {
-    debug_log("观察控制台输出并按照提示操作.\r\n");
+    //debug_log("观察控制台输出并按照提示操作.\r\n");
 }
 
 /************************************* 中断 ************************************/

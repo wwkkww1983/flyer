@@ -46,8 +46,6 @@ do \
 { \
     uart_send(&g_esp8266, fmt, ##__VA_ARGS__); \
 } while(0)
-/* esp8266测试 */
-void esp8266_test(void);
 
 #endif
 

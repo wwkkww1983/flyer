@@ -37,8 +37,6 @@ do \
 { \
     uart_send(&g_console, fmt, ##__VA_ARGS__); \
 } while(0)
-/* 控制台测试 */
-void console_test(void);
 
 #endif
 

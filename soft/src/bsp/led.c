@@ -35,11 +35,14 @@ LED_LIST_T g_led_list[] = {
 };
 
 /********************************** 函数声明区 *********************************/
+static void led_test(void);
 
 /********************************** 函数实现区 *********************************/
 void led_init(void)
 {
-    /* 基本初始化位于 board.c Msp_Init */
+    /* 基本初始化位于 board.c Msp_Init */ 
+    
+    led_test();
 }
 
 /* 低灭 高亮 */
@@ -76,13 +79,13 @@ void led_toggle(LED_NAME led)
     HAL_GPIO_TogglePin(g_led_list[led].port, g_led_list[led].pin);
 }
 
-void led_test(void)
+static void led_test(void)
 {
     /* led 测试 */
     int i = 0;
     int j = 0;
     int delay = 200;     /* led测试延迟ms */
-    int flash_times = 5; /* 闪烁次数 不包括off/on测试 */
+    int flash_times = 5; /* 闪烁次数 */
 
     debug_log("观察led是否闪烁.\r\n"); 
     /* 闪5次 */

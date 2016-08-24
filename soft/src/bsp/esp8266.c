@@ -57,6 +57,8 @@ static esp8266_cmd_T s_cmd_list[] = {
 /********************************** 函数声明区 *********************************/
 static void esp8266_reset(void); 
 static void esp8266_wati_reset_ok(void);
+/* esp8266测试 */
+static void esp8266_test(void);
 
 /********************************** 函数实现区 *********************************/
 /* 控制台初始化 */
@@ -123,6 +125,8 @@ void esp8266_init(void)
         i++;
 
     }while(1); 
+
+    esp8266_test();    
 }
 
 /* 复位esp8266模块 */
@@ -137,9 +141,9 @@ static void esp8266_reset(void)
 }
 
 /* esp8266测试 */
-void esp8266_test(void)
+static void esp8266_test(void)
 {
-    debug_log("观察esp8266并按照提示操作.\r\n");
+    //debug_log("观察esp8266并按照提示操作.\r\n");
 }
 
 void esp8266_wati_reset_ok(void)

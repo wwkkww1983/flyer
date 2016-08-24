@@ -148,10 +148,15 @@ void mpu9250_init(void)
     /* 该函数会关闭bypass模式 */
     mpu_set_dmp_state(1);
 
+    mpu9250_test();
+
     return;
 }
 
-void mpu9250_test(void) { ; } 
+static void mpu9250_test(void)
+{ 
+    ;
+} 
 
 /* 更新姿态 */
 void mpu9250_update(void)

@@ -29,6 +29,7 @@
 /* base域表示基础值(用于运动) pwm_update中计算矫正值(用于平衡) */
 PWM_LIST_T g_pwm_list[] = {
     {
+        /* 晶体顺时针方向第1个 */
         .name = PWM_FRONT,
         .tim  = PWM_TIM, 
         .ch   = TIM_CHANNEL_1,
@@ -37,6 +38,7 @@ PWM_LIST_T g_pwm_list[] = {
         .adj_step = 0
     },
     {
+        /* 晶体顺时针方向第2个 */
         .name = PWM_RIGHT,
         .tim  = PWM_TIM, 
         .ch   = TIM_CHANNEL_2,
@@ -45,6 +47,7 @@ PWM_LIST_T g_pwm_list[] = {
         .adj_step = 0
     },
     {
+        /* 晶体顺时针方向第3个 */
         .name = PWM_BACK,
         .tim  = PWM_TIM, 
         .ch   = TIM_CHANNEL_3,
@@ -53,6 +56,7 @@ PWM_LIST_T g_pwm_list[] = {
         .adj_step = 0
     },
     {
+        /* 晶体顺时针方向第4个 */
         .name = PWM_LEFT,
         .tim  = PWM_TIM, 
         .ch   = TIM_CHANNEL_4,
@@ -75,6 +79,8 @@ static int32_T s_period = 0;
 static bool_T s_running = FALSE;
 
 /********************************** 函数声明区 *********************************/
+/* 测试pwm硬件 */
+static void pwm_test(void);
 static void pwm_set(PWM_NAME pwm, int32_T val);
 static inline bool_T pwm_is_running(void);
 
@@ -166,6 +172,8 @@ void pwm_init(void)
     /* 关闭pwm */
     pwm_stop();
 
+    pwm_test();
+
     return;
 }
 
@@ -204,17 +212,6 @@ static void pwm_set(PWM_NAME pwm, int32_T val)
         return;
     }
 
-    /* 关闭左/后 用于调试 */
-    if(
-             (PWM_LEFT == pwm)
-            || (PWM_RIGHT == pwm)
-            //|| (PWM_BACK == pwm)
-            //|| (PWM_FRONT == pwm)
-            )
-    {
-        //return;
-    }
-    
     /* 启动PWM */
     if (HAL_TIM_PWM_Start(&s_tim_handle, g_pwm_list[pwm].ch) != HAL_OK)
     {
@@ -236,18 +233,46 @@ inline int32_T pwm_get_step(void)
     return period / 100;
 }
 
-void pwm_test(void)
+static void pwm_test(void)
 {
     int32_T period = 0;
+    int32_T accelerator_rate = 5;
+    int32_T delay = 1000;
 
-    debug_log("前右后左四个pwm分别为 0%% 33%% 77%% 100%%.\r\n");
+    debug_log("前右后左分别%d%%油门运动%dms.\r\n", accelerator_rate, delay);
 
     period = pwm_get_period();
 
+    pwm_start();
+    pwm_set(PWM_FRONT, (int32_T)(period * accelerator_rate / 100.0));
+    pwm_set(PWM_RIGHT, (int32_T)(period * 0.0));
+    pwm_set(PWM_BACK,  (int32_T)(period * 0.0));
+    pwm_set(PWM_LEFT,  (int32_T)(period * 0.0));
+    HAL_Delay(delay);
+
     pwm_set(PWM_FRONT, (int32_T)(period * 0.0));
-    pwm_set(PWM_RIGHT, (int32_T)(period * 0.33));
-    pwm_set(PWM_BACK,  (int32_T)(period * 0.77));
-    pwm_set(PWM_LEFT,  (int32_T)(period * 1.0));
+    pwm_set(PWM_RIGHT, (int32_T)(period * accelerator_rate / 100.0));
+    pwm_set(PWM_BACK,  (int32_T)(period * 0.0));
+    pwm_set(PWM_LEFT,  (int32_T)(period * 0.0));
+    HAL_Delay(delay);
+
+    pwm_set(PWM_FRONT, (int32_T)(period * 0.0));
+    pwm_set(PWM_RIGHT, (int32_T)(period * 0.0));
+    pwm_set(PWM_BACK,  (int32_T)(period * accelerator_rate / 100.0));
+    pwm_set(PWM_LEFT,  (int32_T)(period * 0.0));
+    HAL_Delay(delay);
+
+    pwm_set(PWM_FRONT, (int32_T)(period * 0.0));
+    pwm_set(PWM_RIGHT, (int32_T)(period * 0.0));
+    pwm_set(PWM_BACK,  (int32_T)(period * 0.0));
+    pwm_set(PWM_LEFT,  (int32_T)(period * accelerator_rate / 100.0));
+    HAL_Delay(delay);
+
+    pwm_set(PWM_FRONT, (int32_T)(period * 0.0));
+    pwm_set(PWM_RIGHT, (int32_T)(period * 0.0));
+    pwm_set(PWM_BACK,  (int32_T)(period * 0.0));
+    pwm_set(PWM_LEFT,  (int32_T)(period * 0.0));
+    pwm_stop();
 } 
 
 /* 平衡控制 */
