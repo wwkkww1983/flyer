@@ -557,6 +557,11 @@
               <FileType>1</FileType>
               <FilePath>..\src\bsp\comm.c</FilePath>
             </File>
+            <File>
+              <FileName>ctrl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\bsp\ctrl.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
