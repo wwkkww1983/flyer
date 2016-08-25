@@ -26,78 +26,48 @@
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/
-/* base域表示基础值(用于运动) pwm_update中计算矫正值(用于平衡) */
-PWM_LIST_T g_pwm_list[] = {
+PWM_CH_T g_pwm_ch_list[] = {
     {
         /* 晶体顺时针方向第1个 */
         .name = PWM_FRONT,
         .tim  = PWM_TIM, 
         .ch   = TIM_CHANNEL_1,
-        .base = 0,
-        .adj_val  = 0,
-        .adj_step = 0
     },
     {
         /* 晶体顺时针方向第2个 */
         .name = PWM_RIGHT,
         .tim  = PWM_TIM, 
         .ch   = TIM_CHANNEL_2,
-        .base = 0,
-        .adj_val  = 0,
-        .adj_step = 0
     },
     {
         /* 晶体顺时针方向第3个 */
         .name = PWM_BACK,
         .tim  = PWM_TIM, 
         .ch   = TIM_CHANNEL_3,
-        .base = 0,
-        .adj_val  = 0,
-        .adj_step = 0
     },
     {
         /* 晶体顺时针方向第4个 */
         .name = PWM_LEFT,
         .tim  = PWM_TIM, 
         .ch   = TIM_CHANNEL_4,
-        .base = 0,
-        .adj_val  = 0,
-        .adj_step = 0
     }
 };
 
-/* 45度旋转的四元数表示 */
-f32_T s_q45[4] = {0.0f};
-
 /* tim句柄 */
 static TIM_HandleTypeDef s_tim_handle;
-/* pwm_init和pwm_set中都使用 */
+/* pwm通道配置 */
 static TIM_OC_InitTypeDef s_sConfig;
 /* PWM一次脉冲的周期 */
 static int32_T s_period = 0; 
-/* PWM启动标记 */ 
-static bool_T s_running = FALSE;
 
 /********************************** 函数声明区 *********************************/
-/* 测试pwm硬件 */
-static void pwm_test(void);
 static void pwm_set(PWM_NAME pwm, int32_T val);
-static inline bool_T pwm_is_running(void);
+static void pwm_test(void);
 
 /********************************** 函数实现区 *********************************/
-
 void pwm_init(void)
 {
     uint32_T pre_scale_val = 0;
-    int32_T i = 0;
-
-    /* 数据结构初始化 */
-    for(i = 0; i < PWM_MAX; i++)
-    { 
-        g_pwm_list[i].base = 0;
-        g_pwm_list[i].adj_val = 0;
-        g_pwm_list[i].adj_step = PWM_STEP; /* 初始步长定小 */
-    }
 
     /* 
      *
@@ -159,20 +129,11 @@ void pwm_init(void)
     s_sConfig.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
     s_sConfig.OCNIdleState = TIM_OCNIDLESTATE_RESET;
     s_sConfig.OCIdleState  = TIM_OCIDLESTATE_RESET; 
-    for(i = 0; i < PWM_MAX; i++)
-    { 
-        /* 
-         * s_sConfig.Pulse == val 
-         * 0 不输出高电平 电机停转
-         *
-         * */
-        pwm_set((PWM_NAME)i, 0);
-    }
 
-    /* 关闭pwm */
-    pwm_stop();
-
+    /* 测试电机 */
     pwm_test();
+    /* 关闭电机 */
+    pwm_motor_off();
 
     return;
 }
@@ -187,13 +148,12 @@ static void pwm_set(PWM_NAME pwm, int32_T val)
         while(1);
     }
 
-    /* val >= 0 */
+    /* 限制val在有效值范围内 [0,period] */
+    period = pwm_get_period();
     if(val < 0)
     {
         val = 0;
     }
-    /* 最大占空比为1 */
-    period = pwm_get_period();
     if(val > period)
     {
         val = period;
@@ -201,36 +161,16 @@ static void pwm_set(PWM_NAME pwm, int32_T val)
 
     /* 修改占空比 */
     s_sConfig.Pulse = val;
-    if (HAL_TIM_PWM_ConfigChannel(&s_tim_handle, &s_sConfig, g_pwm_list[pwm].ch) != HAL_OK)
+    if (HAL_TIM_PWM_ConfigChannel(&s_tim_handle, &s_sConfig, g_pwm_ch_list[pwm].ch) != HAL_OK)
     {
         while(1);
     } 
 
-    /* 启动后才能使能马达 */
-    if(!pwm_is_running())
-    {
-        return;
-    }
-
     /* 启动PWM */
-    if (HAL_TIM_PWM_Start(&s_tim_handle, g_pwm_list[pwm].ch) != HAL_OK)
+    if (HAL_TIM_PWM_Start(&s_tim_handle, g_pwm_ch_list[pwm].ch) != HAL_OK)
     {
         while(1);
     }
-}
-
-inline int32_T pwm_get_period(void)
-{
-    return s_period;
-}
-
-inline int32_T pwm_get_step(void)
-{
-    int32_T period = 0;
-
-    period = pwm_get_period();
-
-    return period / 100;
 }
 
 static void pwm_test(void)
@@ -243,7 +183,6 @@ static void pwm_test(void)
 
     period = pwm_get_period();
 
-    pwm_start();
     pwm_set(PWM_FRONT, (int32_T)(period * accelerator_rate / 100.0));
     pwm_set(PWM_RIGHT, (int32_T)(period * 0.0));
     pwm_set(PWM_BACK,  (int32_T)(period * 0.0));
@@ -267,159 +206,19 @@ static void pwm_test(void)
     pwm_set(PWM_BACK,  (int32_T)(period * 0.0));
     pwm_set(PWM_LEFT,  (int32_T)(period * accelerator_rate / 100.0));
     HAL_Delay(delay);
-
-    pwm_set(PWM_FRONT, (int32_T)(period * 0.0));
-    pwm_set(PWM_RIGHT, (int32_T)(period * 0.0));
-    pwm_set(PWM_BACK,  (int32_T)(period * 0.0));
-    pwm_set(PWM_LEFT,  (int32_T)(period * 0.0));
-    pwm_stop();
-} 
-
-/* 平衡控制 */
-void pwm_update(void)
-{
-    f32_T e[3] = {0.0f};
-    f32_T q[4] = {0.0f}; 
-    f32_T theta = 0.0f;
-    f32_T psi = 0.0f;
-    /* f32_T phi = 0.0f; */
-    int32_T val[PWM_MAX] = {0};
-    int32_T period = 0;
-
-    period = pwm_get_period();
-
-    /* 无新四元数 故无需更新pwm */
-    if(!mpu9250_quat_arrived())
-    {
-        return;
-    }
-    mpu9250_get_quat_with_clear(q); /* 获取且标记 */
-
-    math_quaternion2euler(e, q);
-
-    theta = e[0];
-    psi = e[1];
-
-    /* 计算矫正值 */
-    /* 俯仰角 + 前减后加 */
-    if(theta > 0)
-    {
-        g_pwm_list[PWM_FRONT].adj_val += g_pwm_list[PWM_FRONT].adj_step;
-        g_pwm_list[PWM_BACK].adj_val -= g_pwm_list[PWM_BACK].adj_step;
-    }
-    /* 俯仰角 - 前加后减 */
-    else if(theta < 0)
-    {
-        g_pwm_list[PWM_FRONT].adj_val -= g_pwm_list[PWM_FRONT].adj_step;
-        g_pwm_list[PWM_BACK].adj_val += g_pwm_list[PWM_BACK].adj_step;
-    }
-    else
-    {
-        ;
-    }
-
-    /* 横滚角 + 左减右加 */
-    if(psi > 0)
-    {
-        g_pwm_list[PWM_LEFT].adj_val += g_pwm_list[PWM_LEFT].adj_step;
-        g_pwm_list[PWM_RIGHT].adj_val -= g_pwm_list[PWM_RIGHT].adj_step;
-    }
-    /* 横滚角 - 左加右减 */
-    else if(psi < 0)
-    {
-        g_pwm_list[PWM_LEFT].adj_val -= g_pwm_list[PWM_LEFT].adj_step;
-        g_pwm_list[PWM_RIGHT].adj_val += g_pwm_list[PWM_RIGHT].adj_step;
-    }
-    else
-    {
-        ;
-    } 
-    
-    /* 限幅 */
-    for(int32_T i = 0; i < PWM_MAX; i++)
-    {
-        if(g_pwm_list[i].adj_val < - period * PWM_ADJ_MAX_RATE)
-        { 
-            g_pwm_list[i].adj_val = - period * PWM_ADJ_MAX_RATE;
-        }
-
-        if(g_pwm_list[i].adj_val > period * PWM_ADJ_MAX_RATE)
-        {
-            g_pwm_list[i].adj_val = period * PWM_ADJ_MAX_RATE;
-        }
-    }
-    
-    pwm_get_acceleralor(val);
-
-    for(int32_T i = 0; i < PWM_MAX; i++)
-    { 
-        pwm_set((PWM_NAME)i, val[i]);
-    }
-} 
-
-void pwm_set_acceleralor(const int32_T *val_list)
-{
-    int32_T val = 0;
-    int32_T period = 0;
-    period = pwm_get_period(); 
-    
-    for(int32_T i = 0; i < PWM_MAX; i++)
-    { 
-        val = val_list[i];
-        /* 限幅 */
-        if(val < 0)
-        {
-            val = 0;
-        }
-        if(val > period)
-        {
-            val = period;
-        } 
-        
-        g_pwm_list[i].base = val;
-    }
 }
 
-void pwm_get_acceleralor(int32_T *val)
-{ 
-    int32_T adj_val = 0;
-    int32_T base = 0;
-    int32_T period = 0;
-
-    period = pwm_get_period();
-
-    for(int32_T i = 0; i < PWM_MAX; i++)
-    {
-        adj_val = g_pwm_list[i].adj_val;
-        base = g_pwm_list[i].base;
-        val[i] = base + adj_val;
-
-        /* 限幅 */
-        if(val[i] < 0)
-        {
-            val[i] = 0;
-        }
-        if(val[i] > period)
-        {
-            val[i] = period;
-        }
-    }
+/* 关闭电机 */
+void pwm_motor_off(void)
+{
+    pwm_set(PWM_FRONT, 0);
+    pwm_set(PWM_RIGHT, 0);
+    pwm_set(PWM_BACK,  0);
+    pwm_set(PWM_LEFT,  0);
 }
 
-/* 停止PWM周期 */
-inline void pwm_stop(void)
+inline int32_T pwm_get_period(void)
 {
-    s_running = FALSE;
-}
-
-/* 启动PWM周期 */
-inline void pwm_start(void)
-{
-    s_running = TRUE;
-}
-
-static inline bool_T pwm_is_running(void)
-{
-    return s_running;
+    return s_period;
 }
 

@@ -251,7 +251,7 @@ static bool_T parse(const uint8_T *buf)
                 if((COMM_FRAME_FILLED_VAL == buf[9])
                 && (COMM_FRAME_FILLED_VAL == buf[10]))
                 { 
-                    pwm_stop();
+                    pwm_motor_off();
                     return TRUE;
                 }
                 else
@@ -259,16 +259,18 @@ static bool_T parse(const uint8_T *buf)
                     return FALSE;
                 }
 
-            /* 油门 */
+            /* 油门:尚未实现 */
             case 0x01: 
                 for(int32_T i = 0; i < PWM_MAX; i++)
                 {
                     val[i]  = buf[9] << 8;
                     val[i] |= buf[10];
                 }
+#if 0
+                pwm_set_acceleralor(val);
+#else
+#endif
 
-                pwm_set_acceleralor(val); 
-                pwm_start();
                 return TRUE;
 
             /* 错误类型 */
@@ -396,8 +398,16 @@ static void send_capture_data(void)
         /* 油门数据 */
         if(s_send_accelerator_flag)
         { 
+#if 0
             pwm_get_acceleralor(accelerator);
             period = pwm_get_period();
+#else
+            accelerator[0] = 0;
+            accelerator[1] = 0;
+            accelerator[2] = 0;
+            accelerator[3] = 0;
+            period = 0;
+#endif
 
             for(i = 0; i < PWM_MAX; i++) 
             { 

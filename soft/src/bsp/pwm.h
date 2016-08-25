@@ -19,9 +19,6 @@
 #include "config.h"
 
 /************************************ 宏定义 ***********************************/
-#define PWM_MAX_VAL             (1000U)
-#define PWM_ADJ_MAX_RATE        (0.50f)
-#define PWM_STEP                (50)
 
 /*********************************** 类型定义 **********************************/
 /* LED名字 编号 */
@@ -35,16 +32,12 @@ typedef enum
 }PWM_NAME;
 
 /* pwm硬件 */
-typedef struct pwm_list_tag
+typedef struct pwm_ch_tag
 {
-    PWM_NAME    name;       /* 通道名字 */
-    TIM_TypeDef *tim;       /* 计时器 */
-    uint32_T    ch;         /* 通道 */
-
-    int32_T     base;       /* 基础值 表示该桨油门 */
-    int32_T     adj_val;    /* 调整值 用于控制姿态 */
-    int32_T     adj_step;   /* 调整值的步长,计算adj时使用的步长 与抖动成正比与调整速度成反比 */
-}PWM_LIST_T;
+    PWM_NAME     name;       /* 通道名字 */
+    TIM_TypeDef *tim;        /* 计时器 */
+    uint32_T     ch;         /* 通道 */
+}PWM_CH_T;
 
 /*--------------------------------- 接口声明区 --------------------------------*/
 
@@ -53,19 +46,10 @@ typedef struct pwm_list_tag
 /*********************************** 接口函数 **********************************/
 /* 初始化 */
 void pwm_init(void);
-/* 姿态控制 */
-void pwm_update(void);
 /* 获取PWM周期 */
 int32_T pwm_get_period(void); 
-/* 停止PWM周期 */
-void pwm_stop(void);
-/* 启动PWM周期 */
-void pwm_start(void);
-
-/* 油门设置:未加入adj_val, 0 <= val <= 1000 */
-void pwm_set_acceleralor(const int32_T *val);
-/* 油门获取:加入了adj_val, 0 <= val <= s_period(1000) */
-void pwm_get_acceleralor(int32_T *val);
+/* 关闭电机 */
+void pwm_motor_off(void);
 
 #endif
 

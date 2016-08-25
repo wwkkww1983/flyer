@@ -21,11 +21,12 @@
 #include <stm32f4xx_hal.h>
 #include "misc.h"
 #include "led.h"
-#include "pwm.h"
 #include "si.h"
 #include "mpu9250.h"
 #include "console.h"
 #include "esp8266.h"
+#include "pwm.h"
+#include "ctrl.h"
 #include "debug.h"
 #include "comm.h"
 
@@ -63,7 +64,7 @@ int main(void)
         /* 姿态更新 */
         mpu9250_update(); 
         /* 动力控制 */
-        pwm_update();
+        ctrl_update();
         /* 以上实时性要求强 否则坠机 */
 
         /* 以下实时性要求不强  */
@@ -171,6 +172,10 @@ static void init(void)
     /* pwm */
     pwm_init();
     debug_log("pwm初始化完成.\r\n"); 
+
+    /* pwm */
+    ctrl_init();
+    debug_log("飞行控制模块初始化完成.\r\n"); 
 
     /* 姿态传感器i2c总线初始化 */
     si_init();
