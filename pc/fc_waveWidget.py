@@ -88,7 +88,7 @@ class FCWaveWidget(QWidget):
         #print(downHeight)
 
         # 绘制坐标系
-        pen = QPen(Qt.gray)
+        pen = QPen(Qt.darkGray)
         pen.setWidth(1)
         painter.setPen(pen)
 
@@ -138,6 +138,11 @@ class FCWaveWidget(QWidget):
         # 坐标原点
         xOrig = xStart
         yOrig = yStart - yRange / 2
+        # 绘制过原点平行于x轴的直线 
+        pen = QPen(Qt.white)
+        pen.setWidth(1)
+        painter.setPen(pen)
+        painter.drawLine(xOrig, yOrig, xMax, yOrig)
         # 标示原点比较不协调
         #painter.drawText(xOrig + 1, yOrig - 1, "0");
 
