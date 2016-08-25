@@ -57,8 +57,10 @@ void mpu9250_init(void)
     uint8_T who_am_i = 0;
     uint16_T dmp_features = 0;
 
-    /* 由于硬件PCB布局的原因,导致姿态四元数需要旋转45度,保证桨与方位对应 */
-    f32_T theta = MATH_PI / 4;
+    /* 目前使用+型计算 
+     * 由于硬件PCB布局的原因,硬件是X型
+     * 旋转45度,转换为+型 */
+    f32_T theta = MPU9250_ROTATED_ARC;
     s_q45[0] = cos(theta / 2);
     s_q45[1] = 0;
     s_q45[2] = 0;

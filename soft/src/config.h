@@ -16,6 +16,7 @@
 
 /************************************ 头文件 ***********************************/
 #include "typedef.h"
+#include "lib_math.h"
 
 /************************************ 宏定义 ***********************************/
 /* _DEBUG_PC_
@@ -53,6 +54,10 @@
 #define MPU9250_ORIENTATION                                 { 1, 0, 0, \
                                                               0, 1, 0, \
                                                               0, 0, 1}
+#define ROTATED_ANGLE                                       (45.0f)
+#define MPU9250_ROTATED_ARC                                 ((ROTATED_ANGLE / 180) * MATH_PI)
+
+#define MATH_ARC2ANGLE_RATE     (180/MATH_PI)
 
 /* 以下内容不可修改 */
 /* 每秒钟systick中断数 默认1ms */

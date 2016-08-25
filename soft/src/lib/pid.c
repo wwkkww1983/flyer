@@ -22,4 +22,41 @@
 /********************************** 函数声明区 *********************************/
 
 /********************************** 函数实现区 *********************************/
+void pid_update(PID_T *pid, f32_T measured)
+{
+    static bool_T s_first_run = TRUE;
+
+    f32_T error = 0.0f;
+    f32_T acc = 0.0f;
+    f32_T det = 0.0f;
+
+    if(NULL == pid)
+    {
+        while(1);
+    }
+
+    if(s_first_run)
+    {
+        pid->acc = 0;
+        pid->out = 0;
+        pid->last = measured;
+        s_first_run = FALSE;
+    }
+    else
+    {
+        /* step1: 计算偏差值 */
+        error = pid->expect - measured;
+
+        /* step2: 计算积分值 */
+        pid->acc += measured; /* 有记忆性 */
+        acc = pid->acc;
+
+        /* step3: 计算微分 */
+        det += measured - pid->last;
+        pid->last = measured; /* 有记忆性 */
+
+        /* pid公式: */
+        pid->out = (pid->kp * error) + (pid->ki * acc) + (pid->kd * det);
+    }
+}
 

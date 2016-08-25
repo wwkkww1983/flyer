@@ -17,8 +17,28 @@
 /************************************ 头文件 ***********************************/
 #include "config.h"
 #include "typedef.h"
+#include "pid.h"
 
 /************************************ 宏定义 ***********************************/
+#define CTRL_THETA                       (0)
+#define CTRL_PHI                         (1)
+#define CTRL_PSI                         (2)
+#define CTRL_EULER_MAX                   (3)
+
+#define CTRL_THETA_KP_INIT               (0.3f)
+#define CTRL_THETA_KI_INIT               (0.0f)
+#define CTRL_THETA_KD_INIT               (0.0f)
+#define CTRL_THETA_EXPECT_INIT           (0.0f)
+
+#define CTRL_PHI_KP_INIT                 (0.3f)
+#define CTRL_PHI_KI_INIT                 (0.0f)
+#define CTRL_PHI_KD_INIT                 (0.0f)
+#define CTRL_PHI_EXPECT_INIT             (0.0f)
+
+#define CTRL_PSI_KP_INIT                 (0.3f)
+#define CTRL_PSI_KI_INIT                 (0.0f)
+#define CTRL_PSI_KD_INIT                 (0.0f)
+#define CTRL_PSI_EXPECT_INIT             (MPU9250_ROTATED_ARC)
 
 /*--------------------------------- 接口声明区 --------------------------------*/
 
@@ -27,6 +47,8 @@
 /*********************************** 接口函数 **********************************/
 void ctrl_init(void);
 void ctrl_update(void);
+void ctrl_set_pid(const PID_T *pid);
+void ctrl_get_pid_out(f32_T *out);
 
 #endif
 

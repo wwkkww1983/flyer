@@ -222,3 +222,13 @@ inline int32_T pwm_get_period(void)
     return s_period;
 }
 
+void pwm_update(const int32_T *val)
+{ 
+    int32_T i = 0;
+
+    for(i = 0; i < PWM_MAX; i++)
+    { 
+        pwm_set((PWM_NAME)i, val[i]);
+    }
+}
+

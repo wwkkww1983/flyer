@@ -17,6 +17,7 @@
 /************************************ 头文件 ***********************************/
 #include "typedef.h"
 #include "config.h"
+#include "stm32f4xx_hal.h"
 
 /************************************ 宏定义 ***********************************/
 
@@ -50,6 +51,8 @@ void pwm_init(void);
 int32_T pwm_get_period(void); 
 /* 关闭电机 */
 void pwm_motor_off(void);
+/* 更新pwm值 */
+void pwm_update(const int32_T *val);
 
 #endif
 
