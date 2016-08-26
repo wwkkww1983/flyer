@@ -232,8 +232,9 @@ class FCUpFrame(_FCBaseFrame):
     @staticmethod
     def Parse(buf):
         # 表驱动
-        upFrameClassDict = {FCFrameType.FramePrintText:                     FCPrintTextFrame,
-                            FCFrameType.FrameDataTimeAcceleratorDmpQuat:    FCDataTimeAcceleratorDmpQuat}
+        upFrameClassDict = {FCFrameType.FramePrintText:                    FCPrintTextFrame,
+                            FCFrameType.FrameDataTimeAcceleratorDmpQuat:   FCDataTimeAcceleratorDmpQuat,
+                            FCFrameType.FrameDataTimeAcceleratorEulerPid:  FCDataTimeAcceleratorEulerPid}
         # 解析上行帧
         frameTypeValue = struct.unpack('>I', buf[0:4])[0]
         try:
@@ -340,13 +341,19 @@ class FCDataTimeAcceleratorEulerPid(FCUpFrame):
         return interval
 
     def GetAccelrator(self):
-        pass
+        accelerator = self.mData[4:24]
+        acceleratorTuplle = struct.unpack('>IIIII', accelerator)
+        return acceleratorTuplle
 
     def GetEuler(self):
-        pass
+        euler = self.mData[24:36]
+        eulerTuplle = struct.unpack('>fff', euler)
+        return eulerTuplle
 
     def GetPid(self):
-        pass
+        pid = self.mData[36:48]
+        pidTuplle = struct.unpack('>fff', pid)
+        return pidTuplle
 
 class FCErrorFrame(FCUpFrame):
     def __init__(self, frameBuf): 

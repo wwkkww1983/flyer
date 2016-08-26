@@ -39,15 +39,16 @@
 #define COMM_FRAME_TIME_DATA_SIZE               (4)
 #define COMM_FRAME_DMP_QUAT_DATA_SIZE           (16)
 #define COMM_FRAME_ACCELERATOR_QUAT_DATA_SIZE   (20)
-
+#define COMM_FRAME_EULER_DATA_SIZE              (12)
+#define COMM_FRAME_PID_DATA_SIZE                (12)
 
 /* type+len+crc长度 12Bytes */
 #define COMM_FRAME_TYPE_LEN_CRC_SIZE            ((uint32_T)(12))
 /* 采样上行帧最大帧长
- * 1: time+dmp_quat 12 + 4 + 16 = 32Bytes
  * FIXME: 有新的采样帧需要修改
  * */
-#define COMM_FRAME_CAPTURE_FRAME_MAX_SIZE       ((uint32_T)(COMM_FRAME_TYPE_LEN_CRC_SIZE + COMM_FRAME_TIME_DATA_SIZE + COMM_FRAME_DMP_QUAT_DATA_SIZE + COMM_FRAME_ACCELERATOR_QUAT_DATA_SIZE))
+#define COMM_FRAME_CAPTURE_FRAME_MAX_SIZE       ((uint32_T)(100))
+
 /* 小于以下帧长不发送(可以用于控制上行帧数) */
 #define COMM_FRAME_SENDED_MIN                   (COMM_FRAME_TYPE_LEN_CRC_SIZE)
 #define COMM_FRAME_FILLED_VAL                   ((uint8_T)(0xA5))

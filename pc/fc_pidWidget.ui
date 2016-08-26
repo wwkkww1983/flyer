@@ -249,7 +249,6 @@
        </spacer>
       </item>
      </layout>
-     <zorder></zorder>
      <zorder>flyerCtrlGroupBox</zorder>
      <zorder>verticalSpacer</zorder>
      <zorder>netGroupBox</zorder>
@@ -374,21 +373,21 @@
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_5">
               <item>
-               <widget class="QLabel" name="thetaLabel_2">
+               <widget class="QLabel" name="thetaPidLabel">
                 <property name="text">
                  <string>俯仰:+0000.0</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="phiLabel_2">
+               <widget class="QLabel" name="phiPidLabel">
                 <property name="text">
                  <string>横滚:+0000.0</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="psiLabel_2">
+               <widget class="QLabel" name="psiPidLabel">
                 <property name="text">
                  <string>偏航:+0000.0</string>
                 </property>

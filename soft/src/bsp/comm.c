@@ -282,6 +282,7 @@ static bool_T parse(const uint8_T *buf)
         }
     }
 
+    /* 采样请求帧 */
     if(is_sensor_data_frame(frame.type))
     { 
         /* 发送时间 */
@@ -298,6 +299,8 @@ static bool_T parse(const uint8_T *buf)
                 frame.data = COMM_FRAME_INTERVAL_MAX;
             } 
             s_send_interval = frame.data; 
+            
+            s_send_time_flag = TRUE;
             has_capture_data = TRUE;
         }
 
@@ -356,8 +359,19 @@ static void send_capture_data(void)
     uint32_T *p_ui32 = NULL;
     static uint32_T last_ms = 0;
 
-    now_ms = HAL_GetTick();
+    /* 无帧可发 */
+    if(!(s_send_interval
+    || s_send_time_flag
+    || s_send_accelerator_flag
+    || s_send_dmp_quat_flag
+    || s_send_euler_flag
+    || s_send_pid_flag))
+    {
+        return;
+    }
+
     /* 可以发送 */
+    now_ms = HAL_GetTick();
     if(now_ms - last_ms > s_send_interval)
     {
         /* 上行且有传感数据长度32 */
@@ -470,14 +484,15 @@ static void send_capture_data(void)
 
         /* 计入crc长度 */
         len += 4;
+				len -= 8; /* len中长度值不包括type+len */
         /* 填写len域 */
         frame_buf[4] = (uint8_T)(len >> 24);
         frame_buf[5] = (uint8_T)(len >> 16);
         frame_buf[6] = (uint8_T)(len >> 8);
         frame_buf[7] = (uint8_T)(len);
         
-        /* 退回crc偏移 */
-        len -= 4;
+        /* len偏移到crc位置 */
+        len += 4;
         /* 计算校验 */
         crc32_calculated = HAL_CRC_Calculate(&s_crc, (uint32_T *)frame_buf, len / 4); 
         frame_buf[len++] = (uint8_T)(crc32_calculated >> 24);

@@ -3,6 +3,7 @@
 
 import os
 import sys
+import math
 import socket
 import threading
 from datetime import datetime
@@ -20,11 +21,17 @@ from fc_waveWidget import FCWaveWidget
 from fc_frame import FCFrameType
 # 上行帧基类(用于解析帧长)
 from fc_frame import FCUpFrame
-
+# 下行控制帧
 from fc_frame import FCRequestTimeAcceleratorEulerPid
+from fc_frame import FCStopFrame
+from fc_frame import FCStartFrame
+
+# 弧度转角度
+gRad2Arc = 180 / math.pi
 
 class FCPidWidget(QWidget): 
-    sAppendConsole = pyqtSignal(str, name='sAppendConsole')
+    sAppendConsole = pyqtSignal(str, name = 'sAppendConsole') 
+    sUpdateAcceleratorEulerPid = pyqtSignal((int, tuple, tuple, tuple), name = 'sUpdateAcceleratorEulerPid')
     #sUpdateAcceleratorQuat = pyqtSignal((str, str, str, str, str, int, int, int, int, int), name='sUpdateAcceleratorQuat') 
 
     def __init__(self, uiFile):
@@ -60,9 +67,16 @@ class FCPidWidget(QWidget):
         # 采样间隔
         self.mIntervalLineEdit = self.mUi.intervalLineEdit
 
-        # 按钮
+        # 监控按钮
         self.mCapturePushButton = self.mUi.capturePushButton
         self.mCapturePushButton.clicked.connect(self.ChangeState)
+
+        # 油门按钮
+        self.mCommandPushButton = self.mUi.commandPushButton
+        self.mCommandPushButton.clicked.connect(self.StartFlyer)
+        # 停止按钮
+        self.mStopPushButton = self.mUi.stopPushButton
+        self.mStopPushButton.clicked.connect(self.StopFlyer)
 
         # 加入波形控件
         self.mWaveWidget = FCWaveWidget()
@@ -74,8 +88,42 @@ class FCPidWidget(QWidget):
         # 本地保存文件相关控件
         self.mSaveLineEdit = self.mUi.saveLineEdit 
 
+        # 时间控件
+        self.mRunTimeLabel = self.mUi.runTimeLabel
+
+        # 欧拉角控件
+        self.mThetaLabel = self.mUi.thetaLabel
+        self.mPhiLabel = self.mUi.phiLabel
+        self.mPsiLabel = self.mUi.psiLabel
+
+        # PID控件
+        self.mThetaPidLabel = self.mUi.thetaPidLabel
+        self.mPhiPidLabel = self.mUi.phiPidLabel
+        self.mPsiPidLabel = self.mUi.psiPidLabel
+
+        # 油门控件
+        self.mFrontProgressBar = self.mUi.frontProgressBar
+        self.mRightProgressBar = self.mUi.rightProgressBar
+        self.mBackProgressBar = self.mUi.backProgressBar
+        self.mLeftProgressBar = self.mUi.leftProgressBar
+        self.mFrontLabel = self.mUi.frontLabel
+        self.mRightLabel = self.mUi.rightLabel
+        self.mBackLabel = self.mUi.backLabel
+        self.mLeftLabel = self.mUi.leftLabel
+        self.mAcceleratorSpinBox = self.mUi.acceleratorSpinBox
+        self.mAcceleratorLabel = self.mUi.acceleratorLabel
+
         # 可打印帧显示控件
-        self.mConsolePlainTextEdit = self.mUi.consolePlainTextEdit
+        self.mConsolePlainTextEdit = self.mUi.consolePlainTextEdit 
+        self.sAppendConsole.connect(self.UpdatePrintTextWidget)
+
+        # 采样帧信号
+        self.sUpdateAcceleratorEulerPid.connect(self.UpdateTimeAcceleratorEulerPidWidget)
+
+    def closeEvent(self, event):
+        # 关闭后台接收线程
+        self.mCapturing = False
+        self.StopCapture()
         
     def ChangeState(self, checked):
         if self.mCapturing: # 停止采集
@@ -103,7 +151,7 @@ class FCPidWidget(QWidget):
         commClass = FCUdp
         paras = (self.mIpLabel.text(), int(self.mPortLineEdit.text()))
         self.mComm = commClass(*paras)
-        #print(paras)
+        print(paras)
 
         # step2: 获取下位机握手(有阻塞,所以使用后台线)
         self.mRecvThread = threading.Thread(target=self._RecvFunc)
@@ -149,6 +197,8 @@ class FCPidWidget(QWidget):
 
     def UpdateByNewFrame(self, frame): 
         frameType = frame.Type()
+        #print(frameType)
+        #frame.Print()
 
         # 表驱动
         updateFunc = self.updateFuncDict[frameType]
@@ -161,13 +211,67 @@ class FCPidWidget(QWidget):
         euler = frame.GetEuler()
         pid = frame.GetPid()
 
+        """
+        print('1')
+        frame.Print()
+        print(type(time))
+        print(type(accelerator))
+        print(type(euler))
+        print(type(pid))
+        print(time)
+        print(accelerator)
+        print(euler)
+        print(pid)
+        print('2')
+        """
         # 加入数据
         #self.mWaveWidget.Append(time, euler, accelerator)
 
         # 保存到文件
         self.mDataFile.write(frame.GetBytes())
+        self.sUpdateAcceleratorEulerPid.emit(time, accelerator, euler, pid) 
+        
+    def UpdateTimeAcceleratorEulerPidWidget(self, time, accelerator, euler, pid):
+        timeText     = "运行:%8.1fs" % (time / 1000.0)
+        self.mRunTimeLabel.setText(timeText)
 
-        #self.sUpdateAcceleratorEulerPid.emit(timeText, accelerator euler, pid)
+        thetaText    = "俯仰:%+08.3f" % (euler[0] * gRad2Arc)
+        phiText      = "横滚:%+08.3f" % (euler[1] * gRad2Arc)
+        psiText      = "偏航:%+08.3f" % (euler[2] * gRad2Arc)
+        self.mThetaLabel.setText(thetaText)
+        self.mPhiLabel.setText(phiText)
+        self.mPsiLabel.setText(psiText)
+
+        thetaPidText = "俯仰:%+08.3f" % pid[0]
+        phiPidText   = "横滚:%+08.3f" % pid[1]
+        psiPidText   = "俯仰:%+08.3f" % pid[2]
+        self.mThetaPidLabel.setText(thetaPidText)
+        self.mPhiPidLabel.setText(phiPidText)
+        self.mPsiPidLabel.setText(psiPidText)
+
+        frontAccelerator = accelerator[0]
+        rightAccelerator = accelerator[1]
+        backAccelerator  = accelerator[2]
+        leftAccelerator  = accelerator[3]
+        motherAccelerator= accelerator[4]
+
+        # 更新油门
+        # 设置最值
+        self.mFrontProgressBar.setMaximum(motherAccelerator)
+        self.mRightProgressBar.setMaximum(motherAccelerator)
+        self.mBackProgressBar.setMaximum(motherAccelerator)
+        self.mLeftProgressBar.setMaximum(motherAccelerator)
+        self.mFrontProgressBar.setValue(frontAccelerator)
+        self.mRightProgressBar.setValue(rightAccelerator)
+        self.mBackProgressBar.setValue(backAccelerator)
+        self.mLeftProgressBar.setValue(leftAccelerator)
+        self.mFrontLabel.setText("% 3d" % int((frontAccelerator / motherAccelerator) * 100))
+        self.mRightLabel.setText("% 3d" % int((rightAccelerator / motherAccelerator) * 100))
+        self.mBackLabel.setText( "% 3d" % int((backAccelerator  / motherAccelerator) * 100))
+        self.mLeftLabel.setText( "% 3d" % int((leftAccelerator  / motherAccelerator) * 100))
+        self.mAcceleratorSpinBox.setMaximum(motherAccelerator)
+        self.mAcceleratorLabel.setText("of % 4d" % motherAccelerator) 
+
 
     def UpdatePrintText(self, frame):
         #print("接收文本帧:")
@@ -186,7 +290,7 @@ class FCPidWidget(QWidget):
 
         self.sAppendConsole.emit(text)
 
-    def AppendConsole(self, text):
+    def UpdatePrintTextWidget(self, text):
         # 有额外的换行
         #self.mConsolePlainTextEdit.appendPlainText(text)
         self.mConsolePlainTextEdit.moveCursor(QTextCursor.End)
@@ -210,6 +314,38 @@ class FCPidWidget(QWidget):
 
         self.mComm.Write(buf)
         print("开始监控")
+
+    def StartFlyer(self, checked):
+        if self._IsConnectted():
+            accelerator = int(self.mAcceleratorSpinBox.value())
+            print(accelerator) 
+            
+            frame = FCStartFrame(accelerator)
+            buf = frame.GetBytes()
+            print("发送加速帧" , end = ':')
+            frame.Print()
+            
+            self.mComm.Write(buf)
+        else:
+            print("未连接飞控板")
+
+    def StopFlyer(self, checked):
+        if self._IsConnectted():
+            frame = FCStopFrame()
+            buf = frame.GetBytes()
+            print("发送停止帧" , end = ':')
+            frame.Print()
+
+            self.mComm.Write(buf)
+        else:
+            print("未连接飞控板")
+
+    def _IsConnectted(self):
+        if self.mCapturing and self.mComm:
+            return True
+        else:
+            return False
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

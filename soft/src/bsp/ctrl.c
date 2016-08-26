@@ -177,8 +177,11 @@ void ctrl_get_pid_out(f32_T *out)
 }
 
 void ctrl_motor_off(void)
-{
+{ 
+    int32_T val[PWM_MAX] = {0,0,0,0};
+
     pwm_off();
+    ctrl_set_acceleralor(val);
 }
 
 /* 设置base值 */
