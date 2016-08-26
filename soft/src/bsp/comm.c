@@ -28,6 +28,7 @@
 #include "console.h"
 #include "mpu9250.h"
 #include "pwm.h"
+#include "ctrl.h"
 #include "debug.h"
 #include "comm.h"
 
@@ -251,7 +252,7 @@ static bool_T parse(const uint8_T *buf)
                 if((COMM_FRAME_FILLED_VAL == buf[9])
                 && (COMM_FRAME_FILLED_VAL == buf[10]))
                 { 
-                    pwm_motor_off();
+                    ctrl_motor_off();
                     return TRUE;
                 }
                 else
@@ -266,10 +267,7 @@ static bool_T parse(const uint8_T *buf)
                     val[i]  = buf[9] << 8;
                     val[i] |= buf[10];
                 }
-#if 0
-                pwm_set_acceleralor(val);
-#else
-#endif
+                ctrl_set_acceleralor(val);
 
                 return TRUE;
 

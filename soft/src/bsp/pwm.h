@@ -49,10 +49,10 @@ typedef struct pwm_ch_tag
 void pwm_init(void);
 /* 获取PWM周期 */
 int32_T pwm_get_period(void); 
-/* 关闭电机 */
-void pwm_motor_off(void);
 /* 更新pwm值 */
 void pwm_set(PWM_NAME pwm, int32_T val);
+/* 关闭电机 */
+void pwm_off(void);
 
 #endif
 

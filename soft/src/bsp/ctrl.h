@@ -55,6 +55,9 @@ void ctrl_init(void);
 void ctrl_update(void);
 void ctrl_set_pid(const PID_T *pid);
 void ctrl_get_pid_out(f32_T *out);
+/* 关闭电机 */
+void ctrl_motor_off(void); 
+void ctrl_set_acceleralor(int32_T *val);
 
 #endif
 

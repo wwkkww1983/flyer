@@ -176,3 +176,36 @@ void ctrl_get_pid_out(f32_T *out)
     } 
 }
 
+void ctrl_motor_off(void)
+{
+    pwm_off();
+}
+
+void ctrl_set_acceleralor(int32_T *val)
+{
+    int32_T i = 0;
+    int32_T val_max = 0;
+
+    if(NULL == val)
+    {
+        while(1);
+    }
+
+    val_max = pwm_get_period();
+
+    for(i = 0; i < PWM_MAX; i++)
+    {
+        /* 限幅 */
+        if(val[i] > val_max)
+        {
+            val[i] = val_max;
+        }
+        if(val_max < 0)
+        {
+            val[i] = 0;
+        }
+
+        s_ctrl[i].base = val[i];
+    }
+}
+

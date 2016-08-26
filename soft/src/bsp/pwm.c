@@ -132,7 +132,7 @@ void pwm_init(void)
     /* 测试电机 */
     pwm_test();
     /* 关闭电机 */
-    pwm_motor_off();
+    pwm_off();
 
     return;
 }
@@ -208,7 +208,7 @@ static void pwm_test(void)
 }
 
 /* 关闭电机 */
-void pwm_motor_off(void)
+void pwm_off(void)
 {
     pwm_set(PWM_FRONT, 0);
     pwm_set(PWM_RIGHT, 0);
