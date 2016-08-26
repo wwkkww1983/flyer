@@ -181,9 +181,11 @@ void ctrl_motor_off(void)
     pwm_off();
 }
 
-void ctrl_set_acceleralor(int32_T *val)
+/* 设置base值 */
+void ctrl_set_acceleralor(const int32_T *val)
 {
     int32_T i = 0;
+    int32_T val_temp = 0;
     int32_T val_max = 0;
 
     if(NULL == val)
@@ -196,16 +198,35 @@ void ctrl_set_acceleralor(int32_T *val)
     for(i = 0; i < PWM_MAX; i++)
     {
         /* 限幅 */
-        if(val[i] > val_max)
+        val_temp = val[i];
+        if(val_temp > val_max)
         {
-            val[i] = val_max;
+            val_temp = val_max;
         }
-        if(val_max < 0)
+        if(val_temp < 0)
         {
-            val[i] = 0;
+            val_temp = 0;
         }
 
-        s_ctrl[i].base = val[i];
+        s_ctrl[i].base = val_temp;
     }
+}
+
+/* 获取实时值 */
+void ctrl_get_acceleralor(int32_T *val, int32_T *val_max)
+{
+    int32_T i = 0;
+    if((NULL == val)
+    || (NULL == val_max))
+    {
+        while(1);
+    }
+
+    for(i = 0; i < CTRL_EULER_MAX; i++) 
+    {
+        val[i] = (int32_T)(s_ctrl[i].base + s_ctrl[i].adj);
+    }
+
+    *val_max = pwm_get_period();
 }
 

@@ -26,6 +26,8 @@
 #define COMM_FRAME_SENSOR_DATA_BIT              ((uint32_T)(0x20000000))
 #define COMM_FRAME_PRINTF_BIT                   ((uint32_T)(0x10000000))
 
+#define COMM_FRAME_PID_DATA_BIT                 ((uint32_T)(0x00000100))
+#define COMM_FRAME_EULER_DATA_BIT               ((uint32_T)(0x00000080))
 #define COMM_FRAME_ACCELERATOR_DATA_BIT         ((uint32_T)(0x00000040))
 #define COMM_FRAME_PRESS_DATA_BIT               ((uint32_T)(0x00000020))
 #define COMM_FRAME_COMPASS_DATA_BIT             ((uint32_T)(0x00000010))

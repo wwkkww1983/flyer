@@ -42,6 +42,8 @@ static uint32_T s_send_interval = 0;
 static bool_T s_send_time_flag = FALSE;
 static bool_T s_send_accelerator_flag = FALSE;
 static bool_T s_send_dmp_quat_flag = FALSE;
+static bool_T s_send_euler_flag = FALSE;
+static bool_T s_send_pid_flag = FALSE;
 //static const uint8_T *s_hello = "flyer ok.\r\n"; 
 static uint8_T s_recv_frame_buf[COMM_DOWN_FRAME_BUF_SIZE] = {0};
 
@@ -55,6 +57,8 @@ inline static bool_T is_sensor_data_frame(uint32_T type);
 inline static bool_T is_dmp_quat_needded(uint32_T type);
 inline static bool_T is_time_needded(uint32_T type);
 inline static bool_T is_acceletorater_needded(uint32_T type);
+inline static bool_T is_euler_needded(uint32_T type);
+inline static bool_T is_pid_needded(uint32_T type);
 //static void comm_wait_start(void);
 
 /********************************** 函数实现区 *********************************/
@@ -194,7 +198,8 @@ void comm_update(void)
 }
 
 static bool_T parse(const uint8_T *buf)
-{
+{ 
+    bool_T has_capture_data = FALSE;
     comm_frame_T frame = {0};
     uint32_T crc32_calculated = 0;
 
@@ -277,54 +282,78 @@ static bool_T parse(const uint8_T *buf)
         }
     }
 
-    /* 传感数据请求帧 */
-    /* 目前仅支持time+accelerator+dmp_quat采样 */
-    if( (is_sensor_data_frame(frame.type))
-     && (is_acceletorater_needded(frame.type))
-     && (is_dmp_quat_needded(frame.type))
-     && (is_time_needded(frame.type)))
+    if(is_sensor_data_frame(frame.type))
     { 
-        frame.data  = buf[8] << 24;
-        frame.data |= buf[9] << 16;
-        frame.data |= buf[10] << 8;
-        frame.data |= buf[11];
-
-        /* 限制时间间隔(无符号32位 必然大于0不用比下界) */
-        if(frame.data > COMM_FRAME_INTERVAL_MAX)
+        /* 发送时间 */
+        if(is_time_needded(frame.type))
         {
-            frame.data = COMM_FRAME_INTERVAL_MAX;
+            frame.data  = buf[8] << 24;
+            frame.data |= buf[9] << 16;
+            frame.data |= buf[10] << 8;
+            frame.data |= buf[11]; 
+            
+            /* 限制时间间隔(无符号32位 必然大于0不用比下界) */
+            if(frame.data > COMM_FRAME_INTERVAL_MAX)
+            {
+                frame.data = COMM_FRAME_INTERVAL_MAX;
+            } 
+            s_send_interval = frame.data; 
+            has_capture_data = TRUE;
         }
 
-        /* 启动time + dmp quat发送 */
-        s_send_time_flag = TRUE;
-        s_send_accelerator_flag = TRUE;
-        s_send_dmp_quat_flag = TRUE;
-        s_send_interval = frame.data;
+        /* 发送四元数 */
+        if(is_dmp_quat_needded(frame.type))
+        {
+            s_send_dmp_quat_flag = TRUE;
+            has_capture_data = TRUE;
+        }
 
-        return TRUE;
+        /* 发送油门 */
+        if(is_acceletorater_needded(frame.type))
+        {
+            s_send_accelerator_flag = TRUE;
+            has_capture_data = TRUE;
+        }
+
+        /* 发送欧拉角 */
+        if(is_euler_needded(frame.type))
+        {
+            s_send_euler_flag = TRUE;
+            has_capture_data = TRUE;
+        }
+
+        /* 发送PID */
+        if(is_pid_needded(frame.type))
+        {
+            s_send_pid_flag = TRUE;
+            has_capture_data = TRUE;
+        }
+
+        return has_capture_data;
     }
-    else /* 暂时不支持其他采样 */
-    {
-        return FALSE;
-    }
+
+    return FALSE;
 }
 
 /* 发送采样数据 */
 static void send_capture_data(void)
 {
     uint32_T type = 0;
+
+    /* 避免函数退出 栈内存被破坏(DMA传输 要求内存数据保持) */
+    static uint8_T frame_buf[COMM_FRAME_CAPTURE_FRAME_MAX_SIZE] = {0};
     uint32_T len = 0;
-    static uint8_T frame_buf[COMM_FRAME_CAPTURE_FRAME_MAX_SIZE] = {0}; /* 避免函数退出 栈内存被破坏 */
-    uint32_T n = 0;
 
     uint32_T i = 0;
     uint32_T fill_bytes_count = 0;
     uint32_T crc32_calculated = 0;
     uint32_T now_ms = 0;
-    f32_T q[4] = {0.0f}; 
-    int32_T period = 0;
+    f32_T quat[4] = {0.0f}; 
+    f32_T euler[CTRL_EULER_MAX] = {0.0f}; 
+    f32_T pid_out[CTRL_EULER_MAX] = {0.0f}; 
+    int32_T accelerator_max = 0;
     int32_T accelerator[PWM_MAX] = {0};
-    uint32_T *p_q_ui32 = NULL;
+    uint32_T *p_ui32 = NULL;
     static uint32_T last_ms = 0;
 
     now_ms = HAL_GetTick();
@@ -333,110 +362,131 @@ static void send_capture_data(void)
     {
         /* 上行且有传感数据长度32 */
         type = COMM_FRAME_SENSOR_DATA_BIT
-             | COMM_FRAME_DIRECTION_BIT 
-             | COMM_FRAME_DMP_QUAT_BIT
-             | COMM_FRAME_ACCELERATOR_DATA_BIT
-             | COMM_FRAME_TIME_BIT;
-        len = 44; /* data:4+16+20,crc:4 = 44 */
+             | COMM_FRAME_DIRECTION_BIT;
 
-        frame_buf[n++] = (uint8_T)(type >> 24);
-        frame_buf[n++] = (uint8_T)(type >> 16);
-        frame_buf[n++] = (uint8_T)(type >> 8);
-        frame_buf[n++] = (uint8_T)(type);
-
-        frame_buf[n++] = (uint8_T)(len >> 24);
-        frame_buf[n++] = (uint8_T)(len >> 16);
-        frame_buf[n++] = (uint8_T)(len >> 8);
-        frame_buf[n++] = (uint8_T)(len);
+        /* 跳过type和len域 */
+        len += 8;
 
         /* 组帧 */
         if(s_send_time_flag)
         {
-            frame_buf[n++] = (uint8_T)(now_ms >> 24);
-            frame_buf[n++] = (uint8_T)((now_ms >> 16));
-            frame_buf[n++] = (uint8_T)((now_ms >> 8));
-            frame_buf[n++] = (uint8_T)(now_ms);
+            frame_buf[len++] = (uint8_T)(now_ms >> 24);
+            frame_buf[len++] = (uint8_T)((now_ms >> 16));
+            frame_buf[len++] = (uint8_T)((now_ms >> 8));
+            frame_buf[len++] = (uint8_T)(now_ms); 
+
+            type |= COMM_FRAME_TIME_BIT;
         }
 
         if(s_send_dmp_quat_flag)
         {
-            mpu9250_get_quat(q);
-
+            mpu9250_get_quat(quat);
 #if 0
             /* 调试上位机绘图基准 */
-            q[0] = 1.0f;
-            q[1] = 0.0f;
-            q[2] = 0.0f;
-            q[3] = 0.0f;
+            quat[0] = 1.0f;
+            quat[1] = 0.0f;
+            quat[2] = 0.0f;
+            quat[3] = 0.0f;
 #endif
+            p_ui32 = (uint32_T *)quat;
+            for(i = 0; i < 4; i++) 
+            {
+                frame_buf[len++] = (uint8_T)( (uint32_T)p_ui32[i] >> 24);
+                frame_buf[len++] = (uint8_T)(((uint32_T)p_ui32[i] >> 16));
+                frame_buf[len++] = (uint8_T)(((uint32_T)p_ui32[i] >> 8));
+                frame_buf[len++] = (uint8_T)( (uint32_T)p_ui32[i]);
+            }
 
-            p_q_ui32 = (uint32_T *)q;
-
-            frame_buf[n++] = (uint8_T)( (uint32_T)p_q_ui32[0] >> 24);
-            frame_buf[n++] = (uint8_T)(((uint32_T)p_q_ui32[0] >> 16));
-            frame_buf[n++] = (uint8_T)(((uint32_T)p_q_ui32[0] >> 8));
-            frame_buf[n++] = (uint8_T)( (uint32_T)p_q_ui32[0]);
-
-            frame_buf[n++] = (uint8_T)(  (uint32_T)p_q_ui32[1] >> 24);
-            frame_buf[n++] = (uint8_T)(( (uint32_T)p_q_ui32[1] >> 16));
-            frame_buf[n++] = (uint8_T)(((uint32_T)p_q_ui32[1] >> 8));
-            frame_buf[n++] = (uint8_T)( (uint32_T)p_q_ui32[1]);
-
-            frame_buf[n++] = (uint8_T)( (uint32_T)p_q_ui32[2] >> 24);
-            frame_buf[n++] = (uint8_T)(((uint32_T)p_q_ui32[2] >> 16));
-            frame_buf[n++] = (uint8_T)(((uint32_T)p_q_ui32[2] >> 8));
-            frame_buf[n++] = (uint8_T)( (uint32_T)p_q_ui32[2]);
-
-            frame_buf[n++] = (uint8_T)( (uint32_T)p_q_ui32[3] >> 24);
-            frame_buf[n++] = (uint8_T)(((uint32_T)p_q_ui32[3] >> 16));
-            frame_buf[n++] = (uint8_T)(((uint32_T)p_q_ui32[3] >> 8));
-            frame_buf[n++] = (uint8_T)( (uint32_T)p_q_ui32[3]);
+            type |= COMM_FRAME_DMP_QUAT_BIT;
         } 
 
         /* 油门数据 */
         if(s_send_accelerator_flag)
         { 
-#if 0
-            pwm_get_acceleralor(accelerator);
-            period = pwm_get_period();
-#else
-            accelerator[0] = 0;
-            accelerator[1] = 0;
-            accelerator[2] = 0;
-            accelerator[3] = 0;
-            period = 0;
-#endif
+            ctrl_get_acceleralor(accelerator, &accelerator_max);
 
             for(i = 0; i < PWM_MAX; i++) 
             { 
-                frame_buf[n++] = (uint8_T)(accelerator[i] >> 24);
-                frame_buf[n++] = (uint8_T)(accelerator[i] >> 16);
-                frame_buf[n++] = (uint8_T)(accelerator[i] >> 8);
-                frame_buf[n++] = (uint8_T)(accelerator[i]);
+                frame_buf[len++] = (uint8_T)(accelerator[i] >> 24);
+                frame_buf[len++] = (uint8_T)(accelerator[i] >> 16);
+                frame_buf[len++] = (uint8_T)(accelerator[i] >> 8);
+                frame_buf[len++] = (uint8_T)(accelerator[i]);
             } 
             
-            frame_buf[n++] = (uint8_T)(period >> 24);
-            frame_buf[n++] = (uint8_T)(period >> 16);
-            frame_buf[n++] = (uint8_T)(period >> 8);
-            frame_buf[n++] = (uint8_T)(period);
+            frame_buf[len++] = (uint8_T)(accelerator_max >> 24);
+            frame_buf[len++] = (uint8_T)(accelerator_max >> 16);
+            frame_buf[len++] = (uint8_T)(accelerator_max >> 8);
+            frame_buf[len++] = (uint8_T)(accelerator_max);
+
+            type |= COMM_FRAME_ACCELERATOR_DATA_BIT;
+        }
+
+        /* 欧拉角 */
+        if(s_send_euler_flag)
+        { 
+            mpu9250_get_quat(quat);
+            math_quaternion2euler(euler, quat);
+
+            p_ui32 = (uint32_T *)euler;
+            for(i = 0; i < CTRL_EULER_MAX; i++) 
+            {
+                frame_buf[len++] = (uint8_T)(p_ui32[i] >> 24);
+                frame_buf[len++] = (uint8_T)(p_ui32[i] >> 16);
+                frame_buf[len++] = (uint8_T)(p_ui32[i] >> 8);
+                frame_buf[len++] = (uint8_T)(p_ui32[i]);
+            }
+
+            type |= COMM_FRAME_EULER_DATA_BIT;
+        }
+
+        /* pid数据 */
+        if(s_send_pid_flag)
+        { 
+            ctrl_get_pid_out(pid_out);
+            p_ui32 = (uint32_T *)pid_out;
+            for(i = 0; i < CTRL_EULER_MAX; i++) 
+            {
+                frame_buf[len++] = (uint8_T)(p_ui32[i] >> 24);
+                frame_buf[len++] = (uint8_T)(p_ui32[i] >> 16);
+                frame_buf[len++] = (uint8_T)(p_ui32[i] >> 8);
+                frame_buf[len++] = (uint8_T)(p_ui32[i]);
+            }
+
+            type |= COMM_FRAME_PID_DATA_BIT;
         }
 
         /* 填充 */
-        fill_bytes_count = n & 0x03;
+        fill_bytes_count = len & 0x03;
         for(i = 0; i < fill_bytes_count; i++)
         {
-            frame_buf[n++] = COMM_FRAME_FILLED_VAL;
+            frame_buf[len++] = COMM_FRAME_FILLED_VAL;
         }
+
+        /* 填写type域 */
+        frame_buf[0] = (uint8_T)(type >> 24);
+        frame_buf[1] = (uint8_T)(type >> 16);
+        frame_buf[2] = (uint8_T)(type >> 8);
+        frame_buf[3] = (uint8_T)(type);
+
+        /* 计入crc长度 */
+        len += 4;
+        /* 填写len域 */
+        frame_buf[4] = (uint8_T)(len >> 24);
+        frame_buf[5] = (uint8_T)(len >> 16);
+        frame_buf[6] = (uint8_T)(len >> 8);
+        frame_buf[7] = (uint8_T)(len);
         
+        /* 退回crc偏移 */
+        len -= 4;
         /* 计算校验 */
-        crc32_calculated = HAL_CRC_Calculate(&s_crc, (uint32_T *)frame_buf, n / 4); 
-        frame_buf[n++] = (uint8_T)(crc32_calculated >> 24);
-        frame_buf[n++] = (uint8_T)(crc32_calculated >> 16);
-        frame_buf[n++] = (uint8_T)(crc32_calculated >> 8);
-        frame_buf[n++] = (uint8_T)(crc32_calculated);
+        crc32_calculated = HAL_CRC_Calculate(&s_crc, (uint32_T *)frame_buf, len / 4); 
+        frame_buf[len++] = (uint8_T)(crc32_calculated >> 24);
+        frame_buf[len++] = (uint8_T)(crc32_calculated >> 16);
+        frame_buf[len++] = (uint8_T)(crc32_calculated >> 8);
+        frame_buf[len++] = (uint8_T)(crc32_calculated);
 
         /* 发帧 */
-        if(n > COMM_FRAME_SENDED_MIN)
+        if(len > COMM_FRAME_SENDED_MIN)
         {
 #if 0
             /* 出错 用于检查 crc是否为0 */
@@ -445,7 +495,7 @@ static void send_capture_data(void)
                 while(1);
             }
 #endif
-            uart_send_bytes((drv_uart_T *)s_comm_uart, frame_buf, n);
+            uart_send_bytes((drv_uart_T *)s_comm_uart, frame_buf, len);
             last_ms = now_ms;
         }
     }
@@ -503,6 +553,16 @@ inline static bool_T is_time_needded(uint32_T type)
 inline static bool_T is_acceletorater_needded(uint32_T type)
 {
     return bit_compare(type, COMM_FRAME_ACCELERATOR_DATA_BIT);
+}
+
+inline static bool_T is_euler_needded(uint32_T type)
+{
+    return bit_compare(type, COMM_FRAME_EULER_DATA_BIT);
+}
+
+inline static bool_T is_pid_needded(uint32_T type)
+{
+    return bit_compare(type, COMM_FRAME_PID_DATA_BIT);
 }
 
 /* 提取构帧逻辑(type/len/crc/填充生成) */
