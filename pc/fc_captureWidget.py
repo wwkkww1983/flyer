@@ -84,10 +84,10 @@ class FCCaptureWidget(QWidget):
         self.mLeftProgressBar = self.mUi.leftProgressBar
         self.mFlyerCtrlGroupBox = self.mUi.flyerCtrlGroupBox
         self.sUpdateAcceleratorQuat.connect(self.UpdateAcceleratorQuat)
-        self.mIpLabel = self.mUi.ipLabel
         self.mSaveCheckBox = self.mUi.saveCheckBox
         self.mSaveLineEdit = self.mUi.saveLineEdit
         self.mSavePushButton = self.mUi.savePushButton
+        self.mIpLabel = self.mUi.ipLabel
         localIP = socket.gethostbyname(socket.gethostname()) # 获取本地IP
         localIPStr = ("%s" % localIP)
         self.mIpLabel.setText(localIPStr)

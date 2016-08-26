@@ -18,6 +18,8 @@ class FCFrameType(Enum):
     _Capture            = 0x20000000
     _Text               = 0x10000000
 
+    _Pid                = 0x00000100
+    _Euler              = 0x00000080
     _Accelerator        = 0x00000040
     _DataPress          = 0x00000020
     _DataCompass        = 0x00000010
@@ -28,10 +30,12 @@ class FCFrameType(Enum):
 
     # 以下类型用户使用
     # dmp四元数采集请求帧
-    FrameRequestTimeAcceleratorDmpQuat = _Down | _Capture | _Accelerator | _DataDmpQuat | _DataTime
+    FrameRequestTimeAcceleratorDmpQuat  = _Down | _Capture | _Accelerator | _DataDmpQuat | _DataTime
+    FrameRequestTimeAcceleratorEulerPid = _Down | _Capture | _Pid | _Euler | _Accelerator | _DataTime
 
     # dmp四元数采集数据帧
-    FrameDataTimeAcceleratorDmpQuat = _Up | _Capture | _Accelerator | _DataDmpQuat | _DataTime
+    FrameDataTimeAcceleratorDmpQuat  = _Up | _Capture | _Accelerator | _DataDmpQuat | _DataTime
+    FrameDataTimeAcceleratorEulerPid = _Up | _Capture | _Pid | _Euler | _Accelerator | _DataTime
     # 文本输出帧
     FramePrintText = _Up | _Text
     # 错误帧
@@ -171,12 +175,6 @@ class _FCDownFrame(_FCBaseFrame):
         crc32 = _FCBaseFrame.CalStm32Crc32(wordList)
         self.mCrc32 = struct.pack('>I', crc32)
 
-class FCRequestTimeAcceleratorDmpQuatFrame(_FCDownFrame):
-    def __init__(self, interval = 100):
-        super(FCRequestTimeAcceleratorDmpQuatFrame, self).__init__(frameType = FCFrameType.FrameRequestTimeAcceleratorDmpQuat, frameData = interval)
-    def Type(self):
-        return FCFrameType.FrameRequestTimeAcceleratorDmpQuat
-
 class _FCFlyerCtrlFrame(_FCDownFrame):
     def __init__(self, type_byte = b'\x00', data = b'\xA5\xA5'):
         # byte0 : 0(加速)
@@ -292,6 +290,12 @@ class FCPrintTextFrame(FCUpFrame):
         text = textBuf.decode('utf8')
         return text
 
+class FCRequestTimeAcceleratorDmpQuatFrame(_FCDownFrame):
+    def __init__(self, interval = 100):
+        super(FCRequestTimeAcceleratorDmpQuatFrame, self).__init__(frameType = FCFrameType.FrameRequestTimeAcceleratorDmpQuat, frameData = interval)
+    def Type(self):
+        return FCFrameType.FrameRequestTimeAcceleratorDmpQuat
+
 class FCDataTimeAcceleratorDmpQuat(FCUpFrame):
     def __init__(self, frameBuf): 
         super(FCDataTimeAcceleratorDmpQuat, self).__init__(frameBuf)
@@ -316,6 +320,33 @@ class FCDataTimeAcceleratorDmpQuat(FCUpFrame):
         accelerator = self.mData[20:]
         acceleratorTuplle = struct.unpack('>IIIII', accelerator)
         return acceleratorTuplle
+
+class FCRequestTimeAcceleratorEulerPid(_FCDownFrame):
+    def __init__(self, interval = 100):
+        super(FCRequestTimeAcceleratorEulerPid, self).__init__(frameType = FCFrameType.FrameRequestTimeAcceleratorEulerPid, frameData = interval)
+    def Type(self):
+        return FCFrameType.FrameRequestTimeAcceleratorEulerPid
+
+class FCDataTimeAcceleratorEulerPid(FCUpFrame):
+    def __init__(self, frameBuf): 
+        super(FCDataTimeAcceleratorEulerPid, self).__init__(frameBuf)
+
+    def Type(self): 
+        return FCFrameType.FrameDataTimeAcceleratorEulerPid
+
+    def GetTime(self):
+        timeBuf = self.mData[0:4]
+        interval = struct.unpack('>I', timeBuf)[0]
+        return interval
+
+    def GetAccelrator(self):
+        pass
+
+    def GetEuler(self):
+        pass
+
+    def GetPid(self):
+        pass
 
 class FCErrorFrame(FCUpFrame):
     def __init__(self, frameBuf): 
