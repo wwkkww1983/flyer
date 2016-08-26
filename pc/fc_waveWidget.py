@@ -2,10 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import math
 
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+
+# 弧度转角度
+gRad2Arc = 180 / math.pi
 
 class FCWaveWidget(QWidget):
     #msMove = pyqtSignal(QPoint, name='msMove')
@@ -51,8 +55,8 @@ class FCWaveWidget(QWidget):
         self.setCursor(Qt.BlankCursor) # 隐藏鼠标
         self.mPos = None # 鼠标当前点
 
-    def Append(self, time, euler, accelerator):
-        self.mData.append((time, euler, accelerator))
+    def Append(self, frame):
+        self.mData.append(frame)
 
     def paintEvent(self, paintEvent):
         painter = QPainter(self) 
@@ -63,8 +67,10 @@ class FCWaveWidget(QWidget):
         self.drawAxes(painter) 
         # 绘制图例
         self.drawIcon(painter)
-        # 绘制波形
-        self.drawWave(painter)
+        # 绘制波形 
+        self.drawWaveEulerTheta(painter)
+        self.drawWavePidTheta(painter)
+        #self.drawWave(painter)
         # 绘制鼠标位置十字线
         self.drawMouseCross(painter)
 
@@ -184,12 +190,94 @@ class FCWaveWidget(QWidget):
             i = i + 1 
             self._drawAIcon(painter, x, y, text, color)
 
+    def drawWaveEulerTheta(self, painter): 
+        # 无数据不绘制
+        if not self.mData:
+            return
+        
+        firstFrame = self.mData[0]
+        startTime  = firstFrame.GetTime() / 100 # 转换为秒为单位
+
+        length = len(self.mData)
+        for i in range(0, length):
+            #thetaText = "俯仰角:%+04.2fd" % euler.Theta()
+            #phiText   = "横滚角:%+04.2fd" % euler.Phi()
+            #psiText   = "偏航角:%+04.2fd" % euler.Psi()
+
+            # 首尾不绘制
+            if 0 == i:
+                continue
+            if length - 1 == i:
+                break
+
+            lastFrame = self.mData[i - 1]
+            lastTime  = lastFrame.GetTime() / 100
+            lastEuler = lastFrame.GetEuler()
+
+            nowFrame  = self.mData[i]
+            nowTime   = nowFrame.GetTime() / 100
+            nowEuler  = nowFrame.GetEuler()
+
+            # 俯仰角
+            xLast = lastTime - startTime + self.mXOrig
+            xNow = nowTime - startTime + self.mXOrig
+            yThetaLast = self.mYOrig - lastEuler[0] / self.mYPhyPerPix * gRad2Arc
+            yThetaNow = self.mYOrig - nowEuler[0] / self.mYPhyPerPix * gRad2Arc
+            pen = QPen(Qt.red)
+            pen.setWidth(1)
+            painter.setPen(pen) 
+            painter.drawLine(xLast, yThetaLast, xNow, yThetaNow)
+
+    def drawWavePidTheta(self, painter): 
+        # 无数据不绘制
+        if not self.mData:
+            return
+        
+        firstFrame = self.mData[0]
+        startTime  = firstFrame.GetTime() / 100 # 转换为秒为单位
+
+        length = len(self.mData)
+        for i in range(0, length):
+            #thetaText = "俯仰角:%+04.2fd" % euler.Theta()
+            #phiText   = "横滚角:%+04.2fd" % euler.Phi()
+            #psiText   = "偏航角:%+04.2fd" % euler.Psi()
+
+            # 首尾不绘制
+            if 0 == i:
+                continue
+            if length - 1 == i:
+                break
+
+            lastFrame = self.mData[i - 1]
+            lastTime  = lastFrame.GetTime() / 100
+            lastPid = lastFrame.GetPid()
+
+            nowFrame  = self.mData[i]
+            nowTime   = nowFrame.GetTime() / 100
+            nowPid    = nowFrame.GetPid()
+
+            # FIXME: 比例尺动态调整
+            rate = 0.01
+
+            # 俯仰角
+            xLast = lastTime - startTime + self.mXOrig
+            xNow = nowTime - startTime + self.mXOrig
+            yPidLast = self.mYOrig - lastPid[0] / rate
+            yPidNow = self.mYOrig - nowPid[0] / rate
+            pen = QPen(Qt.green)
+            pen.setWidth(1)
+            painter.setPen(pen) 
+            painter.drawLine(xLast, yPidLast, xNow, yPidNow)
+
+        pass
+
     def drawWave(self, painter): 
         # 无数据不绘制
         if not self.mData:
             return
         
-        timeStart = self.mData[0][0] / 100
+        firstFrame = self.mData[0]
+        timeStart = firstFrame.GetTime() / 100 # 转换为秒为单位
 
         length = len(self.mData)
         for i in range(0, length):

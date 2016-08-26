@@ -225,7 +225,7 @@ class FCPidWidget(QWidget):
         print('2')
         """
         # 加入数据
-        #self.mWaveWidget.Append(time, euler, accelerator)
+        self.mWaveWidget.Append(frame)
 
         # 保存到文件
         self.mDataFile.write(frame.GetBytes())
