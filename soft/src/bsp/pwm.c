@@ -61,7 +61,6 @@ static TIM_OC_InitTypeDef s_sConfig;
 static int32_T s_period = 0; 
 
 /********************************** 函数声明区 *********************************/
-static void pwm_set(PWM_NAME pwm, int32_T val);
 static void pwm_test(void);
 
 /********************************** 函数实现区 *********************************/
@@ -138,7 +137,7 @@ void pwm_init(void)
     return;
 }
 
-static void pwm_set(PWM_NAME pwm, int32_T val)
+void pwm_set(PWM_NAME pwm, int32_T val)
 {
     int32_T period = 0;
 
@@ -220,15 +219,5 @@ void pwm_motor_off(void)
 inline int32_T pwm_get_period(void)
 {
     return s_period;
-}
-
-void pwm_update(const int32_T *val)
-{ 
-    int32_T i = 0;
-
-    for(i = 0; i < PWM_MAX; i++)
-    { 
-        pwm_set((PWM_NAME)i, val[i]);
-    }
 }
 

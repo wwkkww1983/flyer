@@ -52,7 +52,7 @@ int32_T pwm_get_period(void);
 /* 关闭电机 */
 void pwm_motor_off(void);
 /* 更新pwm值 */
-void pwm_update(const int32_T *val);
+void pwm_set(PWM_NAME pwm, int32_T val);
 
 #endif
 

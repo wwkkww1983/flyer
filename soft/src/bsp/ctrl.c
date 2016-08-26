@@ -21,15 +21,19 @@
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/
-/* 三个控制量:俯仰角 横滚角 偏航角 */
+/* 三个被调量:俯仰角 横滚角 偏航角 */
 static PID_T s_pid[CTRL_EULER_MAX];
+/* 电机油门 */
+static CTRL_T s_ctrl[PWM_MAX];
 
 /********************************** 函数声明区 *********************************/
 
 /********************************** 函数实现区 *********************************/
 void ctrl_init(void)
 {
-    /* 俯仰角 横滚角 偏航角 依次初始化 */
+    int32_T i = 0;
+
+    /* pid:俯仰角 横滚角 偏航角 依次初始化 */
     /* 俯仰角初始化 */
     s_pid[CTRL_THETA].kp = CTRL_THETA_KP_INIT;
     s_pid[CTRL_THETA].ki = CTRL_THETA_KI_INIT;
@@ -42,14 +46,21 @@ void ctrl_init(void)
     s_pid[CTRL_PHI].ki = CTRL_PHI_KI_INIT;
     s_pid[CTRL_PHI].kd = CTRL_PHI_KD_INIT;
     s_pid[CTRL_PHI].expect = CTRL_PHI_EXPECT_INIT;
-    s_pid[CTRL_THETA].acc = 0;
+    s_pid[CTRL_PHI].acc = 0;
 
     /* 偏航角初始化 */
     s_pid[CTRL_PSI].kp = CTRL_PSI_KP_INIT;
     s_pid[CTRL_PSI].ki = CTRL_PSI_KI_INIT;
     s_pid[CTRL_PSI].kd = CTRL_PSI_KD_INIT;
     s_pid[CTRL_PSI].expect = CTRL_PSI_EXPECT_INIT;
-    s_pid[CTRL_THETA].acc = 0;
+    s_pid[CTRL_PSI].acc = 0; 
+    
+    /* 初始化油门为0 */
+    for(i = 0; i < CTRL_EULER_MAX; i++)
+    {
+        s_ctrl[i].base = (int32_T)(pwm_get_period() * CTRL_BASE_INIT_RATE);
+        s_ctrl[i].adj  = 0;
+    }
 }
 
 void ctrl_update(void)
@@ -58,10 +69,13 @@ void ctrl_update(void)
     f32_T euler_measured[CTRL_EULER_MAX] = {0.0f};
     f32_T out[CTRL_EULER_MAX] =  {0.0f};
 
-    static f32_T pwm_val_f[4] = {0.0f}; /* 浮点用于记忆out对应的pwm_val的浮点值(确保小out值时精度不丢失) */
-    int32_T pwm_val[4] = {0}; /* 依次为前右后左 */
     int32_T i = 0;
+    int32_T pwm_val_max = 0;
+    int32_T pwm_val_half_max = 0;
+    int32_T adj_max = 0;
+    int32_T pwm = 0;
 
+    /* step1: 获取姿态 */
     /* 无新四元数 故无需更新pwm */
     if(!mpu9250_quat_arrived())
     {
@@ -70,34 +84,60 @@ void ctrl_update(void)
     mpu9250_get_quat_with_clear(quat_measured); /* 获取且标记 */
     math_quaternion2euler(euler_measured, quat_measured);
 
-    /* pid算法计算校正值 */
+    /* step2: pid算法计算校正值 */
     for(i = 0; i < CTRL_EULER_MAX; i++)
     {
         pid_update(&s_pid[i], euler_measured[i]); 
     } 
-    
     /* 获取pid输出 */
     ctrl_get_pid_out(out);
 
-    /* theta */
-    pwm_val_f[PWM_FRONT] += out[CTRL_THETA] / 2.0f;
-    pwm_val_f[PWM_BACK]  -= out[CTRL_THETA] / 2.0f;
+    /* step3: 计算纠偏值 */
+    /* 俯仰角平衡 */
+    s_ctrl[PWM_FRONT].adj += out[CTRL_THETA] / 2.0f;
+    s_ctrl[PWM_BACK].adj  -= out[CTRL_THETA] / 2.0f;
+    /* 横滚角平衡 */
+    s_ctrl[PWM_LEFT].adj  += out[CTRL_PHI] / 2.0f;
+    s_ctrl[PWM_RIGHT].adj -= out[CTRL_PHI] / 2.0f;
+    /* TODO:处理偏航 */
+    /* 限幅 */
+    pwm_val_max = pwm_get_period();
+    pwm_val_half_max = pwm_get_period() / 2;
+    for(i = 0; i < PWM_MAX; i++)
+    { 
+        /* step1: 计算adj范围[-adj_max, adj_max] */
+        if(s_ctrl[i].base < pwm_val_half_max) /* 油门较小 [0, base] */
+        {
+            adj_max = s_ctrl[i].base;
+        }
+        else if(s_ctrl[i].base > pwm_val_half_max) /* 油门较大 [base, max] */
+        {
+            adj_max = pwm_val_max - s_ctrl[i].base;
+        }
+        else /* [0, max/2] */
+        {
+            adj_max = pwm_val_half_max;
+        }
 
-    /* 横滚 偏航 都处理 */
-#if 0
-    /* phi */
-    out[1];
-
-    /* psi */
-    out[2]; 
-#endif
-
-    for(i = 0; i<4; i++)
-    {
-        pwm_val[i] = (int32_T)(pwm_val_f[i]);
+        /* step2: 避免adj太过偏离(响应速度慢) */
+        if(s_ctrl[i].adj > adj_max)
+        {
+            s_ctrl[i].adj = adj_max;
+        }
+        else if (s_ctrl[i].adj < -adj_max)
+        {
+            s_ctrl[i].adj = -adj_max;
+        }
+        else /* adj 在 [-adj_max, adj_max] 内不处理 */
+        { ; }
     }
 
-    pwm_update(pwm_val);
+    /* step4: 控制油门 */
+    for(i = 0; i < PWM_MAX; i++)
+    {
+        pwm = (int32_T)(s_ctrl[i].base + s_ctrl[i].adj);
+        pwm_set((PWM_NAME)i, pwm);
+    }
 }
 
 void ctrl_set_pid(const PID_T *pid)

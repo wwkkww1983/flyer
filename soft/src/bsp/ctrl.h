@@ -20,6 +20,8 @@
 #include "pid.h"
 
 /************************************ 宏定义 ***********************************/
+#define CTRL_BASE_INIT_RATE              (0.1f)
+
 #define CTRL_THETA                       (0)
 #define CTRL_PHI                         (1)
 #define CTRL_PSI                         (2)
@@ -41,6 +43,10 @@
 #define CTRL_PSI_EXPECT_INIT             (MPU9250_ROTATED_ARC)
 
 /*--------------------------------- 接口声明区 --------------------------------*/
+typedef struct CTRL_T_tag{
+    int32_T base;
+    f32_T   adj;  /* 使用浮点数 保证pid小数输出时的精度 */
+}CTRL_T;
 
 /*********************************** 全局变量 **********************************/
 
