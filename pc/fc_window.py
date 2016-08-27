@@ -9,7 +9,7 @@ from PyQt5.uic import loadUiType, loadUi
 
 from fc_widget import FCWidget
 
-FCWindowUIClass = loadUiType("fc_window.ui")
+FCWindowUIClass = loadUiType("ui/fc_window.ui")
 
 class FCWindow(QMainWindow):
     def __init__(self):

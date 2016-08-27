@@ -17,7 +17,7 @@ class FCWidget(QTabWidget):
         super(FCWidget, self).__init__() 
 
         # pid分析控件
-        self.mPidWidget = FCPidWidget("fc_pidWidget.ui")
+        self.mPidWidget = FCPidWidget("ui/fc_pidWidget.ui")
         self.addTab(self.mPidWidget, "PID分析")
 
         # 在线采集控件

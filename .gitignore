@@ -8,6 +8,8 @@ hard/pcb/v3.0/allegro.jrl
 pc/__pycache__/
 pc/algo/__pycache__/
 pc/bak/__pycache__/
+pc/frame/__pycache__/
+pc/comm/__pycache__/
 pc/data/
 soft/prj/DebugConfig/
 

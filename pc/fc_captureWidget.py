@@ -15,22 +15,12 @@ from PyQt5.uic import loadUiType, loadUi
 
 from fc_waveWidget import FCWaveWidget
 
-# 下行帧
-from fc_frame import FCRequestTimeAcceleratorDmpQuatFrame
-from fc_frame import FCStopFrame
-from fc_frame import FCStartFrame
-# 上行帧
-from fc_frame import FCDataTimeAcceleratorDmpQuat
+# 帧
+from frame.frame_all import *
+# 通信
+from comm.comm_all import *
 
-# 上行帧基类(用于解析帧长)
-from fc_frame import FCUpFrame
-# 帧类型枚举 用于实现表驱动
-from fc_frame import FCFrameType
-
-from fc_serial import FCSerial
-from fc_net import FCUdp
-
-FCWindowUIClass = loadUiType("fc_captureWidget.ui")
+FCWindowUIClass = loadUiType("ui/fc_captureWidget.ui")
 
 class FCCaptureWidget(QWidget): 
     sAppendConsole = pyqtSignal(str, name='sAppendConsole')

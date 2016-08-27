@@ -13,17 +13,12 @@ from PyQt5.QtWidgets import *
 
 from PyQt5.uic import loadUiType, loadUi
 
-from fc_net import FCUdp
 from fc_waveWidget import FCWaveWidget
 
-# 帧类型枚举
-from fc_frame import FCFrameType
-# 上行帧基类(用于解析帧长)
-from fc_frame import FCUpFrame
-# 下行控制帧
-from fc_frame import FCRequestTimeAcceleratorEulerPid
-from fc_frame import FCStopFrame
-from fc_frame import FCStartFrame
+# 帧
+from frame.frame_all import *
+# 通信
+from comm.comm_all import FCUdp
 
 class FCPidWidget(QWidget): 
     sAppendConsole = pyqtSignal(str, name = 'sAppendConsole') 
@@ -114,7 +109,17 @@ class FCPidWidget(QWidget):
         self.sAppendConsole.connect(self.UpdatePrintTextWidget)
 
         # 采样帧信号
-        self.sUpdateAcceleratorEulerPid.connect(self.UpdateTimeAcceleratorEulerPidWidget)
+        self.sUpdateAcceleratorEulerPid.connect(self.UpdateTimeAcceleratorEulerPidWidget) 
+        
+        """
+        frame = FCStopFrame()
+        frame = FCStartFrame()
+        frame = FCRequestTimeAcceleratorDmpQuatFrame()
+        frame = FCRequestTimeAcceleratorEulerPid()
+        buf = frame.GetBytes()
+        print("帧" , end = ':')
+        frame.Print()
+        """
 
     def closeEvent(self, event):
         # 关闭后台接收线程
