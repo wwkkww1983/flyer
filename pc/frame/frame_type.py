@@ -11,6 +11,7 @@ class FCFrameType(Enum):
     FrameCtrl           = 0x40000000
     FrameReq            = 0x20000000
     _Text               = 0x10000000
+    FramePidSet         = 0x08000000
 
     _Pid                = 0x00000100
     _Euler              = 0x00000080

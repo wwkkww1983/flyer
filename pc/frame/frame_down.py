@@ -7,6 +7,10 @@ import struct
 from frame.frame_type import *
 from frame.frame_base import *
 
+# 下行帧len字段长度固定
+gDownFrameLenVal = 24
+
+# 数据字段打包格式
 gDataUnpackStr = '>' + 'I' * 5
 
 #####################################################################################################################
@@ -14,11 +18,11 @@ gDataUnpackStr = '>' + 'I' * 5
 # 下行帧 上位机构造
 class FCDownFrame(FCBaseFrame):
     # 抽象类 用户不使用
-    def __init__(self, frameType, frameData, dataLen = 24):
+    def __init__(self, frameType, frameData):
         super(FCDownFrame, self).__init__()
 
         self.mType = struct.pack('>I', frameType.value)
-        self.mLen = struct.pack('>I', dataLen)
+        self.mLen = struct.pack('>I', gDownFrameLenVal)
         self.mData = struct.pack(gDataUnpackStr, *frameData)
 
         # 生产CRC32
@@ -40,7 +44,7 @@ class FCCtrlFrame(FCDownFrame):
         #print(gDataUnpackStr)
         data = struct.unpack(gDataUnpackStr, bytesVal)
         #print(data)
-        super(FCCtrlFrame, self).__init__(frameType = FCFrameType.FrameCtrl, frameData = data)
+        super(FCCtrlFrame, self).__init__(frameType = self.Type(), frameData = data)
     def Type(self):
         return FCFrameType.FrameCtrl
 
@@ -68,15 +72,32 @@ class FCCtrlStartFrame(FCCtrlFrame):
 
 class FCReqTimeAcceleratorDmpQuatFrame(FCReqFrame):
     def __init__(self, interval = 100):
-        super(FCReqTimeAcceleratorDmpQuatFrame, self).__init__(frameType = FCFrameType.FrameReqTimeAcceleratorDmpQuat, interval = interval)
+        super(FCReqTimeAcceleratorDmpQuatFrame, self).__init__(frameType = self.Type(), interval = interval)
     def Type(self):
         return FCFrameType.FrameReqTimeAcceleratorDmpQuat
 
 class FCReqTimeAcceleratorEulerPid(FCReqFrame):
     def __init__(self, interval = 100):
-        super(FCReqTimeAcceleratorEulerPid, self).__init__(frameType = FCFrameType.FrameReqTimeAcceleratorEulerPid, interval = interval)
+        super(FCReqTimeAcceleratorEulerPid, self).__init__(frameType = self.Type(), interval = interval)
     def Type(self):
         return FCFrameType.FrameReqTimeAcceleratorEulerPid
+
+class FCPidSetFrame(FCDownFrame):
+    def __init__(self, euler_str, pidTuple):
+        if euler_str < 0 or euler_str > 2:
+            print("FCPidSetFrame欧拉角类型错误")
+            return
+        byte0 = struct.pack('>b', euler_str)
+        p_bytes = struct.pack('>f', pidTuple[0])
+        i_bytes = struct.pack('>f', pidTuple[1])
+        d_bytes = struct.pack('>f', pidTuple[2])
+        byte13_byte19 = b'\xA5' * 7
+        bytesVal = byte0 + p_bytes + i_bytes + d_bytes + byte13_byte19
+        data = struct.unpack(gDataUnpackStr, bytesVal)
+        super(FCPidSetFrame, self).__init__(frameType = self.Type(), frameData = data)
+
+    def Type(self):
+        return FCFrameType.FramePidSet
 
 if __name__ == '__main__':
     print("偷懒,先不写单元测试")

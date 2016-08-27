@@ -140,8 +140,8 @@ class FCPidWidget(QWidget):
         self.sUpdateAcceleratorEulerPid.connect(self.UpdateTimeAcceleratorEulerPidWidget) 
         
         """
-        frame = FCStopFrame()
-        frame = FCStartFrame()
+        frame = FCCtrlStopFrame()
+        frame = FCCtrlStartFrame()
         frame = FCReqTimeAcceleratorDmpQuatFrame()
         frame = FCReqTimeAcceleratorEulerPid()
         buf = frame.GetBytes()
@@ -386,11 +386,28 @@ class FCPidWidget(QWidget):
     def SetPid(self, euler_str):
         if self._IsConnectted():
             if 'theta' == euler_str: 
+                p = float(self.mThetaPLineEdit.text())
+                i = float(self.mThetaILineEdit.text())
+                d = float(self.mThetaDLineEdit.text())
                 print("俯仰pid帧" , end = ':')
+                print(p, i, d)
+                frame = FCPidSetFrame(0, (p, i ,d))
             elif 'phi' == euler_str:
+                p = float(self.mPhiPLineEdit.text())
+                i = float(self.mPhiILineEdit.text())
+                d = float(self.mPhiDLineEdit.text())
                 print("横滚pid帧" , end = ':')
+                print(p, i, d)
+                frame = FCPidSetFrame(1, (p, i ,d))
+
             elif 'psi' == euler_str:
+                p = float(self.mPsiPLineEdit.text())
+                i = float(self.mPsiILineEdit.text())
+                d = float(self.mPsiDLineEdit.text())
                 print("偏航pid帧" , end = ':') 
+                print(p, i, d)
+                frame = FCPidSetFrame(2, (p, i ,d))
+
             else:
                 print("%s不是有效欧拉角度." % euler_str) 
                 return

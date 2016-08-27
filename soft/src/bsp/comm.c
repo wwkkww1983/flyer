@@ -293,20 +293,42 @@ static bool_T parse(const uint8_T *buf)
     /* PID参数设置帧 */
     if(is_pid_frame(frame.type))
     {
-        int32_T ctrl_type = buf[8];
+        int32_T ctrl_type = buf[8]; 
+        int32_T kp_i = 0;
+        int32_T ki_i = 0;
+        int32_T kd_i = 0;
+        int32_T *p_i32 = NULL;
+        PID_T pid;
 
-        switch(ctrl_type)
+        /* 非法pid帧 */
+        if(!((CTRL_THETA == ctrl_type) || (CTRL_PHI == ctrl_type) || (CTRL_PSI == ctrl_type)))
         {
-            case CTRL_THETA:
-                return TRUE;
-            case CTRL_PHI:
-                return TRUE;
-            case CTRL_PSI:
-                return TRUE;
-            default:
-                return FALSE;
+            return FALSE;
         }
 
+        kp_i  = buf[9]  << 24;
+        kp_i |= buf[10] << 16;
+        kp_i |= buf[11] << 8;
+        kp_i |= buf[12];
+
+        ki_i  = buf[13] << 24;
+        ki_i |= buf[14] << 16;
+        ki_i |= buf[15] << 8;
+        ki_i |= buf[16];
+
+        kd_i  = buf[17] << 24;
+        kd_i |= buf[18] << 16;
+        kd_i |= buf[19] << 8;
+        kd_i |= buf[20];
+
+        p_i32 = &kp_i;
+        pid.kp = *((f32_T *)p_i32);
+        p_i32 = &ki_i;
+        pid.ki = *((f32_T *)p_i32);
+        p_i32 = &kd_i;
+        pid.kd = *((f32_T *)p_i32);
+        
+        ctrl_set_pid(ctrl_type, &pid);
     }
 
     /* 飞控帧 */

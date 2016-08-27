@@ -144,17 +144,25 @@ void ctrl_set_pid(int32_T euler_index, const PID_T *pid)
 {
     /* 参数检查 */
     if((NULL == pid)
-    || (euler_index < 0)
-    || (euler_index > 2))
+    || !((CTRL_THETA == euler_index) || (CTRL_PHI == euler_index) || (CTRL_PSI == euler_index)))
     { 
         ERR_STR("参数错误");
     } 
-    
-    
+
     s_pid[euler_index].kp = pid->kp;
     s_pid[euler_index].ki = pid->ki;
     s_pid[euler_index].kd = pid->kd; 
-    s_pid[euler_index].expect = pid->expect;
+}
+
+void ctrl_set_expect(int32_T euler_index, f32_T expect)
+{
+    /* 参数检查 */
+    if(!((CTRL_THETA == euler_index) || (CTRL_PHI == euler_index) || (CTRL_PSI == euler_index)))
+    { 
+        ERR_STR("参数错误");
+    } 
+
+    s_pid[euler_index].expect = expect;
 }
 
 void ctrl_get_pid_out(f32_T *out)
