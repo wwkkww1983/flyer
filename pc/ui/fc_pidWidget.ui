@@ -297,7 +297,7 @@
              <item>
               <widget class="QLineEdit" name="thetaPLineEdit">
                <property name="text">
-                <string>1111111</string>
+                <string>1</string>
                </property>
               </widget>
              </item>
@@ -323,7 +323,7 @@
              <item>
               <widget class="QLineEdit" name="thetaILineEdit">
                <property name="text">
-                <string>2222222</string>
+                <string>0</string>
                </property>
               </widget>
              </item>
@@ -349,7 +349,7 @@
              <item>
               <widget class="QLineEdit" name="thetaDLineEdit">
                <property name="text">
-                <string>3333333</string>
+                <string>0</string>
                </property>
               </widget>
              </item>
