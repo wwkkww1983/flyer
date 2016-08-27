@@ -87,10 +87,38 @@ class FCPidWidget(QWidget):
         self.mPhiLabel = self.mUi.phiLabel
         self.mPsiLabel = self.mUi.psiLabel
 
-        # PID控件
+        # PID显示控件
         self.mThetaPidLabel = self.mUi.thetaPidLabel
         self.mPhiPidLabel = self.mUi.phiPidLabel
         self.mPsiPidLabel = self.mUi.psiPidLabel
+
+        # PID控制控件
+        self.mThetaPLineEdit = self.mUi.thetaPLineEdit
+        self.mThetaILineEdit = self.mUi.thetaILineEdit
+        self.mThetaDLineEdit = self.mUi.thetaDLineEdit
+        self.mThetaPidPushButton = self.mUi.thetaPidPushButton
+        self.mThetaPidPushButton.clicked.connect(self.SetThetaPid)
+        self.mPhiPLineEdit = self.mUi.phiPLineEdit
+        self.mPhiILineEdit = self.mUi.phiILineEdit
+        self.mPhiDLineEdit = self.mUi.phiDLineEdit
+        self.mPhiPidPushButton = self.mUi.phiPidPushButton
+        self.mPhiPidPushButton.clicked.connect(self.SetPhiPid)
+        self.mPsiPLineEdit = self.mUi.psiPLineEdit
+        self.mPsiILineEdit = self.mUi.psiILineEdit
+        self.mPsiDLineEdit = self.mUi.psiDLineEdit
+        self.mPsiPidPushButton = self.mUi.psiPidPushButton
+        self.mPsiPidPushButton.clicked.connect(self.SetPsiPid)
+        """
+        self.mThetaPLineEdit.setText('a')
+        self.mThetaILineEdit.setText('b')
+        self.mThetaDLineEdit.setText('c')
+        self.mPhiPLineEdit.setText('d')
+        self.mPhiILineEdit.setText('e')
+        self.mPhiDLineEdit.setText('f')
+        self.mPsiPLineEdit.setText('g')
+        self.mPsiILineEdit.setText('h')
+        self.mPsiDLineEdit.setText('i')
+        """
 
         # 油门控件
         self.mFrontProgressBar = self.mUi.frontProgressBar
@@ -114,8 +142,8 @@ class FCPidWidget(QWidget):
         """
         frame = FCStopFrame()
         frame = FCStartFrame()
-        frame = FCRequestTimeAcceleratorDmpQuatFrame()
-        frame = FCRequestTimeAcceleratorEulerPid()
+        frame = FCReqTimeAcceleratorDmpQuatFrame()
+        frame = FCReqTimeAcceleratorEulerPid()
         buf = frame.GetBytes()
         print("帧" , end = ':')
         frame.Print()
@@ -245,7 +273,7 @@ class FCPidWidget(QWidget):
 
         thetaPidText = "俯仰:%+08.3f" % pid[0]
         phiPidText   = "横滚:%+08.3f" % pid[1]
-        psiPidText   = "俯仰:%+08.3f" % pid[2]
+        psiPidText   = "偏航:%+08.3f" % pid[2]
         self.mThetaPidLabel.setText(thetaPidText)
         self.mPhiPidLabel.setText(phiPidText)
         self.mPsiPidLabel.setText(psiPidText)
@@ -287,7 +315,7 @@ class FCPidWidget(QWidget):
         #print(self.mNewFlyerInitDoneStr in text)
         # 飞控初始化完成 发送命令
         if self.mNewFlyerInitDoneStr in text:
-            self.SendRequestCaptureDataCmd()
+            self.SendReqCaptureDataCmd()
 
         self.sAppendConsole.emit(text)
 
@@ -299,16 +327,15 @@ class FCPidWidget(QWidget):
         self.mConsolePlainTextEdit.moveCursor(QTextCursor.End)
 
     def UpdateErrorFrame(self, frame):
-        return
         print("接收错误帧(%s:%s):" % (self.mComm.port, self.mComm.baudrate))
         frame.Print()
 
-    def SendRequestCaptureDataCmd(self):
+    def SendReqCaptureDataCmd(self):
         # TODO:由界面定制
         interval = int(self.mIntervalLineEdit.text())
         #print(interval) 
 
-        frame = FCRequestTimeAcceleratorEulerPid(interval)
+        frame = FCReqTimeAcceleratorEulerPid(interval)
         buf = frame.GetBytes()
         print("采样数据请求帧" , end = ':')
         frame.Print()
@@ -321,9 +348,9 @@ class FCPidWidget(QWidget):
             accelerator = int(self.mAcceleratorSpinBox.value())
             print(accelerator) 
             
-            frame = FCStartFrame(accelerator)
+            frame = FCCtrlStartFrame(accelerator)
             buf = frame.GetBytes()
-            print("发送加速帧" , end = ':')
+            print("发送油门帧" , end = ':')
             frame.Print()
             
             self.mComm.Write(buf)
@@ -332,7 +359,7 @@ class FCPidWidget(QWidget):
 
     def StopFlyer(self, checked):
         if self._IsConnectted():
-            frame = FCStopFrame()
+            frame = FCCtrlStopFrame()
             buf = frame.GetBytes()
             print("发送停止帧" , end = ':')
             frame.Print()
@@ -346,6 +373,33 @@ class FCPidWidget(QWidget):
             return True
         else:
             return False
+
+    def SetThetaPid(self):
+        self.SetPid('theta')
+
+    def SetPhiPid(self):
+        self.SetPid('phi')
+
+    def SetPsiPid(self):
+        self.SetPid('psi')
+
+    def SetPid(self, euler_str):
+        if self._IsConnectted():
+            if 'theta' == euler_str: 
+                print("俯仰pid帧" , end = ':')
+            elif 'phi' == euler_str:
+                print("横滚pid帧" , end = ':')
+            elif 'psi' == euler_str:
+                print("偏航pid帧" , end = ':') 
+            else:
+                print("%s不是有效欧拉角度." % euler_str) 
+                return
+
+            buf = frame.GetBytes()
+            frame.Print()
+            self.mComm.Write(buf)
+        else:
+            print("未连接飞控板")
 
 
 if __name__ == '__main__':

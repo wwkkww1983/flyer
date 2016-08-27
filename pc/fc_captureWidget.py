@@ -122,7 +122,7 @@ class FCCaptureWidget(QWidget):
 
         """
         interval = int(self.mIntervalLineEdit.text())
-        frame = FCRequestTimeAcceleratorDmpQuatFrame(interval)
+        frame = FCReqTimeAcceleratorDmpQuatFrame(interval)
         print("采样数据请求帧" , end = ':')
         frame.Print()
 
@@ -220,12 +220,12 @@ class FCCaptureWidget(QWidget):
         self.mRecvThread = threading.Thread(target=self._RecvFunc)
         self.mRecvThread.start()
 
-    def SendRequestCaptureDataCmd(self):
+    def SendReqCaptureDataCmd(self):
         # TODO:由界面定制
         interval = int(self.mIntervalLineEdit.text())
         #print(interval) 
 
-        frame = FCRequestTimeAcceleratorDmpQuatFrame(interval)
+        frame = FCReqTimeAcceleratorDmpQuatFrame(interval)
         buf = frame.GetBytes()
         print("采样数据请求帧" , end = ':')
         frame.Print()
@@ -316,7 +316,7 @@ class FCCaptureWidget(QWidget):
         #print(self.mNewFlyerInitDoneStr in text)
         # 飞控初始化完成 发送命令
         if self.mNewFlyerInitDoneStr in text:
-            self.SendRequestCaptureDataCmd()
+            self.SendReqCaptureDataCmd()
 
         self.sAppendConsole.emit(text)
 
