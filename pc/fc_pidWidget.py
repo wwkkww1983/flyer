@@ -3,7 +3,6 @@
 
 import os
 import sys
-import math
 import socket
 import threading
 from datetime import datetime
@@ -25,9 +24,6 @@ from fc_frame import FCUpFrame
 from fc_frame import FCRequestTimeAcceleratorEulerPid
 from fc_frame import FCStopFrame
 from fc_frame import FCStartFrame
-
-# 弧度转角度
-gRad2Arc = 180 / math.pi
 
 class FCPidWidget(QWidget): 
     sAppendConsole = pyqtSignal(str, name = 'sAppendConsole') 
@@ -235,9 +231,9 @@ class FCPidWidget(QWidget):
         timeText     = "运行:%8.1fs" % (time / 1000.0)
         self.mRunTimeLabel.setText(timeText)
 
-        thetaText    = "俯仰:%+08.3f" % (euler[0] * gRad2Arc)
-        phiText      = "横滚:%+08.3f" % (euler[1] * gRad2Arc)
-        psiText      = "偏航:%+08.3f" % (euler[2] * gRad2Arc)
+        thetaText    = "俯仰:%+08.3f" % euler[0]
+        phiText      = "横滚:%+08.3f" % euler[1]
+        psiText      = "偏航:%+08.3f" % euler[2]
         self.mThetaLabel.setText(thetaText)
         self.mPhiLabel.setText(phiText)
         self.mPsiLabel.setText(psiText)

@@ -2,14 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import math
 
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-
-# 弧度转角度
-gRad2Arc = 180 / math.pi
 
 class FCWaveWidget(QWidget):
     #msMove = pyqtSignal(QPoint, name='msMove')
@@ -41,8 +37,10 @@ class FCWaveWidget(QWidget):
         
         # TODO: 使用参数传入
         self.mXPhyStep = 100  # 每个像素点为100ms间隔
-        self.mYPhyRange = 150 # 纵坐标角度范围 120deg
-        self.mYPhyPerPix = 0
+        self.mYAngleRange = 150 # 纵坐标角度范围 120deg
+        self.mYAnglePerPix = 0
+        self.mYPidRange = 1000 # 纵坐标Pid范围 1000
+        self.mYPidPerPix = 0
         self.mXOrig = 0
         self.mYOrig = 0
         self.mWaveWidth = 0
@@ -126,16 +124,16 @@ class FCWaveWidget(QWidget):
         # 计算纵向范围 
         yRange = shortLineNums * yStep
         # 每个像素代表的物理角度
-        self.mYPhyPerPix = self.mYPhyRange / yRange
+        self.mYAnglePerPix = self.mYAngleRange / yRange
         #print(yRange) 
-        #print(self.mYPhyPerPix) 
+        #print(self.mYAnglePerPix) 
         for i in range(0, shortLineNums):
             x1 = xStart
             x2 = xMax
             y1 = yStart - i * yStep
             y2 = y1
             painter.drawLine(x1, y1, x2, y2)
-            text = "%+.2f" % ((i * yStep * self.mYPhyPerPix) - (self.mYPhyRange / 2))
+            text = "%+.2f" % ((i * yStep * self.mYAnglePerPix) - (self.mYAngleRange / 2))
             #print(text)
             # +/-1 显示美观
             painter.drawText(0 + 1, y1 + 1, text)
@@ -152,12 +150,16 @@ class FCWaveWidget(QWidget):
         # 标示原点比较不协调
         #painter.drawText(xOrig + 1, yOrig - 1, "0");
 
+
         # 画布原点
         self.mXOrig = xOrig
         self.mYOrig = yOrig
         # 画布尺寸
         self.mWaveWidth = xMax
         self.mWaveHeight = yStart
+
+        # 每个像素代表的物理角度
+        self.mYPidPerPix = self.mYPidRange / self.mWaveWidth
 
     def drawMouseCross(self, painter): 
         if None != self.mPos:
@@ -221,8 +223,8 @@ class FCWaveWidget(QWidget):
             # 俯仰角
             xLast = lastTime - startTime + self.mXOrig
             xNow = nowTime - startTime + self.mXOrig
-            yThetaLast = self.mYOrig - lastEuler[0] / self.mYPhyPerPix * gRad2Arc
-            yThetaNow = self.mYOrig - nowEuler[0] / self.mYPhyPerPix * gRad2Arc
+            yThetaLast = self.mYOrig - lastEuler[0] / self.mYAnglePerPix
+            yThetaNow = self.mYOrig - nowEuler[0] / self.mYAnglePerPix
             pen = QPen(Qt.red)
             pen.setWidth(1)
             painter.setPen(pen) 
@@ -256,20 +258,15 @@ class FCWaveWidget(QWidget):
             nowTime   = nowFrame.GetTime() / 100
             nowPid    = nowFrame.GetPid()
 
-            # FIXME: 比例尺动态调整
-            rate = 0.01
-
             # 俯仰角
             xLast = lastTime - startTime + self.mXOrig
             xNow = nowTime - startTime + self.mXOrig
-            yPidLast = self.mYOrig - lastPid[0] / rate
-            yPidNow = self.mYOrig - nowPid[0] / rate
+            yPidLast = self.mYOrig - lastPid[0] / self.mYPidPerPix
+            yPidNow = self.mYOrig - nowPid[0] / self.mYPidPerPix
             pen = QPen(Qt.green)
             pen.setWidth(1)
             painter.setPen(pen) 
             painter.drawLine(xLast, yPidLast, xNow, yPidNow)
-
-        pass
 
     def drawWave(self, painter): 
         # 无数据不绘制
@@ -306,18 +303,18 @@ class FCWaveWidget(QWidget):
 
             # 转换为绘制坐标
             xLast = timeLast - timeStart + self.mXOrig
-            yThetaLast = self.mYOrig - eulerLast.Theta() / self.mYPhyPerPix
-            yPhiLast = self.mYOrig - eulerLast.Phi() / self.mYPhyPerPix
-            yPsiLast = self.mYOrig - eulerLast.Psi() / self.mYPhyPerPix
+            yThetaLast = self.mYOrig - eulerLast.Theta() / self.mYAnglePerPix
+            yPhiLast = self.mYOrig - eulerLast.Phi() / self.mYAnglePerPix
+            yPsiLast = self.mYOrig - eulerLast.Psi() / self.mYAnglePerPix
             yFrontLast = self.mWaveHeight - acceleratorLast[0] * pixelPerAccelerator
             yRightLast = self.mWaveHeight - acceleratorLast[1] * pixelPerAccelerator
             yBackLast  = self.mWaveHeight - acceleratorLast[2] * pixelPerAccelerator
             yLeftLast  = self.mWaveHeight - acceleratorLast[3] * pixelPerAccelerator
 
             xNow = timeNow - timeStart + self.mXOrig
-            yThetaNow = self.mYOrig - eulerNow.Theta() / self.mYPhyPerPix
-            yPhiNow = self.mYOrig - eulerNow.Phi() / self.mYPhyPerPix
-            yPsiNow = self.mYOrig - eulerNow.Psi() / self.mYPhyPerPix
+            yThetaNow = self.mYOrig - eulerNow.Theta() / self.mYAnglePerPix
+            yPhiNow = self.mYOrig - eulerNow.Phi() / self.mYAnglePerPix
+            yPsiNow = self.mYOrig - eulerNow.Psi() / self.mYAnglePerPix
             yFrontNow = self.mWaveHeight - acceleratorNow[0] * pixelPerAccelerator
             yRightNow = self.mWaveHeight - acceleratorNow[1] * pixelPerAccelerator
             yBackLNow = self.mWaveHeight - acceleratorNow[2] * pixelPerAccelerator

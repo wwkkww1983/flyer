@@ -215,9 +215,9 @@ void math_quaternion2euler(f32_T *euler, const float *q)
     phi   = +asin(2*(q[1]*q[3] - q[0]*q[2]));
     psi   =  atan2(q[1]*q[2] + q[0]*q[3], q[0]*q[0] + q[1]*q[1] - 0.5f);
 
-    euler[0] = theta;
-    euler[1] = phi;
-    euler[2] = psi;
+    euler[0] = math_arc2angle(theta);
+    euler[1] = math_arc2angle(phi);
+    euler[2] = math_arc2angle(psi);
 
     /* FIXME: 是否是全姿态的，反三角函数计算出的角度是否需要修正? */
 }
