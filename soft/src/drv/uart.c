@@ -24,6 +24,7 @@
 
 #include "typedef.h"
 #include "config.h"
+#include "debug.h"
 #include "board.h"
 #include "uart.h"
 
@@ -62,7 +63,7 @@ void uart_init(drv_uart_T *uart)
 
     if(HAL_UART_Init(handle) != HAL_OK)
     {
-        while(1);
+        ERR_STR("执行失败")
     } 
 
     /* 延迟100ms 保证不会发送0x00 */
@@ -128,7 +129,7 @@ void uart_send(drv_uart_T *uart, uint8_T *fmt, ...)
     if(HAL_UART_Transmit_DMA(&uart->handle, (uint8_t *)uart->send_buf, send_frame_len)!= HAL_OK)
     {
         /* 出错 */
-        while(1);
+        while(TRUE);
     }
 
     return;
@@ -142,7 +143,7 @@ void uart_send_bytes(drv_uart_T *uart, uint8_T *buf, uint32_T n)
     if(HAL_UART_Transmit_DMA(&uart->handle, buf, n)!= HAL_OK)
     {
         /* 出错 */
-        while(1);
+        while(TRUE);
     }
 }
 
@@ -163,7 +164,7 @@ inline void uart_recv_bytes_poll(drv_uart_T *uart, uint8_T *buf, uint32_T n)
     }
     else /* 出错 */
     {
-        while(1);
+        ERR_STR("串口接收出错.");
     }
 }
 
@@ -180,11 +181,11 @@ inline void uart_send_bytes_poll(drv_uart_T *uart, uint8_T *buf, uint32_T n)
     }
     else if(HAL_TIMEOUT == status) /* 超时 */
     {
-        while(1);
+        while(TRUE);
     }
     else /* 出错 */
     {
-        while(1);
+        while(TRUE);
     }
 }
 
@@ -196,7 +197,7 @@ void uart_recv_bytes(drv_uart_T *uart, uint8_T *buf, uint32_T n)
     if(HAL_UART_Receive_DMA(&uart->handle, buf, n)!= HAL_OK)
     {
         /* 出错 */
-        while(1);
+        while(TRUE);
     }
 }
 
@@ -220,7 +221,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
     else
     {
         /* 出错 未实现的串口发送完成 */
-        while(1);
+        while(TRUE);
     }
 }
 
@@ -237,7 +238,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
     else
     {
         /* 出错 未实现的串口发送完成 */
-        while(1);
+        while(TRUE);
     }
 }
 

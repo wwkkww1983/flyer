@@ -51,7 +51,7 @@ void led_on(LED_NAME led)
 {
     if(led > LED_MAX)
     {
-        while(1);
+        ERR_STR("参数错误");
     }
 
     HAL_GPIO_WritePin(g_led_list[led].port, g_led_list[led].pin, GPIO_PIN_RESET); 
@@ -62,7 +62,7 @@ void led_off(LED_NAME led)
 {
     if(led > LED_MAX)
     {
-        while(1);
+        ERR_STR("参数错误");
     }
 
     HAL_GPIO_WritePin(g_led_list[led].port, g_led_list[led].pin, GPIO_PIN_SET);
@@ -73,7 +73,7 @@ void led_toggle(LED_NAME led)
 {
     if(led > LED_MAX)
     {
-        while(1);
+        ERR_STR("参数错误");
     }
 
     HAL_GPIO_TogglePin(g_led_list[led].port, g_led_list[led].pin);

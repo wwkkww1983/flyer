@@ -59,6 +59,7 @@ inline static bool_T is_time_needded(uint32_T type);
 inline static bool_T is_acceletorater_needded(uint32_T type);
 inline static bool_T is_euler_needded(uint32_T type);
 inline static bool_T is_pid_needded(uint32_T type);
+inline static bool_T is_pid_frame(uint32_T type);
 //static void comm_wait_start(void);
 
 /********************************** 函数实现区 *********************************/
@@ -67,7 +68,7 @@ void comm_init(const drv_uart_T *comm_uart)
     /* 配置 协议走的通道 console or esp8266 */
     if(NULL == comm_uart)
     {
-        while(1);
+        ERR_STR("参数错误.");
     }
     s_comm_uart =  comm_uart;
 
@@ -76,7 +77,7 @@ void comm_init(const drv_uart_T *comm_uart)
     CRC_CLK_ENABLE();
     if(HAL_OK != HAL_CRC_Init(&s_crc))
     {
-        while(1);
+        ERR_STR("函数执行失败.");
     } 
     
     /* 初始化中 启动串口接收 */
@@ -97,7 +98,7 @@ static void comm_wait_start(void)
     uart_recv_bytes((drv_uart_T *)s_comm_uart, frame_buf, COMM_DOWN_FRAME_BUF_SIZE); 
 
     /* TODO:完善握手协议 */
-    while(1)
+    while(TRUE)
     { 
 
         /* 发送握手(告诉上位机,目前在等待,发送合法启动帧) */
@@ -146,7 +147,7 @@ static void comm_wait_start(void)
 #endif
 
 #if 0
-    while(1)
+    while(TRUE)
     {
         /* 启动下行帧接收 */
         uart_recv_bytes((drv_uart_T *)s_comm_uart, frame_buf, COMM_DOWN_FRAME_BUF_SIZE); 
@@ -213,10 +214,10 @@ static bool_T parse(const uint8_T *buf)
     frame.len  |= buf[6] << 8;
     frame.len  |= buf[7];
 
-    frame.crc   = buf[12] << 24;
-    frame.crc  |= buf[13] << 16;
-    frame.crc  |= buf[14] << 8;
-    frame.crc  |= buf[15];
+    frame.crc   = buf[COMM_DOWN_FRAME_BUF_SIZE - 4] << 24;
+    frame.crc  |= buf[COMM_DOWN_FRAME_BUF_SIZE - 3] << 16;
+    frame.crc  |= buf[COMM_DOWN_FRAME_BUF_SIZE - 2] << 8;
+    frame.crc  |= buf[COMM_DOWN_FRAME_BUF_SIZE - 1];
 
     /* 长度检查 固定长度 data+crc32 8Bytes */
     if(COMM_DOWN_FRAME_DATA_AND_CRC32_SIZE != frame.len) /* 错误帧 不处理 */
@@ -237,68 +238,22 @@ static bool_T parse(const uint8_T *buf)
         return FALSE;
     }
    
-    /* 飞控帧 */
-    if(is_flyer_ctrl_frame(frame.type))
-    {
-        int32_T ctrl_type = buf[8];
-        int32_T val[PWM_MAX] = {0};
-
-        /* 填充字节 */
-        if(COMM_FRAME_FILLED_VAL != buf[11])
-        {
-            return FALSE;
-        }
-
-        /* return 替代break */
-        switch(ctrl_type)
-        {
-            /* 熄火 */
-            case 0x00: 
-                if((COMM_FRAME_FILLED_VAL == buf[9])
-                && (COMM_FRAME_FILLED_VAL == buf[10]))
-                { 
-                    ctrl_motor_off();
-                    return TRUE;
-                }
-                else
-                {
-                    return FALSE;
-                }
-
-            /* 油门:尚未实现 */
-            case 0x01: 
-                for(int32_T i = 0; i < PWM_MAX; i++)
-                {
-                    val[i]  = buf[9] << 8;
-                    val[i] |= buf[10];
-                }
-                ctrl_set_acceleralor(val);
-
-                return TRUE;
-
-            /* 错误类型 */
-            default:
-                return FALSE;
-        }
-    }
-
     /* 采样请求帧 */
     if(is_sensor_data_frame(frame.type))
     { 
         /* 发送时间 */
         if(is_time_needded(frame.type))
         {
-            frame.data  = buf[8] << 24;
-            frame.data |= buf[9] << 16;
-            frame.data |= buf[10] << 8;
-            frame.data |= buf[11]; 
+            s_send_interval  = buf[8] << 24;
+            s_send_interval |= buf[9] << 16;
+            s_send_interval |= buf[10] << 8;
+            s_send_interval |= buf[11]; 
             
             /* 限制时间间隔(无符号32位 必然大于0不用比下界) */
-            if(frame.data > COMM_FRAME_INTERVAL_MAX)
+            if(s_send_interval > COMM_FRAME_INTERVAL_MAX)
             {
-                frame.data = COMM_FRAME_INTERVAL_MAX;
+                s_send_interval = COMM_FRAME_INTERVAL_MAX;
             } 
-            s_send_interval = frame.data; 
             
             s_send_time_flag = TRUE;
             has_capture_data = TRUE;
@@ -333,6 +288,58 @@ static bool_T parse(const uint8_T *buf)
         }
 
         return has_capture_data;
+    }
+
+    /* PID参数设置帧 */
+    if(is_pid_frame(frame.type))
+    {
+        int32_T ctrl_type = buf[8];
+
+        switch(ctrl_type)
+        {
+            case CTRL_THETA:
+                return TRUE;
+            case CTRL_PHI:
+                return TRUE;
+            case CTRL_PSI:
+                return TRUE;
+            default:
+                return FALSE;
+        }
+
+    }
+
+    /* 飞控帧 */
+    if(is_flyer_ctrl_frame(frame.type))
+    {
+        int32_T ctrl_type = buf[8];
+        int32_T val[PWM_MAX] = {0};
+
+        /* return 替代break */
+        switch(ctrl_type)
+        {
+            /* 熄火 */
+            case 0x00: 
+                { 
+                    ctrl_motor_off();
+                    return TRUE;
+                }
+
+            /* 油门 */
+            case 0x01: 
+                {
+                    for(int32_T i = 0; i < PWM_MAX; i++)
+                    {
+                        val[i]  = buf[9] << 8;
+                        val[i] |= buf[10];
+                    }
+                    ctrl_set_acceleralor(val);
+                    return TRUE;
+                }
+            /* 错误类型 */
+            default:
+                return FALSE;
+        }
     }
 
     return FALSE;
@@ -507,7 +514,7 @@ static void send_capture_data(void)
             /* 出错 用于检查 crc是否为0 */
             if(0 == frame_buf[n-1])
             {
-                while(1);
+                ERR_STR("crc错误.");
             }
 #endif
             uart_send_bytes((drv_uart_T *)s_comm_uart, frame_buf, len);
@@ -580,6 +587,11 @@ inline static bool_T is_pid_needded(uint32_T type)
     return bit_compare(type, COMM_FRAME_PID_DATA_BIT);
 }
 
+inline static bool_T is_pid_frame(uint32_T type)
+{ 
+    return bit_compare(type, COMM_FRAME_PID_CTRL_BIT);
+}
+
 /* 提取构帧逻辑(type/len/crc/填充生成) */
 void comm_frame_printf_make(uint32_T *frame_len, uint8_T *frame_buf, uint32_T n)
 { 
@@ -601,7 +613,7 @@ void comm_frame_printf_make(uint32_T *frame_len, uint8_T *frame_buf, uint32_T n)
     /* 必然是4的倍数 */
     if(0 != (n + fill_bytes_count) % 4)
     {
-        while(1);
+        ERR_STR("填充数据错误.");
     }
 
     type = COMM_FRAME_DIRECTION_BIT

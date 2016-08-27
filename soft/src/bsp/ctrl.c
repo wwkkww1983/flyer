@@ -140,34 +140,31 @@ void ctrl_update(void)
     }
 }
 
-void ctrl_set_pid(const PID_T *pid)
+void ctrl_set_pid(int32_T euler_index, const PID_T *pid)
 {
-    int32_T i = 0;
     /* 参数检查 */
-    if(NULL == pid)
-    {
-        while(1);
-    }
-
-    for(i = 0; i < CTRL_EULER_MAX; i++)
-    {
-        s_pid[i].kp = pid[i].kp;
-        s_pid[i].ki = pid[i].ki;
-        s_pid[i].kd = pid[i].kd;
-
-        s_pid[i].expect = pid[i].expect;
+    if((NULL == pid)
+    || (euler_index < 0)
+    || (euler_index > 2))
+    { 
+        ERR_STR("参数错误");
     } 
+    
+    
+    s_pid[euler_index].kp = pid->kp;
+    s_pid[euler_index].ki = pid->ki;
+    s_pid[euler_index].kd = pid->kd; 
+    s_pid[euler_index].expect = pid->expect;
 }
 
 void ctrl_get_pid_out(f32_T *out)
 {
-
     int32_T i = 0;
 
     /* 参数检查 */
     if(NULL == out)
     {
-        while(1);
+        ERR_STR("参数错误");
     }
 
     for(i = 0; i < CTRL_EULER_MAX; i++)
@@ -193,7 +190,7 @@ void ctrl_set_acceleralor(const int32_T *val)
 
     if(NULL == val)
     {
-        while(1);
+        ERR_STR("参数错误");
     }
 
     val_max = pwm_get_period();
@@ -222,7 +219,7 @@ void ctrl_get_acceleralor(int32_T *val, int32_T *val_max)
     if((NULL == val)
     || (NULL == val_max))
     {
-        while(1);
+        ERR_STR("参数错误");
     }
 
     for(i = 0; i < CTRL_EULER_MAX; i++) 

@@ -730,7 +730,7 @@ int main(void)
 
   result = inv_start_mpl();
   if (result == INV_ERROR_NOT_AUTHORIZED) {
-      while (1) {
+      while (TRUE) {
           MPL_LOGE("Not authorized.\n");
       }
   }

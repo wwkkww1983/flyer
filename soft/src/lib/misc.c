@@ -44,7 +44,7 @@ void assert_failed(unsigned char* file, unsigned int line)
 {
     /* 会出故障 */
     /* console_printf("%s,%d, assert_failed.\r\n", file, line); */
-    while(1);
+    while(TRUE);
 }
 
 /*******************************************************************************
@@ -64,7 +64,7 @@ void assert_failed(unsigned char* file, unsigned int line)
 ******************************************************************************/
 void err_loop(void)
 {
-  while(1);
+    while(TRUE);
 }
 
 

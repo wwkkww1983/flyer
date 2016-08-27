@@ -59,7 +59,7 @@ int main(void)
     init();
     debug_log("\r\n初始化完成,进入主循环.\r\n");
     /* 实际运行 */
-    while(1)
+    while(TRUE)
     {
         /* 姿态更新 */
         mpu9250_update(); 
@@ -130,7 +130,7 @@ static void init(void)
     /* hal初始化 */
     if(HAL_OK != HAL_Init())
     {
-        while(1);
+        ERR_STR("函数执行失败.");
     }
 
     /* 配置时钟 HAL_Init 执行后才可执行 */
@@ -143,7 +143,7 @@ static void init(void)
      * */
     if(0 != HAL_SYSTICK_Config(SystemCoreClock / TICK_PER_SECONDS))
     {
-        while(1);
+        ERR_STR("函数执行失败.");
     }
 
     /* 设置核心中断优先级 */
@@ -152,7 +152,7 @@ static void init(void)
     HAL_NVIC_SetPriority(UsageFault_IRQn, USAGE_INT_PRIORITY, 0);
     HAL_NVIC_SetPriority(SysTick_IRQn, TICK_INT_PRIORITY, 0);
 
-    /* 逐个初始化硬件 */
+    /* 逐个初始化硬件,串口最先初始化保证打印 */
     /* 控制台串口 */
     console_init(); /* 此后可以开始打印 */
     /* wifi 模块串口 */

@@ -70,13 +70,13 @@ void mpu9250_init(void)
     si_read_poll(MPU9250_DEV_ADDR, MPU9250_WHO_AM_I_REG_ADDR, &who_am_i, 1); 
     if(MPU9250_WHO_AM_I_REG_VALUE != who_am_i)
     {
-        debug_log("MPU9250异常.\r\n");
-        while(1);
+        ERR_STR("MPU9250异常.\r\n");
+        return;
     }
 
     if (mpu_init(NULL) != 0)
     {
-        debug_log("初始化MPU失败!\r\n");
+        ERR_STR("初始化MPU失败!\r\n");
         return;
     }
 
@@ -85,7 +85,7 @@ void mpu9250_init(void)
 
     if (mpu_set_sensors(INV_XYZ_GYRO|INV_XYZ_ACCEL)!=0)
     {
-        debug_log("打开传感器失败.\r\n");
+        ERR_STR("打开传感器失败.\r\n");
         return;
     }	
 
@@ -97,13 +97,13 @@ void mpu9250_init(void)
 
     if (mpu_set_gyro_fsr(MPU9250_GYRO_FSR)!=0)
     {
-        debug_log("设置陀螺仪量程失败.\r\n");
+        ERR_STR("设置陀螺仪量程失败.\r\n");
         return;
     }
 
     if (mpu_set_accel_fsr(MPU9250_ACCEL_FSR)!=0)
     {
-        debug_log("设置加速度计量程失败.\r\n");
+        ERR_STR("设置加速度计量程失败.\r\n");
         return;
     }
 
@@ -200,11 +200,11 @@ static void mpu9250_dmp_read(f32_T *f32_quat)
 
         if (sensors & INV_XYZ_GYRO)
         {
-            while(1);
+            ERR_STR("异常的陀螺仪输出.");
         }
         if (sensors & INV_XYZ_ACCEL) 
         {
-            while(1);
+            ERR_STR("异常的加计输出.");
         }
 
         if (sensors & INV_WXYZ_QUAT)

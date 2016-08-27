@@ -128,13 +128,13 @@ inline static void si_tc_unlock(void)
 /* 发生EV ER中断表示出错 */
 void SENSOR_I2C_EV_IRQHandler(void)
 {
-    while(1);
+    ERR_STR("中断失败.");
     /* HAL_I2C_EV_IRQHandler(&g_si_handle); */
 }
 
 void SENSOR_I2C_ER_IRQHandler(void)
 {
-    while(1);
+    ERR_STR("中断失败.");
     /* HAL_I2C_ER_IRQHandler(&g_si_handle); */
 }
 

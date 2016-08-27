@@ -25,6 +25,7 @@
 #define COMM_FRAME_FLYER_CTRL_BIT               ((uint32_T)(0x40000000))
 #define COMM_FRAME_SENSOR_DATA_BIT              ((uint32_T)(0x20000000))
 #define COMM_FRAME_PRINTF_BIT                   ((uint32_T)(0x10000000))
+#define COMM_FRAME_PID_CTRL_BIT                 ((uint32_T)(0x08000000))
 
 #define COMM_FRAME_PID_DATA_BIT                 ((uint32_T)(0x00000100))
 #define COMM_FRAME_EULER_DATA_BIT               ((uint32_T)(0x00000080))

@@ -109,8 +109,8 @@ void pwm_init(void)
     s_tim_handle.Init.CounterMode       = TIM_COUNTERMODE_UP;
     s_tim_handle.Init.RepetitionCounter = 0;
     if (HAL_TIM_PWM_Init(&s_tim_handle) != HAL_OK)
-    {
-        while(1);
+    { 
+        ERR_STR("执行失败.");
     }
 
     /* 各通道的占空比计算如下:
@@ -144,7 +144,7 @@ void pwm_set(PWM_NAME pwm, int32_T val)
     /* 参数检查 */
     if(pwm > PWM_MAX)
     {
-        while(1);
+        ERR_STR("参数错误.");
     }
 
     /* 限制val在有效值范围内 [0,period] */
@@ -162,13 +162,13 @@ void pwm_set(PWM_NAME pwm, int32_T val)
     s_sConfig.Pulse = val;
     if (HAL_TIM_PWM_ConfigChannel(&s_tim_handle, &s_sConfig, g_pwm_ch_list[pwm].ch) != HAL_OK)
     {
-        while(1);
+        ERR_STR("执行失败.");
     } 
 
     /* 启动PWM */
     if (HAL_TIM_PWM_Start(&s_tim_handle, g_pwm_ch_list[pwm].ch) != HAL_OK)
     {
-        while(1);
+        ERR_STR("执行失败.");
     }
 }
 

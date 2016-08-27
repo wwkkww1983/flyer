@@ -15,6 +15,7 @@
 /************************************ 头文件 ***********************************/
 #include "typedef.h"
 #include "config.h"
+#include "debug.h"
 #include "board.h"
 
 #include "led.h"
@@ -342,7 +343,7 @@ void clock_init(void)
   RCC_OscInitStruct.PLL.PLLQ = 7;
   if(HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
-      while(1);
+      ERR_STR("函数执行失败.");
   }
  
   /* 选择PLL作为系统主时钟并且配置HCLK,PCLK1,PCLK2分频数 */
@@ -353,7 +354,7 @@ void clock_init(void)
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;  
   if(HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
   {
-      while(1);
+      ERR_STR("函数执行失败.");
   }
 }
 

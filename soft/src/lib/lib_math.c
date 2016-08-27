@@ -16,6 +16,7 @@
 
 /************************************ 头文件 ***********************************/
 #include <math.h>
+#include "debug.h"
 #include "lib_math.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
@@ -72,9 +73,9 @@ inline void math_norm(f32_T *dst, const f32_T *src, int32_T dim)
     } 
     
     norm = math_inv_sqrt(square_sum);
-    if(0 == norm)
+    if(fabs(norm) < 1e-6) /* 必须大于零 */
     {
-        while(1);
+        ERR_STR("算法失败")
     }
 
     for(i=0;i<dim;i++)

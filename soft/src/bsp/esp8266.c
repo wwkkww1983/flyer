@@ -120,11 +120,11 @@ void esp8266_init(void)
                 cmd_error_times[i]++;
 #endif
             }
-        }while(1);
+        }while(TRUE);
 
         i++;
 
-    }while(1); 
+    }while(TRUE); 
 
     esp8266_test();    
 }
@@ -150,7 +150,7 @@ void esp8266_wati_reset_ok(void)
 { 
     uint8_t ch = 0;
     uint8_t recv_buf[ESP8266_BUF_SIZE] = {0};
-    while(1)
+    while(TRUE)
     { 
         uart_recv_bytes_poll(&g_esp8266, &ch, 1);
 
@@ -170,9 +170,7 @@ void esp8266_wati_reset_ok(void)
             }
             else /* 没有找到 复位esp8266 重新找 */
             { 
-                /* 经验表明不会到此分支 */
-                while(1);
-                //esp8266_reset(); 
+                ERR_STR("esp8266复位失败.")
             }
         }
     }
