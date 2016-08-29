@@ -9,9 +9,9 @@ from PyQt5.QtWidgets import *
 
 from PyQt5.uic import loadUiType, loadUi
 
-from fc_waveWidget import FCWaveWidget
+from widget.wave_widget import FCWaveWidget
 
-FCWindowUIClass = loadUiType("ui/fc_analysisWidget.ui")
+FCWindowUIClass = loadUiType("widget/ui/fc_analysisWidget.ui")
 
 class FCAnalysisWidget(QWidget): 
     #sUpdateAcceleratorQuat = pyqtSignal((str, str, str, str, str, int, int, int, int, int), name='sUpdateAcceleratorQuat')

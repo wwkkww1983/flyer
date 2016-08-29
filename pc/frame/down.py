@@ -4,12 +4,11 @@
 import sys
 import struct
 
-from frame.frame_type import *
-from frame.frame_base import *
+from frame.type import FCFrameType
+from frame.base import FCBaseFrame
 
 # 下行帧len字段长度固定
 gDownFrameLenVal = 24
-
 # 数据字段打包格式
 gDataUnpackStr = '>' + 'I' * 5
 

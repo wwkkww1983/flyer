@@ -7,13 +7,13 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.uic import loadUiType, loadUi
 
-from fc_widget import FCWidget
+from widget.main_widget import FCMainWidget
 
-FCWindowUIClass = loadUiType("ui/fc_window.ui")
+FCWindowUIClass = loadUiType("widget/ui/fc_window.ui")
 
-class FCWindow(QMainWindow):
+class FCMainWindow(QMainWindow):
     def __init__(self):
-        super(FCWindow, self).__init__() 
+        super(FCMainWindow, self).__init__() 
 
         # 初始化UI
         self.mUi = FCWindowUIClass[0]()
@@ -29,11 +29,11 @@ class FCWindow(QMainWindow):
         self.setWindowTitle("飞控上位机") 
         
         # 设置核心控件
-        self.mFCWidget = FCWidget()
-        self.setCentralWidget(self.mFCWidget)
+        self.mFCMainWidget = FCMainWidget()
+        self.setCentralWidget(self.mFCMainWidget)
 
     def closeEvent(self, event):
-        self.mFCWidget.close()
+        self.mFCMainWidget.close()
 
 if __name__ == '__main__': 
     app = QApplication(sys.argv)

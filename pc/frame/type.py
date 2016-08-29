@@ -2,10 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import enum
 
-from enum import Enum
-
-class FCFrameType(Enum):
+class FCFrameType(enum.Enum):
     # 以下类型基本帧类型(用户不使用)
     _Up                 = 0x80000000
     FrameCtrl           = 0x40000000
@@ -35,7 +34,4 @@ class FCFrameType(Enum):
     FramePrintText = _Up | _Text
     # 错误帧
     FrameError = 0xffffffff
-
-if __name__ == '__main__':
-    print("偷懒,先不写单元测试")
 

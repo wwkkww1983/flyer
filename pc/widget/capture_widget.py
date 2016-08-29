@@ -13,14 +13,14 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.uic import loadUiType, loadUi
 
-from fc_waveWidget import FCWaveWidget
+from widget.wave_widget import FCWaveWidget
 
 # 帧
-from frame.frame_all import *
+from frame import *
 # 通信
-from comm.comm_all import *
+from comm import *
 
-FCWindowUIClass = loadUiType("ui/fc_captureWidget.ui")
+FCWindowUIClass = loadUiType("widget/ui/fc_captureWidget.ui")
 
 class FCCaptureWidget(QWidget): 
     sAppendConsole = pyqtSignal(str, name='sAppendConsole')

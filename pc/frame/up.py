@@ -6,8 +6,8 @@ import struct
 
 from algo.quat import FCQuat
 
-from frame.frame_type import *
-from frame.frame_base import * 
+from frame.type import *
+from frame.base import * 
 
 ##################################################################################################
 # 抽象类

@@ -13,12 +13,12 @@ from PyQt5.QtWidgets import *
 
 from PyQt5.uic import loadUiType, loadUi
 
-from fc_waveWidget import FCWaveWidget
+from widget.wave_widget import FCWaveWidget
 
 # 帧
-from frame.frame_all import *
+from frame import *
 # 通信
-from comm.comm_all import FCUdp
+from comm import *
 
 class FCPidWidget(QWidget): 
     sAppendConsole = pyqtSignal(str, name = 'sAppendConsole') 

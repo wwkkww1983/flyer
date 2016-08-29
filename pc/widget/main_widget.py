@@ -8,16 +8,16 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.uic import loadUiType, loadUi
 
-from fc_captureWidget import FCCaptureWidget
-from fc_analysisWidget import FCAnalysisWidget
-from fc_pidWidget import FCPidWidget
+from widget.analysis_widget import FCAnalysisWidget
+from widget.capture_widget import FCCaptureWidget
+from widget.pid_widget import FCPidWidget
 
-class FCWidget(QTabWidget):
+class FCMainWidget(QTabWidget):
     def __init__(self):
-        super(FCWidget, self).__init__() 
+        super(FCMainWidget, self).__init__() 
 
         # pid分析控件
-        self.mPidWidget = FCPidWidget("ui/fc_pidWidget.ui")
+        self.mPidWidget = FCPidWidget("widget/ui/fc_pidWidget.ui")
         self.addTab(self.mPidWidget, "PID分析")
 
         # 在线采集控件
