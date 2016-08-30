@@ -3,7 +3,7 @@
 
 from math import atan2, asin
 
-from algo.euler import FCEuler
+from frame.data.euler import FCEuler
 
 class FCQuat():
     def __init__(self, q0, q1, q2, q3):

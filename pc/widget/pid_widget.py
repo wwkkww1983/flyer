@@ -327,7 +327,7 @@ class FCPidWidget(QWidget):
         self.mConsolePlainTextEdit.moveCursor(QTextCursor.End)
 
     def UpdateErrorFrame(self, frame):
-        print("接收错误帧(%s:%s):" % (self.mComm.port, self.mComm.baudrate))
+        print("错误帧:")
         frame.Print()
 
     def SendReqCaptureDataCmd(self):

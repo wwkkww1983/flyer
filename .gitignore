@@ -6,9 +6,9 @@ hard/pcb/sch/FLYER_0.DBK
 hard/pcb/v3.0/allegro.jrl
 
 pc/__pycache__/
-pc/algo/__pycache__/
 pc/bak/__pycache__/
 pc/frame/__pycache__/
+pc/frame/data/__pycache__/
 pc/comm/__pycache__/
 pc/widget/__pycache__/
 pc/data/

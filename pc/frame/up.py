@@ -4,7 +4,7 @@
 import sys
 import struct
 
-from algo.quat import FCQuat
+from frame.data.quat import FCQuat
 
 from frame.type import *
 from frame.base import * 
@@ -45,6 +45,7 @@ class FCUpFrame(FCBaseFrame):
                             FCFrameType.FrameDataTimeAcceleratorEulerPid:  FCDataTimeAcceleratorEulerPid}
         # 解析上行帧
         frameTypeValue = struct.unpack('>I', buf[0:4])[0]
+        print(buf[0:4])
         try:
             frameType = FCFrameType(frameTypeValue)
         except Exception as e: # 处理无效类型
