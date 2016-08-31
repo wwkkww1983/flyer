@@ -24,8 +24,7 @@
 #define COMM_FRAME_DIRECTION_BIT                ((uint32_T)(0x80000000))
 #define COMM_FRAME_FLYER_CTRL_BIT               ((uint32_T)(0x40000000))
 #define COMM_FRAME_SENSOR_DATA_BIT              ((uint32_T)(0x20000000))
-#define COMM_FRAME_PRINTF_BIT                   ((uint32_T)(0x10000000))
-#define COMM_FRAME_PID_CTRL_BIT                 ((uint32_T)(0x08000000))
+#define COMM_FRAME_PID_CTRL_BIT                 ((uint32_T)(0x10000000))
 
 #define COMM_FRAME_PID_DATA_BIT                 ((uint32_T)(0x00000100))
 #define COMM_FRAME_EULER_DATA_BIT               ((uint32_T)(0x00000080))
@@ -35,7 +34,7 @@
 #define COMM_FRAME_GYRO_DATA_BIT                ((uint32_T)(0x00000008))
 #define COMM_FRAME_ACCEL_DATA_BIT               ((uint32_T)(0x00000004))
 #define COMM_FRAME_DMP_QUAT_BIT                 ((uint32_T)(0x00000002))
-#define COMM_FRAME_TIME_BIT                     ((uint32_T)(0x00000001))
+#define COMM_FRAME_PRINTF_BIT                   ((uint32_T)(0x00000001))
 
 #define COMM_FRAME_TIME_DATA_SIZE               (4)
 #define COMM_FRAME_DMP_QUAT_DATA_SIZE           (16)
@@ -43,21 +42,20 @@
 #define COMM_FRAME_EULER_DATA_SIZE              (12)
 #define COMM_FRAME_PID_DATA_SIZE                (12)
 
-/* type+len+crc长度 12Bytes */
-#define COMM_FRAME_TYPE_LEN_CRC_SIZE            ((uint32_T)(12))
+/* type+len+time+crc 长度 16Bytes */
+#define COMM_FRAME_TYPE_TIME_LEN_CRC_SIZE       ((uint32_T)(16))
 /* 采样上行帧最大帧长
  * FIXME: 有新的采样帧需要修改
  * */
 #define COMM_FRAME_CAPTURE_FRAME_MAX_SIZE       ((uint32_T)(100))
 
 /* 小于以下帧长不发送(可以用于控制上行帧数) */
-#define COMM_FRAME_SENDED_MIN                   (COMM_FRAME_TYPE_LEN_CRC_SIZE)
+#define COMM_FRAME_SENDED_MIN                   (COMM_FRAME_TYPE_TIME_LEN_CRC_SIZE)
 #define COMM_FRAME_FILLED_VAL                   ((uint8_T)(0xA5))
 #define COMM_FRAME_INTERVAL_MAX                 ((uint32_T)(10000))
 
 /* 握手信号的发送间隔 */
 #define COMM_SEND_HELLO_DELAY                   (100U)
-
 
 /*********************************** 实现函数 **********************************/
 /*********************************** 类型定义 **********************************/

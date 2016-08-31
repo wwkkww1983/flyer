@@ -23,17 +23,17 @@
 /************************************ 宏定义 ***********************************/ 
 /* 由于console/esp8266提取了公用模块到uart导致层级结构被破坏,comm.h与uart.h不能相互include */
 /* 
- * printf上行帧最大帧长: 12(type+len+crc) + UART_SEND_BUF_SIZE
+ * printf帧头长: 12(type+len + time)
  * */
-#define UART_SEND_BUF_SIZE                  ((uint32_T)(12 + UART_LINE_BUF_SIZE))
+#define UART_FRAME_HEAD_SIZE                ((uint32_T)(12))
 /* 
- * printf帧头长: 8(type+len)
- * */
-#define UART_FRAME_HEAD_SIZE                ((uint32_T)(8))
-/* 
- * printf帧头长: 8(type+len)
+ * 16(type+len+crc + time)
  * */
 #define UART_FRAME_HEAD_AND_TAIL_SIZE       ((uint32_T)(UART_FRAME_HEAD_SIZE + 4))
+/* 
+ * printf上行帧最大帧长: 16(type+len+crc + time) + UART_SEND_BUF_SIZE
+ * */
+#define UART_SEND_BUF_SIZE                  ((uint32_T)(UART_FRAME_HEAD_AND_TAIL_SIZE + UART_LINE_BUF_SIZE))
 
 /*********************************** 类型定义 **********************************/
 typedef struct drv_uart_T_tag{

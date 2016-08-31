@@ -80,10 +80,16 @@ class FCUpFrame(FCBaseFrame):
             return False
 
     def Type(self):
-        return FCFrameType.FrameUp
+        frameTypeValue = struct.unpack('>I', self.mType)[0]
+        try: 
+            frameType = FCFrameType(frameTypeValue)
+        except Exception as e: # 无效类型
+            return FCFrameType.FrameError
+        else:                  # 有效类型 
+            return frameType
 
 ##################################################################################################
-# 具体类
+# 具体类 不使用
 class FCPrintTextFrame(FCUpFrame):
     def __init__(self, frameBuf): 
         super(FCPrintTextFrame, self).__init__(frameBuf)

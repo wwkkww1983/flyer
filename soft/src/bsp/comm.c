@@ -39,7 +39,6 @@ const drv_uart_T *s_comm_uart = NULL;
 static CRC_HandleTypeDef s_crc;
 
 static uint32_T s_send_interval = 0;
-static bool_T s_send_time_flag = FALSE;
 static bool_T s_send_accelerator_flag = FALSE;
 static bool_T s_send_dmp_quat_flag = FALSE;
 static bool_T s_send_euler_flag = FALSE;
@@ -55,7 +54,6 @@ inline static bool_T bit_compare(uint32_T type, uint32_T bit_mask);
 inline static bool_T is_flyer_ctrl_frame(uint32_T type);
 inline static bool_T is_sensor_data_frame(uint32_T type);
 inline static bool_T is_dmp_quat_needded(uint32_T type);
-inline static bool_T is_time_needded(uint32_T type);
 inline static bool_T is_acceletorater_needded(uint32_T type);
 inline static bool_T is_euler_needded(uint32_T type);
 inline static bool_T is_pid_needded(uint32_T type);
@@ -241,22 +239,16 @@ static bool_T parse(const uint8_T *buf)
     /* 采样请求帧 */
     if(is_sensor_data_frame(frame.type))
     { 
-        /* 发送时间 */
-        if(is_time_needded(frame.type))
+        /* 获取采样间隔 */
+        s_send_interval  = buf[8] << 24;
+        s_send_interval |= buf[9] << 16;
+        s_send_interval |= buf[10] << 8;
+        s_send_interval |= buf[11]; 
+        
+        /* 限制时间间隔(无符号32位 必然大于0不用比下界) */
+        if(s_send_interval > COMM_FRAME_INTERVAL_MAX)
         {
-            s_send_interval  = buf[8] << 24;
-            s_send_interval |= buf[9] << 16;
-            s_send_interval |= buf[10] << 8;
-            s_send_interval |= buf[11]; 
-            
-            /* 限制时间间隔(无符号32位 必然大于0不用比下界) */
-            if(s_send_interval > COMM_FRAME_INTERVAL_MAX)
-            {
-                s_send_interval = COMM_FRAME_INTERVAL_MAX;
-            } 
-            
-            s_send_time_flag = TRUE;
-            has_capture_data = TRUE;
+            s_send_interval = COMM_FRAME_INTERVAL_MAX;
         }
 
         /* 发送四元数 */
@@ -390,7 +382,6 @@ static void send_capture_data(void)
 
     /* 无帧可发 */
     if(!(s_send_interval
-    || s_send_time_flag
     || s_send_accelerator_flag
     || s_send_dmp_quat_flag
     || s_send_euler_flag
@@ -410,16 +401,11 @@ static void send_capture_data(void)
         /* 跳过type和len域 */
         len += 8;
 
-        /* 组帧 */
-        if(s_send_time_flag)
-        {
-            frame_buf[len++] = (uint8_T)(now_ms >> 24);
-            frame_buf[len++] = (uint8_T)((now_ms >> 16));
-            frame_buf[len++] = (uint8_T)((now_ms >> 8));
-            frame_buf[len++] = (uint8_T)(now_ms); 
-
-            type |= COMM_FRAME_TIME_BIT;
-        }
+        /* 填充时间 */
+        frame_buf[len++] = (uint8_T)(now_ms >> 24);
+        frame_buf[len++] = (uint8_T)((now_ms >> 16));
+        frame_buf[len++] = (uint8_T)((now_ms >> 8));
+        frame_buf[len++] = (uint8_T)(now_ms); 
 
         if(s_send_dmp_quat_flag)
         {
@@ -589,11 +575,6 @@ inline static bool_T is_dmp_quat_needded(uint32_T type)
     return bit_compare(type, COMM_FRAME_DMP_QUAT_BIT);
 }
 
-inline static bool_T is_time_needded(uint32_T type)
-{
-    return bit_compare(type, COMM_FRAME_TIME_BIT);
-}
-
 inline static bool_T is_acceletorater_needded(uint32_T type)
 {
     return bit_compare(type, COMM_FRAME_ACCELERATOR_DATA_BIT);
@@ -624,6 +605,7 @@ void comm_frame_printf_make(uint32_T *frame_len, uint8_T *frame_buf, uint32_T n)
     uint32_T buf_index = 0;
     uint32_T i = 0;
     uint32_T left = 0;
+    uint32_T now_ms = 0;
 
     /* 需要填充的字节数: &0x03 等效于 %4 */
     left = n % 4;
@@ -651,6 +633,12 @@ void comm_frame_printf_make(uint32_T *frame_len, uint8_T *frame_buf, uint32_T n)
     frame_buf[buf_index++] = (uint8_T)(len >> 16);
     frame_buf[buf_index++] = (uint8_T)(len >> 8);
     frame_buf[buf_index++] = (uint8_T)(len); 
+
+    now_ms = HAL_GetTick();
+    frame_buf[buf_index++] = (uint8_T)(now_ms >> 24);
+    frame_buf[buf_index++] = (uint8_T)((now_ms >> 16));
+    frame_buf[buf_index++] = (uint8_T)((now_ms >> 8));
+    frame_buf[len++] = (uint8_T)(now_ms); 
 
     /* 填充 */
     buf_index += n; /* 跳过打印数据 */
