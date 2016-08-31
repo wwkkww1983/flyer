@@ -61,8 +61,84 @@ class FCUpFrame(FCBaseFrame):
             else:
                 return FCErrorFrame(buf)
 
+    def GetTime(self):
+        # 上行帧必有时间
+        timeBuf = self.mData[0:4]
+        interval = struct.unpack('>I', timeBuf)[0]
+        return interval
+
+    def GetText(self):
+        # print(FCFrameType.FramePrint)
+        # print(self.Type())
+        # 该帧有字符串则解析
+        if not FCFrameType.FramePrint.value & self.Type().value:
+            return None
+
+        # 清理末尾的填充
+        textBuf = self.mData
+        i = -1
+
+        while gFillChar == textBuf[i]:
+            i = i - 1
+        # 仅处理有尾部填充的情况(去掉4bytes时间头和填充尾部)
+        if i < -1:
+            textBuf = textBuf[4:i+1]
+
+        # 生成字符串 
+        text = textBuf.decode('utf8')
+        return text
+
+    def GetDmpQuat(self):
+        print('GetGmpQuat 未实现')
+        return None
+
+    def GetAccel(self):
+        print('GetAccel 未实现')
+        return None
+
+    def GetGyro(self):
+        print('GetGyro 未实现')
+        return None
+
+    def GetCompass(self):
+        print('GetCompass 未实现')
+        return None
+
+    def GetPress(self):
+        print('GetPress 未实现')
+        return None
+
+    def GetAccelerator(self):
+        print('GetAccelerator 未实现')
+        return None
+
+    def GetEuler(self):
+        print('GetEuler 未实现')
+        return None
+
+    def GetPid(self):
+        print('GetPid 未实现')
+        return None
+
     def Dict(self):
-        pass
+        # TODO:继续实现
+        allDict = {}
+        frameDict = {}
+
+        frameDict['text'] = self.GetText()
+        frameDict['dmpQuat'] = self.GetDmpQuat()
+        frameDict['accel'] = self.GetAccel()
+        frameDict['gyro'] = self.GetGyro()
+        frameDict['compass'] = self.GetCompass()
+        frameDict['press'] = self.GetPress()
+        frameDict['accelerator'] = self.GetAccelerator()
+        frameDict['euler'] = self.GetEuler()
+        frameDict['pid'] = self.GetPid()
+
+        time = self.GetTime()
+        allDict[time] = frameDict
+
+        return allDict
 
     def isValid(self):
         # 校验

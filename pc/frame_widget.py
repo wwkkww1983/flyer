@@ -106,8 +106,9 @@ class FCFrameWidget(QWidget):
             
             # 构造上行帧
             frame = FCUpFrame(buf) 
-            frame.Print()
-            #frameDict = frame.ToDict() 
+            #frame.Print()
+            frameDict = frame.Dict() 
+            print(frameDict)
             #self.sRecvNewUpFrame.emit(frameDict)
 
 if __name__ == '__main__':
