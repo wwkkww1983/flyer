@@ -74,16 +74,17 @@ class FCUpFrame(FCBaseFrame):
         if not FCFrameType.FramePrint.value & self.Type().value:
             return None
 
+        textBuf = self.mData[4:]
+        #FCBaseFrame.PrintBytes(textBuf)
         # 清理末尾的填充
-        textBuf = self.mData
         i = -1
-
         while gFillChar == textBuf[i]:
             i = i - 1
         # 仅处理有尾部填充的情况(去掉4bytes时间头和填充尾部)
         if i < -1:
-            textBuf = textBuf[4:i+1]
+            textBuf = textBuf[:i+1]
 
+        #FCBaseFrame.PrintBytes(textBuf)
         # 生成字符串 
         text = textBuf.decode('utf8')
         return text
@@ -125,6 +126,9 @@ class FCUpFrame(FCBaseFrame):
         allDict = {}
         frameDict = {}
 
+        time = self.GetTime()
+        #print(time)
+
         frameDict['text'] = self.GetText()
         frameDict['dmpQuat'] = self.GetDmpQuat()
         frameDict['accel'] = self.GetAccel()
@@ -134,8 +138,6 @@ class FCUpFrame(FCBaseFrame):
         frameDict['accelerator'] = self.GetAccelerator()
         frameDict['euler'] = self.GetEuler()
         frameDict['pid'] = self.GetPid()
-
-        time = self.GetTime()
         allDict[time] = frameDict
 
         return allDict

@@ -622,7 +622,7 @@ void comm_frame_printf_make(uint32_T *frame_len, uint8_T *frame_buf, uint32_T n)
 
     type = COMM_FRAME_DIRECTION_BIT
          | COMM_FRAME_PRINTF_BIT;
-    len = n + fill_bytes_count + sizeof(int); /* 数据+填充+crc32 */
+    len = sizeof(uint32_T) + n + fill_bytes_count + sizeof(uint32_T); /* time+数据+填充+crc32 */
 
     frame_buf[buf_index++] = (uint8_T)(type >> 24);
     frame_buf[buf_index++] = (uint8_T)(type >> 16);
@@ -638,7 +638,7 @@ void comm_frame_printf_make(uint32_T *frame_len, uint8_T *frame_buf, uint32_T n)
     frame_buf[buf_index++] = (uint8_T)(now_ms >> 24);
     frame_buf[buf_index++] = (uint8_T)((now_ms >> 16));
     frame_buf[buf_index++] = (uint8_T)((now_ms >> 8));
-    frame_buf[len++] = (uint8_T)(now_ms); 
+    frame_buf[buf_index++] = (uint8_T)(now_ms); 
 
     /* 填充 */
     buf_index += n; /* 跳过打印数据 */
