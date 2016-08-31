@@ -95,7 +95,7 @@ class FCFrameWidget(QWidget):
             if not frameHead:
                 continue
             #print(frameHead)
-            FCUpFrame.PrintBytes(frameHead) 
+            #FCUpFrame.PrintBytes(frameHead) 
             
             # 获取data+crc32
             frameDataAndCrc32Len = FCUpFrame.ParseLen(frameHead)

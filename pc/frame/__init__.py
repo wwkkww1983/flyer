@@ -17,8 +17,4 @@ from frame.down import FCReqTimeAcceleratorEulerPid
 from frame.down import FCPidSetFrame
 
 from frame.up import FCUpFrame
-from frame.up import FCPrintTextFrame
-from frame.up import FCDataTimeAcceleratorDmpQuat
-from frame.up import FCDataTimeAcceleratorEulerPid
-from frame.up import FCErrorFrame
 

@@ -11,25 +11,24 @@ class FCFrameType(enum.Enum):
     FrameReq            = 0x20000000
     FramePidSet         = 0x10000000
 
-    _Pid                = 0x00000100
-    _Euler              = 0x00000080
-    _Accelerator        = 0x00000040
-    _DataPress          = 0x00000020
-    _DataCompass        = 0x00000010
-    _DataGyro           = 0x00000008
-    _DataAccel          = 0x00000004
-    _DataDmpQuat        = 0x00000002
+    FramePid            = 0x00000100
+    FrameEuler          = 0x00000080
+    FrameAccelerator    = 0x00000040
+    FramePress          = 0x00000020
+    FrameCompass        = 0x00000010
+    FrameGyro           = 0x00000008
+    FrameAccel          = 0x00000004
+    FrameDmpQuat        = 0x00000002
     FramePrint          = 0x00000001
     FrameError          = 0xffffffff
 
     # 以下类型用户使用
     # dmp四元数采集请求帧
-    FrameReqTimeAcceleratorDmpQuat  = FrameReq | _Accelerator | _DataDmpQuat
-    FrameReqTimeAcceleratorEulerPid = FrameReq | _Pid | _Euler | _Accelerator
+    FrameReqTimeAcceleratorDmpQuat  = FrameReq | FrameAccelerator | FrameDmpQuat
+    FrameReqTimeAcceleratorEulerPid = FrameReq | FramePid | FrameEuler | FrameAccelerator
 
     # dmp四元数采集数据帧
-    FrameDataTimeAcceleratorDmpQuat  = FrameUp | FrameReq | _Accelerator | _DataDmpQuat
-    FrameDataTimeAcceleratorEulerPid = FrameUp | FrameReq | _Pid | _Euler | _Accelerator
     # 文本输出帧
-    FramePrintText = FrameUp | FramePrint
+    FrameDataAll = FramePid | FrameEuler | FrameAccelerator | FramePress | FrameCompass | FrameGyro | FrameAccel | FrameDmpQuat 
+    FrameUpPrint = FrameUp | FramePrint
 

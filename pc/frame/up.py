@@ -11,7 +11,7 @@ from frame.base import *
 
 # 上行帧中各字段的字节数
 gTimeLen = 4
-gDmpQuat = 16
+gDmpQuatLen = 16
 gAcceleratorLen = 20
 gEulerLen = 12
 gPidLen = 12
@@ -44,30 +44,6 @@ class FCUpFrame(FCBaseFrame):
 
         return length[0]
 
-    @staticmethod
-    def Parse(buf):
-        # 表驱动 
-        upFrameClassDict = {FCFrameType.FramePrintText:                    FCPrintTextFrame,
-                            FCFrameType.FrameDataTimeAcceleratorDmpQuat:   FCDataTimeAcceleratorDmpQuat,
-                            FCFrameType.FrameDataTimeAcceleratorEulerPid:  FCDataTimeAcceleratorEulerPid}
-        # 解析上行帧
-        frameTypeValue = struct.unpack('>I', buf[0:4])[0]
-        try: 
-            frameType = FCFrameType(frameTypeValue)
-        except Exception as e: # 处理无效类型
-            return FCErrorFrame(buf)
-        else: # 有效类型 
-            # TODO:使用表驱动方案
-            if frameType in upFrameClassDict:
-                frameClass = upFrameClassDict[frameType]
-                frame = frameClass(buf) 
-                if frame.isValid(): 
-                    return frame
-                else:
-                    return FCErrorFrame(buf)
-            else:
-                return FCErrorFrame(buf)
-
     def GetTime(self):
         # 上行帧必有时间
         timeBuf = self.mData[0 : gTimeLen]
@@ -75,16 +51,19 @@ class FCUpFrame(FCBaseFrame):
 
         return interval
 
+    def HasField(self, field):
+        if self.Type() & field.value:
+            return True
+
     def GetText(self):
-        # 不可用采样数据
-        # print(FCFrameType.FramePrint)
-        # print(self.Type())
-        # 该帧有字符串则解析
-        if not FCFrameType.FramePrint.value & self.Type().value:
+        if not self.HasField(FCFrameType.FramePrint):
+            return None
+
+        if self.HasField(FCFrameType.FrameDataAll):
+            print("文本帧中包含采样数据.")
             return None
 
         textBuf = self.mData[gTimeLen:]
-        #FCBaseFrame.PrintBytes(textBuf)
         # 清理末尾的填充
         i = -1
         while gFillChar == textBuf[i]:
@@ -93,65 +72,97 @@ class FCUpFrame(FCBaseFrame):
         if i < -1:
             textBuf = textBuf[:i+1]
 
-        #FCBaseFrame.PrintBytes(textBuf)
         # 生成字符串 
         text = textBuf.decode('utf8')
         return text
 
     def GetDmpQuat(self):
+        if not self.HasField(FCFrameType.FrameDmpQuat):
+            return None
+
+        if self.HasField(FCFrameType.FramePrint):
+            print("采样数据帧中包含文本.")
+            return None
+
+        offset = 0
+        dmpQuat = self.mData[offset : offset + gDmpQuatLen]
+
         print('GetGmpQuat 未实现')
         return None
 
     def GetAccel(self):
+        if not self.HasField(FCFrameType.FrameAccel):
+            return None
+
+        if self.HasField(FCFrameType.FramePrint):
+            print("采样数据帧中包含文本.")
+            return None
+
         print('GetAccel 未实现')
         return None
 
     def GetGyro(self):
+        if not self.HasField(FCFrameType.FrameGyro):
+            return None
+
+        if self.HasField(FCFrameType.FramePrint):
+            print("采样数据帧中包含文本.")
+            return None
+
         print('GetGyro 未实现')
         return None
 
     def GetCompass(self):
+        if not self.HasField(FCFrameType.FrameCompass):
+            return None
+
+        if self.HasField(FCFrameType.FramePrint):
+            print("采样数据帧中包含文本.")
+            return None
+
         print('GetCompass 未实现')
         return None
 
     def GetPress(self):
+        if not self.HasField(FCFrameType.FramePress):
+            return None
+
+        if self.HasField(FCFrameType.FramePrint):
+            print("采样数据帧中包含文本.")
+            return None
+
         print('GetPress 未实现')
         return None
 
     def GetAccelerator(self):
-        # print(FCFrameType._Accelerator)
-        # print(self.Type())
-        # 该帧有字符串则解析
-        if not FCFrameType._Accelerator.value & self.Type().value:
-            return None
-
         # 打印帧不可和采样帧共存
-        if FCFrameType.FramePrint.value & self.Type().value:
+        if not self.HasField(FCFrameType.FrameAccelerator):
             return None
 
-        if FCFrameType.FramePrint.value & self.Type().value:
+        if self.HasField(FCFrameType.FramePrint):
+            print("采样数据帧中包含文本.")
             return None
-        offset = 
 
-        accelerator = self.mData[offset:]
         print('GetAccelerator 未实现')
         return None
 
     def GetEuler(self):
-        # print(FCFrameType._Euler)
-        # print(self.Type())
-        # 该帧有字符串则解析
-        if not FCFrameType._Euler.value & self.Type().value:
+        if not self.HasField(FCFrameType.FrameEuler):
+            return None
+
+        if self.HasField(FCFrameType.FramePrint):
+            print("采样数据帧中包含文本.")
             return None
 
         print('GetEuler 未实现')
         return None
 
     def GetPid(self):
-        # print(FCFrameType._Pid)
-        # print(self.Type())
-        # 该帧有字符串则解析
-        if not FCFrameType._Pid.value & self.Type().value:
+        if not self.HasField(FCFrameType.FramePid):
+            return None
+
+        if self.HasField(FCFrameType.FramePrint):
+            print("采样数据帧中包含文本.")
             return None
 
         print('GetPid 未实现')
@@ -179,6 +190,10 @@ class FCUpFrame(FCBaseFrame):
         return allDict
 
     def isValid(self):
+        frameType = self.Type()
+        if frameType.FrameError:
+            return False
+
         # 校验
         wordList = self.GetCrc32WordList()
         calCrc32 = FCBaseFrame.CalStm32Crc32(wordList)
@@ -195,95 +210,15 @@ class FCUpFrame(FCBaseFrame):
 
     def Type(self):
         frameTypeValue = struct.unpack('>I', self.mType)[0]
+        return frameTypeValue
+        """
         try: 
             frameType = FCFrameType(frameTypeValue)
         except Exception as e: # 无效类型
             return FCFrameType.FrameError
         else:                  # 有效类型 
             return frameType
-
-##################################################################################################
-# 具体类 不使用
-class FCPrintTextFrame(FCUpFrame):
-    def __init__(self, frameBuf): 
-        super(FCPrintTextFrame, self).__init__(frameBuf)
-
-    def Type(self): 
-        return FCFrameType.FramePrintText
-
-    def GetText(self):
-        # 清理末尾的填充
-        textBuf = self.mData
-        i = -1
-
-        while gFillChar == textBuf[i]:
-            i = i - 1
-        # 仅处理有尾部填充的情况
-        if i < -1:
-            textBuf = textBuf[:i+1]
-
-        # 生成字符串 
-        text = textBuf.decode('utf8')
-        return text
-
-class FCDataTimeAcceleratorDmpQuat(FCUpFrame):
-    def __init__(self, frameBuf): 
-        super(FCDataTimeAcceleratorDmpQuat, self).__init__(frameBuf)
-
-    def Type(self): 
-        return FCFrameType.FrameDataTimeAcceleratorDmpQuat
-
-    def GetTime(self):
-        timeBuf = self.mData[0:4]
-        interval = struct.unpack('>I', timeBuf)[0]
-        return interval
-
-    def GetGmpQuat(self):
-        dmpQuatBuf = self.mData[4:20]
-        dmpQuatTuplle = struct.unpack('>ffff', dmpQuatBuf)
-
-        dmpQuat = FCQuat(*dmpQuatTuplle)
-
-        return dmpQuat
-
-    def GetAccelrator(self):
-        accelerator = self.mData[20:]
-        acceleratorTuplle = struct.unpack('>IIIII', accelerator)
-        return acceleratorTuplle
-
-class FCDataTimeAcceleratorEulerPid(FCUpFrame):
-    def __init__(self, frameBuf): 
-        super(FCDataTimeAcceleratorEulerPid, self).__init__(frameBuf)
-
-    def Type(self): 
-        return FCFrameType.FrameDataTimeAcceleratorEulerPid
-
-    def GetTime(self):
-        timeBuf = self.mData[0:4]
-        interval = struct.unpack('>I', timeBuf)[0]
-        return interval
-
-    def GetAccelrator(self):
-        accelerator = self.mData[4:24]
-        acceleratorTuplle = struct.unpack('>IIIII', accelerator)
-        return acceleratorTuplle
-
-    def GetEuler(self):
-        euler = self.mData[24:36]
-        eulerTuplle = struct.unpack('>fff', euler)
-        return eulerTuplle
-
-    def GetPid(self):
-        pid = self.mData[36:48]
-        pidTuplle = struct.unpack('>fff', pid)
-        return pidTuplle
-
-class FCErrorFrame(FCUpFrame):
-    def __init__(self, frameBuf): 
-        super(FCErrorFrame, self).__init__(frameBuf)
-
-    def Type(self): 
-        return FCFrameType.FrameError
+        """
 
 if __name__ == '__main__':
     print("偷懒,先不写单元测试")

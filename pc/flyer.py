@@ -33,7 +33,7 @@ class Flyer():
         self.mUdpSocket.sendto(data, gFcAddr)
 
     def SendPrintFrame(self, printfStr):
-        typeBytes = struct.pack('>I',  FCFrameType.FramePrintText.value) 
+        typeBytes = struct.pack('>I',  FCFrameType.FrameUpPrint.value) 
 
         now = time.perf_counter() - gStartTime
         nowInt = int(now * 5000) & 0xffffffff # 5000表示精度为 1/5000 s
