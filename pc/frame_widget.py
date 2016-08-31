@@ -77,9 +77,10 @@ class FCFrameWidget(QWidget):
 
         # step2: 获取下位机握手(有阻塞,所以使用后台线)
         self.mRecvThread = threading.Thread(target=self._RecvFunc)
+        self.mRecvThread.daemon = True # 主线程结束 子线程也结束
+        self.mCapturing = True
         self.mRecvThread.start()
 
-        self.mCapturing = True
         print(paras, end = '')
         print("开始监控")
 
@@ -93,20 +94,21 @@ class FCFrameWidget(QWidget):
             # 未获取到有效数据
             if not frameHead:
                 continue
-            print(frameHead)
+            #print(frameHead)
             FCUpFrame.PrintBytes(frameHead) 
             
             # 获取data+crc32
             frameDataAndCrc32Len = FCUpFrame.ParseLen(frameHead)
-            print(frameDataAndCrc32Len)
+            #print(frameDataAndCrc32Len)
             FCUpFrame.PrintBytes(frameHead)
             frameDataAndrCrc32 = self.mComm.Read(frameDataAndCrc32Len)
             buf = frameHead + frameDataAndrCrc32 
             
             # 构造上行帧
             frame = FCUpFrame(buf) 
+            frame.Print()
             frameDict = frame.ToDict() 
-            self.sRecvNewUpFrame.emit(frameDict)
+            #self.sRecvNewUpFrame.emit(frameDict)
 
 if __name__ == '__main__':
     uiFilePath = "widget/ui/fc_pidWidget.ui"

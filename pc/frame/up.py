@@ -61,6 +61,9 @@ class FCUpFrame(FCBaseFrame):
             else:
                 return FCErrorFrame(buf)
 
+    def Dict(self):
+        pass
+
     def isValid(self):
         # 校验
         wordList = self.GetCrc32WordList()
