@@ -6,7 +6,7 @@ import enum
 
 class FCFrameType(enum.Enum):
     # 以下类型基本帧类型(用户不使用)
-    _Up                 = 0x80000000
+    FrameUp             = 0x80000000
     FrameCtrl           = 0x40000000
     FrameReq            = 0x20000000
     _Text               = 0x10000000
@@ -28,10 +28,10 @@ class FCFrameType(enum.Enum):
     FrameReqTimeAcceleratorEulerPid = FrameReq | _Pid | _Euler | _Accelerator | _DataTime
 
     # dmp四元数采集数据帧
-    FrameDataTimeAcceleratorDmpQuat  = _Up | FrameReq | _Accelerator | _DataDmpQuat | _DataTime
-    FrameDataTimeAcceleratorEulerPid = _Up | FrameReq | _Pid | _Euler | _Accelerator | _DataTime
+    FrameDataTimeAcceleratorDmpQuat  = FrameUp | FrameReq | _Accelerator | _DataDmpQuat | _DataTime
+    FrameDataTimeAcceleratorEulerPid = FrameUp | FrameReq | _Pid | _Euler | _Accelerator | _DataTime
     # 文本输出帧
-    FramePrintText = _Up | _Text
+    FramePrintText = FrameUp | _Text
     # 错误帧
     FrameError = 0xffffffff
 

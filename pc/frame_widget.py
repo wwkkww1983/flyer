@@ -20,8 +20,12 @@ from config import gSaveDataFileFullName
 # 通信
 from comm import FCUdp
 
+# 协议帧
+from frame.up import FCUpFrame
+
 class FCFrameWidget(QWidget): 
-    #sUpdateAcceleratorEulerPid = pyqtSignal((int, tuple, tuple, tuple), name = 'sUpdateAcceleratorEulerPid')
+    sRecvNewUpFrame = pyqtSignal(dict, name = 'sRecvNewUpFrame')
+
     def __init__(self, uiFile):
         super(FCFrameWidget, self).__init__() 
         
@@ -89,21 +93,20 @@ class FCFrameWidget(QWidget):
             # 未获取到有效数据
             if not frameHead:
                 continue
-            #print(frameHead)
-            #FCUpFrame.PrintBytes(frameHead) 
+            print(frameHead)
+            FCUpFrame.PrintBytes(frameHead) 
             
             # 获取data+crc32
             frameDataAndCrc32Len = FCUpFrame.ParseLen(frameHead)
-            #print(frameDataAndCrc32Len)
-            #FCUpFrame.PrintBytes(frameHead)
+            print(frameDataAndCrc32Len)
+            FCUpFrame.PrintBytes(frameHead)
             frameDataAndrCrc32 = self.mComm.Read(frameDataAndCrc32Len)
             buf = frameHead + frameDataAndrCrc32 
             
-            # 解析帧
-            frame = FCUpFrame.Parse(buf) 
-            
-            # 使用帧 更新界面
-            self.UpdateByNewFrame(frame)
+            # 构造上行帧
+            frame = FCUpFrame(buf) 
+            frameDict = frame.ToDict() 
+            self.sRecvNewUpFrame.emit(frameDict)
 
 if __name__ == '__main__':
     uiFilePath = "widget/ui/fc_pidWidget.ui"

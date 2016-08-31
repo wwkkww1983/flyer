@@ -12,7 +12,11 @@ class FCBaseFrame():
 
     def Print(self):
         print("类型:  ", end = '')
-        print(self.Type())
+        if None == self.Type():
+            print("None")
+        else:
+            print(self.Type())
+
         print("type:  ", end = '')
         if None == self.mType:
             print("None")

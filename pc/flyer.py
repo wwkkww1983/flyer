@@ -16,6 +16,8 @@ from frame.type import FCFrameType
 from frame.base import gFillByte
 
 gFcAddr = (gLocalIP, gLocalPort)
+gCrcLen = 4
+gFillUint = 4
 
 class Flyer():
     def __init__(self):
@@ -25,8 +27,9 @@ class Flyer():
         self.mUdpSocket.close()
 
     def Send(self, data): 
+        print("send to %s:%d." % gFcAddr)
+        FCUpFrame.PrintBytes(data)
         self.mUdpSocket.sendto(data, gFcAddr)
-        pass
 
     def SendPrintFrame(self, printfStr):
         typeBytes = struct.pack('>I',  FCFrameType.FramePrintText.value) 
@@ -34,22 +37,27 @@ class Flyer():
         # 数据域: 字符串 + 填充
         dataBytes = printfStr.encode('utf8')
         length = len(dataBytes)
-        fillLength = 4 - length % 4
+        fillLength = gFillUint - length % gFillUint
         dataBytes = dataBytes + gFillByte * fillLength
 
         # 字符串+填充+crc32
-        length = length + fillLength + 4
+        length = length + fillLength + gCrcLen
         lenBytes = struct.pack('>I', length) 
         
-        data = typeBytes + lenBytes + dataBytes
-        crc32 = FCBaseFrame.CalStm32Crc32(data)
+        data = typeBytes + lenBytes + dataBytes + b'\x00' * gCrcLen
+        upFrame = FCUpFrame(data)
+        wordList = upFrame.GetCrc32WordList()
+        crc32 = FCBaseFrame.CalStm32Crc32(wordList)
         crc32Bytes = struct.pack('>I', crc32)
+        data = data[0:-gCrcLen] + crc32Bytes
 
-        data = data + crc32Bytes
-        #FCBaseFrame.PrintBytes(data)
+        upFrame = FCUpFrame(data)
         self.Send(data)
 
 if __name__ == '__main__': 
     flyer = Flyer()
-    flyer.SendPrintFrame('123')
+    flyer.SendPrintFrame('你好！\r\n')
+    flyer.SendPrintFrame('数字:123\r\n')
+    flyer.SendPrintFrame('英文:abc\r\n')
+    flyer.SendPrintFrame('混搭:世界，您好！abc,123\r\n')
 

@@ -45,8 +45,7 @@ class FCUpFrame(FCBaseFrame):
                             FCFrameType.FrameDataTimeAcceleratorEulerPid:  FCDataTimeAcceleratorEulerPid}
         # 解析上行帧
         frameTypeValue = struct.unpack('>I', buf[0:4])[0]
-        print(buf[0:4])
-        try:
+        try: 
             frameType = FCFrameType(frameTypeValue)
         except Exception as e: # 处理无效类型
             return FCErrorFrame(buf)
@@ -54,7 +53,6 @@ class FCUpFrame(FCBaseFrame):
             # TODO:使用表驱动方案
             if frameType in upFrameClassDict:
                 frameClass = upFrameClassDict[frameType]
-                #print(frameClass)
                 frame = frameClass(buf) 
                 if frame.isValid(): 
                     return frame
@@ -77,6 +75,9 @@ class FCUpFrame(FCBaseFrame):
             return True
         else:
             return False
+
+    def Type(self):
+        return FCFrameType.FrameUp
 
 ##################################################################################################
 # 具体类
