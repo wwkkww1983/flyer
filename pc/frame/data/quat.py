@@ -24,16 +24,14 @@ class FCQuat():
         euler =  FCEuler(theta, phi, psi)
         return euler
 
-    def ToString(self):
-        quatText = "%+5.4f,%+5.4f,%+5.4f,%+5.4f" % (self.mQ0, self.mQ1, self.mQ2, self.mQ3)
-        return quatText
-
     def ToBytes(self):
         quatBytes = struct.pack('>ffff', self.mQ0, self.mQ1, self.mQ2, self.mQ3)
         return quatBytes
 
-    def Print(self):
-        print(self.ToString())
+    def __str__(self):
+        quatText = "(%+5.4f,%+5.4f,%+5.4f,%+5.4f)" % (self.mQ0, self.mQ1, self.mQ2, self.mQ3)
+        return quatText
+
 
 if __name__ == '__main__':
     quat = FCQuat(1, 0, 0, 0)

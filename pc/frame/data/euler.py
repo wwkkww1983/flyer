@@ -10,6 +10,8 @@ gRad2Arc = 180 / math.pi
 class FCEuler():
     def __init__(self, theta, phi, psi):
         super(FCEuler, self).__init__()
+
+        # 弧度单位
         self.mTheta = theta
         self.mPhi = phi
         self.mPsi = psi
@@ -24,14 +26,15 @@ class FCEuler():
         return self.mPsi * gRad2Arc
 
     def ToBytes(self):
+        # 角度单位
         eulerBytes = struct.pack('>fff', self.Theta(), self.Phi(), self.Psi())
         return eulerBytes
 
-    def Print(self):
-        eulerText = "俯仰角:%+5.4f,横滚角:%+5.4f,偏航角:%+5.4f" % (self.Theta(), self.Phi(), self.Psi())
-        print(eulerText)
+    def __str__(self):
+        eulerText = "%+5.4f,%+5.4f,%+5.4f" % (self.mTheta, self.mPhi, self.mPsi)
+        return eulerText
 
 if __name__ == '__main__':
-    euler = FCEuler(0, 0.785, 1.57)
-    euler.Print()
+    euler = FCEuler(math.pi / 2, math.pi / 3, math.pi / 4)
+    print(euler)
 

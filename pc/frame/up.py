@@ -3,8 +3,12 @@
 
 import sys
 import struct
+import json
 
 from frame.data.quat import FCQuat
+from frame.data.euler import FCEuler
+from frame.data.accelerator import FCAccelerator
+from frame.data.pid import FCPid
 
 from frame.type import *
 from frame.base import * 
@@ -41,8 +45,15 @@ class FCUpFrame(FCBaseFrame):
         self.mData = frameBuf[8:-4]
         self.mCrc32 = frameBuf[-4:]
 
-        self.mDataDict = { FCFrameType.FrameDmpQuat: (FCQuat, '>ffff', 20),
-                }
+        self.mDataDict = { 
+                FCFrameType.FrameDmpQuat: (FCQuat, '>ffff', 16),
+                FCFrameType.FrameAccel: None,
+                FCFrameType.FrameGyro: None,
+                FCFrameType.FrameCompass: None,
+                FCFrameType.FramePress: None,
+                FCFrameType.FrameAccelerator: (FCAccelerator, '>IIIII', 20),
+                FCFrameType.FrameEuler: (FCEuler, '>fff', 12),
+                FCFrameType.FramePid: (FCPid, '>fff', 12)}
 
     @staticmethod
     def ParseLen(buf):
@@ -91,32 +102,32 @@ class FCUpFrame(FCBaseFrame):
         return dmpQuat
 
     def GetAccel(self):
-        print('GetAccel 未实现')
-        return None
+        accel = self.MakeDataObj(FCFrameType.FrameAccel)
+        return accel
 
     def GetGyro(self):
-        print('GetGyro 未实现')
-        return None
+        gyro = self.MakeDataObj(FCFrameType.FrameGyro)
+        return gyro
 
     def GetCompass(self):
-        print('GetCompass 未实现')
-        return None
+        compass = self.MakeDataObj(FCFrameType.FrameCompass)
+        return compass
 
     def GetPress(self):
-        print('GetPress 未实现')
-        return None
+        press = self.MakeDataObj(FCFrameType.FramePress)
+        return press
 
-    def GetAccelerator(self):
-        print('GetAccelerator 未实现')
-        return None
+    def GetAccelerator(self): 
+        accelerator = self.MakeDataObj(FCFrameType.FrameAccelerator)
+        return accelerator
 
     def GetEuler(self):
-        print('GetEuler 未实现')
-        return None
+        euler = self.MakeDataObj(FCFrameType.FrameEuler)
+        return euler
 
     def GetPid(self):
-        print('GetPid 未实现')
-        return None
+        pid = self.MakeDataObj(FCFrameType.FramePid)
+        return pid
 
     def MakeDataObj(self, dataEnum):
         if not self.HasField(dataEnum):
@@ -127,12 +138,21 @@ class FCUpFrame(FCBaseFrame):
             print("数据和文本不可共存.")
             return None
 
+        # 字典中尚未实现该数据
+        if not (dataEnum in self.mDataDict):
+            return None
+
         dataClass = self.mDataDict[dataEnum][0]
         unpackStr = self.mDataDict[dataEnum][1]
         dataLen = self.mDataDict[dataEnum][2]
+        #print(dataClass)
+        #print(unpackStr)
+        #print(dataLen)
 
         offset = self.GetDataOffset(dataEnum)
         byteBuf = self.mData[offset : offset + dataLen]
+        #print(offset)
+        #FCBaseFrame.PrintBytes(byteBuf)
         dataTuplle = struct.unpack(unpackStr, byteBuf)
 
         data = dataClass(*dataTuplle)
@@ -202,9 +222,8 @@ class FCUpFrame(FCBaseFrame):
         print(field)
         return None
 
-    def Dict(self):
+    def ToFrameDict(self):
         # TODO:继续实现
-        allDict = {}
         frameDict = {}
 
         time = self.GetTime()
@@ -219,9 +238,8 @@ class FCUpFrame(FCBaseFrame):
         frameDict['accelerator'] = self.GetAccelerator()
         frameDict['euler'] = self.GetEuler()
         frameDict['pid'] = self.GetPid()
-        allDict[time] = frameDict
 
-        return allDict
+        return (time, frameDict)
 
     def GetCalCrc32(self):
         wordList = self.GetCrc32WordList()
@@ -258,6 +276,15 @@ class FCUpFrame(FCBaseFrame):
         else:                  # 有效类型 
             return frameType
         """
+
+    def PrintDict(self):
+        (time, frameDict) = self.ToFrameDict() 
+        if frameDict['text']: 
+            print('%05d:%s' % (time, frameDict['text']), end = '')
+        else:
+            print('%05d:{dmpQuat:%s,accel:%s,gyro:%s,compass:%s,press:%s,accelerator:%s,euler:%s,pid:%s}' % (time, 
+                frameDict['dmpQuat'], frameDict['accel'], frameDict['gyro'], frameDict['compass'],
+                frameDict['press'], frameDict['accelerator'], frameDict['euler'], frameDict['pid']))
 
 if __name__ == '__main__':
     print("偷懒,先不写单元测试")

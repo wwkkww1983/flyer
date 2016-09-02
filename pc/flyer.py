@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
 
-import struct
 import time
+import math
+import struct
 from socket import *
 
 # 帧
 from frame.base import FCBaseFrame
 from frame.base import gFillByte
 from frame.up import FCUpFrame
+from frame.up import gTimeLen
 
 # 数据类
 from frame.data.quat import FCQuat
+from frame.data.euler import FCEuler
+from frame.data.accelerator import FCAccelerator
+from frame.data.pid import FCPid
 
 # 配置
 from config import gLocalIP
@@ -58,8 +63,6 @@ class Flyer():
         frameCrc32 = 0;
         data = b''
 
-        time = frameDict['time']
-        text = frameDict['text']
         dmpQuat = frameDict['dmpQuat']
         accel = frameDict['accel']
         gyro = frameDict['gyro']
@@ -68,14 +71,10 @@ class Flyer():
         accelerator = frameDict['accelerator']
         euler = frameDict['euler']
         pid = frameDict['pid']
-        if None == time:
-            print('SendDataFrame没有时间数据的帧不合法')
-            return None
-        data = struct.pack('>I', time)
 
-        if frameDict['text']:
-            print('SendDataFrame不能发送文本帧,发送文本帧请使用SendPrintFrame')
-            return None
+        # 时间
+        now = Flyer.Now()
+        data = struct.pack('>I', now)
 
         if dmpQuat:
             frameType |= FCFrameType.FrameDmpQuat.value
@@ -109,6 +108,10 @@ class Flyer():
             frameType |= FCFrameType.FramePid.value
             data += pid.ToBytes()
 
+        if gTimeLen == len(data):
+            print('数据帧不可以仅有时间')
+            return None
+
         # 填充
         #FCBaseFrame.PrintBytes(data)
         #print(frameLen)
@@ -129,7 +132,7 @@ class Flyer():
         # 构造最终帧
         allBytes = typeBytes + lenBytes + dataBytes + struct.pack('>I', crc32)
         self.Send(allBytes)
-        print('[%05d],' % time, end = '')
+        print('[%05d],' % now, end = '')
         FCBaseFrame.PrintBytes(allBytes)
 
     def SendPrintFrame(self, printfStr):
@@ -165,22 +168,21 @@ if __name__ == '__main__':
     time.sleep(0.01) # 10 ms
 
     # 发送字符串
-    flyer.SendPrintFrame('你好！\r\n')
-    flyer.SendPrintFrame('数字:123\r\n')
-    flyer.SendPrintFrame('英文:abc\r\n')
-    flyer.SendPrintFrame('混搭:世界，您好！abc,123\r\n') 
+    flyer.SendPrintFrame('世界，您好！abc,123\r\n') 
     
-    # 发送dmpQuat
+    # 数据帧1
     frameDict = {
-            'time': Flyer.Now(),
-            'text': None,
-            'dmpQuat': FCQuat(1.0, 2.0, 3.0, 4.0),
-            'accel': None,
-            'gyro': None,
-            'compass': None,
-            'press': None,
-            'accelerator': None,
-            'euler': None,
-            'pid': None,}
+            'dmpQuat': FCQuat(1, 2, 3, 4),
+            'accel': None, 'gyro': None, 'compass': None, 'press': None,
+            'accelerator': FCAccelerator(100, 200, 300, 400, 1000),
+            'euler': None, 'pid': None,}
+    flyer.SendDataFrame(frameDict)
+
+    # 数据帧2
+    frameDict = {
+            'dmpQuat': None, 'accel': None, 'gyro': None, 'compass': None, 'press': None,
+            'accelerator': FCAccelerator(900, 800, 700, 600, 1000),
+            'euler': FCEuler(math.pi / 2, math.pi / 3, math.pi / 4),
+            'pid': FCPid(1, 2, 3),}
     flyer.SendDataFrame(frameDict)
 

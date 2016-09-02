@@ -100,15 +100,15 @@ class FCFrameWidget(QWidget):
             # 获取data+crc32
             frameDataAndCrc32Len = FCUpFrame.ParseLen(frameHead)
             #print(frameDataAndCrc32Len)
-            FCUpFrame.PrintBytes(frameHead)
+            #FCUpFrame.PrintBytes(frameHead)
             frameDataAndrCrc32 = self.mComm.Read(frameDataAndCrc32Len)
             buf = frameHead + frameDataAndrCrc32 
             
             # 构造上行帧
             frame = FCUpFrame(buf) 
             #frame.Print()
-            frameDict = frame.Dict() 
-            print(frameDict)
+            (time, frameDict) = frame.ToFrameDict() 
+            frame.PrintDict()
             #self.sRecvNewUpFrame.emit(frameDict)
 
 if __name__ == '__main__':
