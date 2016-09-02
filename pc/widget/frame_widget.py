@@ -23,8 +23,15 @@ from comm import FCUdp
 # 协议帧
 from frame.up import FCUpFrame
 
+# 波形帧
+from widget.wave_widget import FCWaveWidget
+
 class FCFrameWidget(QWidget): 
-    sRecvNewUpFrame = pyqtSignal(dict, name = 'sRecvNewUpFrame')
+    """
+    1. 发送下行帧
+    2. 接收上行帧
+    """
+    sRecvNewUpFrame = pyqtSignal((int, dict), name = 'sRecvNewUpFrame')
 
     def __init__(self, uiFile):
         super(FCFrameWidget, self).__init__() 
@@ -45,7 +52,14 @@ class FCFrameWidget(QWidget):
         self.mUi = UIClass[0]()
         self.mUi.setupUi(self) 
 
-        # 只保存FCFrameWidget的控件
+        # 加入波形控件
+        self.mWaveWidget = FCWaveWidget()
+        self.mWaveGroupBox = self.mUi.waveGroupBox
+        vbox = QVBoxLayout()
+        vbox.addWidget(self.mWaveWidget)
+        self.mWaveGroupBox.setLayout(vbox)
+
+        # 启动自动保存和上行帧监控
         self.StartSave()
         self.StartMonitor()
 
@@ -106,10 +120,9 @@ class FCFrameWidget(QWidget):
             
             # 构造上行帧
             frame = FCUpFrame(buf) 
-            #frame.Print()
             (time, frameDict) = frame.ToFrameDict() 
             frame.PrintDict()
-            #self.sRecvNewUpFrame.emit(frameDict)
+            self.sRecvNewUpFrame.emit(time, frameDict)
 
 if __name__ == '__main__':
     uiFilePath = "widget/ui/fc_pidWidget.ui"
