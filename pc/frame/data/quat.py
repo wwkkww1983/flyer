@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import struct
 from math import atan2, asin
 
 from frame.data.euler import FCEuler
@@ -26,6 +27,10 @@ class FCQuat():
     def ToString(self):
         quatText = "%+5.4f,%+5.4f,%+5.4f,%+5.4f" % (self.mQ0, self.mQ1, self.mQ2, self.mQ3)
         return quatText
+
+    def ToBytes(self):
+        quatBytes = struct.pack('>ffff', self.mQ0, self.mQ1, self.mQ2, self.mQ3)
+        return quatBytes
 
     def Print(self):
         print(self.ToString())

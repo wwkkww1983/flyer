@@ -14,8 +14,13 @@ class FCBaseFrame():
         print("类型:  ", end = '')
         if None == self.Type():
             print("None")
-        else:
-            print(self.Type())
+        else: 
+            # 整数类型
+            typeVal = self.Type()
+            if type(1) == type(typeVal):
+                print('复合数据')
+            else:
+                print(self.Type())
 
         print("type:  ", end = '')
         if None == self.mType:

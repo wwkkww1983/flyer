@@ -16,6 +16,13 @@ gAcceleratorLen = 20
 gEulerLen = 12
 gPidLen = 12
 
+# 尚未实现
+gAccelLen = 12
+gGyroLen = 12
+gCompassLen = 12
+gPressLen = 4 
+
+
 ##################################################################################################
 # 抽象类
 # 上行帧 上位机解析
@@ -33,6 +40,9 @@ class FCUpFrame(FCBaseFrame):
         self.mLen = frameBuf[4:8]
         self.mData = frameBuf[8:-4]
         self.mCrc32 = frameBuf[-4:]
+
+        self.mDataDict = { FCFrameType.FrameDmpQuat: (FCQuat, '>ffff', 20),
+                }
 
     @staticmethod
     def ParseLen(buf):
@@ -77,95 +87,119 @@ class FCUpFrame(FCBaseFrame):
         return text
 
     def GetDmpQuat(self):
-        if not self.HasField(FCFrameType.FrameDmpQuat):
-            return None
-
-        if self.HasField(FCFrameType.FramePrint):
-            print("采样数据帧中包含文本.")
-            return None
-
-        offset = 0
-        dmpQuat = self.mData[offset : offset + gDmpQuatLen]
-
-        print('GetGmpQuat 未实现')
-        return None
+        dmpQuat = self.MakeDataObj(FCFrameType.FrameDmpQuat)
+        return dmpQuat
 
     def GetAccel(self):
-        if not self.HasField(FCFrameType.FrameAccel):
-            return None
-
-        if self.HasField(FCFrameType.FramePrint):
-            print("采样数据帧中包含文本.")
-            return None
-
         print('GetAccel 未实现')
         return None
 
     def GetGyro(self):
-        if not self.HasField(FCFrameType.FrameGyro):
-            return None
-
-        if self.HasField(FCFrameType.FramePrint):
-            print("采样数据帧中包含文本.")
-            return None
-
         print('GetGyro 未实现')
         return None
 
     def GetCompass(self):
-        if not self.HasField(FCFrameType.FrameCompass):
-            return None
-
-        if self.HasField(FCFrameType.FramePrint):
-            print("采样数据帧中包含文本.")
-            return None
-
         print('GetCompass 未实现')
         return None
 
     def GetPress(self):
-        if not self.HasField(FCFrameType.FramePress):
-            return None
-
-        if self.HasField(FCFrameType.FramePrint):
-            print("采样数据帧中包含文本.")
-            return None
-
         print('GetPress 未实现')
         return None
 
     def GetAccelerator(self):
-        # 打印帧不可和采样帧共存
-        if not self.HasField(FCFrameType.FrameAccelerator):
-            return None
-
-        if self.HasField(FCFrameType.FramePrint):
-            print("采样数据帧中包含文本.")
-            return None
-
         print('GetAccelerator 未实现')
         return None
 
     def GetEuler(self):
-        if not self.HasField(FCFrameType.FrameEuler):
-            return None
-
-        if self.HasField(FCFrameType.FramePrint):
-            print("采样数据帧中包含文本.")
-            return None
-
         print('GetEuler 未实现')
         return None
 
     def GetPid(self):
-        if not self.HasField(FCFrameType.FramePid):
+        print('GetPid 未实现')
+        return None
+
+    def MakeDataObj(self, dataEnum):
+        if not self.HasField(dataEnum):
             return None
 
         if self.HasField(FCFrameType.FramePrint):
-            print("采样数据帧中包含文本.")
+            print(dataEnum, end = '')
+            print("数据和文本不可共存.")
             return None
 
-        print('GetPid 未实现')
+        dataClass = self.mDataDict[dataEnum][0]
+        unpackStr = self.mDataDict[dataEnum][1]
+        dataLen = self.mDataDict[dataEnum][2]
+
+        offset = self.GetDataOffset(dataEnum)
+        byteBuf = self.mData[offset : offset + dataLen]
+        dataTuplle = struct.unpack(unpackStr, byteBuf)
+
+        data = dataClass(*dataTuplle)
+        return data
+
+    def GetDataOffset(self, field):
+        if FCFrameType.FramePrint == field:
+            print('文本帧不可调用GetDataOffset.')
+            return None
+
+        # 以下是数据帧
+        offset = gTimeLen # 时间数据必有
+
+        if FCFrameType.FrameDmpQuat == field:
+            return offset
+
+        # 按照条件处理dmpQuat偏移
+        if self.HasField(FCFrameType.FrameDmpQuat):
+            offset += gDmpQuatLen
+
+        if FCFrameType.FrameAccel == field:
+            return offset
+
+        # 按照条件处理accel偏移
+        if self.HasField(FCFrameType.FrameAccel):
+            offset += gAccelLen
+
+        if FCFrameType.FrameGyro == field:
+            return offset
+
+        # 按照条件处理gyro偏移
+        if self.HasField(FCFrameType.FrameGyro):
+            offset += gGyroLen
+
+        if FCFrameType.FrameCompass == field:
+            return offset
+
+        # 按照条件处理compass偏移
+        if self.HasField(FCFrameType.FrameCompass):
+            offset += gCompassLen
+
+        if FCFrameType.FramePress == field:
+            return offset
+
+        # 按照条件处理Press偏移
+        if self.HasField(FCFrameType.FramePress):
+            offset += gPressLen
+
+        if FCFrameType.FrameAccelerator == field:
+            return offset
+
+        # 按照条件处理Accelerator偏移
+        if self.HasField(FCFrameType.FrameAccelerator):
+            offset += gAcceleratorLen
+
+        if FCFrameType.FrameEuler == field:
+            return offset
+
+        # 按照条件处理Euler偏移
+        if self.HasField(FCFrameType.FrameEuler):
+            offset += gEulerLen
+
+        if FCFrameType.FramePid == field:
+            return offset 
+        
+        print('GetDataOffset参数field错误,field为:', end = '')
+        print(field)
         return None
 
     def Dict(self):
@@ -189,14 +223,19 @@ class FCUpFrame(FCBaseFrame):
 
         return allDict
 
+    def GetCalCrc32(self):
+        wordList = self.GetCrc32WordList()
+        calCrc32 = FCBaseFrame.CalStm32Crc32(wordList)
+
+        return calCrc32
+
     def isValid(self):
         frameType = self.Type()
         if frameType.FrameError:
             return False
 
         # 校验
-        wordList = self.GetCrc32WordList()
-        calCrc32 = FCBaseFrame.CalStm32Crc32(wordList)
+        calCrc32 = self.GetCalCrc32()
         recvCrc32 = struct.unpack('>I', self.mCrc32)[0]
 
         #print("计算crc", end = ':')
