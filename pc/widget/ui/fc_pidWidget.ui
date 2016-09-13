@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>759</width>
-    <height>626</height>
+    <width>724</width>
+    <height>719</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout_4">
+  <layout class="QHBoxLayout" name="horizontalLayout_5">
    <item>
     <widget class="QGroupBox" name="groupBox_5">
      <property name="sizePolicy">
@@ -24,20 +24,20 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>215</width>
+       <width>180</width>
        <height>0</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>215</width>
+       <width>180</width>
        <height>16777215</height>
       </size>
      </property>
      <property name="title">
       <string>控制</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_7">
+     <layout class="QVBoxLayout" name="verticalLayout_11">
       <item>
        <widget class="QGroupBox" name="netGroupBox">
         <property name="enabled">
@@ -49,70 +49,51 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="title">
-         <string>采样参数</string>
+         <string>通信参数</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QLabel" name="label_4">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>IP:192.168.111.111</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>端口:8080</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_11">
+        <property name="minimumSize">
+         <size>
+          <width>160</width>
+          <height>160</height>
+         </size>
+        </property>
+        <property name="title">
+         <string>采样控制</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout">
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_6">
-           <item>
-            <widget class="QLabel" name="label_4">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>IP:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="ipLabel">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>192.168.111.111</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_5">
-           <item>
-            <widget class="QLabel" name="label_7">
-             <property name="text">
-              <string>端口:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="portLineEdit">
-             <property name="text">
-              <string>8080</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_2">
            <item>
@@ -139,18 +120,78 @@
           </layout>
          </item>
          <item>
-          <widget class="QPushButton" name="capturePushButton">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>16777215</height>
-            </size>
-           </property>
+          <layout class="QGridLayout" name="gridLayout_2">
+           <item row="0" column="0">
+            <widget class="QCheckBox" name="checkBox">
+             <property name="text">
+              <string>DMP四元数</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QCheckBox" name="checkBox_2">
+             <property name="text">
+              <string>加计</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QCheckBox" name="checkBox_3">
+             <property name="text">
+              <string>陀螺仪</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QCheckBox" name="checkBox_4">
+             <property name="text">
+              <string>磁力计</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QCheckBox" name="checkBox_5">
+             <property name="text">
+              <string>气压计</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QCheckBox" name="checkBox_6">
+             <property name="text">
+              <string>油门</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QCheckBox" name="checkBox_7">
+             <property name="text">
+              <string>欧拉角</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QCheckBox" name="checkBox_8">
+             <property name="text">
+              <string>PID</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton">
            <property name="text">
-            <string>开始监控</string>
+            <string>发送采样信号</string>
            </property>
           </widget>
          </item>
@@ -163,11 +204,11 @@
          <bool>true</bool>
         </property>
         <property name="title">
-         <string>油门控制</string>
+         <string>飞行控制</string>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_2">
+        <layout class="QVBoxLayout" name="verticalLayout_7">
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
            <item>
             <widget class="QLabel" name="label_8">
              <property name="text">
@@ -237,6 +278,12 @@
       </item>
       <item>
        <widget class="QGroupBox" name="groupBox_7">
+        <property name="minimumSize">
+         <size>
+          <width>140</width>
+          <height>300</height>
+         </size>
+        </property>
         <property name="title">
          <string>PID设置</string>
         </property>
@@ -245,8 +292,8 @@
           <widget class="QGroupBox" name="groupBox_8">
            <property name="minimumSize">
             <size>
-             <width>85</width>
-             <height>130</height>
+             <width>0</width>
+             <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -258,111 +305,83 @@
            <property name="title">
             <string>俯仰角</string>
            </property>
-           <widget class="QPushButton" name="thetaPidPushButton">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>101</y>
-              <width>65</width>
-              <height>20</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>设置</string>
-            </property>
-           </widget>
-           <widget class="QWidget" name="layoutWidget">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>22</y>
-              <width>65</width>
-              <height>22</height>
-             </rect>
-            </property>
-            <layout class="QHBoxLayout" name="horizontalLayout_8">
-             <item>
-              <widget class="QLabel" name="label">
-               <property name="text">
-                <string>P</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="thetaPLineEdit">
-               <property name="text">
-                <string>1</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-           <widget class="QWidget" name="layoutWidget">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>49</y>
-              <width>65</width>
-              <height>22</height>
-             </rect>
-            </property>
-            <layout class="QHBoxLayout" name="horizontalLayout_9">
-             <item>
-              <widget class="QLabel" name="label_2">
-               <property name="text">
-                <string>I</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="thetaILineEdit">
-               <property name="text">
-                <string>0</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-           <widget class="QWidget" name="layoutWidget">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>75</y>
-              <width>65</width>
-              <height>22</height>
-             </rect>
-            </property>
-            <layout class="QHBoxLayout" name="horizontalLayout_11">
-             <item>
-              <widget class="QLabel" name="label_3">
-               <property name="text">
-                <string>D</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="thetaDLineEdit">
-               <property name="text">
-                <string>0</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
+           <layout class="QVBoxLayout" name="verticalLayout_10">
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_8">
+              <item>
+               <widget class="QLabel" name="label">
+                <property name="text">
+                 <string>P</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="thetaPLineEdit">
+                <property name="text">
+                 <string>1</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_9">
+              <item>
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string>I</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="thetaILineEdit">
+                <property name="text">
+                 <string>0</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_11">
+              <item>
+               <widget class="QLabel" name="label_3">
+                <property name="text">
+                 <string>D</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="thetaDLineEdit">
+                <property name="text">
+                 <string>0</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QPushButton" name="thetaPidPushButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>设置</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </item>
-         <item row="0" column="1" colspan="2">
+         <item row="0" column="1">
           <widget class="QGroupBox" name="groupBox_9">
            <property name="minimumSize">
             <size>
-             <width>85</width>
-             <height>130</height>
+             <width>0</width>
+             <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -387,7 +406,7 @@
               <item>
                <widget class="QLineEdit" name="phiPLineEdit">
                 <property name="text">
-                 <string>4444444</string>
+                 <string>4444</string>
                 </property>
                </widget>
               </item>
@@ -405,7 +424,7 @@
               <item>
                <widget class="QLineEdit" name="phiILineEdit">
                 <property name="text">
-                 <string>5555555</string>
+                 <string>5555</string>
                 </property>
                </widget>
               </item>
@@ -423,7 +442,7 @@
               <item>
                <widget class="QLineEdit" name="phiDLineEdit">
                 <property name="text">
-                 <string>6666666</string>
+                 <string>6666</string>
                 </property>
                </widget>
               </item>
@@ -445,12 +464,12 @@
            </layout>
           </widget>
          </item>
-         <item row="1" column="0" colspan="2">
+         <item row="1" column="0">
           <widget class="QGroupBox" name="groupBox_10">
            <property name="minimumSize">
             <size>
-             <width>85</width>
-             <height>130</height>
+             <width>0</width>
+             <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -475,7 +494,7 @@
               <item>
                <widget class="QLineEdit" name="psiPLineEdit">
                 <property name="text">
-                 <string>7777777</string>
+                 <string>7777</string>
                 </property>
                </widget>
               </item>
@@ -493,7 +512,7 @@
               <item>
                <widget class="QLineEdit" name="psiILineEdit">
                 <property name="text">
-                 <string>8888888</string>
+                 <string>8888</string>
                 </property>
                </widget>
               </item>
@@ -511,7 +530,7 @@
               <item>
                <widget class="QLineEdit" name="psiDLineEdit">
                 <property name="text">
-                 <string>9999999</string>
+                 <string>9999</string>
                 </property>
                </widget>
               </item>
@@ -533,38 +552,21 @@
            </layout>
           </widget>
          </item>
-         <item row="1" column="2">
+         <item row="1" column="1">
           <spacer name="verticalSpacer">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>38</width>
-             <height>38</height>
+             <width>35</width>
+             <height>129</height>
             </size>
            </property>
           </spacer>
          </item>
         </layout>
-        <zorder>groupBox_8</zorder>
-        <zorder>groupBox_9</zorder>
-        <zorder>groupBox_10</zorder>
-        <zorder>verticalSpacer</zorder>
        </widget>
-      </item>
-      <item>
-       <spacer name="verticalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
       </item>
      </layout>
     </widget>
@@ -582,41 +584,11 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_9">
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_12">
-        <item>
-         <widget class="QCheckBox" name="saveCheckBox">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="text">
-           <string>信息保存到</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="saveLineEdit">
-          <property name="text">
-           <string>E:\workspace\flyer\pc\data\</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="savePushButton">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>浏览</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <widget class="QLabel" name="label_19">
+        <property name="text">
+         <string>信息保存到:E:workspaceflyerpcdata123.dat</string>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QGroupBox" name="groupBox_4">
@@ -929,6 +901,75 @@ selection-background-color:green;</string>
          </item>
         </layout>
        </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_6">
+        <item>
+         <widget class="QCheckBox" name="checkBox_11">
+          <property name="text">
+           <string>DMP四元数</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBox_12">
+          <property name="text">
+           <string>加计</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBox_13">
+          <property name="text">
+           <string>陀螺仪</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBox_14">
+          <property name="text">
+           <string>磁力计</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBox_15">
+          <property name="text">
+           <string>气压计</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBox_16">
+          <property name="text">
+           <string>油门</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBox_17">
+          <property name="text">
+           <string>欧拉角</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkBox_18">
+          <property name="text">
+           <string>PID</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
        <widget class="QGroupBox" name="waveGroupBox">
