@@ -10,8 +10,6 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 
-from PyQt5.uic import loadUiType, loadUi 
-
 # 配置
 from config import gLocalIP
 from config import gLocalPort
@@ -23,17 +21,16 @@ from comm import FCUdp
 # 协议帧
 from frame.up import FCUpFrame
 
-# 波形帧
-from widget.wave_widget import FCWaveWidget
-
 class FCFrameWidget(QWidget): 
     """
     1. 发送下行帧
     2. 接收上行帧
-    """
-    sRecvNewUpFrame = pyqtSignal((int, dict), name = 'sRecvNewUpFrame')
 
-    def __init__(self, uiFile):
+    注意: 不实现GUI逻辑
+    """
+    sRecvNewUpFrame = pyqtSignal(FCUpFrame, name = 'sRecvNewUpFrame')
+
+    def __init__(self):
         super(FCFrameWidget, self).__init__() 
         
         # 标识flyer正常启动
@@ -47,17 +44,8 @@ class FCFrameWidget(QWidget):
         self.mComm = None
         self.mRecvThread = None
 
-        # 读取/设置ui文件
-        UIClass = loadUiType(uiFile)
-        self.mUi = UIClass[0]()
-        self.mUi.setupUi(self) 
-
-        # 加入波形控件
-        self.mWaveWidget = FCWaveWidget()
-        self.mWaveGroupBox = self.mUi.waveGroupBox
-        vbox = QVBoxLayout()
-        vbox.addWidget(self.mWaveWidget)
-        self.mWaveGroupBox.setLayout(vbox)
+        # 连接信号(子类实现槽RecvNewUpFrame)
+        self.sRecvNewUpFrame.connect(self.RecvNewUpFrame)
 
         # 启动自动保存和上行帧监控
         self.StartSave()
@@ -120,14 +108,11 @@ class FCFrameWidget(QWidget):
             
             # 构造上行帧
             frame = FCUpFrame(buf) 
-            (time, frameDict) = frame.ToFrameDict() 
-            frame.PrintDict()
-            self.sRecvNewUpFrame.emit(time, frameDict)
+            self.sRecvNewUpFrame.emit(frame)
 
 if __name__ == '__main__':
-    uiFilePath = "widget/ui/fc_pidWidget.ui"
     app = QApplication(sys.argv)
-    win = FCFrameWidget(uiFilePath)
+    win = FCFrameWidget()
     win.show()
     sys.exit(app.exec_())
 
