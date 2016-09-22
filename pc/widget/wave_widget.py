@@ -64,7 +64,7 @@ class FCWaveWidget(QWidget):
         # 绘制坐标系(生成绘布范围,故必须最先调用)
         self.drawAxes(painter) 
         # 绘制图例
-        self.drawIcon(painter)
+        #self.drawIcon(painter)
         # 绘制波形 
         self.drawWaveEulerTheta(painter)
         self.drawWavePidTheta(painter)

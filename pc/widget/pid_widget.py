@@ -31,6 +31,14 @@ class FCPidWidget(FCFrameWidget):
         vbox.addWidget(self.mWaveWidget)
         self.mWaveGroupBox.setLayout(vbox)
 
+        # 基本配置
+        self.mIpLabel = self.mUi.ipLabel
+        self.mPortLabel = self.mUi.portLabel
+        self.mDataPathLabel = self.mUi.dataPathLabel
+        self.mIpLabel.setText("IP:" + str(gLocalIP))
+        self.mPortLabel.setText("Port:" + str(gLocalPort))
+        self.mDataPathLabel.setText("信息保存到:" + str(gSaveDataFileFullName))
+
     def closeEvent(self, event):
         super(FCPidWidget, self).closeEvent(event)
 
