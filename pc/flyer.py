@@ -132,7 +132,7 @@ class Flyer():
         # 构造最终帧
         allBytes = typeBytes + lenBytes + dataBytes + struct.pack('>I', crc32)
         self.Send(allBytes)
-        print('[%05d],' % now, end = '')
+        print('[%05d]:' % now, end = '')
         FCBaseFrame.PrintBytes(allBytes)
 
     def SendPrintFrame(self, printfStr):
@@ -160,7 +160,7 @@ class Flyer():
 
         upFrame = FCUpFrame(data)
         self.Send(data)
-        print('[%05d],%s' % (now, printfStr), end = '')
+        print('[%05d]:%s' % (now, printfStr), end = '')
 
 
 if __name__ == '__main__': 

@@ -105,6 +105,9 @@ class FCFrameWidget(QWidget):
             #FCUpFrame.PrintBytes(frameHead)
             frameDataAndrCrc32 = self.mComm.Read(frameDataAndCrc32Len)
             buf = frameHead + frameDataAndrCrc32 
+
+            # 记录 
+            self.mDataFile.write(buf)
             
             # 构造上行帧
             frame = FCUpFrame(buf) 

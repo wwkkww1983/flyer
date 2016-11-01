@@ -32,8 +32,6 @@ class FCWaveWidget(QWidget):
                 #('左油门', Qt.cyan),
                 #('右油门', Qt.magenta),
                 ]
-
-
         
         # TODO: 使用参数传入
         self.mXPhyStep = 100  # 每个像素点为100ms间隔
@@ -149,7 +147,6 @@ class FCWaveWidget(QWidget):
         painter.drawLine(xOrig, yOrig, xMax, yOrig)
         # 标示原点比较不协调
         #painter.drawText(xOrig + 1, yOrig - 1, "0");
-
 
         # 画布原点
         self.mXOrig = xOrig

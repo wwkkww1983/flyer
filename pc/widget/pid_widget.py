@@ -39,6 +39,9 @@ class FCPidWidget(FCFrameWidget):
         self.mPortLabel.setText("Port:" + str(gLocalPort))
         self.mDataPathLabel.setText("信息保存到:" + str(gSaveDataFileFullName))
 
+        # 控制台文本输出
+        self.mConsolePlainTextEdit = self.mUi.consolePlainTextEdit
+
     def closeEvent(self, event):
         super(FCPidWidget, self).closeEvent(event)
 
@@ -48,7 +51,19 @@ class FCPidWidget(FCFrameWidget):
         """
         #print("FCPidWidget.RecvNewUpFrame") 
         (time, frameDict) = frame.ToFrameDict() 
-        print(time)
-        frame.PrintDict()
-        print()
+        # print(time)
+        # frame.PrintDict()
+
+        # 文本帧
+        if frameDict['text']:
+            text = '[%05d]:%s' % (time, frameDict['text'])
+
+            # 等效于 append 但是不加入换行
+            self.mConsolePlainTextEdit.moveCursor(QTextCursor.End)
+            self.mConsolePlainTextEdit.insertPlainText(text)
+            self.mConsolePlainTextEdit.moveCursor(QTextCursor.End)
+        else: 
+            self.mWaveWidget.Append(frame)
+
+        #print()
 
