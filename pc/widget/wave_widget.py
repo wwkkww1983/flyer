@@ -3,7 +3,7 @@
 
 import sys
 
-from config import gWaveXUnit, gWaveXStep, gWaveYUint, gWaveYStep
+from config import gWaveXUnit, gWaveXStep, gWaveYUint, gWaveYStep, gWaveAxesColor, gWaveAxesWidth, gXTimePixelRate, gYAnglePixelRate
 
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -42,12 +42,16 @@ class FCWaveWidget(QWidget):
         # 清屏
         painter.fillRect(0, 0, self.width(), self.height(), Qt.black)
 
-        # 更新绘制参数
+        # 更新绘制参数(生成绘布范围,故必须最先调用)
         self.updateParas(painter)
 
-        # 绘制坐标系(生成绘布范围,故必须最先调用)
+        # 绘制坐标系
+        self.drawAxes(painter)
+
         # 绘制图例
+        #self.drawIcon(painter)
         # 绘制波形 
+        #self.drawWave(painter)
 
         # 绘制鼠标位置十字线
         self.drawMouseCross(painter)
@@ -55,42 +59,67 @@ class FCWaveWidget(QWidget):
         painter.end() 
 
     def updateParas(self, painter):
-        """
-        print(gWaveXUnit)
-        print(gWaveXStep)
-        print(gWaveYUint)
-        print(gWaveYStep)
-        """
-
         # 可绘制区域需要扣除label区域
-        xMax = self.width()
-        yMax = self.height()
+        self.mXMax = self.width()
+        self.mYMax = self.height()
         metrics = painter.fontMetrics()
-        leftWidth = metrics.width(gWaveYUint)
-        downHeigt = metrics.ascent() + metrics.descent()
+        self.mLeftWidth = metrics.width(gWaveYUint)
+        self.mDownHeigt = metrics.ascent() + metrics.descent()
 
         # 可绘制区坐标原点(屏幕坐标原点在左上,几何坐标原点在左下)
-        # 可绘制区域左下点坐标(xOrig, yOrig)
-        # 可绘制区域右上点坐标(xMax, 0)
-        xOrig = leftWidth
-        yOrig = yMax - downHeigt
-        xLength = xMax - leftWidth
-        yLength = yMax - downHeigt
+        # 可绘制区域左下点坐标(self.mXDrawOrig, self.mYDrawOrig)
+        # 可绘制区域右上点坐标(self.mXMax, 0)
+        self.mXDrawOrig = self.mLeftWidth
+        self.mYDrawOrig = self.mYMax - self.mDownHeigt
+        self.mXDrawLength = self.mXMax - self.mLeftWidth
+        self.mYDrawLength = self.mYMax - self.mDownHeigt
+        self.mXDrawEnd = self.mXMax
+        self.mYDrawEnd = 0
 
-        xLabelNums = yLength / gWaveYStep
-        yLabelNums = xLength / gWaveXStep
+        self.mXDataOrig = int(self.mXDrawOrig)
+        self.mYDataOrig = int(self.mYDrawOrig / 2)
 
+    def drawAxes(self, painter):
+        pen = QPen(gWaveAxesColor)
+        pen.setWidth(gWaveAxesWidth)
+        painter.setPen(pen)
 
+        # x/y坐标
+        painter.drawLine(self.mXDrawOrig, self.mYDrawOrig, self.mXDrawEnd, self.mYDrawOrig)
+        painter.drawLine(self.mXDrawOrig, self.mYDrawOrig, self.mXDrawOrig, self.mYDrawEnd)
 
+        # x 标签
+        for x in range(self.mXDrawOrig, self.mXDrawEnd, gWaveXStep):
+            painter.drawLine(x, self.mYDrawOrig, x, self.mYDrawEnd)
 
-        # 测试代码
-        pen = QPen(Qt.red)
+            text = "%+.1f" % ((x - self.mXDrawOrig) * gXTimePixelRate)
+            #print(text)
+            # +/-1 显示美观
+            painter.drawText(x + 1, self.mYMax - 1, text)
+
+        # y标签 > 0
+        for y in range(self.mYDataOrig, self.mYDrawEnd, -gWaveYStep):
+            painter.drawLine(self.mXDrawOrig, y, self.mXDrawEnd, y)
+
+            text = "%+.1f" % ((self.mYDrawOrig - self.mYDataOrig - y) * gYAnglePixelRate)
+            #print(text)
+            # +/-1 显示美观
+            painter.drawText(0 + 1, y, text)
+
+        # y标签 < 0
+        for y in range(self.mYDataOrig + gWaveYStep, self.mYDrawOrig, gWaveYStep):
+            painter.drawLine(self.mXDrawOrig, y, self.mXDrawEnd, y)
+
+            text = "%+.1f" % ((self.mYDrawOrig - self.mYDataOrig - y) * gYAnglePixelRate)
+            #print(text)
+            # +/-1 显示美观
+            painter.drawText(0 + 1, y, text)
+
+        # 绘制过原点平行于x轴的直线
+        pen = QPen(Qt.white)
         pen.setWidth(1)
         painter.setPen(pen)
-        painter.drawLine(xOrig, yOrig, xMax, 0)
-
-        print(xOrig, yOrig)
-        print(xMax, 0)
+        painter.drawLine(self.mXDataOrig, self.mYDataOrig, self.mXDrawEnd, self.mYDataOrig)
 
     def drawMouseCross(self, painter): 
         if None != self.mPos:
