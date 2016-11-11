@@ -13,6 +13,11 @@ gLocalIP = socket.gethostbyname(socket.gethostname()) # 获取本地IP
 gLocalPort = 8080
 gSaveDataFileFullName = os.path.join(_dataFileDir, _fileName)
 
+gWaveXUnit = '秒'
+gWaveXStep = 50
+gWaveYUint = '  度  '
+gWaveYStep = 30
+
 if __name__ == '__main__': 
     print(gLocalIP)
     print(gLocalPort)
