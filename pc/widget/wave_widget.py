@@ -45,14 +45,24 @@ class FCWaveWidget(QWidget):
         self.mWaveHeight = 0
 
         # 存放 下位机采样的数据
-        self.mData = []
+        self.mData = {}
 
         self.setMouseTracking(True) # 鼠标跟踪
         self.setCursor(Qt.BlankCursor) # 隐藏鼠标
         self.mPos = None # 鼠标当前点
 
-    def Append(self, frame):
-        self.mData.append(frame)
+    def Append(self, time, frameDict):
+        """
+        time  为键
+        frame 为值
+        """
+        # 加入一帧 打印一次
+        """
+        print('%05d:{dmpQuat:%s,accel:%s,gyro:%s,compass:%s,press:%s,accelerator:%s,euler:%s,pid:%s}' % (time, 
+            frameDict['dmpQuat'], frameDict['accel'], frameDict['gyro'], frameDict['compass'],
+            frameDict['press'], frameDict['accelerator'], frameDict['euler'], frameDict['pid']))
+        """
+        self.mData[time] = frameDict
 
     def paintEvent(self, paintEvent):
         painter = QPainter(self) 
@@ -61,12 +71,14 @@ class FCWaveWidget(QWidget):
         painter.fillRect(0, 0, self.width(), self.height(), Qt.black)
         # 绘制坐标系(生成绘布范围,故必须最先调用)
         self.drawAxes(painter) 
+
         # 绘制图例
         #self.drawIcon(painter)
         # 绘制波形 
-        self.drawWaveEulerTheta(painter)
-        self.drawWavePidTheta(painter)
+        #self.drawWaveEulerTheta(painter)
+        #self.drawWavePidTheta(painter)
         #self.drawWave(painter)
+
         # 绘制鼠标位置十字线
         self.drawMouseCross(painter)
 

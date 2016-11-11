@@ -51,8 +51,8 @@ class FCPidWidget(FCFrameWidget):
         """
         #print("FCPidWidget.RecvNewUpFrame") 
         (time, frameDict) = frame.ToFrameDict() 
-        # print(time)
-        # frame.PrintDict()
+        #print(time)
+        #frame.PrintDict()
 
         # 文本帧
         if frameDict['text']:
@@ -63,7 +63,7 @@ class FCPidWidget(FCFrameWidget):
             self.mConsolePlainTextEdit.insertPlainText(text)
             self.mConsolePlainTextEdit.moveCursor(QTextCursor.End)
         else: 
-            self.mWaveWidget.Append(frame)
+            self.mWaveWidget.Append(time, frameDict)
 
         #print()
 
