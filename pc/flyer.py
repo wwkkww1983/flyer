@@ -170,6 +170,7 @@ if __name__ == '__main__':
     # 发送字符串
     flyer.SendPrintFrame('世界，您好！abc,123\r\n') 
     
+    """
     # 数据帧1
     frameDict = {
             'dmpQuat': FCQuat(1, 2, 3, 4),
@@ -185,4 +186,27 @@ if __name__ == '__main__':
             'euler': FCEuler(math.pi / 2, math.pi / 3, math.pi / 4),
             'pid': FCPid(1, 2, 3),}
     flyer.SendDataFrame(frameDict)
+    """
+
+    # 数据帧1
+    frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': None,
+            '欧拉角': FCEuler(math.pi / 2, math.pi / 3, math.pi / 4),}
+    flyer.SendDataFrame(frameDict)
+
+    frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': None,
+            '欧拉角': FCEuler(math.pi / 2, math.pi / 3, math.pi / 4),}
+    flyer.SendDataFrame(frameDict)
+
+    frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': None,
+            '欧拉角': FCEuler(math.pi / 2, math.pi / 3, math.pi / 4),}
+    flyer.SendDataFrame(frameDict)
+
+    frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': None,
+            '欧拉角': FCEuler(math.pi / 2, math.pi / 3, math.pi / 4),}
+    flyer.SendDataFrame(frameDict)
+
+    frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': None,
+            '欧拉角': FCEuler(math.pi / 2, math.pi / 3, math.pi / 4),}
+    flyer.SendDataFrame(frameDict)
+
 

@@ -55,8 +55,8 @@ class FCPidWidget(FCFrameWidget):
         #frame.PrintDict()
 
         # 文本帧
-        if frameDict['text']:
-            text = '[%05d]:%s' % (time, frameDict['text'])
+        if frameDict['文本']:
+            text = '[%05d]:%s' % (time, frameDict['文本'])
 
             # 等效于 append 但是不加入换行
             self.mConsolePlainTextEdit.moveCursor(QTextCursor.End)

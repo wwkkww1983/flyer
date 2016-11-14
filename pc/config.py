@@ -28,11 +28,14 @@ gSaveDataFileFullName = os.path.join(_dataFileDir, _fileName)
 gWaveXUnit = '秒'
 gWaveXStep = 50
 # X轴 每个像素表示100ms(0.1s)
-gXTimePixelRate = 0.1
+gXTimePerPixelRate = 0.1
+_xPixelPerTimeRate = 1 / gXTimePerPixelRate
+gXPixelPerTimemsRate = _xPixelPerTimeRate / 1000
 
 # Y轴需要成对使用 默认为角度 0.1度/像素
 gWaveYUint = '  度  '
-gYAnglePixelRate = 0.1
+gYAnglePerPixelRate = 0.1
+gYPixelPerAngleRate = 1 / gYAnglePerPixelRate
 #gWaveYUint = ' PID  '
 #gYPidPixelRate = 1
 gWaveYStep = 30

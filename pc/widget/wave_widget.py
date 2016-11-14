@@ -3,7 +3,7 @@
 
 import sys
 
-from config import gWaveXUnit, gWaveXStep, gWaveYUint, gWaveYStep, gWaveAxesColor, gWaveAxesWidth, gXTimePixelRate, gYAnglePixelRate, gWaveConfig
+from config import gWaveXUnit, gWaveXStep, gWaveYUint, gWaveYStep, gWaveAxesColor, gWaveAxesWidth, gXTimePerPixelRate, gXPixelPerTimemsRate, gYAnglePerPixelRate, gWaveConfig
 
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -17,7 +17,7 @@ class FCWaveWidget(QWidget):
         super(FCWaveWidget, self).__init__() 
 
         # 存放 下位机采样的数据
-        self.mData = {}
+        self.mData = []
 
         self.setMouseTracking(True) # 鼠标跟踪
         self.setCursor(Qt.BlankCursor) # 隐藏鼠标
@@ -34,7 +34,10 @@ class FCWaveWidget(QWidget):
             frameDict['dmpQuat'], frameDict['accel'], frameDict['gyro'], frameDict['compass'],
             frameDict['press'], frameDict['accelerator'], frameDict['euler'], frameDict['pid']))
         """
-        self.mData[time] = frameDict
+
+        # 使用列表相较于字典有序
+        aData = (time, frameDict)
+        self.mData.append(aData)
 
     def paintEvent(self, paintEvent):
         painter = QPainter(self) 
@@ -52,7 +55,7 @@ class FCWaveWidget(QWidget):
         self.drawIcon(painter)
 
         # 绘制波形 
-        #self.drawWave(painter)
+        self.drawWave(painter)
 
         # 绘制鼠标位置十字线
         self.drawMouseCross(painter)
@@ -93,7 +96,7 @@ class FCWaveWidget(QWidget):
         for x in range(self.mXDrawOrig, self.mXDrawEnd, gWaveXStep):
             painter.drawLine(x, self.mYDrawOrig, x, self.mYDrawEnd)
 
-            text = "%+.1f" % ((x - self.mXDrawOrig) * gXTimePixelRate)
+            text = "%+.1f" % ((x - self.mXDrawOrig) * gXTimePerPixelRate)
             #print(text)
             # +/-1 显示美观
             painter.drawText(x + 1, self.mYMax - 1, text)
@@ -102,7 +105,7 @@ class FCWaveWidget(QWidget):
         for y in range(self.mYDataOrig, self.mYDrawEnd, -gWaveYStep):
             painter.drawLine(self.mXDrawOrig, y, self.mXDrawEnd, y)
 
-            text = "%+.1f" % ((self.mYDrawOrig - self.mYDataOrig - y) * gYAnglePixelRate)
+            text = "%+.1f" % ((self.mYDrawOrig - self.mYDataOrig - y) * gYAnglePerPixelRate)
             #print(text)
             # +/-1 显示美观
             painter.drawText(0 + 1, y, text)
@@ -111,7 +114,7 @@ class FCWaveWidget(QWidget):
         for y in range(self.mYDataOrig + gWaveYStep, self.mYDrawOrig, gWaveYStep):
             painter.drawLine(self.mXDrawOrig, y, self.mXDrawEnd, y)
 
-            text = "%+.1f" % ((self.mYDrawOrig - self.mYDataOrig - y) * gYAnglePixelRate)
+            text = "%+.1f" % ((self.mYDrawOrig - self.mYDataOrig - y) * gYAnglePerPixelRate)
             #print(text)
             # +/-1 显示美观
             painter.drawText(0 + 1, y, text)
@@ -152,6 +155,67 @@ class FCWaveWidget(QWidget):
             painter.setPen(pen)
             yStart += yStep
             painter.drawText(xStart, yStart, name)
+
+    def drawWave(self, painter):
+        # 绘制波形
+        self.drawEulerTheta(painter)
+
+    def drawEulerTheta(self, painter):
+        # 没有数据 不绘制
+        allData = self.mData
+        if [] == allData:
+            return
+
+        # 绘制起点
+        xOrig = allData[0][0]
+        yPhyStart = None
+
+        # 绘制参数
+        dataName = '俯仰角'
+        color = None
+        width = None
+        for aConfig in gWaveConfig:
+            if dataName == aConfig[0]:
+                color = aConfig[1]
+                width = aConfig[2]
+
+        # 不可绘制
+        if None == color or None == width:
+            return
+
+        pen = QPen(color)
+        pen.setWidth(width)
+        painter.setPen(pen)
+
+        # 遍历绘制 
+        for aData in allData:
+            # 当前数据与起点的时间差(物理x)
+            xPhy = aData[0]
+
+            # 俯仰角值(物理y)
+            frameDict = aData[1]
+            euler = aData[1]['欧拉角']
+            if None == euler: # 该数据没有欧拉角值
+                continue
+
+            theta = euler.Theta()
+            if None == yPhyStart: # 起始点
+                yPhyStart = theta
+            else: # 实际绘制
+                yPhy = theta
+
+                # 物理坐标到绘制坐标
+                xScreenStart = (xPhyStart - xOrig) * gXPixelPerTimemsRate
+                xScreenEnd = (xPhy - xOrig) * gXPixelPerTimemsRate
+                yScreenStart = yPhyStart * gYPixelPerAngleRate
+                yScreenEnd = yPhy * gYPixelPerAngleRate
+                # 绘制
+                painter.drawLine(xScreenStart, yScreenStart, xScreenEnd, yScreenEnd)
+
+                # 为下一数据绘制准备
+                xPhyStart = xPhy
+                yPhyStart = yPhy
+
 
     def drawMouseCross(self, painter): 
         if None != self.mPos:
