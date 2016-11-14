@@ -3,7 +3,7 @@
 
 import sys
 
-from config import gWaveXUnit, gWaveXStep, gWaveYUint, gWaveYStep, gWaveAxesColor, gWaveAxesWidth, gXTimePixelRate, gYAnglePixelRate
+from config import gWaveXUnit, gWaveXStep, gWaveYUint, gWaveYStep, gWaveAxesColor, gWaveAxesWidth, gXTimePixelRate, gYAnglePixelRate, gWaveConfig
 
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -49,7 +49,8 @@ class FCWaveWidget(QWidget):
         self.drawAxes(painter)
 
         # 绘制图例
-        #self.drawIcon(painter)
+        self.drawIcon(painter)
+
         # 绘制波形 
         #self.drawWave(painter)
 
@@ -120,6 +121,37 @@ class FCWaveWidget(QWidget):
         pen.setWidth(1)
         painter.setPen(pen)
         painter.drawLine(self.mXDataOrig, self.mYDataOrig, self.mXDrawEnd, self.mYDataOrig)
+
+    def drawIcon(self, painter):
+        # 找出键值字符串最长的数据项
+        maxNameLen = 0
+        metrics = painter.fontMetrics()
+        for aConfig in gWaveConfig:
+            name = aConfig[0]
+            nowNameLen = metrics.width(name)
+            if maxNameLen < nowNameLen:
+                maxNameLen = nowNameLen
+        # print(maxNameLen)
+
+        # 图例行距
+        adj = 5 # 用于美观的调整
+        yStep = metrics.ascent() + metrics.descent() + adj
+
+        # 右上角开始绘制图例
+        xStart = self.mXMax - maxNameLen - adj
+        yStart = adj
+        for aConfig in gWaveConfig:
+            name = aConfig[0]
+            color = aConfig[1]
+            if None == color: # None表示不绘制
+                continue
+            width = aConfig[2]
+
+            pen = QPen(color)
+            pen.setWidth(width)
+            painter.setPen(pen)
+            yStart += yStep
+            painter.drawText(xStart, yStart, name)
 
     def drawMouseCross(self, painter): 
         if None != self.mPos:
