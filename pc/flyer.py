@@ -63,14 +63,14 @@ class Flyer():
         frameCrc32 = 0;
         data = b''
 
-        dmpQuat = frameDict['dmpQuat']
-        accel = frameDict['accel']
-        gyro = frameDict['gyro']
-        compass = frameDict['compass']
-        press = frameDict['press']
-        accelerator = frameDict['accelerator']
-        euler = frameDict['euler']
-        pid = frameDict['pid']
+        dmpQuat = frameDict['DMP四元数']
+        accel = frameDict['加计']
+        gyro = frameDict['陀螺仪']
+        compass = frameDict['磁计']
+        press = frameDict['压力']
+        accelerator = frameDict['油门']
+        euler = frameDict['欧拉角']
+        pid = frameDict['PID']
 
         # 时间
         now = Flyer.Now()

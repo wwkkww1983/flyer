@@ -3,7 +3,7 @@
 
 import sys
 
-from config import gWaveXUnit, gWaveXStep, gWaveYUint, gWaveYStep, gWaveAxesColor, gWaveAxesWidth, gXTimePerPixelRate, gXPixelPerTimemsRate, gYAnglePerPixelRate, gWaveConfig
+from config import gWaveXUnit, gWaveXStep, gWaveYUint, gWaveYStep, gWaveAxesColor, gWaveAxesWidth, gXTimePerPixelRate, gXPixelPerTimemsRate, gYAnglePerPixelRate, gYPixelPerAngleRate, gWaveConfig
 
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -168,6 +168,7 @@ class FCWaveWidget(QWidget):
 
         # 绘制起点
         xOrig = allData[0][0]
+        xPhyStart = None
         yPhyStart = None
 
         # 绘制参数
@@ -199,18 +200,21 @@ class FCWaveWidget(QWidget):
                 continue
 
             theta = euler.Theta()
-            if None == yPhyStart: # 起始点
+            if (None == xPhyStart) or (None == yPhyStart): # 起始点
+                xPhyStart = xPhy
                 yPhyStart = theta
             else: # 实际绘制
                 yPhy = theta
 
                 # 物理坐标到绘制坐标
-                xScreenStart = (xPhyStart - xOrig) * gXPixelPerTimemsRate
-                xScreenEnd = (xPhy - xOrig) * gXPixelPerTimemsRate
-                yScreenStart = yPhyStart * gYPixelPerAngleRate
-                yScreenEnd = yPhy * gYPixelPerAngleRate
+                xScreenStart = int((xPhyStart - xOrig) * gXPixelPerTimemsRate)
+                xScreenEnd = int((xPhy - xOrig) * gXPixelPerTimemsRate)
+                yScreenStart = int(yPhyStart * gYPixelPerAngleRate)
+                yScreenEnd = int(yPhy * gYPixelPerAngleRate)
                 # 绘制
                 painter.drawLine(xScreenStart, yScreenStart, xScreenEnd, yScreenEnd)
+
+                print(xScreenStart, yScreenStart, xScreenEnd, yScreenEnd)
 
                 # 为下一数据绘制准备
                 xPhyStart = xPhy

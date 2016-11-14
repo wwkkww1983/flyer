@@ -12,6 +12,6 @@ rm -rf pc/frame/__pycache__/
 rm -rf pc/frame/data/__pycache__/
 rm -rf pc/comm/__pycache__/
 rm -rf pc/widget/__pycache__/
-#rm -rf pc/data/*
+rm -rf pc/data/*
 
 
