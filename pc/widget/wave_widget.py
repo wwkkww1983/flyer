@@ -147,9 +147,9 @@ class FCWaveWidget(QWidget):
         for aConfig in gWaveConfig:
             name = aConfig[0]
             color = aConfig[1]
-            if None == color: # None表示不绘制
-                continue
             width = aConfig[2]
+            if None == color or None == width: # None表示不绘制
+                continue
 
             pen = QPen(color)
             pen.setWidth(width)
@@ -158,17 +158,47 @@ class FCWaveWidget(QWidget):
             painter.drawText(xStart, yStart, name)
 
     def drawWave(self, painter):
-        # 绘制波形
-        self.drawEulerTheta(painter)
-
-    def drawEulerTheta(self, painter):
         # 没有数据 不绘制
-        allData = self.mData
-        if [] == allData:
+        if [] == self.mData:
             return
 
+        # 绘制波形
+        self._drawEuler(painter)
+        self._drawPid(painter)
+
+    def _drawEuler(self, painter):
+        self._drawEulerTheta(painter)
+        self._drawEulerPhi(painter)
+        self._drawEulerPsi(painter)
+
+    def _drawEulerTheta(self, painter):
+        self._drawWave(painter, '欧拉角', '俯仰角')
+
+    def _drawEulerPhi(self, painter):
+        pass
+
+    def _drawEulerPsi(self, painter):
+        pass
+
+    def _drawPid(self, painter):
+        self._drawPidTheta(painter)
+        self._drawPidPhi(painter)
+        self._drawPidPsi(painter)
+
+    def _drawPidTheta(self, painter):
+        pass
+
+    def _drawPidPhi(self, painter):
+        pass
+
+    def _drawPidPsi(self, painter):
+        pass
+
+    def _drawWave(self, painter, frameDictKey, dataName):
+        # 数据 
+        allData = self.mData
+
         # 绘制参数
-        dataName = '俯仰角'
         color = None
         width = None
         for aConfig in gWaveConfig:
@@ -180,6 +210,7 @@ class FCWaveWidget(QWidget):
         if None == color or None == width:
             return
 
+        # 设置绘制参数
         pen = QPen(color)
         pen.setWidth(width)
         painter.setPen(pen)
@@ -188,29 +219,19 @@ class FCWaveWidget(QWidget):
 
         # 遍历绘制 
         initted = False
-        for aData in allData:
+        for aData in allData: 
+            time = aData[0]
+            frameDict = aData[1]
+            data = frameDict[frameDictKey] 
+            xPhyNow = time
+            yPhyNow = data.Theta()
+            
             if not initted: # 首点
-                time = aData[0]
-                frameDict = aData[1]
-                euler = frameDict['欧拉角']
-
                 # 时间轴从0开始
                 xOrig = time
-                xPhyLast = time
-                yPhyLast = euler.Theta()
                 initted = True
 
-                #print(xPhyLast)
-                #print(yPhyLast)
-                #print(euler.mTheta)
             else: # 后续点 开始连线
-                time = aData[0]
-                frameDict = aData[1]
-                euler = frameDict['欧拉角']
-
-                xPhyNow = time
-                yPhyNow = euler.Theta()
-
                 # 物理坐标到绘制坐标
                 xScreenStart = int(self.mXDataOrig + (xPhyLast - xOrig) * gXPixelPerTimemsRate)
                 yScreenStart = int(self.mYDataOrig - yPhyLast * gYPixelPerAngleRate)
@@ -233,9 +254,9 @@ class FCWaveWidget(QWidget):
                 print(gXPixelPerTimemsRate)
                 """
 
-                # 为下一数据绘制准备
-                xPhyLast = xPhyNow
-                yPhyLast = yPhyNow
+            # 准备下次绘制的线段起点
+            xPhyLast = xPhyNow
+            yPhyLast = yPhyNow
 
     def drawMouseCross(self, painter): 
         if None != self.mPos:
