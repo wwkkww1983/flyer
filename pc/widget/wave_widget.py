@@ -38,6 +38,7 @@ class FCWaveWidget(QWidget):
         # 使用列表相较于字典有序
         aData = (time, frameDict)
         self.mData.append(aData)
+        self.update()
 
     def paintEvent(self, paintEvent):
         painter = QPainter(self) 
@@ -166,11 +167,6 @@ class FCWaveWidget(QWidget):
         if [] == allData:
             return
 
-        # 绘制起点
-        xOrig = allData[0][0]
-        xPhyStart = None
-        yPhyStart = None
-
         # 绘制参数
         dataName = '俯仰角'
         color = None
@@ -187,39 +183,59 @@ class FCWaveWidget(QWidget):
         pen = QPen(color)
         pen.setWidth(width)
         painter.setPen(pen)
+        #painter.drawLine(0, 0, self.mXMax, self.mYMax) 
+        #return
 
         # 遍历绘制 
+        initted = False
         for aData in allData:
-            # 当前数据与起点的时间差(物理x)
-            xPhy = aData[0]
+            if not initted: # 首点
+                time = aData[0]
+                frameDict = aData[1]
+                euler = frameDict['欧拉角']
 
-            # 俯仰角值(物理y)
-            frameDict = aData[1]
-            euler = aData[1]['欧拉角']
-            if None == euler: # 该数据没有欧拉角值
-                continue
+                # 时间轴从0开始
+                xOrig = time
+                xPhyLast = time
+                yPhyLast = euler.Theta()
+                initted = True
 
-            theta = euler.Theta()
-            if (None == xPhyStart) or (None == yPhyStart): # 起始点
-                xPhyStart = xPhy
-                yPhyStart = theta
-            else: # 实际绘制
-                yPhy = theta
+                #print(xPhyLast)
+                #print(yPhyLast)
+                #print(euler.mTheta)
+            else: # 后续点 开始连线
+                time = aData[0]
+                frameDict = aData[1]
+                euler = frameDict['欧拉角']
+
+                xPhyNow = time
+                yPhyNow = euler.Theta()
 
                 # 物理坐标到绘制坐标
-                xScreenStart = int((xPhyStart - xOrig) * gXPixelPerTimemsRate)
-                xScreenEnd = int((xPhy - xOrig) * gXPixelPerTimemsRate)
-                yScreenStart = int(yPhyStart * gYPixelPerAngleRate)
-                yScreenEnd = int(yPhy * gYPixelPerAngleRate)
-                # 绘制
-                painter.drawLine(xScreenStart, yScreenStart, xScreenEnd, yScreenEnd)
+                xScreenStart = int(self.mXDataOrig + (xPhyLast - xOrig) * gXPixelPerTimemsRate)
+                yScreenStart = int(self.mYDataOrig - yPhyLast * gYPixelPerAngleRate)
+                xScreenEnd = int(self.mXDataOrig + (xPhyNow - xOrig) * gXPixelPerTimemsRate)
+                yScreenEnd = int(self.mYDataOrig - yPhyNow * gYPixelPerAngleRate)
 
+                # 绘制
+                painter.drawLine(xScreenStart, yScreenStart, xScreenEnd, yScreenEnd) 
+
+                """
+                # 调试
+                print('last')
+                print(xPhyLast, yPhyLast)
+                print('now')
+                print(xPhyNow, yPhyNow)
+                print("screen")
                 print(xScreenStart, yScreenStart, xScreenEnd, yScreenEnd)
+                print("Orig")
+                print(self.mXDataOrig, self.mYDataOrig)
+                print(gXPixelPerTimemsRate)
+                """
 
                 # 为下一数据绘制准备
-                xPhyStart = xPhy
-                yPhyStart = yPhy
-
+                xPhyLast = xPhyNow
+                yPhyLast = yPhyNow
 
     def drawMouseCross(self, painter): 
         if None != self.mPos:

@@ -3,12 +3,18 @@
 
 import os
 import sys 
+import math
 import socket
 import datetime
 
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+
+# 弧度转角度
+gRad2Arc = 180 / math.pi
+
+
 
 _dataFileDir = "E:\\workspace\\flyer\\pc\\data\\" 
 _fileName = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S') + ".dat"
@@ -46,7 +52,7 @@ gWaveAxesWidth = 1
 
 # 颜色线宽
 gWaveConfig = [
-        ('俯仰角', Qt.red, 1),
+        ('俯仰角', Qt.yellow, 1),
         ('横滚角', Qt.green, 1),
         ('偏航角', Qt.blue,  1),
 

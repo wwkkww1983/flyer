@@ -21,6 +21,8 @@ from frame.data.pid import FCPid
 from config import gLocalIP
 from config import gLocalPort
 
+from config import gRad2Arc
+
 # 类型
 from frame.type import FCFrameType
 
@@ -189,24 +191,23 @@ if __name__ == '__main__':
     """
 
     # 数据帧1
-    frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': None,
-            '欧拉角': FCEuler(math.pi / 2, math.pi / 3, math.pi / 4),}
+    euler = FCEuler(gRad2Arc * math.pi / 12, gRad2Arc * math.pi / 3, gRad2Arc * math.pi / 4)
+    frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': None, '欧拉角': euler,}
     flyer.SendDataFrame(frameDict)
 
-    frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': None,
-            '欧拉角': FCEuler(math.pi / 2, math.pi / 3, math.pi / 4),}
+    time.sleep(0.5) # 0.5s
+    euler = FCEuler(-1 * gRad2Arc * math.pi / 12, gRad2Arc * math.pi / 3, gRad2Arc * math.pi / 4)
+    frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': None, '欧拉角': euler,}
     flyer.SendDataFrame(frameDict)
 
-    frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': None,
-            '欧拉角': FCEuler(math.pi / 2, math.pi / 3, math.pi / 4),}
+    time.sleep(0.5) # 0.5s
+    euler = FCEuler(gRad2Arc * math.pi / 12 / 15 * 10, gRad2Arc * math.pi / 3, gRad2Arc * math.pi / 4)
+    frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': None, '欧拉角': euler,}
     flyer.SendDataFrame(frameDict)
 
-    frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': None,
-            '欧拉角': FCEuler(math.pi / 2, math.pi / 3, math.pi / 4),}
-    flyer.SendDataFrame(frameDict)
-
-    frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': None,
-            '欧拉角': FCEuler(math.pi / 2, math.pi / 3, math.pi / 4),}
+    time.sleep(0.5) # 0.5s
+    euler = FCEuler(-1 * gRad2Arc * math.pi / 12 / 15 * 10, gRad2Arc * math.pi / 3, gRad2Arc * math.pi / 4)
+    frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': None, '欧拉角': euler,}
     flyer.SendDataFrame(frameDict)
 
 
