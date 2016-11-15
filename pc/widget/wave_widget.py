@@ -108,7 +108,7 @@ class FCWaveWidget(QWidget):
         for y in range(self.mYDataOrig, self.mYDrawEnd, -gWaveYStep):
             painter.drawLine(self.mXDrawOrig, y, self.mXDrawEnd, y)
 
-            text = "%+.1f" % ((self.mYDrawOrig - self.mYDataOrig - y) * gYAnglePerPixelRate)
+            text = "%+.1f" % ((self.mYDataOrig - y) * gYAnglePerPixelRate)
             #print(text)
             # +/-1 显示美观
             painter.drawText(0 + 1, y, text)
@@ -117,7 +117,7 @@ class FCWaveWidget(QWidget):
         for y in range(self.mYDataOrig + gWaveYStep, self.mYDrawOrig, gWaveYStep):
             painter.drawLine(self.mXDrawOrig, y, self.mXDrawEnd, y)
 
-            text = "%+.1f" % ((self.mYDrawOrig - self.mYDataOrig - y) * gYAnglePerPixelRate)
+            text = "%+.1f" % ((self.mYDataOrig - y) * gYAnglePerPixelRate)
             #print(text)
             # +/-1 显示美观
             painter.drawText(0 + 1, y, text)
