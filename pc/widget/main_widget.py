@@ -20,13 +20,13 @@ class FCMainWidget(QTabWidget):
         self.mPidWidget = FCPidWidget(r"widget/ui/fc_pidWidget.ui")
         self.addTab(self.mPidWidget, "PID分析")
 
-        # 在线采集控件
-        #self.mCtrlWidget = FCCtrlWidget(r"widget/ui/fc_ctrlWidget.ui")
-        #self.addTab(self.mCtrlWidget, "在线控制")
-
         # 离线分析控件
-        #self.mAnalysisWidget = FCAnalysisWidget()
-        #self.addTab(self.mAnalysisWidget, "离线分析")
+        self.mAnalysisWidget = FCAnalysisWidget()
+        self.addTab(self.mAnalysisWidget, "离线分析")
+
+        # 在线采集控件
+        # self.mCtrlWidget = FCCtrlWidget(r"widget/ui/fc_ctrlWidget.ui")
+        # self.addTab(self.mCtrlWidget, "在线控制")
 
         # 默认数据采集有效
         self.setCurrentIndex(0)
