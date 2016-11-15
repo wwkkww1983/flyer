@@ -38,12 +38,14 @@ gXTimePerPixelRate = 0.1
 _xPixelPerTimeRate = 1 / gXTimePerPixelRate
 gXPixelPerTimemsRate = _xPixelPerTimeRate / 1000
 
-# Y轴需要成对使用 默认为角度 0.1度/像素
 gWaveYUint = '  度  '
-gYAnglePerPixelRate = 0.1
+# 默认为 1度/像素
+gYAnglePerPixelRate = 1
 gYPixelPerAngleRate = 1 / gYAnglePerPixelRate
 #gWaveYUint = ' PID  '
-#gYPidPixelRate = 1
+# 默认为 1pid/像素
+gYPidPerPixelRate = 1
+gYPixelPerPidRate = 1 / gYPidPerPixelRate
 gWaveYStep = 30
 
 # 坐标轴颜色线宽
@@ -52,13 +54,13 @@ gWaveAxesWidth = 1
 
 # 颜色线宽
 gWaveConfig = [
-        ('俯仰角', Qt.yellow, 1),
-        ('横滚角', Qt.green, 1),
-        ('偏航角', Qt.blue,  1),
+        ('俯仰角', Qt.red, 1),
+        #('横滚角', Qt.green, 1),
+        #('偏航角', Qt.blue, 1),
 
-        ('俯仰PID', None, 1),
-        ('横滚PID', None, 1),
-        ('偏航PID', None, 1),
+        ('俯仰PID', Qt.green, 1),
+        #('横滚PID', Qt.green, 1),
+        #('偏航PID', Qt.blue, 1),
 
         ('前油门', None, 1),
         ('右油门', None, 1),

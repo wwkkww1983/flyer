@@ -21,6 +21,16 @@ class FCEuler():
     def Psi(self):
         return self.mPsi
 
+    def __getitem__(self, key):
+        if '俯仰角' == key:
+            return self.Theta()
+
+        elif '横滚角' == key:
+            return self.Phi()
+
+        elif '偏航角' == key:
+            return self.Psi()
+
     def ToBytes(self):
         # 角度单位
         eulerBytes = struct.pack('>fff', self.mTheta, self.mPhi, self.mPsi)

@@ -10,6 +10,16 @@ class FCPid():
         self.mPhi = phi
         self.mPsi = psi
 
+    def __getitem__(self, key):
+        if '俯仰PID' == key:
+            return self.mTheta
+
+        elif '横滚PID' == key:
+            return self.mPhi
+
+        elif '偏航PID' == key:
+            return self.mPsi
+
     def ToBytes(self):
         pidBytes = struct.pack('>fff', self.mTheta, self.mPhi, self.mPsi)
         return pidBytes

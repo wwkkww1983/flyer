@@ -3,11 +3,13 @@
 
 import sys
 
-from config import gWaveXUnit, gWaveXStep, gWaveYUint, gWaveYStep, gWaveAxesColor, gWaveAxesWidth, gXTimePerPixelRate, gXPixelPerTimemsRate, gYAnglePerPixelRate, gYPixelPerAngleRate, gWaveConfig
+from config import gWaveXUnit, gWaveXStep, gWaveYUint, gWaveYStep, gWaveAxesColor, gWaveAxesWidth, gXTimePerPixelRate, gXPixelPerTimemsRate, gYAnglePerPixelRate, gYPixelPerAngleRate, gYPixelPerPidRate, gWaveConfig
 
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+
+from frame.data.euler import FCEuler
 
 class FCWaveWidget(QWidget):
     # msMove = pyqtSignal(QPoint, name='msMove')
@@ -161,7 +163,6 @@ class FCWaveWidget(QWidget):
         # 没有数据 不绘制
         if [] == self.mData:
             return
-
         # 绘制波形
         self._drawEuler(painter)
         self._drawPid(painter)
@@ -171,30 +172,30 @@ class FCWaveWidget(QWidget):
         self._drawEulerPhi(painter)
         self._drawEulerPsi(painter)
 
-    def _drawEulerTheta(self, painter):
-        self._drawWave(painter, '欧拉角', '俯仰角')
-
-    def _drawEulerPhi(self, painter):
-        pass
-
-    def _drawEulerPsi(self, painter):
-        pass
-
     def _drawPid(self, painter):
         self._drawPidTheta(painter)
         self._drawPidPhi(painter)
         self._drawPidPsi(painter)
 
+    def _drawEulerTheta(self, painter):
+        self._drawWave(painter, '欧拉角', '俯仰角', gYPixelPerAngleRate)
+
+    def _drawEulerPhi(self, painter):
+        self._drawWave(painter, '欧拉角', '横滚角', gYPixelPerAngleRate)
+
+    def _drawEulerPsi(self, painter):
+        self._drawWave(painter, '欧拉角', '偏航角', gYPixelPerAngleRate)
+
     def _drawPidTheta(self, painter):
-        pass
+        self._drawWave(painter, 'PID', '俯仰PID', gYPixelPerPidRate)
 
     def _drawPidPhi(self, painter):
-        pass
+        self._drawWave(painter, 'PID', '横滚PID', gYPixelPerPidRate)
 
     def _drawPidPsi(self, painter):
-        pass
+        self._drawWave(painter, 'PID', '偏航PID', gYPixelPerPidRate)
 
-    def _drawWave(self, painter, frameDictKey, dataName):
+    def _drawWave(self, painter, frameDictKey, dataName, pixelPerYDataRate):
         # 数据 
         allData = self.mData
 
@@ -224,7 +225,7 @@ class FCWaveWidget(QWidget):
             frameDict = aData[1]
             data = frameDict[frameDictKey] 
             xPhyNow = time
-            yPhyNow = data.Theta()
+            yPhyNow = data[dataName]
             
             if not initted: # 首点
                 # 时间轴从0开始
@@ -234,24 +235,47 @@ class FCWaveWidget(QWidget):
             else: # 后续点 开始连线
                 # 物理坐标到绘制坐标
                 xScreenStart = int(self.mXDataOrig + (xPhyLast - xOrig) * gXPixelPerTimemsRate)
-                yScreenStart = int(self.mYDataOrig - yPhyLast * gYPixelPerAngleRate)
+                yScreenStart = int(self.mYDataOrig - yPhyLast * pixelPerYDataRate)
                 xScreenEnd = int(self.mXDataOrig + (xPhyNow - xOrig) * gXPixelPerTimemsRate)
-                yScreenEnd = int(self.mYDataOrig - yPhyNow * gYPixelPerAngleRate)
+                yScreenEnd = int(self.mYDataOrig - yPhyNow * pixelPerYDataRate)
+
+                # 避免坐标越界
+                if xScreenStart < 0:
+                    xScreenStart = 0
+                if xScreenStart > self.mXMax:
+                    xScreenStart = self.mXMax
+
+                if xScreenEnd < 0:
+                    xScreenEnd = 0
+                if xScreenEnd > self.mXMax:
+                    xScreenEnd = self.mXMax
+
+                if yScreenStart < 0:
+                    yScreenStart = 0
+                if yScreenStart > self.mYMax:
+                    yScreenStart = self.mYMax
+
+                if yScreenEnd < 0:
+                    yScreenEnd = 0
+                if yScreenEnd > self.mYMax:
+                    yScreenEnd = self.mYMax
 
                 # 绘制
                 painter.drawLine(xScreenStart, yScreenStart, xScreenEnd, yScreenEnd) 
 
                 """
-                # 调试
-                print('last')
-                print(xPhyLast, yPhyLast)
-                print('now')
-                print(xPhyNow, yPhyNow)
-                print("screen")
-                print(xScreenStart, yScreenStart, xScreenEnd, yScreenEnd)
-                print("Orig")
-                print(self.mXDataOrig, self.mYDataOrig)
-                print(gXPixelPerTimemsRate)
+                if '横滚角' == dataName:
+                    # 调试
+                    print('last')
+                    print(xPhyLast, yPhyLast)
+                    print('now')
+                    print(xPhyNow, yPhyNow)
+                    print("screen")
+                    print(xScreenStart, yScreenStart, xScreenEnd, yScreenEnd)
+                    print("Orig")
+                    print(self.mXDataOrig, self.mYDataOrig)
+                    print(gXPixelPerTimemsRate)
+                    print()
                 """
 
             # 准备下次绘制的线段起点

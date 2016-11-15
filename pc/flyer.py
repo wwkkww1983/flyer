@@ -191,23 +191,26 @@ if __name__ == '__main__':
     """
 
     # 数据帧1
-    euler = FCEuler(gRad2Arc * math.pi / 12, gRad2Arc * math.pi / 3, gRad2Arc * math.pi / 4)
-    frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': None, '欧拉角': euler,}
+    euler = FCEuler(gRad2Arc * math.pi / 12, gRad2Arc * math.pi / 12 / 15, gRad2Arc * math.pi / 12)
+    pid = FCPid(10, 20, 30)
+    frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': pid, '欧拉角': euler,}
     flyer.SendDataFrame(frameDict)
 
     time.sleep(0.5) # 0.5s
-    euler = FCEuler(-1 * gRad2Arc * math.pi / 12, gRad2Arc * math.pi / 3, gRad2Arc * math.pi / 4)
-    frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': None, '欧拉角': euler,}
+    euler = FCEuler(-1 * gRad2Arc * math.pi / 12, gRad2Arc * math.pi / 12, gRad2Arc * math.pi / 12 / 15)
+    pid = FCPid(-10, -20, -30)
+    frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': pid, '欧拉角': euler,}
     flyer.SendDataFrame(frameDict)
 
     time.sleep(0.5) # 0.5s
     euler = FCEuler(gRad2Arc * math.pi / 12 / 15 * 10, gRad2Arc * math.pi / 3, gRad2Arc * math.pi / 4)
-    frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': None, '欧拉角': euler,}
+    pid = FCPid(20, 30, 40)
+    frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': pid, '欧拉角': euler,}
     flyer.SendDataFrame(frameDict)
 
     time.sleep(0.5) # 0.5s
     euler = FCEuler(-1 * gRad2Arc * math.pi / 12 / 15 * 10, gRad2Arc * math.pi / 3, gRad2Arc * math.pi / 4)
-    frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': None, '欧拉角': euler,}
+    pid = FCPid(-20, -30, -40)
+    frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': pid, '欧拉角': euler,}
     flyer.SendDataFrame(frameDict)
-
 
