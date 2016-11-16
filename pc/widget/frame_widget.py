@@ -113,6 +113,11 @@ class FCFrameWidget(QWidget):
             frame = FCUpFrame(buf) 
             self.sRecvNewUpFrame.emit(frame)
 
+    def SendDownFrame(self, downFrame):
+        buf = downFrame.GetBytes()
+        self.mComm.Write(buf) 
+        #downFrame.Print()
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     win = FCFrameWidget()

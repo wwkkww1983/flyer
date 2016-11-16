@@ -14,6 +14,9 @@ from PyQt5.uic import loadUiType, loadUi
 from widget.wave_widget import FCWaveWidget
 from widget.frame_widget import FCFrameWidget
 
+# 协议帧
+from frame.down import FCReqTimeAcceleratorEulerPid
+
 class FCPidWidget(FCFrameWidget): 
     def __init__(self, uiFile):
         print(uiFile)
@@ -42,8 +45,33 @@ class FCPidWidget(FCFrameWidget):
         # 控制台文本输出
         self.mConsolePlainTextEdit = self.mUi.consolePlainTextEdit
 
+        # 采样帧控制
+        # 采样间隔
+        self.mIntervalLineEdit = self.mUi.intervalLineEdit
+        # 下行帧复选
+        self.mDmpQuatCheckBox = self.mUi.dmpQuatCheckBox
+        self.mAccelCheckBox = self.mUi.accelCheckBox
+        self.mGyroCheckBox = self.mUi.gyroCheckBox
+        self.mCompassCheckBox = self.mUi.compassCheckBox
+        self.mPressCheckBox = self.mUi.pressCheckBox
+        self.mAcceletorCheckBox = self.mUi.acceletorCheckBox
+        self.mEulerCheckBox = self.mUi.eulerCheckBox
+        self.mPidCheckBox = self.mUi.pidCheckBox
+        # 发送捕获信号按钮
+        self.mSendDownFramePushButton = self.mUi.capturePushButton
+        self.mSendDownFramePushButton.clicked.connect(self.SendFrame)
+
     def closeEvent(self, event):
         super(FCPidWidget, self).closeEvent(event)
+
+    def SendFrame(self):
+        if (True == self.mAcceletorCheckBox.isChecked()) and (True == self.mEulerCheckBox.isChecked()) and (True == self.mPidCheckBox.isChecked()):
+            interval = int(self.mIntervalLineEdit.text())
+            downFrame = FCReqTimeAcceleratorEulerPid(interval)
+            self.SendDownFrame(downFrame)
+            #print("FCReqTimeAcceleratorEulerPid已经发送.") 
+        else:
+            print("下行帧不符合要求.") 
 
     def RecvNewUpFrame(self, frame): 
         """
