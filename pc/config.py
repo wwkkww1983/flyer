@@ -67,6 +67,8 @@ gWaveConfig = [
         ('后油门', None, 1),
         ('左油门', None, 1)]
 
+# 按键自动设置的步长
+gKeyStep = 0.01
 
 if __name__ == '__main__': 
     print(gLocalIP)

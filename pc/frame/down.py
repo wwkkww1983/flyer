@@ -83,10 +83,17 @@ class FCReqTimeAcceleratorEulerPid(FCReqFrame):
 
 class FCPidSetFrame(FCDownFrame):
     def __init__(self, euler_str, pidTuple):
-        if euler_str < 0 or euler_str > 2:
+        if '俯仰PID' == euler_str:
+            byte0_val = 0
+        elif '横滚PID' == euler_str:
+            byte0_val = 1
+        elif '偏航PID' == euler_str:
+            byte0_val = 2
+        else:
             print("FCPidSetFrame欧拉角类型错误")
             return
-        byte0 = struct.pack('>b', euler_str)
+
+        byte0 = struct.pack('>b', byte0_val)
         p_bytes = struct.pack('>f', pidTuple[0])
         i_bytes = struct.pack('>f', pidTuple[1])
         d_bytes = struct.pack('>f', pidTuple[2])
