@@ -53,7 +53,7 @@ void pid_update(PID_T *pid, f32_T measured)
         acc = pid->acc;
 
         /* step3: 计算微分 */
-        det += measured - pid->last;
+        det = measured - pid->last;
         pid->last = measured; /* 有记忆性 */
 
         /* pid公式: */
