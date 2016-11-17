@@ -3,6 +3,7 @@
 import time
 import math
 import struct
+import random
 from socket import *
 
 # 帧
@@ -171,46 +172,17 @@ if __name__ == '__main__':
 
     # 发送字符串
     flyer.SendPrintFrame('世界，您好！abc,123\r\n') 
-    
-    """
-    # 数据帧1
-    frameDict = {
-            'dmpQuat': FCQuat(1, 2, 3, 4),
-            'accel': None, 'gyro': None, 'compass': None, 'press': None,
-            'accelerator': FCAccelerator(100, 200, 300, 400, 1000),
-            'euler': None, 'pid': None,}
-    flyer.SendDataFrame(frameDict)
+    flyer.SendPrintFrame('开始启动了.\r\n') 
 
-    # 数据帧2
-    frameDict = {
-            'dmpQuat': None, 'accel': None, 'gyro': None, 'compass': None, 'press': None,
-            'accelerator': FCAccelerator(900, 800, 700, 600, 1000),
-            'euler': FCEuler(math.pi / 2, math.pi / 3, math.pi / 4),
-            'pid': FCPid(1, 2, 3),}
-    flyer.SendDataFrame(frameDict)
-    """
-
-    # 数据帧1
-    euler = FCEuler(gRad2Arc * math.pi / 12, gRad2Arc * math.pi / 12 / 15, gRad2Arc * math.pi / 12)
-    pid = FCPid(10, 20, 30)
-    frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': pid, '欧拉角': euler,}
-    flyer.SendDataFrame(frameDict)
-
-    time.sleep(0.5) # 0.5s
-    euler = FCEuler(-1 * gRad2Arc * math.pi / 12, gRad2Arc * math.pi / 12, gRad2Arc * math.pi / 12 / 15)
-    pid = FCPid(-10, -20, -30)
-    frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': pid, '欧拉角': euler,}
-    flyer.SendDataFrame(frameDict)
-
-    time.sleep(0.5) # 0.5s
-    euler = FCEuler(gRad2Arc * math.pi / 12 / 15 * 10, gRad2Arc * math.pi / 3, gRad2Arc * math.pi / 4)
-    pid = FCPid(20, 30, 40)
-    frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': pid, '欧拉角': euler,}
-    flyer.SendDataFrame(frameDict)
-
-    time.sleep(0.5) # 0.5s
-    euler = FCEuler(-1 * gRad2Arc * math.pi / 12 / 15 * 10, gRad2Arc * math.pi / 3, gRad2Arc * math.pi / 4)
-    pid = FCPid(-20, -30, -40)
-    frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': pid, '欧拉角': euler,}
-    flyer.SendDataFrame(frameDict)
+    interval = 0.00001 # 1s
+    timeMax = 600 # 60s
+    for t in range(0, timeMax): 
+        euler_max = gRad2Arc * math.pi / 180
+        euler_theta_rand = random.uniform(- euler_max * 10, euler_max * 10)
+        pid_theta_rand =  random.uniform(-20, 20)
+        euler = FCEuler(euler_theta_rand, 0, 0)
+        pid = FCPid(pid_theta_rand, 0, 0)
+        frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': pid, '欧拉角': euler,}
+        flyer.SendDataFrame(frameDict)
+        time.sleep(interval) # 延迟不精确
 
