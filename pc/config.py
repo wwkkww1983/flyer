@@ -62,10 +62,12 @@ gWaveConfig = [
         #('横滚PID', Qt.green, 1),
         #('偏航PID', Qt.blue, 1),
 
-        ('前油门', None, 1),
-        ('右油门', None, 1),
-        ('后油门', None, 1),
-        ('左油门', None, 1)]
+        # 油门暂未实现
+        #('前油门', Qt.red, 1),
+        #('右油门', Qt.green, 1),
+        #('后油门', Qt.blue, 1),
+        #('左油门', Qt.yellow, 1)
+        ]
 
 # 按键自动设置的步长
 gKeyStep = 0.01

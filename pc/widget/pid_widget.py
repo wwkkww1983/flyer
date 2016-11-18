@@ -87,7 +87,24 @@ class FCPidWidget(FCFrameWidget):
         self.mPhiPidPushButton.clicked.connect(self.PidPhiSet)
         self.mPsiPidPushButton.clicked.connect(self.PidPsiSet)
 
-        # 为按键事件准备焦点策略
+        # 实时信息控件
+        self.mRunTimeLabel = self.mUi.runTimeLabel
+        self.mThetaLabel = self.mUi.thetaLabel
+        self.mPhiLabel = self.mUi.phiLabel
+        self.mPsiLabel = self.mUi.psiLabel
+        self.mThetaPidLabel = self.mUi.thetaPidLabel
+        self.mPhiPidLabel = self.mUi.phiPidLabel
+        self.mPsiPidLabel = self.mUi.psiPidLabel
+        self.mFrontLabel = self.mUi.frontLabel
+        self.mFrontProgressBar =  self.mUi.frontProgressBar
+        self.mRightLabel = self.mUi.rightLabel
+        self.mRightProgressBar =  self.mUi.rightProgressBar
+        self.mBackLabel = self.mUi.backLabel
+        self.mBackProgressBar =  self.mUi.backProgressBar
+        self.mLeftLabel = self.mUi.leftLabel
+        self.mLeftProgressBar =  self.mUi.leftProgressBar
+
+        # 为按键事件准备焦点策略 (UI中已经设置)
         #self.setFocusPolicy(Qt.StrongFocus)
 
     def closeEvent(self, event):
@@ -139,20 +156,61 @@ class FCPidWidget(FCFrameWidget):
         接收新帧槽
         """
         #print("FCPidWidget.RecvNewUpFrame") 
-        (time, frameDict) = frame.ToFrameDict() 
-        #print(time)
+        (tick, frameDict) = frame.ToFrameDict() 
+        #print(tick)
         #frame.PrintDict()
 
         # 文本帧
         if frameDict['文本']:
-            text = '[%05d]:%s' % (time, frameDict['文本'])
+            text = '[%05d]:%s' % (tick, frameDict['文本'])
 
             # 等效于 append 但是不加入换行
             self.mConsolePlainTextEdit.moveCursor(QTextCursor.End)
             self.mConsolePlainTextEdit.insertPlainText(text)
             self.mConsolePlainTextEdit.moveCursor(QTextCursor.End)
         else: 
-            self.mWaveWidget.Append(time, frameDict)
+            # 更新 时间/欧拉角/PID/油门 
+            label_str = '运行:% 6.1fs' %  (1.0 * tick / 1000)
+            self.mRunTimeLabel.setText(label_str)
+
+            euler = frameDict['欧拉角']
+            label_str = '俯仰:%+6.1f' %  euler['俯仰角']
+            self.mThetaLabel.setText(label_str)
+            label_str = '横滚:%+6.1f' %  euler['横滚角']
+            self.mPhiLabel.setText(label_str)
+            label_str = '偏航:%+6.1f' %  euler['偏航角']
+            self.mPsiLabel.setText(label_str)
+
+            pid = frameDict['PID']
+            label_str = '俯仰:%+7.1f' %  pid['俯仰PID']
+            self.mThetaPidLabel.setText(label_str)
+            label_str = '横滚:%+7.1f' %  pid['横滚PID']
+            self.mPhiPidLabel.setText(label_str)
+            label_str = '偏航:%+7.1f' %  pid['偏航PID']
+            self.mPsiPidLabel.setText(label_str)
+
+            accelerator = frameDict['油门']
+            value = accelerator['前'] * 1000
+            label_str = '%3d' %  value
+            self.mFrontLabel.setText(label_str)
+            self.mFrontProgressBar.setValue(value)
+
+            value = accelerator['右'] * 1000
+            label_str = '%3d' %  value
+            self.mRightLabel.setText(label_str)
+            self.mRightProgressBar.setValue(value)
+
+            value = accelerator['后'] * 1000
+            label_str = '%3d' %  value
+            self.mBackLabel.setText(label_str)
+            self.mBackProgressBar.setValue(value)
+            value = accelerator['左'] * 1000
+            label_str = '%3d' %  value
+            self.mLeftLabel.setText(label_str)
+            self.mLeftProgressBar.setValue(value)
+
+            # 将数据帧加入波形控件(波形控件自己会绘制)
+            self.mWaveWidget.Append(tick, frameDict)
         #print()
 
     # 交互类函数

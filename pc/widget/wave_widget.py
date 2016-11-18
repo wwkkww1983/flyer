@@ -25,20 +25,20 @@ class FCWaveWidget(QWidget):
         self.setCursor(Qt.BlankCursor) # 隐藏鼠标
         self.mPos = None # 鼠标当前点
 
-    def Append(self, time, frameDict):
+    def Append(self, tick, frameDict):
         """
-        time  为键
+        tick  为键
         frame 为值
         """
         # 加入一帧 打印一次
         """
-        print('%05d:{dmpQuat:%s,accel:%s,gyro:%s,compass:%s,press:%s,accelerator:%s,euler:%s,pid:%s}' % (time, 
+        print('%05d:{dmpQuat:%s,accel:%s,gyro:%s,compass:%s,press:%s,accelerator:%s,euler:%s,pid:%s}' % (tick, 
             frameDict['dmpQuat'], frameDict['accel'], frameDict['gyro'], frameDict['compass'],
             frameDict['press'], frameDict['accelerator'], frameDict['euler'], frameDict['pid']))
         """
 
         # 使用列表相较于字典有序
-        aData = (time, frameDict)
+        aData = (tick, frameDict)
         self.mData.append(aData)
         self.update()
 
@@ -221,15 +221,15 @@ class FCWaveWidget(QWidget):
         # 遍历绘制 
         initted = False
         for aData in allData: 
-            time = aData[0]
+            tick = aData[0]
             frameDict = aData[1]
             data = frameDict[frameDictKey] 
-            xPhyNow = time
+            xPhyNow = tick
             yPhyNow = data[dataName]
             
             if not initted: # 首点
                 # 时间轴从0开始
-                xOrig = time
+                xOrig = tick
                 initted = True
 
             else: # 后续点 开始连线

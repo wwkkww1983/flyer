@@ -12,6 +12,31 @@ class FCAccelerator():
         self.mLeft = left
         self.mMother = mother
 
+    def Front(self):
+        return 1.0 * self.mFront / self.mMother
+
+    def Right(self):
+        return 1.0 * self.mRight / self.mMother
+
+    def Back(self):
+        return 1.0 * self.mBack / self.mMother
+
+    def Left(self):
+        return 1.0 * self.mLeft / self.mMother
+
+    def __getitem__(self, key):
+        if '前' == key:
+            return self.Front()
+
+        elif '右' == key:
+            return self.Right()
+
+        elif '后' == key:
+            return self.Back()
+
+        elif '左' == key:
+            return self.Left()
+
     def ToBytes(self):
         acceleratorBytes = struct.pack('>IIIII', self.mFront, self.mRight, self.mBack, self.mLeft, self.mMother)
         return acceleratorBytes
