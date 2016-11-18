@@ -13,16 +13,17 @@ class FCAccelerator():
         self.mMother = mother
 
     def Front(self):
-        return 1.0 * self.mFront / self.mMother
+        # 归一化 [-0.5, 0.5]
+        return 1.0 * self.mFront / self.mMother - 0.5
 
     def Right(self):
-        return 1.0 * self.mRight / self.mMother
+        return 1.0 * self.mRight / self.mMother - 0.5
 
     def Back(self):
-        return 1.0 * self.mBack / self.mMother
+        return 1.0 * self.mBack / self.mMother - 0.5
 
     def Left(self):
-        return 1.0 * self.mLeft / self.mMother
+        return 1.0 * self.mLeft / self.mMother - 0.5
 
     def __getitem__(self, key):
         if '前' == key:

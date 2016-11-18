@@ -189,22 +189,21 @@ class FCPidWidget(FCFrameWidget):
             label_str = '偏航:%+7.1f' %  pid['偏航PID']
             self.mPsiPidLabel.setText(label_str)
 
+            # 归一化时 -0.5 还原
             accelerator = frameDict['油门']
-            value = accelerator['前'] * 1000
+            value = (0.5 + accelerator['前']) * 1000
             label_str = '%3d' %  value
             self.mFrontLabel.setText(label_str)
             self.mFrontProgressBar.setValue(value)
-
-            value = accelerator['右'] * 1000
+            value = (0.5 + accelerator['右']) * 1000
             label_str = '%3d' %  value
             self.mRightLabel.setText(label_str)
             self.mRightProgressBar.setValue(value)
-
-            value = accelerator['后'] * 1000
+            value = (0.5 + accelerator['后']) * 1000
             label_str = '%3d' %  value
             self.mBackLabel.setText(label_str)
             self.mBackProgressBar.setValue(value)
-            value = accelerator['左'] * 1000
+            value = (0.5 + accelerator['左']) * 1000
             label_str = '%3d' %  value
             self.mLeftLabel.setText(label_str)
             self.mLeftProgressBar.setValue(value)

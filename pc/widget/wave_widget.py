@@ -251,7 +251,7 @@ class FCWaveWidget(QWidget):
             data = frameDict[frameDictKey] 
             xPhyNow = tick
             yPhyNow = data[dataName]
-            print(yPhyNow)
+            # print(yPhyNow)
             
             if not initted: # 首点
                 # 时间轴从0开始
