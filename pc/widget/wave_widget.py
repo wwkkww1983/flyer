@@ -3,7 +3,7 @@
 
 import sys
 
-from config import gWaveXUnit, gWaveXStep, gWaveYUint, gWaveYStep, gWaveAxesColor, gWaveAxesWidth, gXTimePerPixelRate, gXPixelPerTimemsRate, gYAnglePerPixelRate, gYPixelPerAngleRate, gYPixelPerPidRate, gWaveConfig
+from config import gWaveConfig, gWaveXUnit, gWaveXStep, gWaveYUint, gWaveYStep, gWaveAxesColor, gWaveAxesWidth, gXTimePerPixelRate, gXPixelPerTimemsRate, gYAnglePerPixelRate, gYPixelPerAngleRate, gYPixelPerPidRate, gYPixelPerAcceleratorRate
 
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -166,6 +166,7 @@ class FCWaveWidget(QWidget):
         # 绘制波形
         self._drawEuler(painter)
         self._drawPid(painter)
+        self._drawAccelerator(painter)
 
     def _drawEuler(self, painter):
         self._drawEulerTheta(painter)
@@ -175,7 +176,13 @@ class FCWaveWidget(QWidget):
     def _drawPid(self, painter):
         self._drawPidTheta(painter)
         self._drawPidPhi(painter)
-        self._drawPidPsi(painter)
+        self._drawPidPsi(painter) 
+        
+    def _drawAccelerator(self, painter):
+        self._drawAcceleratorFront(painter)
+        self._drawAcceleratorRight(painter)
+        self._drawAcceleratorBack(painter)
+        self._drawAcceleratorLeft(painter)
 
     def _drawEulerTheta(self, painter):
         self._drawWave(painter, '欧拉角', '俯仰角', gYPixelPerAngleRate)
@@ -195,9 +202,23 @@ class FCWaveWidget(QWidget):
     def _drawPidPsi(self, painter):
         self._drawWave(painter, 'PID', '偏航PID', gYPixelPerPidRate)
 
+    def _drawAcceleratorFront(self, painter):
+        self._drawWave(painter, '油门', '前', gYPixelPerAcceleratorRate)
+
+    def _drawAcceleratorRight(self, painter):
+        self._drawWave(painter, '油门', '右', gYPixelPerAcceleratorRate)
+
+    def _drawAcceleratorBack(self, painter):
+        self._drawWave(painter, '油门', '后', gYPixelPerAcceleratorRate)
+
+    def _drawAcceleratorLeft(self, painter):
+        self._drawWave(painter, '油门', '左', gYPixelPerAcceleratorRate)
+
     def _drawWave(self, painter, frameDictKey, dataName, pixelPerYDataRate):
         # 数据 
         allData = self.mData
+
+        # print(1)
 
         # 绘制参数
         color = None
@@ -207,9 +228,13 @@ class FCWaveWidget(QWidget):
                 color = aConfig[1]
                 width = aConfig[2]
 
+        # print(2)
+
         # 不可绘制
         if None == color or None == width:
             return
+
+        # print(3)
 
         # 设置绘制参数
         pen = QPen(color)
@@ -226,6 +251,7 @@ class FCWaveWidget(QWidget):
             data = frameDict[frameDictKey] 
             xPhyNow = tick
             yPhyNow = data[dataName]
+            print(yPhyNow)
             
             if not initted: # 首点
                 # 时间轴从0开始

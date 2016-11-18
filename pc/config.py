@@ -38,15 +38,18 @@ gXTimePerPixelRate = 0.1
 _xPixelPerTimeRate = 1 / gXTimePerPixelRate
 gXPixelPerTimemsRate = _xPixelPerTimeRate / 1000
 
+gWaveYStep = 30
 gWaveYUint = '  度  '
+#gWaveYUint = ' PID  '
 # 默认为 1度/像素
 gYAnglePerPixelRate = 1
 gYPixelPerAngleRate = 1 / gYAnglePerPixelRate
-#gWaveYUint = ' PID  '
 # 默认为 1pid/像素
 gYPidPerPixelRate = 1
 gYPixelPerPidRate = 1 / gYPidPerPixelRate
-gWaveYStep = 30
+# 默认为 0.01/像素, FCAccelerator获取的油门已经归一化 属于[0, 1]
+gYAcceleratorPerPixelRate = 0.01
+gYPixelPerAcceleratorRate = 1 / gYAcceleratorPerPixelRate
 
 # 坐标轴颜色线宽
 gWaveAxesColor = Qt.darkGray
@@ -54,19 +57,19 @@ gWaveAxesWidth = 1
 
 # 颜色线宽
 gWaveConfig = [
-        ('俯仰角', Qt.red, 1),
+        #('俯仰角', Qt.red, 1),
         #('横滚角', Qt.green, 1),
         #('偏航角', Qt.blue, 1),
 
-        ('俯仰PID', Qt.green, 1),
+        #('俯仰PID', Qt.green, 1),
         #('横滚PID', Qt.green, 1),
         #('偏航PID', Qt.blue, 1),
 
         # 油门暂未实现
-        #('前油门', Qt.red, 1),
-        #('右油门', Qt.green, 1),
-        #('后油门', Qt.blue, 1),
-        #('左油门', Qt.yellow, 1)
+        ('前', Qt.red, 1),
+        ('右', Qt.green, 1),
+        ('后', Qt.blue, 1),
+        ('左', Qt.yellow, 1)
         ]
 
 # 按键自动设置的步长
