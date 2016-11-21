@@ -12,16 +12,16 @@ from PyQt5.uic import loadUiType, loadUi
 from widget.wave_widget import FCWaveWidget
 from frame.up import FCUpFrame
 
-FCWindowUIClass = loadUiType("widget/ui/fc_analysisWidget.ui")
-
 class FCAnalysisWidget(QWidget): 
-    def __init__(self):
+    def __init__(self, uiFile):
         super(FCAnalysisWidget, self).__init__() 
         
-        # 初始化UI
-        self.mUi = FCWindowUIClass[0]()
+        # 读取/设置ui文件
+        UIClass = loadUiType(uiFile)
+        self.mUi = UIClass[0]()
         self.mUi.setupUi(self) 
 
+        # 初始化UI
         self.mPathLineEdit = self.mUi.pathLineEdit
         self.mBrowsePushButton = self.mUi.browsePushButton
         self.mDrawPushButton = self.mUi.drawPushButton

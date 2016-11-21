@@ -40,7 +40,7 @@ class FCPidWidget(FCFrameWidget):
         self.mPortLabel = self.mUi.portLabel
         self.mDataPathLabel = self.mUi.dataPathLabel
         self.mIpLabel.setText("IP:" + str(gLocalIP))
-        self.mPortLabel.setText("Port:" + str(gLocalPort))
+        self.mPortLabel.setText("端口:" + str(gLocalPort))
         self.mDataPathLabel.setText("信息保存到:" + str(gSaveDataFileFullName))
 
         # 控制台文本输出
@@ -50,11 +50,6 @@ class FCPidWidget(FCFrameWidget):
         # 采样间隔
         self.mIntervalLineEdit = self.mUi.intervalLineEdit
         # 下行帧复选
-        self.mDmpQuatCheckBox = self.mUi.dmpQuatCheckBox
-        self.mAccelCheckBox = self.mUi.accelCheckBox
-        self.mGyroCheckBox = self.mUi.gyroCheckBox
-        self.mCompassCheckBox = self.mUi.compassCheckBox
-        self.mPressCheckBox = self.mUi.pressCheckBox
         self.mAcceletorCheckBox = self.mUi.acceletorCheckBox
         self.mEulerCheckBox = self.mUi.eulerCheckBox
         self.mPidCheckBox = self.mUi.pidCheckBox

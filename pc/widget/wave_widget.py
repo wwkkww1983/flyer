@@ -99,7 +99,7 @@ class FCWaveWidget(QWidget):
         for x in range(self.mXDrawOrig, self.mXDrawEnd, gWaveXStep):
             painter.drawLine(x, self.mYDrawOrig, x, self.mYDrawEnd)
 
-            text = "%+.1f" % ((x - self.mXDrawOrig) * gXTimePerPixelRate)
+            text = "%.1f" % ((x - self.mXDrawOrig) * gXTimePerPixelRate)
             #print(text)
             # +/-1 显示美观
             painter.drawText(x + 1, self.mYMax - 1, text)
