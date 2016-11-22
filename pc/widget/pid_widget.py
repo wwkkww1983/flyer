@@ -20,7 +20,6 @@ from frame.down import FCReqTimeAcceleratorEulerPid, FCCtrlStartFrame, FCCtrlSto
 
 class FCPidWidget(FCFrameWidget): 
     def __init__(self, uiFile):
-        print(uiFile)
         super(FCPidWidget, self).__init__() 
 
         # 读取/设置ui文件

@@ -56,6 +56,11 @@ class FCFrameWidget(QWidget):
         self.StopSave()
 
     def StartSave(self): 
+        # 新建目录
+        save_data_file_path = os.path.dirname(gSaveDataFileFullName)
+        if not os.path.exists(save_data_file_path):
+            os.mkdir(save_data_file_path)
+
         self.mDataFile = open(gSaveDataFileFullName, mode = 'bw')
         print("开始记录与:%s" % gSaveDataFileFullName)
 
