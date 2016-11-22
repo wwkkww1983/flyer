@@ -7,17 +7,12 @@ from PyQt5.QtWidgets import *
 
 from PyQt5.uic import loadUiType, loadUi
 
-from widget.wave_widget import FCWaveWidget
-from widget.frame_widget import FCFrameWidget
+from widget.online_widget import FCOnlineWidget
 
-class FCFusionWidget(QWidget):
+class FCFusionWidget(FCOnlineWidget):
     def __init__(self, uiFile):
-        super(FCFusionWidget, self).__init__() 
-
-        # 读取/设置ui文件
-        UIClass = loadUiType(uiFile)
-        self.mUi = UIClass[0]()
-        self.mUi.setupUi(self) 
+        super(FCFusionWidget, self).__init__(uiFile) 
+        # 基类FCOnlineWidget已经完成 读取/设置ui文件
 
         # 下行帧复选
         self.mDmpQuatCheckBox = self.mUi.dmpQuatCheckBox
@@ -26,13 +21,6 @@ class FCFusionWidget(QWidget):
         self.mCompassCheckBox = self.mUi.compassCheckBox
         self.mPressCheckBox = self.mUi.pressCheckBox
 
-        # 加入波形控件
-        self.mWaveWidget = FCWaveWidget()
-        self.mWaveGroupBox = self.mUi.waveGroupBox
-        vbox = QVBoxLayout()
-        vbox.addWidget(self.mWaveWidget)
-        self.mWaveGroupBox.setLayout(vbox)
-
-    def closeEvent(self, event):
-        super(FCFusionWidget, self).closeEvent(event)
+    def Capture(self):
+        print('FCFusionWidget.Capture')
 

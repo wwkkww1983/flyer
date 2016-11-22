@@ -37,6 +37,9 @@ class FCAnalysisWidget(QWidget):
         self.mBrowsePushButton.clicked.connect(self.SetDataFilePath)
         self.mDrawPushButton.clicked.connect(self.Draw)
 
+    def closeEvent(self, event):
+        super(FCAnalysisWidget, self).closeEvent(event)
+
     def SetDataFilePath(self):
         data_file_path = QFileDialog.getOpenFileName()[0]
         self.mPathLineEdit.setText(data_file_path)

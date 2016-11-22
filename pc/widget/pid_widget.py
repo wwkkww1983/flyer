@@ -12,56 +12,20 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.uic import loadUiType, loadUi 
 
-from widget.wave_widget import FCWaveWidget
-from widget.frame_widget import FCFrameWidget
+from widget.online_widget import FCOnlineWidget
 
 # 协议帧
 from frame.down import FCReqTimeAcceleratorEulerPid, FCCtrlStartFrame, FCCtrlStopFrame, FCPidSetFrame
 
-class FCPidWidget(FCFrameWidget): 
+class FCPidWidget(FCOnlineWidget):
     def __init__(self, uiFile):
-        super(FCPidWidget, self).__init__() 
+        super(FCPidWidget, self).__init__(uiFile)
+        # 基类FCOnlineWidget已经完成 读取/设置ui文件
 
-        # 读取/设置ui文件
-        UIClass = loadUiType(uiFile)
-        self.mUi = UIClass[0]()
-        self.mUi.setupUi(self) 
-
-        # 加入波形控件
-        self.mWaveWidget = FCWaveWidget()
-        self.mWaveGroupBox = self.mUi.waveGroupBox
-        vbox = QVBoxLayout()
-        vbox.addWidget(self.mWaveWidget)
-        self.mWaveGroupBox.setLayout(vbox)
-
-        # 基本配置
-        self.mIpLabel = self.mUi.ipLabel
-        self.mPortLabel = self.mUi.portLabel
-        self.mDataPathLabel = self.mUi.dataPathLabel
-        self.mIpLabel.setText("IP:" + str(gLocalIP))
-        self.mPortLabel.setText("端口:" + str(gLocalPort))
-        self.mDataPathLabel.setText("信息保存到:" + str(gSaveDataFileFullName))
-
-        # 控制台文本输出
-        self.mConsolePlainTextEdit = self.mUi.consolePlainTextEdit
-
-        # 采样帧控制
-        # 采样间隔
-        self.mIntervalLineEdit = self.mUi.intervalLineEdit
         # 下行帧复选
         self.mAcceletorCheckBox = self.mUi.acceletorCheckBox
         self.mEulerCheckBox = self.mUi.eulerCheckBox
         self.mPidCheckBox = self.mUi.pidCheckBox
-        # 发送捕获信号按钮
-        self.mSendDownFramePushButton = self.mUi.capturePushButton
-        self.mSendDownFramePushButton.clicked.connect(self.Capture)
-
-        # 油门控制
-        self.mAcceleratorSpinBox = self.mUi.acceleratorSpinBox
-        self.mStartPushButton = self.mUi.startPushButton
-        self.mStopPushButton = self.mUi.stopPushButton
-        self.mStartPushButton.clicked.connect(self.Start)
-        self.mStopPushButton.clicked.connect(self.Stop)
 
         # pid参数控制
         self.mThetaPLineEdit = self.mUi.thetaPLineEdit
@@ -82,10 +46,6 @@ class FCPidWidget(FCFrameWidget):
         self.mPsiPidPushButton.clicked.connect(self.PidPsiSet)
 
         # 实时信息控件
-        self.mRunTimeLabel = self.mUi.runTimeLabel
-        self.mThetaLabel = self.mUi.thetaLabel
-        self.mPhiLabel = self.mUi.phiLabel
-        self.mPsiLabel = self.mUi.psiLabel
         self.mThetaPidLabel = self.mUi.thetaPidLabel
         self.mPhiPidLabel = self.mUi.phiPidLabel
         self.mPsiPidLabel = self.mUi.psiPidLabel
@@ -98,83 +58,37 @@ class FCPidWidget(FCFrameWidget):
         self.mLeftLabel = self.mUi.leftLabel
         self.mLeftProgressBar =  self.mUi.leftProgressBar
 
-        # 为按键事件准备焦点策略 (UI中已经设置)
-        #self.setFocusPolicy(Qt.StrongFocus)
-
-    def closeEvent(self, event):
-        super(FCPidWidget, self).closeEvent(event)
-
     def Capture(self):
         if (True == self.mAcceletorCheckBox.isChecked()) and (True == self.mEulerCheckBox.isChecked()) and (True == self.mPidCheckBox.isChecked()):
             interval = int(self.mIntervalLineEdit.text())
             downFrame = FCReqTimeAcceleratorEulerPid(interval)
             self.SendDownFrame(downFrame)
-            downFrame.Print()
         else:
             print("下行帧不符合要求.") 
-
-    def Start(self):
-        accelerator = int(self.mAcceleratorSpinBox.text()) 
-        downFrame = FCCtrlStartFrame(accelerator)
-        self.SendDownFrame(downFrame)
-        downFrame.Print()
-
-    def Stop(self):
-        downFrame = FCCtrlStopFrame()
-        self.SendDownFrame(downFrame)
-        downFrame.Print()
 
     def PidThetaSet(self):
         euler_str = '俯仰PID'
         pidTuple = (float(self.mThetaPLineEdit.text()), float(self.mThetaILineEdit.text()), float(self.mThetaDLineEdit.text()),)
         downFrame = FCPidSetFrame(euler_str, pidTuple)
         self.SendDownFrame(downFrame)
-        downFrame.Print()
 
     def PidPhiSet(self):
         euler_str = '横滚PID'
         pidTuple = (float(self.mPhiPLineEdit.text()), float(self.mPhiILineEdit.text()), float(self.mPhiDLineEdit.text()),)
         downFrame = FCPidSetFrame(euler_str, pidTuple)
         self.SendDownFrame(downFrame)
-        downFrame.Print()
 
     def PidPsiSet(self):
         euler_str = '偏航PID'
         pidTuple = (float(self.mPsiPLineEdit.text()), float(self.mPsiILineEdit.text()), float(self.mPsiDLineEdit.text()),)
         downFrame = FCPidSetFrame(euler_str, pidTuple)
         self.SendDownFrame(downFrame)
-        downFrame.Print()
 
     def RecvNewUpFrame(self, frame): 
-        """
-        接收新帧槽
-        """
-        #print("FCPidWidget.RecvNewUpFrame") 
         (tick, frameDict) = frame.ToFrameDict() 
-        #print(tick)
-        #frame.PrintDict()
 
-        # 文本帧
-        if frameDict['文本']:
-            text = '[%05d]:%s' % (tick, frameDict['文本'])
-
-            # 等效于 append 但是不加入换行
-            self.mConsolePlainTextEdit.moveCursor(QTextCursor.End)
-            self.mConsolePlainTextEdit.insertPlainText(text)
-            self.mConsolePlainTextEdit.moveCursor(QTextCursor.End)
-        else: 
-            # 更新 时间/欧拉角/PID/油门 
-            label_str = '运行:% 6.1fs' %  (1.0 * tick / 1000)
-            self.mRunTimeLabel.setText(label_str)
-
-            euler = frameDict['欧拉角']
-            label_str = '俯仰:%+6.1f' %  euler['俯仰角']
-            self.mThetaLabel.setText(label_str)
-            label_str = '横滚:%+6.1f' %  euler['横滚角']
-            self.mPhiLabel.setText(label_str)
-            label_str = '偏航:%+6.1f' %  euler['偏航角']
-            self.mPsiLabel.setText(label_str)
-
+        # 非文本帧 更新时间/欧拉角/PID/油门
+        if not frameDict['文本']:
             pid = frameDict['PID']
             label_str = '俯仰:%+7.1f' %  pid['俯仰PID']
             self.mThetaPidLabel.setText(label_str)
@@ -204,7 +118,6 @@ class FCPidWidget(FCFrameWidget):
 
             # 将数据帧加入波形控件(波形控件自己会绘制)
             self.mWaveWidget.Append(tick, frameDict)
-        #print()
 
     # 交互类函数
     def keyPressEvent(self, keyEvent):

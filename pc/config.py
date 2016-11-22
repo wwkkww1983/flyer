@@ -13,9 +13,6 @@ from PyQt5.QtGui import *
 
 # 弧度转角度
 gRad2Arc = 180 / math.pi
-
-
-
 _dataFileDir = "E:\\workspace\\flyer\\pc\\data\\" 
 _fileName = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S') + ".dat"
 
@@ -23,12 +20,8 @@ _fileName = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S') + ".dat"
 gLocalIP = socket.gethostbyname(socket.gethostname()) # 获取本地IP
 gLocalPort = 8080
 
-
-
 # 本地备份数据
 gSaveDataFileFullName = os.path.join(_dataFileDir, _fileName)
-
-
 
 # 绘图配置
 gWaveXUnit = '秒'
@@ -37,7 +30,6 @@ gWaveXStep = 50
 gXTimePerPixelRate = 0.1
 _xPixelPerTimeRate = 1 / gXTimePerPixelRate
 gXPixelPerTimemsRate = _xPixelPerTimeRate / 1000
-
 gWaveYStep = 30
 gWaveYUint = '  度  '
 #gWaveYUint = ' PID  '
@@ -73,7 +65,7 @@ gWaveConfig = [
         ]
 
 # 按键自动设置的步长
-gKeyStep = 0.01
+gKeyStep = 0.01 
 
 if __name__ == '__main__': 
     print(gLocalIP)

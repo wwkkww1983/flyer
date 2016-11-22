@@ -6,10 +6,6 @@ import sys
 import socket
 import threading
 
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
-
 # 配置
 from config import gLocalIP
 from config import gLocalPort
@@ -21,7 +17,11 @@ from comm import FCUdp
 # 协议帧
 from frame.up import FCUpFrame
 
-class FCFrameWidget(QWidget): 
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+
+class FCFrameManager(QWidget):
     """
     1. 发送下行帧
     2. 接收上行帧
@@ -31,7 +31,7 @@ class FCFrameWidget(QWidget):
     sRecvNewUpFrame = pyqtSignal(FCUpFrame, name = 'sRecvNewUpFrame')
 
     def __init__(self):
-        super(FCFrameWidget, self).__init__() 
+        super(FCFrameManager, self).__init__() 
         
         # 标识flyer正常启动
         self.mNewFlyerInitDoneStr = '初始化完成,进入主循环.'
@@ -43,9 +43,6 @@ class FCFrameWidget(QWidget):
         self.mCapturing = False
         self.mComm = None
         self.mRecvThread = None
-
-        # 连接信号(子类实现槽RecvNewUpFrame)
-        self.sRecvNewUpFrame.connect(self.RecvNewUpFrame)
 
         # 启动自动保存和上行帧监控
         self.StartSave()
@@ -121,11 +118,8 @@ class FCFrameWidget(QWidget):
     def SendDownFrame(self, downFrame):
         buf = downFrame.GetBytes()
         self.mComm.Write(buf) 
-        #downFrame.Print()
+        downFrame.Print()
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    win = FCFrameWidget()
-    win.show()
-    sys.exit(app.exec_())
+    manager = FCFrameManager()
 
