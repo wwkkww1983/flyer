@@ -15,7 +15,7 @@ from PyQt5.uic import loadUiType, loadUi
 from widget.online_widget import FCOnlineWidget
 
 # 协议帧
-from frame.down import FCReqTimeAcceleratorEulerPid, FCCtrlStartFrame, FCCtrlStopFrame, FCPidSetFrame
+from frame.down import FCReqTimeAcceleratorEulerPid, FCPidSetFrame
 
 class FCPidWidget(FCOnlineWidget):
     def __init__(self, uiFile):
@@ -64,7 +64,7 @@ class FCPidWidget(FCOnlineWidget):
             downFrame = FCReqTimeAcceleratorEulerPid(interval)
             self.SendDownFrame(downFrame)
         else:
-            print("下行帧不符合要求.") 
+            print("FCPidWidget.Capture下行帧不符合要求.")
 
     def PidThetaSet(self):
         euler_str = '俯仰PID'

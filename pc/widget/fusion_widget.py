@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.uic import loadUiType, loadUi
 
 from widget.online_widget import FCOnlineWidget
+from frame.down import FCReqTimeAccelGyro
 
 class FCFusionWidget(FCOnlineWidget):
     def __init__(self, uiFile):
@@ -22,5 +23,11 @@ class FCFusionWidget(FCOnlineWidget):
         self.mPressCheckBox = self.mUi.pressCheckBox
 
     def Capture(self):
-        print('FCFusionWidget.Capture')
+        if (True == self.mAccelCheckBox.isChecked()) and (True == self.mGyroCheckBox.isChecked()):
+            interval = int(self.mIntervalLineEdit.text())
+            downFrame = FCReqTimeAccelGyro(interval)
+            self.SendDownFrame(downFrame)
+        else:
+            print("FCFusionWidget.Capture下行帧不符合要求.")
+
 
