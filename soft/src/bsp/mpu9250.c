@@ -215,8 +215,8 @@ static void mpu9250_dmp_read(f32_T *f32_quat, f32_T *f32_accel)
         if (sensors & INV_XYZ_ACCEL) 
         {
             f32_accel[0] = accel_short[0] / (f32_T)s_accel_sens;
-            f32_accel[1] = accel_short[0] / (f32_T)s_accel_sens;
-            f32_accel[2] = accel_short[0] / (f32_T)s_accel_sens; 
+            f32_accel[1] = accel_short[1] / (f32_T)s_accel_sens;
+            f32_accel[2] = accel_short[2] / (f32_T)s_accel_sens;
             s_accel_arrived = TRUE;
         }
 

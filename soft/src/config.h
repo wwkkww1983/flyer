@@ -46,7 +46,7 @@
 
 /* Sensor i2c速度 */
 #define SENSOR_I2C_RATE                                     (400000U)
-#define MPU9250_ACCEL_FSR                                   (2U)
+#define MPU9250_ACCEL_FSR                                   (16U)
 #define MPU9250_GYRO_FSR                                    (2000U)
 #define MPU9250_DMP_SAMPLE_RATE                             (100U)
 /* max rate 1000 */
