@@ -59,5 +59,15 @@ void mpu9250_get_quat(f32_T *quat);
 /* 获取四元数 且 标记四元数(已经使用) */
 void mpu9250_get_quat_with_clear(f32_T *quat);
 
+/* 判断有效加计数据是否到达 */
+bool_T mpu9250_accel_arrived(void);
+
+/* 获取加计数据 */
+void mpu9250_get_accel(f32_T *accel);
+
+/* 获取加计数据 且 标记加计数据(已经使用) */
+void mpu9250_get_accel_with_clear(f32_T *accel);
+
+
 #endif /* _MPU9250_H_ */
 

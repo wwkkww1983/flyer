@@ -38,12 +38,16 @@ static f32_T s_quat[4] = {1.0f, 0.0f, 0.0f, 0.0f}; /* 最终的四元数(初始�
 static f32_T s_q45[4] = {0.0f}; /* 求偏航角旋转45度pi/4(绕Z轴)的四元数表示 */
 static const signed char s_orientation[9] = MPU9250_ORIENTATION;
 static bool_T s_quat_arrived = FALSE; /* 是否生成新的四元数 */
+static f32_T s_accel[4] = {0.0f, 0.0f, 1.0f}; /* 最终的加计数据(初始值必须为:0,0,1 表示无旋转) */
+static uint16_T s_accel_sens = 0;
+static bool_T s_accel_arrived = FALSE; /* 是否生成新的加计数据 */
 
 /********************************** 函数声明区 *********************************/
 static void run_self_test(void);
 static void int_callback(void *argv);
 static void mpu9250_set_quat(const f32_T *quat);
-static void mpu9250_dmp_read(f32_T *f32_quat);
+static void mpu9250_set_accel(const f32_T *accel);
+static void mpu9250_dmp_read(f32_T *f32_quat, f32_T *f32_accel);
 
 #if 0
 static void tap_callback(unsigned char direction, unsigned char count);
@@ -137,11 +141,11 @@ void mpu9250_init(void)
     dmp_set_orientation(inv_orientation_matrix_to_scalar(s_orientation));
     //dmp_register_tap_cb(tap_callback);
     //dmp_register_android_orient_cb(android_orient_callback);
-    dmp_features = DMP_FEATURE_6X_LP_QUAT
+    dmp_features = DMP_FEATURE_LP_QUAT
         | DMP_FEATURE_TAP
-        | DMP_FEATURE_ANDROID_ORIENT
+        //| DMP_FEATURE_ANDROID_ORIENT
         /* 发送原始数据是否会改变 中断频率 */
-        //| DMP_FEATURE_SEND_RAW_ACCEL
+        | DMP_FEATURE_SEND_RAW_ACCEL
         //| DMP_FEATURE_SEND_RAW_GYRO
         | DMP_FEATURE_GYRO_CAL;
     dmp_enable_feature(dmp_features);
@@ -151,6 +155,8 @@ void mpu9250_init(void)
     mpu_set_dmp_state(1);
 
     mpu9250_test();
+
+    mpu_get_accel_sens(&s_accel_sens);
 
     return;
 }
@@ -165,21 +171,25 @@ void mpu9250_update(void)
 {
     /* mpu9250_dmp_read并非每次更新 所以需要有记忆性 */
     static f32_T quat[4] = {1.0f, 0.0f, 0.0f, 0.0f};
+    static f32_T accel[3] = {0.0f, 0.0f, 1.0f};
     f32_T quat_rotated[4] = {0.0f};
 
-    mpu9250_dmp_read(quat); 
-    if(!mpu9250_quat_arrived())
+    mpu9250_dmp_read(quat, accel);
+    if(mpu9250_quat_arrived())
+    { 
+        /* 偏航角旋转45度与机翼对应 */
+        math_quaternion_cross(quat_rotated, quat, s_q45); 
+        mpu9250_set_quat(quat_rotated);
+    }
+
+    if(mpu9250_accel_arrived())
     {
-        return;
+        mpu9250_set_accel(accel);
     }
     
-    /* 偏航角旋转45度与机翼对应 */
-    math_quaternion_cross(quat_rotated, quat, s_q45); 
-
-    mpu9250_set_quat(quat_rotated);
 }
 
-static void mpu9250_dmp_read(f32_T *f32_quat)
+static void mpu9250_dmp_read(f32_T *f32_quat, f32_T *f32_accel)
 {
     int16_T gyro[3] = {0};
     int16_T accel_short[3] = {0};
@@ -204,7 +214,10 @@ static void mpu9250_dmp_read(f32_T *f32_quat)
         }
         if (sensors & INV_XYZ_ACCEL) 
         {
-            ERR_STR("异常的加计输出.");
+            f32_accel[0] = accel_short[0] / (f32_T)s_accel_sens;
+            f32_accel[1] = accel_short[0] / (f32_T)s_accel_sens;
+            f32_accel[2] = accel_short[0] / (f32_T)s_accel_sens; 
+            s_accel_arrived = TRUE;
         }
 
         if (sensors & INV_WXYZ_QUAT)
@@ -245,6 +258,33 @@ void mpu9250_get_quat_with_clear(f32_T *quat)
 bool_T mpu9250_quat_arrived(void)
 {
     return s_quat_arrived;
+}
+
+/* TODO:设置和获取加计数据 加锁 */
+static void mpu9250_set_accel(const f32_T *accel)
+{ 
+    s_accel[0] = accel[0];
+    s_accel[1] = accel[1];
+    s_accel[2] = accel[2];
+} 
+
+/* TODO:设置和获取加计数据 加锁 */
+void mpu9250_get_accel(f32_T *accel)
+{ 
+    accel[0] = s_accel[0];
+    accel[1] = s_accel[1];
+    accel[2] = s_accel[2];
+}
+
+void mpu9250_get_accel_with_clear(f32_T *accel)
+{
+    mpu9250_get_accel(accel);
+    s_accel_arrived = FALSE;
+}
+
+bool_T mpu9250_accel_arrived(void)
+{
+    return s_accel_arrived;
 }
 
 static void run_self_test(void)

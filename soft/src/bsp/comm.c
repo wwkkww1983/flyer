@@ -41,6 +41,7 @@ static CRC_HandleTypeDef s_crc;
 static uint32_T s_send_interval = 0;
 static bool_T s_send_accelerator_flag = FALSE;
 static bool_T s_send_dmp_quat_flag = FALSE;
+static bool_T s_send_accel_flag = FALSE;
 static bool_T s_send_euler_flag = FALSE;
 static bool_T s_send_pid_flag = FALSE;
 //static const uint8_T *s_hello = "flyer ok.\r\n"; 
@@ -54,6 +55,7 @@ inline static bool_T bit_compare(uint32_T type, uint32_T bit_mask);
 inline static bool_T is_flyer_ctrl_frame(uint32_T type);
 inline static bool_T is_sensor_data_frame(uint32_T type);
 inline static bool_T is_dmp_quat_needded(uint32_T type);
+inline static bool_T is_accel_needded(uint32_T type);
 inline static bool_T is_acceletorater_needded(uint32_T type);
 inline static bool_T is_euler_needded(uint32_T type);
 inline static bool_T is_pid_needded(uint32_T type);
@@ -258,6 +260,13 @@ static bool_T parse(const uint8_T *buf)
             has_capture_data = TRUE;
         }
 
+        /* 发送加计数据 */
+        if(is_accel_needded(frame.type))
+        {
+            s_send_accel_flag = TRUE;
+            has_capture_data = TRUE;
+        }
+
         /* 发送油门 */
         if(is_acceletorater_needded(frame.type))
         {
@@ -373,6 +382,7 @@ static void send_capture_data(void)
     uint32_T crc32_calculated = 0;
     uint32_T now_ms = 0;
     f32_T quat[4] = {0.0f}; 
+    f32_T accel[3] = {0.0f}; 
     f32_T euler[CTRL_EULER_MAX] = {0.0f}; 
     f32_T pid_out[CTRL_EULER_MAX] = {0.0f}; 
     int32_T accelerator_max = 0;
@@ -384,6 +394,7 @@ static void send_capture_data(void)
     if(!(s_send_interval
     || s_send_accelerator_flag
     || s_send_dmp_quat_flag
+    || s_send_accel_flag
     || s_send_euler_flag
     || s_send_pid_flag))
     {
@@ -428,6 +439,22 @@ static void send_capture_data(void)
 
             type |= COMM_FRAME_DMP_QUAT_BIT;
         } 
+
+        if(s_send_accel_flag)
+        {
+            mpu9250_get_accel(accel);
+
+            p_ui32 = (uint32_T *)accel;
+            for(i = 0; i < 3; i++) 
+            {
+                frame_buf[len++] = (uint8_T)( (uint32_T)p_ui32[i] >> 24);
+                frame_buf[len++] = (uint8_T)(((uint32_T)p_ui32[i] >> 16));
+                frame_buf[len++] = (uint8_T)(((uint32_T)p_ui32[i] >> 8));
+                frame_buf[len++] = (uint8_T)( (uint32_T)p_ui32[i]);
+            }
+
+            type |= COMM_FRAME_ACCEL_DATA_BIT;
+        }
 
         /* 油门数据 */
         if(s_send_accelerator_flag)
@@ -573,6 +600,11 @@ inline static bool_T is_sensor_data_frame(uint32_T type)
 inline static bool_T is_dmp_quat_needded(uint32_T type)
 {
     return bit_compare(type, COMM_FRAME_DMP_QUAT_BIT);
+}
+
+inline static bool_T is_accel_needded(uint32_T type)
+{
+    return bit_compare(type, COMM_FRAME_ACCEL_DATA_BIT);
 }
 
 inline static bool_T is_acceletorater_needded(uint32_T type)
