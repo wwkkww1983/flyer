@@ -42,6 +42,9 @@ gYPixelPerPidRate = 1 / gYPidPerPixelRate
 # 默认为 0.003/像素, FCAccelerator获取的油门已经归一化 属于[-0.5, 0.5]
 gYAcceleratorPerPixelRate = 0.003
 gYPixelPerAcceleratorRate = 1 / gYAcceleratorPerPixelRate
+# 默认为 0.003/像素, 下位机发送的FCAccel数据已经归一化 属于[0, 1.0]
+gYAccelPerPixelRate = 0.003
+gYPixelPerAccelRate = 1 / gYAccelPerPixelRate
 
 # 坐标轴颜色线宽
 gWaveAxesColor = Qt.darkGray
@@ -49,18 +52,22 @@ gWaveAxesWidth = 1
 
 # 颜色线宽
 gWaveConfig = [
-        ('俯仰角', Qt.red, 1),
+        ('加计X', Qt.red, 1),
+        ('加计Y', Qt.green, 1),
+        ('加计Z', Qt.blue, 1),
+
+        #('俯仰角', Qt.red, 1),
         #('横滚角', Qt.green, 1),
         #('偏航角', Qt.blue, 1),
 
-        ('俯仰PID', Qt.green, 1),
+        #('俯仰PID', Qt.green, 1),
         #('横滚PID', Qt.green, 1),
         #('偏航PID', Qt.blue, 1),
 
         # 油门暂未实现
-        ('前', Qt.blue, 1),
+        #('前', Qt.blue, 1),
         #('右', Qt.green, 1),
-        ('后', Qt.yellow, 1),
+        #('后', Qt.yellow, 1),
         #('左', Qt.yellow, 1)
         ]
 

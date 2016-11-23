@@ -9,6 +9,7 @@ from frame.data.quat import FCQuat
 from frame.data.euler import FCEuler
 from frame.data.accelerator import FCAccelerator
 from frame.data.pid import FCPid
+from frame.data.accel import FCAccel
 
 from frame.type import *
 from frame.base import * 
@@ -47,7 +48,7 @@ class FCUpFrame(FCBaseFrame):
 
         self.mDataDict = { 
                 FCFrameType.FrameDmpQuat: (FCQuat, '>ffff', 16),
-                FCFrameType.FrameAccel: None,
+                FCFrameType.FrameAccel: (FCAccel, '>fff', 12),
                 FCFrameType.FrameGyro: None,
                 FCFrameType.FrameCompass: None,
                 FCFrameType.FramePress: None,

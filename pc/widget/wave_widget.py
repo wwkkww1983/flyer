@@ -3,7 +3,7 @@
 
 import sys
 
-from config import gWaveConfig, gWaveXUnit, gWaveXStep, gWaveYUint, gWaveYStep, gWaveAxesColor, gWaveAxesWidth, gXTimePerPixelRate, gXPixelPerTimemsRate, gYAnglePerPixelRate, gYPixelPerAngleRate, gYPixelPerPidRate, gYPixelPerAcceleratorRate
+from config import gWaveConfig, gWaveXUnit, gWaveXStep, gWaveYUint, gWaveYStep, gWaveAxesColor, gWaveAxesWidth, gXTimePerPixelRate, gXPixelPerTimemsRate, gYAnglePerPixelRate, gYPixelPerAngleRate, gYPixelPerPidRate, gYPixelPerAcceleratorRate, gYPixelPerAccelRate
 
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -167,6 +167,12 @@ class FCWaveWidget(QWidget):
         self._drawEuler(painter)
         self._drawPid(painter)
         self._drawAccelerator(painter)
+        self._drawAccel(painter)
+
+    def _drawAccel(self, painter):
+        self._drawAccelX(painter)
+        self._drawAccelY(painter)
+        self._drawAccelZ(painter)
 
     def _drawEuler(self, painter):
         self._drawEulerTheta(painter)
@@ -183,6 +189,15 @@ class FCWaveWidget(QWidget):
         self._drawAcceleratorRight(painter)
         self._drawAcceleratorBack(painter)
         self._drawAcceleratorLeft(painter)
+
+    def _drawAccelX(self, painter):
+        self._drawWave(painter, '加计', '加计X', gYPixelPerAccelRate)
+
+    def _drawAccelY(self, painter):
+        self._drawWave(painter, '加计', '加计Y', gYPixelPerAccelRate)
+
+    def _drawAccelZ(self, painter):
+        self._drawWave(painter, '加计', '加计Z', gYPixelPerAccelRate)
 
     def _drawEulerTheta(self, painter):
         self._drawWave(painter, '欧拉角', '俯仰角', gYPixelPerAngleRate)

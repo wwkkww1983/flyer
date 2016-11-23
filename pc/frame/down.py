@@ -87,6 +87,12 @@ class FCReqTimeAccelGyro(FCReqFrame):
     def Type(self):
         return FCFrameType.FrameReqTimeAccelGyro
 
+class FCReqTimeDmpQuatAccel(FCReqFrame):
+    def __init__(self, interval = 100):
+        super(FCReqTimeDmpQuatAccel, self).__init__(frameType = self.Type(), interval = interval)
+    def Type(self):
+        return FCFrameType.FrameReqTimeDmpQuatAccel
+
 class FCPidSetFrame(FCDownFrame):
     def __init__(self, euler_str, pidTuple):
         if '俯仰PID' == euler_str:

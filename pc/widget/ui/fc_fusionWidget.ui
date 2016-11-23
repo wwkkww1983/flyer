@@ -130,7 +130,7 @@
            <item row="0" column="0">
             <widget class="QCheckBox" name="gyroCheckBox">
              <property name="enabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="text">
               <string>陀螺仪</string>
@@ -139,19 +139,22 @@
               <bool>true</bool>
              </property>
              <property name="checked">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
             </widget>
            </item>
            <item row="0" column="1">
             <widget class="QCheckBox" name="dmpQuatCheckBox">
              <property name="enabled">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="text">
               <string>DMP四元数</string>
              </property>
              <property name="checkable">
+              <bool>true</bool>
+             </property>
+             <property name="checked">
               <bool>true</bool>
              </property>
             </widget>
@@ -509,7 +512,7 @@
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_8">
                 <item>
-                 <widget class="QLabel" name="label_16">
+                 <widget class="QLabel" name="accelXLabel">
                   <property name="minimumSize">
                    <size>
                     <width>30</width>
@@ -522,14 +525,14 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLabel" name="label_17">
+                 <widget class="QLabel" name="accelYLabel">
                   <property name="text">
                    <string>y:00.00</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLabel" name="label_18">
+                 <widget class="QLabel" name="accelZLabel">
                   <property name="text">
                    <string>z:00.00</string>
                   </property>
