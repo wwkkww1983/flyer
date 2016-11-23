@@ -93,6 +93,18 @@ class FCReqTimeDmpQuatAccel(FCReqFrame):
     def Type(self):
         return FCFrameType.FrameReqTimeDmpQuatAccel
 
+class FCReqTimeDmpQuatAccelEuler(FCReqFrame):
+    def __init__(self, interval = 100):
+        super(FCReqTimeDmpQuatAccelEuler, self).__init__(frameType = self.Type(), interval = interval)
+    def Type(self):
+        return FCFrameType.FrameReqTimeDmpQuatAccelEuler
+
+class FCReqTimeAccelEuler(FCReqFrame):
+    def __init__(self, interval = 100):
+        super(FCReqTimeAccelEuler, self).__init__(frameType = self.Type(), interval = interval)
+    def Type(self):
+        return FCFrameType.FrameReqTimeAccelEuler
+
 class FCPidSetFrame(FCDownFrame):
     def __init__(self, euler_str, pidTuple):
         if '俯仰PID' == euler_str:

@@ -52,13 +52,13 @@ gWaveAxesWidth = 1
 
 # 颜色线宽
 gWaveConfig = [
-        ('加计X', Qt.red, 1),
-        ('加计Y', Qt.green, 1),
-        ('加计Z', Qt.blue, 1),
+        #('加计X', Qt.red, 1),
+        #('加计Y', Qt.green, 1),
+        #('加计Z', Qt.blue, 1),
 
-        #('俯仰角', Qt.red, 1),
-        #('横滚角', Qt.green, 1),
-        #('偏航角', Qt.blue, 1),
+        ('俯仰角', Qt.red, 1),
+        ('横滚角', Qt.green, 1),
+        ('偏航角', Qt.blue, 1),
 
         #('俯仰PID', Qt.green, 1),
         #('横滚PID', Qt.green, 1),
@@ -73,6 +73,9 @@ gWaveConfig = [
 
 # 按键自动设置的步长
 gKeyStep = 0.01 
+
+# 下位机就绪打印
+gFlyerInitDoneStr = '初始化完成,进入主循环'
 
 if __name__ == '__main__': 
     print(gLocalIP)

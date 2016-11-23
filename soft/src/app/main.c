@@ -57,7 +57,7 @@ static void init(void);
 int main(void)
 {
     init();
-    debug_log("\r\n初始化完成,进入主循环.\r\n");
+    debug_log("初始化完成,进入主循环.\r\n");
     /* 实际运行 */
     while(TRUE)
     {
@@ -159,7 +159,6 @@ static void init(void)
     esp8266_init();
     /* 配置交互协议模块(必须等待console和esp8266初始化完成) */
     comm_init(&g_esp8266); /* 此函数中初始化crc,此后才发协议帧,串口和esp8266文本帧才可正常发送 */
-    debug_log("1234567890123456789012345\r\n");
     debug_log("飞控系统版本:%s\r\n", "swv0.9");
     debug_log("系统时钟频率:%dMHz\r\n", SystemCoreClock / 1000 / 1000);
     debug_log("console初始化完成.\r\n");

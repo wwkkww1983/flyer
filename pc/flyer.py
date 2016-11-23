@@ -17,6 +17,7 @@ from frame.data.quat import FCQuat
 from frame.data.euler import FCEuler
 from frame.data.accelerator import FCAccelerator
 from frame.data.pid import FCPid
+from frame.data.accel import FCAccel
 
 # 配置
 from config import gLocalIP
@@ -178,11 +179,6 @@ if __name__ == '__main__':
     timeMax = 60000 # 60s
     for t in range(0, timeMax): 
         euler_1arc = gRad2Arc * math.pi / 180
-        """
-        euler_theta_rand = 0
-        euler_phi_rand = 20
-        euler_psi_rand = 40
-        """
         euler_theta_rand = random.uniform(- euler_1arc * 10, euler_1arc * 10) + 0
         euler_phi_rand = random.uniform(- euler_1arc * 10, euler_1arc * 10) + 20
         euler_psi_rand = random.uniform(- euler_1arc * 10, euler_1arc * 10) + 40
@@ -190,11 +186,6 @@ if __name__ == '__main__':
 
 
 
-        """
-        pid_theta_rand =  40
-        pid_phi_rand = 20 
-        pid_psi_rand =  0
-        """
         pid_theta_rand =  random.uniform(-10, 10) + 40
         pid_phi_rand =  random.uniform(-10, 10) + 20
         pid_psi_rand =  random.uniform(-10, 10) + 0
@@ -202,12 +193,6 @@ if __name__ == '__main__':
 
 
 
-        """
-        accelerator_front = 200
-        accelerator_right = 400
-        accelerator_back  = 600
-        accelerator_left  = 800
-        """
         accelerator_front = int(random.uniform(-100, 100) + 200)
         accelerator_right = int(random.uniform(-100, 100) + 400)
         accelerator_back = int(random.uniform(-100, 100) + 600)
@@ -217,7 +202,13 @@ if __name__ == '__main__':
 
 
 
-        frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': accelerator, 'PID': pid, '欧拉角': euler,}
+        accel_x_rand = random.uniform(-0.1, 0.1)
+        accel_y_rand = random.uniform(-0.1, 0.1)
+        accel_z_rand = random.uniform(-0.1, 0.1) + 0.9
+        accel = FCAccel(accel_x_rand, accel_y_rand, accel_z_rand)
+
+
+        frameDict = {'DMP四元数': None, '加计': accel, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': None, '欧拉角': euler,}
         flyer.SendDataFrame(frameDict)
         time.sleep(interval) # 延迟不精确
 

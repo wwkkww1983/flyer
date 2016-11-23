@@ -443,13 +443,13 @@
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>65</width>
-                 <height>0</height>
+                 <width>70</width>
+                 <height>80</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>65</width>
+                 <width>16777215</width>
                  <height>16777215</height>
                 </size>
                </property>
@@ -466,21 +466,21 @@
                    </size>
                   </property>
                   <property name="text">
-                   <string>x:00.00</string>
+                   <string>x:+00.00</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QLabel" name="label_10">
                   <property name="text">
-                   <string>y:00.00</string>
+                   <string>y:+00.00</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QLabel" name="label_15">
                   <property name="text">
-                   <string>z:00.00</string>
+                   <string>z:+00.00</string>
                   </property>
                  </widget>
                 </item>
@@ -497,8 +497,8 @@
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>65</width>
-                 <height>0</height>
+                 <width>70</width>
+                 <height>80</height>
                 </size>
                </property>
                <property name="maximumSize">
@@ -520,21 +520,21 @@
                    </size>
                   </property>
                   <property name="text">
-                   <string>x:00.00</string>
+                   <string>x:+00.00</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QLabel" name="accelYLabel">
                   <property name="text">
-                   <string>y:00.00</string>
+                   <string>y:+00.00</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QLabel" name="accelZLabel">
                   <property name="text">
-                   <string>z:00.00</string>
+                   <string>z:+00.00</string>
                   </property>
                  </widget>
                 </item>
@@ -551,8 +551,8 @@
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>65</width>
-                 <height>0</height>
+                 <width>70</width>
+                 <height>80</height>
                 </size>
                </property>
                <property name="maximumSize">
@@ -574,21 +574,21 @@
                    </size>
                   </property>
                   <property name="text">
-                   <string>x:00.00</string>
+                   <string>x:+00.00</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QLabel" name="label_20">
                   <property name="text">
-                   <string>y:00.00</string>
+                   <string>y:+00.00</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QLabel" name="label_21">
                   <property name="text">
-                   <string>z:00.00</string>
+                   <string>z:+00.00</string>
                   </property>
                  </widget>
                 </item>
@@ -605,8 +605,8 @@
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>65</width>
-                 <height>0</height>
+                 <width>70</width>
+                 <height>45</height>
                 </size>
                </property>
                <property name="maximumSize">
@@ -628,9 +628,22 @@
                    </size>
                   </property>
                   <property name="text">
-                   <string>z:00.00</string>
+                   <string>z:+00.00</string>
                   </property>
                  </widget>
+                </item>
+                <item>
+                 <spacer name="verticalSpacer_2">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                </layout>
               </widget>
@@ -648,31 +661,27 @@
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>40</height>
+               <height>50</height>
               </size>
              </property>
              <property name="title">
               <string>四元数</string>
              </property>
-             <widget class="QLabel" name="dmpQuatLabel">
-              <property name="geometry">
-               <rect>
-                <x>10</x>
-                <y>22</y>
-                <width>186</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>100</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>+0.0000,+0.0000,+0.0000,+0.0000</string>
-              </property>
-             </widget>
+             <layout class="QHBoxLayout" name="horizontalLayout_8">
+              <item>
+               <widget class="QLabel" name="dmpQuatLabel">
+                <property name="minimumSize">
+                 <size>
+                  <width>100</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>+0.0000,+0.0000,+0.0000,+0.0000</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
           </layout>

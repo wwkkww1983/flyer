@@ -264,6 +264,11 @@ class FCWaveWidget(QWidget):
             tick = aData[0]
             frameDict = aData[1]
             data = frameDict[frameDictKey] 
+
+            # 可能没有数据 不绘制
+            if not data:
+                continue
+
             xPhyNow = tick
             yPhyNow = data[dataName]
             # print(yPhyNow)

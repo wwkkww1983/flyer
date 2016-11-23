@@ -28,6 +28,8 @@ class FCFrameType(enum.Enum):
     FrameReqTimeAcceleratorEulerPid = FrameReq | FramePid | FrameEuler | FrameAccelerator
     FrameReqTimeAccelGyro           = FrameReq | FrameGyro | FrameAccel
     FrameReqTimeDmpQuatAccel        = FrameReq | FrameDmpQuat | FrameAccel
+    FrameReqTimeDmpQuatAccelEuler   = FrameReq | FrameDmpQuat | FrameAccel | FrameEuler
+    FrameReqTimeAccelEuler          = FrameReq | FrameAccel | FrameEuler
 
     # dmp四元数采集数据帧
     # 文本输出帧

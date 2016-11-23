@@ -85,8 +85,9 @@ class FCPidWidget(FCOnlineWidget):
         self.SendDownFrame(downFrame)
 
     def RecvNewUpFrame(self, frame): 
-        (tick, frameDict) = frame.ToFrameDict() 
+        super(FCPidWidget, self).RecvNewUpFrame(frame) 
 
+        (tick, frameDict) = frame.ToFrameDict() 
         # 非文本帧 更新时间/欧拉角/PID/油门
         if not frameDict['文本']:
             pid = frameDict['PID']

@@ -5,6 +5,7 @@
 from config import gLocalIP
 from config import gLocalPort
 from config import gSaveDataFileFullName
+from config import gFlyerInitDoneStr
 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -92,7 +93,12 @@ class FCOnlineWidget(QWidget):
             # 等效于 append 但是不加入换行
             self.mConsolePlainTextEdit.moveCursor(QTextCursor.End)
             self.mConsolePlainTextEdit.insertPlainText(text)
-            self.mConsolePlainTextEdit.moveCursor(QTextCursor.End)
+            self.mConsolePlainTextEdit.moveCursor(QTextCursor.End) 
+
+            # 下位机就绪后发送采用信号
+            text = frameDict['文本']
+            if gFlyerInitDoneStr in text:
+                self.Capture()
         else:
             label_str = '运行:% 6.1fs' %  (1.0 * tick / 1000)
             self.mRunTimeLabel.setText(label_str)
