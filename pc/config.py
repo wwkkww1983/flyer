@@ -34,7 +34,7 @@ gWaveYStep = 30
 gWaveYUint = '  度  '
 #gWaveYUint = ' PID  '
 # 默认为 1度/像素
-gYAnglePerPixelRate = 1
+gYAnglePerPixelRate = 0.1
 gYPixelPerAngleRate = 1 / gYAnglePerPixelRate
 # 默认为 1pid/像素
 gYPidPerPixelRate = 1
@@ -52,11 +52,11 @@ gWaveAxesWidth = 1
 
 # 颜色线宽
 gWaveConfig = [
-        ('加计X', Qt.red, 1),
-        ('加计Y', Qt.green, 1),
+        #('加计X', Qt.red, 1),
+        #('加计Y', Qt.green, 1),
         ('加计Z', Qt.blue, 1),
 
-        #('俯仰角', Qt.red, 1),
+        ('俯仰角', Qt.yellow, 1),
         #('横滚角', Qt.green, 1),
         #('偏航角', Qt.blue, 1),
 
