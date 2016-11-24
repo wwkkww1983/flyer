@@ -141,3 +141,60 @@ int32_T diff_clk(misc_time_T *diff, const misc_time_T *start, const misc_time_T 
     return 0;
 }
 
+/*******************************************************************************
+*
+* 函数名  : misc_interval_max_update
+* 负责人  : 彭鹏
+* 创建日期: 20161124
+* 函数功能: 1. 每次调用时,记录与上次调用间的时间差
+*           2. 使用1中的时间差更新截止目前为止最大的时间差
+*
+* 输入参数: interval_max 最大间隔结构
+* 输出参数: interval_max 最大间隔结构
+*
+* 返回值  : 无
+*
+* 调用关系: 无
+* 其 它   : 无
+*
+******************************************************************************/
+void misc_interval_max_update(misc_interval_max_T *interval_max)
+{ 
+    misc_time_T now_time = {0};
+    misc_time_T interval = {0};
+    misc_time_T diff_now_and_max = {0};
+
+    /* (本次)主循环终点 */
+    get_now(&now_time);
+
+    /* 需要初始化 */
+    if(!(interval_max->inited))
+    {
+        /* 记录当前时间用于下次计算 */
+        (interval_max->last_time).ms = now_time.ms;
+        (interval_max->last_time).clk = now_time.clk;
+
+        /* 初始化 */
+        (interval_max->interval_max).ms = 0;
+        (interval_max->interval_max).clk = 0;
+        interval_max->inited = TRUE;
+        return;
+    }
+
+    /* 求取当前时间与上次调用间的时间差 */
+    diff_clk(&interval, &(interval_max->last_time), &now_time);
+
+    /* 冒泡算法interval_max->max_interval中存放最大间隔 */
+    if(1 == diff_clk(&diff_now_and_max, &interval, &(interval_max->interval_max)))
+    {
+        (interval_max->interval_max).ms = interval.ms;
+        (interval_max->interval_max).clk = interval.clk;
+    } 
+    
+    /* 记录当前时间用于下次计算 */
+    (interval_max->last_time).ms = now_time.ms;
+    (interval_max->last_time).clk = now_time.clk;
+
+    return;
+}
+

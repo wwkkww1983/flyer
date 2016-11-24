@@ -33,6 +33,7 @@
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/ 
+static misc_interval_max_T s_main_loop_interval_max = {0}; /* 主循环最大间隔 */
 
 /********************************** 函数声明区 *********************************/
 static void idle(void);
@@ -80,13 +81,9 @@ static void idle()
 {
     static bool_T first_run = TRUE; /* 标记是否首次运行 */
     static uint32_T ms_start = 0; /* 首次运行ms数*/
-    static misc_time_T last_loop_start_time = {0}; /* 上次主循环启动时间 */
-    static misc_time_T max_interval = {0}; /* 存放每次主循环最大耗时(用于评估时间片) */
-
-    misc_time_T interval = {0};
     uint32_T ms_now = 0;
-    misc_time_T now_time = {0};
-    misc_time_T temp = {0};
+
+    misc_time_T interval = {0}; /* 用于保存quat/accel采样间隔 */
 
     if(TRUE == first_run) /* 获取起始时间 仅运行一次 */
     {
@@ -95,16 +92,8 @@ static void idle()
     } 
     else /* 第一次不运行 其他每次都运行 */
     {
-        /* (本次)主循环终点 */
-        get_now(&now_time);
-        diff_clk(&interval, &last_loop_start_time, &now_time);
-
-        /* 冒泡算法max_interval中永远存放 最大间隔 */
-        if(1 == diff_clk(&temp, &interval, &max_interval))
-        {
-            max_interval.ms = interval.ms;
-            max_interval.clk = interval.clk;
-        }
+        /* 获取主循环每次运行到此处的最大间隔 */
+        misc_interval_max_update(&s_main_loop_interval_max);
 
         ms_now = HAL_GetTick();
         if(ms_now - ms_start >= 10000) /* 已达10s 执行一次 */
@@ -114,14 +103,19 @@ static void idle()
             ms_start = HAL_GetTick();
 
             debug_log("%4.1f秒:", ms_start / 1000.0f);
-            debug_log("loop max time:%dms,%5.2fus.\r\n", 
-                    max_interval.ms, 1.0f * max_interval.clk / 84);
+            debug_log("mainloop:%dms,%5.2fus.\r\n",
+                    (s_main_loop_interval_max.interval_max).ms,
+                    1.0f * (s_main_loop_interval_max.interval_max).clk / 84);
+
+            mpu9250_get_quat_interval_max(&interval);
+            debug_log("quat:%dms,%5.2fus.\r\n",
+                    interval.ms, 1.0f * interval.clk / 84);
+
+            mpu9250_get_accel_interval_max(&interval);
+            debug_log("accel:%dms,%5.2fus.\r\n",
+                    interval.ms, 1.0f * interval.clk / 84);
         }
-
     }
-
-    /* (下次)主循环起点 */
-    get_now(&last_loop_start_time);
 }
 
 /* 初始化 */

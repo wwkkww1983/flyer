@@ -34,13 +34,18 @@
 /********************************** 变量声明区 *********************************/
 static bool_T s_mpu9250_fifo_ready = FALSE; 
 static uint8_T s_int_status = 0;
-static f32_T s_quat[4] = {1.0f, 0.0f, 0.0f, 0.0f}; /* 最终的四元数(初始值必须为:1,0,0,0 表示无旋转) */
+
 static f32_T s_q45[4] = {0.0f}; /* 求偏航角旋转45度pi/4(绕Z轴)的四元数表示 */
 static const signed char s_orientation[9] = MPU9250_ORIENTATION;
-static bool_T s_quat_arrived = FALSE; /* 是否生成新的四元数 */
-static f32_T s_accel[4] = {0.0f, 0.0f, 1.0f}; /* 最终的加计数据(初始值必须为:0,0,1 表示无旋转) */
-static uint16_T s_accel_sens = 0;
+
+static f32_T s_quat[4] = {1.0f, 0.0f, 0.0f, 0.0f}; /* 最终的四元数(初始值必须为:1,0,0,0 表示无旋转) */
+static bool_T s_quat_arrived = FALSE; /* 是否生成新的四元数 */ 
+static misc_interval_max_T s_quat_interval_max = {0}; /* 四元数采样最大间隔 */
+
+static f32_T s_accel[3] = {0.0f, 0.0f, 1.0f}; /* 最终的加计数据(初始值必须为:0,0,1 表示无旋转) */
+static uint16_T s_accel_sens = 0; /* 加计灵敏度 */
 static bool_T s_accel_arrived = FALSE; /* 是否生成新的加计数据 */
+static misc_interval_max_T s_accel_interval_max = {0}; /* 加计采样最大间隔 */
 
 /********************************** 函数声明区 *********************************/
 static void run_self_test(void);
@@ -177,6 +182,9 @@ void mpu9250_update(void)
     mpu9250_dmp_read(quat, accel);
     if(mpu9250_quat_arrived())
     { 
+        /* 获取quat采样最大间隔 */ 
+        misc_interval_max_update(&s_quat_interval_max); 
+
         /* 偏航角旋转45度与机翼对应 */
         math_quaternion_cross(quat_rotated, quat, s_q45); 
         mpu9250_set_quat(quat_rotated);
@@ -184,6 +192,9 @@ void mpu9250_update(void)
 
     if(mpu9250_accel_arrived())
     {
+        /* 获取加计采样最大间隔 */
+        misc_interval_max_update(&s_accel_interval_max);
+
         mpu9250_set_accel(accel);
     }
     
@@ -258,6 +269,18 @@ void mpu9250_get_quat_with_clear(f32_T *quat)
 bool_T mpu9250_quat_arrived(void)
 {
     return s_quat_arrived;
+}
+
+void mpu9250_get_quat_interval_max(misc_time_T *interval)
+{
+    interval->ms = s_quat_interval_max.interval_max.ms;
+    interval->clk = s_quat_interval_max.interval_max.clk;
+}
+
+void mpu9250_get_accel_interval_max(misc_time_T *interval)
+{
+    interval->ms = s_accel_interval_max.interval_max.ms;
+    interval->clk = s_accel_interval_max.interval_max.clk;
 }
 
 /* TODO:设置和获取加计数据 加锁 */

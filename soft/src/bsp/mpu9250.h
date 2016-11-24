@@ -18,6 +18,7 @@
 #include "config.h"
 #include "stm32f4xx_hal.h"
 #include "debug.h"
+#include "misc.h"
 
 /************************************ 宏定义 ***********************************/
 /*********************************** 板级定义 **********************************/
@@ -67,6 +68,12 @@ void mpu9250_get_accel(f32_T *accel);
 
 /* 获取加计数据 且 标记加计数据(已经使用) */
 void mpu9250_get_accel_with_clear(f32_T *accel);
+
+/* 获取四元数采样最大间隔 */
+void mpu9250_get_quat_interval_max(misc_time_T *interval);
+
+/* 获取加计采样最大间隔 */
+void mpu9250_get_accel_interval_max(misc_time_T *interval);
 
 
 #endif /* _MPU9250_H_ */
