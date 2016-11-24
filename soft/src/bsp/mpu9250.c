@@ -47,7 +47,7 @@ static f32_T s_accel[3] = {0.0f, 0.0f, 1.0f}; /* 最终的加计数据(初始值
 static uint16_T s_accel_sens = 0; /* 加计灵敏度 */
 static bool_T s_accel_arrived = FALSE; /* 是否生成新的加计数据 */
 static misc_interval_max_T s_accel_interval_max = {0}; /* 加计采样最大间隔 */
-static f32_T s_filter_rate = 0.1; /* 加计滤波比例参数 */
+static f32_T s_filter_rate = FILTER_ACCEL_RATE; /* 加计滤波比例参数 */
 
 /********************************** 函数声明区 *********************************/
 static void run_self_test(void);
@@ -168,8 +168,6 @@ void mpu9250_update(void)
 {
     /* mpu9250_dmp_read并非每次更新 所以需要有记忆性 */
     static f32_T quat[4] = {1.0f, 0.0f, 0.0f, 0.0f};
-    f32_T quat_rotated[4] = {0.0f};
-
     static f32_T accel[3] = {0.0f, 0.0f, 1.0f};
     static f32_T accel_filtered[3] = {0.0f, 0.0f, 1.0f};
 
@@ -182,7 +180,7 @@ void mpu9250_update(void)
         /* 获取quat采样最大间隔 */ 
         misc_interval_max_update(&s_quat_interval_max); 
 
-        mpu9250_set_quat(quat_rotated);
+        mpu9250_set_quat(quat);
     }
 
     /* 1. 保存加计数据便于发送给上位机
@@ -193,13 +191,17 @@ void mpu9250_update(void)
         misc_interval_max_update(&s_accel_interval_max);
 
         /* 加计数据滤波 */
+#if 0
         filter_accel(accel_filtered, accel, s_filter_rate);
-        mpu9250_set_accel(accel_filtered);
+        mpu9250_set_accel(accel_filtered); /* 发送滤波后的数据 */
 
         /* 6轴融合 */
-#if 1
-        fusion_accel(accel_filtered);
+        fusion_accel();
+#else
+        mpu9250_set_accel(accel); /* 发送滤波后的数据 */
+        s_accel_arrived = FALSE;
 #endif
+
     }
     
 }

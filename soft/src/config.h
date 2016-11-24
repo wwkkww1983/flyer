@@ -59,6 +59,9 @@
 /* 弧度转角度 */
 #define MATH_ARC2ANGLE_RATE                                 (180/MATH_PI)
 
+/* 加计滤波比例参数 */
+#define FILTER_ACCEL_RATE                                   (1.0f)
+
 /* 融合算法参数 */
 #define FUSION_ACCEL_THETA_RATE                             (0.9f)
 #define FUSION_ACCEL_PHI_RATE                               (0.9f)
