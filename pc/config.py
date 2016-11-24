@@ -72,7 +72,8 @@ gWaveConfig = [
         ]
 
 # 按键自动设置的步长
-gKeyStep = 0.01 
+gKeyPidStep = 0.01 
+gKeyAcceletorPidStep = 50 
 
 # 下位机就绪打印
 gFlyerInitDoneStr = '初始化完成,进入主循环'

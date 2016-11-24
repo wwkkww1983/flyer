@@ -6,6 +6,7 @@ from config import gLocalIP
 from config import gLocalPort
 from config import gSaveDataFileFullName
 from config import gFlyerInitDoneStr
+from config import gKeyAcceletorPidStep
 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -49,9 +50,6 @@ class FCOnlineWidget(QWidget):
         # 采样帧控制
         # 采样间隔
         self.mIntervalLineEdit = self.mUi.intervalLineEdit
-        # 发送捕获信号按钮
-        self.mSendDownFramePushButton = self.mUi.capturePushButton
-        self.mSendDownFramePushButton.clicked.connect(self.Capture)
 
         # 油门控制
         self.mAcceleratorSpinBox = self.mUi.acceleratorSpinBox
@@ -71,6 +69,12 @@ class FCOnlineWidget(QWidget):
 
     def closeEvent(self, event):
         super(FCOnlineWidget, self).closeEvent(event)
+
+    def Capture(self, downFrameClass):
+        self.mIntervalLineEdit.setEnabled(False)
+        interval = int(self.mIntervalLineEdit.text())
+        downFrame = downFrameClass(interval)
+        self.SendDownFrame(downFrame)
 
     def Start(self):
         accelerator = int(self.mAcceleratorSpinBox.text()) 
@@ -110,4 +114,32 @@ class FCOnlineWidget(QWidget):
             self.mPhiLabel.setText(label_str)
             label_str = '偏航:%+6.1f' %  euler['偏航角']
             self.mPsiLabel.setText(label_str)
+
+            # 将数据帧加入波形控件(波形控件自己会绘制)
+            self.mWaveWidget.Append(tick, frameDict)
+
+    # 交互类函数
+    def keyPressEvent(self, keyEvent):
+        key = keyEvent.key()
+        # 加油
+        if Qt.Key_W == key:
+            accelerator = int(self.mAcceleratorSpinBox.text()) 
+            accelerator += gKeyAcceletorPidStep
+            self.mAcceleratorSpinBox.setValue(accelerator)
+            self.Start()
+        # 减油
+        elif Qt.Key_S == key:
+            accelerator = int(self.mAcceleratorSpinBox.text()) 
+            accelerator -= gKeyAcceletorPidStep
+            self.mAcceleratorSpinBox.setValue(accelerator)
+            self.Start()
+        # 按照mAcceleratorSpinBox值启动 
+        elif Qt.Key_Enter == key or Qt.Key_Return == key:
+            self.Start()
+        # 刹车
+        elif Qt.Key_Space == key:
+            self.Stop()
+        # 无用按键
+        else:
+            pass
 

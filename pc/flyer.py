@@ -174,6 +174,7 @@ if __name__ == '__main__':
     # 发送字符串
     flyer.SendPrintFrame('世界，您好！abc,123\r\n') 
     flyer.SendPrintFrame('开始启动了.\r\n') 
+    flyer.SendPrintFrame('初始化完成,进入主循环.\r\n') 
 
     interval = 0.1 # 100ms
     timeMax = 60000 # 60s
@@ -208,7 +209,7 @@ if __name__ == '__main__':
         accel = FCAccel(accel_x_rand, accel_y_rand, accel_z_rand)
 
 
-        frameDict = {'DMP四元数': None, '加计': accel, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': None, '欧拉角': euler,}
+        frameDict = {'DMP四元数': None, '加计': accel, '陀螺仪': None, '磁计': None, '压力': None, '油门': accelerator, 'PID': pid, '欧拉角': euler,}
         flyer.SendDataFrame(frameDict)
         time.sleep(interval) # 延迟不精确
 

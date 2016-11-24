@@ -5,7 +5,7 @@
 from config import gLocalIP
 from config import gLocalPort
 from config import gSaveDataFileFullName
-from config import gKeyStep
+from config import gKeyPidStep
 
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -21,11 +21,6 @@ class FCPidWidget(FCOnlineWidget):
     def __init__(self, uiFile):
         super(FCPidWidget, self).__init__(uiFile)
         # 基类FCOnlineWidget已经完成 读取/设置ui文件
-
-        # 下行帧复选
-        self.mAcceletorCheckBox = self.mUi.acceletorCheckBox
-        self.mEulerCheckBox = self.mUi.eulerCheckBox
-        self.mPidCheckBox = self.mUi.pidCheckBox
 
         # pid参数控制
         self.mThetaPLineEdit = self.mUi.thetaPLineEdit
@@ -59,12 +54,7 @@ class FCPidWidget(FCOnlineWidget):
         self.mLeftProgressBar =  self.mUi.leftProgressBar
 
     def Capture(self):
-        if (True == self.mAcceletorCheckBox.isChecked()) and (True == self.mEulerCheckBox.isChecked()) and (True == self.mPidCheckBox.isChecked()):
-            interval = int(self.mIntervalLineEdit.text())
-            downFrame = FCReqTimeAcceleratorEulerPid(interval)
-            self.SendDownFrame(downFrame)
-        else:
-            print("FCPidWidget.Capture下行帧不符合要求.")
+        super(FCPidWidget, self).Capture(FCReqTimeAcceleratorEulerPid)
 
     def PidThetaSet(self):
         euler_str = '俯仰PID'
@@ -117,11 +107,9 @@ class FCPidWidget(FCOnlineWidget):
             self.mLeftLabel.setText(label_str)
             self.mLeftProgressBar.setValue(value)
 
-            # 将数据帧加入波形控件(波形控件自己会绘制)
-            self.mWaveWidget.Append(tick, frameDict)
-
     # 交互类函数
     def keyPressEvent(self, keyEvent):
+        super(FCPidWidget, self).keyPressEvent(keyEvent) 
         # 仅实现 俯仰PID设置
         # 1: + p
         # 2: - p
@@ -148,22 +136,16 @@ class FCPidWidget(FCOnlineWidget):
         elif Qt.Key_6 == key:
             self._pidKeyChange(self.mThetaDLineEdit, '-')
             self.PidThetaSet()
-        elif Qt.Key_Enter == key or Qt.Key_Return == key:
-            self.Start()
-        elif Qt.Key_Space == key:
-            self.Stop()
+        # 无用按键
         else:
-            print("无效按键", key) 
-
-    def keyReleaseEvent (self, keyEvent):
-        pass
+            pass
 
     def _pidKeyChange(self, lineEdit, add_or_dec): 
         val = 0
         if '+' == add_or_dec:
-            val = float(lineEdit.text()) + gKeyStep
+            val = float(lineEdit.text()) + gKeyPidStep
         elif '-' == add_or_dec:
-            val = float(lineEdit.text()) - gKeyStep
+            val = float(lineEdit.text()) - gKeyPidStep
         else:
             print("无效参数", key) 
             return
