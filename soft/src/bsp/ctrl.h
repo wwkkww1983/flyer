@@ -40,7 +40,7 @@
 #define CTRL_PSI_KP_INIT                 (0.3f)
 #define CTRL_PSI_KI_INIT                 (0.0f)
 #define CTRL_PSI_KD_INIT                 (0.0f)
-#define CTRL_PSI_EXPECT_INIT             (MPU9250_ROTATED_ARC)
+#define CTRL_PSI_EXPECT_INIT             (0.0f)
 
 /*--------------------------------- 接口声明区 --------------------------------*/
 typedef struct CTRL_T_tag{

@@ -36,7 +36,6 @@
 static bool_T s_mpu9250_fifo_ready = FALSE; 
 static uint8_T s_int_status = 0;
 
-static f32_T s_q45[4] = {0.0f}; /* 求偏航角旋转45度pi/4(绕Z轴)的四元数表示 */
 static const signed char s_orientation[9] = MPU9250_ORIENTATION;
 
 static f32_T s_quat[4] = {1.0f, 0.0f, 0.0f, 0.0f}; /* 最终的四元数(初始值必须为:1,0,0,0 表示无旋转) */
@@ -67,15 +66,6 @@ void mpu9250_init(void)
 {
     uint8_T who_am_i = 0;
     uint16_T dmp_features = 0;
-
-    /* 目前使用+型计算 
-     * 由于硬件PCB布局的原因,硬件是X型
-     * 旋转45度,转换为+型 */
-    f32_T theta = MPU9250_ROTATED_ARC;
-    s_q45[0] = cos(theta / 2);
-    s_q45[1] = 0;
-    s_q45[2] = 0;
-    s_q45[3] = sin(theta / 2);
 
     /* 测试i2c是否正常工作 */
     si_read_poll(MPU9250_DEV_ADDR, MPU9250_WHO_AM_I_REG_ADDR, &who_am_i, 1); 
@@ -189,8 +179,6 @@ void mpu9250_update(void)
         /* 获取quat采样最大间隔 */ 
         misc_interval_max_update(&s_quat_interval_max); 
 
-        /* 偏航角旋转45度与机翼对应 */
-        math_quaternion_cross(quat_rotated, quat, s_q45); 
         mpu9250_set_quat(quat_rotated);
     }
 

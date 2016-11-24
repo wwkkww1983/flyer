@@ -92,6 +92,8 @@ void ctrl_update(void)
     /* 获取pid输出 */
     ctrl_get_pid_out(out);
 
+    /* FIXME: 四轴X方向,控制算法需要修改 */
+
     /* step3: 计算纠偏值 */
     /* 俯仰角平衡 */
     s_ctrl[PWM_FRONT].adj += out[CTRL_THETA] / 2.0f;
