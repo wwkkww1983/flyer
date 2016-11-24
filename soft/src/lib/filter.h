@@ -25,7 +25,7 @@
 /*********************************** 全局变量 **********************************/
 
 /*********************************** 接口函数 **********************************/ 
-void filter_accel(f32_T *accel_filtered, const f32_T *accel);
+void filter_accel(f32_T *accel_filtered, const f32_T *accel, f32_T rate);
 
 #endif
 

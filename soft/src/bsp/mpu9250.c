@@ -47,6 +47,7 @@ static f32_T s_accel[3] = {0.0f, 0.0f, 1.0f}; /* 最终的加计数据(初始值
 static uint16_T s_accel_sens = 0; /* 加计灵敏度 */
 static bool_T s_accel_arrived = FALSE; /* 是否生成新的加计数据 */
 static misc_interval_max_T s_accel_interval_max = {0}; /* 加计采样最大间隔 */
+static f32_T s_filter_rate = 0.1; /* 加计滤波比例参数 */
 
 /********************************** 函数声明区 *********************************/
 static void run_self_test(void);
@@ -199,7 +200,7 @@ void mpu9250_update(void)
         misc_interval_max_update(&s_accel_interval_max);
 
         /* 加计数据滤波 */
-        filter_accel(accel_filtered, accel);
+        filter_accel(accel_filtered, accel, s_filter_rate);
         mpu9250_set_accel(accel_filtered);
     }
     
