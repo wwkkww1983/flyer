@@ -63,8 +63,15 @@ void fusion_accel(f32_T *accel)
      * theta_r = (1 - FUSION_ACCEL_THETA_RATE) * theta_g + FUSION_ACCEL_THETA_RATE * theta_a;
      * phi_r = (1 - FUSION_ACCEL_PHI_RATE) * phi_g + FUSION_ACCEL_PHI_RATE * phi_a;
      * 优化为下式 */
+#if 1
+    /* 欠补偿 */
     theta_r = theta_g + (theta_a - theta_g) * FUSION_ACCEL_THETA_RATE;
     phi_r = phi_g + (phi_a - phi_g) * FUSION_ACCEL_PHI_RATE;
+#else
+    /* 过补偿 */
+    theta_r = theta_a + (theta_a - theta_g) * FUSION_ACCEL_THETA_RATE;
+    phi_r = phi_a + (phi_a - phi_g) * FUSION_ACCEL_PHI_RATE;
+#endif
 
 
     euler[0] = theta_r;
