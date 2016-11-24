@@ -36,20 +36,25 @@ void filter_accel(f32_T *accel_filtered, const f32_T *accel, f32_T rate)
     }
 
     /* 初始化 */
-    if(!s_initted)
+    if(s_initted) /* 滤波 */
     {
         for(i = 0; i < 3; i++)
         {
-            s_accel_last_val[i] = accel[i];
+            /*
+             * accel_filtered[i] = rate * s_accel_last_val[i] + (1.0f - rate) * accel[i];
+             * 等效于下式:
+             * */
+            accel_filtered[i] = rate * (s_accel_last_val[i] - accel[i]) + accel[i];
         }
-        return;
     }
-    else /* 滤波 */
+    else /* 首次输出 {0,0,1}(s_accel_last_val初值) */
     {
-        for(i = 0; i < 3; i++)
-        {
-            s_accel_last_val[i] = (1.0f - rate) * s_accel_last_val[i] + rate * accel[i];
-        }
+        s_initted = TRUE;
+    }
+
+    for(i = 0; i < 3; i++)
+    {
+        s_accel_last_val[i] = accel_filtered[i];
     }
 }
 

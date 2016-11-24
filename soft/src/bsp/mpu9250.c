@@ -191,15 +191,14 @@ void mpu9250_update(void)
         misc_interval_max_update(&s_accel_interval_max);
 
         /* 加计数据滤波 */
-#if 0
         filter_accel(accel_filtered, accel, s_filter_rate);
         mpu9250_set_accel(accel_filtered); /* 发送滤波后的数据 */
 
+#if 1
+        s_accel_arrived = FALSE;
+#else
         /* 6轴融合 */
         fusion_accel();
-#else
-        mpu9250_set_accel(accel); /* 发送滤波后的数据 */
-        s_accel_arrived = FALSE;
 #endif
 
     }
