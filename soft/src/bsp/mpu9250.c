@@ -28,6 +28,7 @@
 #include "si.h"
 #include "mpu9250.h"
 #include "lib_math.h"
+#include "filter.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
 
@@ -176,8 +177,10 @@ void mpu9250_update(void)
 {
     /* mpu9250_dmp_read并非每次更新 所以需要有记忆性 */
     static f32_T quat[4] = {1.0f, 0.0f, 0.0f, 0.0f};
-    static f32_T accel[3] = {0.0f, 0.0f, 1.0f};
     f32_T quat_rotated[4] = {0.0f};
+
+    static f32_T accel[3] = {0.0f, 0.0f, 1.0f};
+    static f32_T accel_filtered[3] = {0.0f, 0.0f, 1.0f};
 
     mpu9250_dmp_read(quat, accel);
     if(mpu9250_quat_arrived())
@@ -195,7 +198,9 @@ void mpu9250_update(void)
         /* 获取加计采样最大间隔 */
         misc_interval_max_update(&s_accel_interval_max);
 
-        mpu9250_set_accel(accel);
+        /* 加计数据滤波 */
+        filter_accel(accel_filtered, accel);
+        mpu9250_set_accel(accel_filtered);
     }
     
 }

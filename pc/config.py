@@ -24,17 +24,19 @@ gLocalPort = 8080
 gSaveDataFileFullName = os.path.join(_dataFileDir, _fileName)
 
 # 绘图配置
+# X轴
 gWaveXUnit = '秒'
 gWaveXStep = 50
-# X轴 每个像素表示100ms(0.1s)
+# 每个像素表示100ms(0.1s)
 gXTimePerPixelRate = 0.1
 _xPixelPerTimeRate = 1 / gXTimePerPixelRate
 gXPixelPerTimemsRate = _xPixelPerTimeRate / 1000
-gWaveYStep = 30
+# Y轴
 gWaveYUint = '  度  '
 #gWaveYUint = ' PID  '
+gWaveYStep = 30
 # 默认为 1度/像素
-gYAnglePerPixelRate = 0.1
+gYAnglePerPixelRate = 1
 gYPixelPerAngleRate = 1 / gYAnglePerPixelRate
 # 默认为 1pid/像素
 gYPidPerPixelRate = 1
