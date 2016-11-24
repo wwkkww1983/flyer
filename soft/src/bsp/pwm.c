@@ -29,25 +29,25 @@
 PWM_CH_T g_pwm_ch_list[] = {
     {
         /* 晶体顺时针方向第1个 */
-        .name = PWM_FRONT,
+        .name = PWM_NE1,
         .tim  = PWM_TIM, 
         .ch   = TIM_CHANNEL_1,
     },
     {
         /* 晶体顺时针方向第2个 */
-        .name = PWM_RIGHT,
+        .name = PWM_SE2,
         .tim  = PWM_TIM, 
         .ch   = TIM_CHANNEL_2,
     },
     {
         /* 晶体顺时针方向第3个 */
-        .name = PWM_BACK,
+        .name = PWM_SW3,
         .tim  = PWM_TIM, 
         .ch   = TIM_CHANNEL_3,
     },
     {
         /* 晶体顺时针方向第4个 */
-        .name = PWM_LEFT,
+        .name = PWM_NW4,
         .tim  = PWM_TIM, 
         .ch   = TIM_CHANNEL_4,
     }
@@ -182,38 +182,38 @@ static void pwm_test(void)
 
     period = pwm_get_period();
 
-    pwm_set(PWM_FRONT, (int32_T)(period * accelerator_rate / 100.0));
-    pwm_set(PWM_RIGHT, (int32_T)(period * 0.0));
-    pwm_set(PWM_BACK,  (int32_T)(period * 0.0));
-    pwm_set(PWM_LEFT,  (int32_T)(period * 0.0));
+    pwm_set(PWM_NE1, (int32_T)(period * accelerator_rate / 100.0));
+    pwm_set(PWM_SE2, (int32_T)(period * 0.0));
+    pwm_set(PWM_SW3,  (int32_T)(period * 0.0));
+    pwm_set(PWM_NW4,  (int32_T)(period * 0.0));
     HAL_Delay(delay);
 
-    pwm_set(PWM_FRONT, (int32_T)(period * 0.0));
-    pwm_set(PWM_RIGHT, (int32_T)(period * accelerator_rate / 100.0));
-    pwm_set(PWM_BACK,  (int32_T)(period * 0.0));
-    pwm_set(PWM_LEFT,  (int32_T)(period * 0.0));
+    pwm_set(PWM_NE1, (int32_T)(period * 0.0));
+    pwm_set(PWM_SE2, (int32_T)(period * accelerator_rate / 100.0));
+    pwm_set(PWM_SW3,  (int32_T)(period * 0.0));
+    pwm_set(PWM_NW4,  (int32_T)(period * 0.0));
     HAL_Delay(delay);
 
-    pwm_set(PWM_FRONT, (int32_T)(period * 0.0));
-    pwm_set(PWM_RIGHT, (int32_T)(period * 0.0));
-    pwm_set(PWM_BACK,  (int32_T)(period * accelerator_rate / 100.0));
-    pwm_set(PWM_LEFT,  (int32_T)(period * 0.0));
+    pwm_set(PWM_NE1, (int32_T)(period * 0.0));
+    pwm_set(PWM_SE2, (int32_T)(period * 0.0));
+    pwm_set(PWM_SW3,  (int32_T)(period * accelerator_rate / 100.0));
+    pwm_set(PWM_NW4,  (int32_T)(period * 0.0));
     HAL_Delay(delay);
 
-    pwm_set(PWM_FRONT, (int32_T)(period * 0.0));
-    pwm_set(PWM_RIGHT, (int32_T)(period * 0.0));
-    pwm_set(PWM_BACK,  (int32_T)(period * 0.0));
-    pwm_set(PWM_LEFT,  (int32_T)(period * accelerator_rate / 100.0));
+    pwm_set(PWM_NE1, (int32_T)(period * 0.0));
+    pwm_set(PWM_SE2, (int32_T)(period * 0.0));
+    pwm_set(PWM_SW3,  (int32_T)(period * 0.0));
+    pwm_set(PWM_NW4,  (int32_T)(period * accelerator_rate / 100.0));
     HAL_Delay(delay);
 }
 
 /* 关闭电机 */
 void pwm_off(void)
 {
-    pwm_set(PWM_FRONT, 0);
-    pwm_set(PWM_RIGHT, 0);
-    pwm_set(PWM_BACK,  0);
-    pwm_set(PWM_LEFT,  0);
+    pwm_set(PWM_NE1, 0);
+    pwm_set(PWM_SE2, 0);
+    pwm_set(PWM_SW3,  0);
+    pwm_set(PWM_NW4,  0);
 }
 
 inline int32_T pwm_get_period(void)

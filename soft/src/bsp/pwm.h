@@ -25,10 +25,10 @@
 /* LED名字 编号 */
 typedef enum
 {
-    PWM_FRONT = 0,
-    PWM_RIGHT = 1,
-    PWM_BACK  = 2,
-    PWM_LEFT  = 3,
+    PWM_NE1 = 0,
+    PWM_SE2 = 1,
+    PWM_SW3 = 2,
+    PWM_NW4 = 3,
     PWM_MAX
 }PWM_NAME;
 

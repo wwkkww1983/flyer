@@ -92,15 +92,19 @@ void ctrl_update(void)
     /* 获取pid输出 */
     ctrl_get_pid_out(out);
 
-    /* FIXME: 四轴X方向,控制算法需要修改 */
-
     /* step3: 计算纠偏值 */
     /* 俯仰角平衡 */
-    s_ctrl[PWM_FRONT].adj += out[CTRL_THETA] / 2.0f;
-    s_ctrl[PWM_BACK].adj  -= out[CTRL_THETA] / 2.0f;
+    s_ctrl[PWM_NE1].adj -= out[CTRL_THETA] / 4.0f;
+    s_ctrl[PWM_SE2].adj -= out[CTRL_THETA] / 4.0f;
+    s_ctrl[PWM_SW3].adj += out[CTRL_THETA] / 4.0f;
+    s_ctrl[PWM_NW4].adj += out[CTRL_THETA] / 4.0f;
+
     /* 横滚角平衡 */
-    s_ctrl[PWM_LEFT].adj  += out[CTRL_PHI] / 2.0f;
-    s_ctrl[PWM_RIGHT].adj -= out[CTRL_PHI] / 2.0f;
+    s_ctrl[PWM_SE2].adj += out[CTRL_THETA] / 4.0f;
+    s_ctrl[PWM_SW3].adj += out[CTRL_THETA] / 4.0f;
+    s_ctrl[PWM_NE1].adj -= out[CTRL_THETA] / 4.0f;
+    s_ctrl[PWM_NW4].adj -= out[CTRL_THETA] / 4.0f;
+
     /* TODO:处理偏航 */
     /* 限幅 */
     pwm_val_max = pwm_get_period();
