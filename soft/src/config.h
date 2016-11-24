@@ -60,7 +60,7 @@
 #define MATH_ARC2ANGLE_RATE                                 (180/MATH_PI)
 
 /* 加计滤波比例参数 [0,1] 值增大则平滑 */
-#define FILTER_ACCEL_RATE                                   (1.0f)
+#define FILTER_ACCEL_RATE                                   (0.999f)
 
 /* 融合算法参数 */
 #define FUSION_ACCEL_THETA_RATE                             (0.9f)
