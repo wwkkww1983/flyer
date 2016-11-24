@@ -29,6 +29,7 @@
 #include "mpu9250.h"
 #include "lib_math.h"
 #include "filter.h"
+#include "fusion.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
 
@@ -51,7 +52,6 @@ static f32_T s_filter_rate = 0.1; /* 加计滤波比例参数 */
 /********************************** 函数声明区 *********************************/
 static void run_self_test(void);
 static void int_callback(void *argv);
-static void mpu9250_set_quat(const f32_T *quat);
 static void mpu9250_set_accel(const f32_T *accel);
 static void mpu9250_dmp_read(f32_T *f32_quat, f32_T *f32_accel);
 
@@ -173,7 +173,10 @@ void mpu9250_update(void)
     static f32_T accel[3] = {0.0f, 0.0f, 1.0f};
     static f32_T accel_filtered[3] = {0.0f, 0.0f, 1.0f};
 
+    /* 已实现陀螺仪3轴姿态融合 */
     mpu9250_dmp_read(quat, accel);
+
+    /* 保存姿态便于发送给上位机 */
     if(mpu9250_quat_arrived())
     { 
         /* 获取quat采样最大间隔 */ 
@@ -182,6 +185,8 @@ void mpu9250_update(void)
         mpu9250_set_quat(quat_rotated);
     }
 
+    /* 1. 保存加计数据便于发送给上位机
+     * 2. 6轴融合 */
     if(mpu9250_accel_arrived())
     {
         /* 获取加计采样最大间隔 */
@@ -190,6 +195,11 @@ void mpu9250_update(void)
         /* 加计数据滤波 */
         filter_accel(accel_filtered, accel, s_filter_rate);
         mpu9250_set_accel(accel_filtered);
+
+        /* 6轴融合 */
+#if 1
+        fusion_accel(accel_filtered);
+#endif
     }
     
 }
@@ -237,7 +247,7 @@ static void mpu9250_dmp_read(f32_T *f32_quat, f32_T *f32_accel)
 }
 
 /* TODO:设置和获取四元数 加锁 */
-static void mpu9250_set_quat(const f32_T *quat)
+void mpu9250_set_quat(const f32_T *quat)
 { 
     s_quat[0] = quat[0];
     s_quat[1] = quat[1];

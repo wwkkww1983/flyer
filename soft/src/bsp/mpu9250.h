@@ -54,6 +54,9 @@ void mpu9250_update(void);
 /* 判断有效四元数是否到达 */
 bool_T mpu9250_quat_arrived(void);
 
+/* 设置四元数 */
+void mpu9250_set_quat(const f32_T *quat);
+
 /* 获取四元数 */
 void mpu9250_get_quat(f32_T *quat);
 

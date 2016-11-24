@@ -59,6 +59,10 @@
 /* 弧度转角度 */
 #define MATH_ARC2ANGLE_RATE                                 (180/MATH_PI)
 
+/* 融合算法参数 */
+#define FUSION_ACCEL_THETA_RATE                             (0.9f)
+#define FUSION_ACCEL_PHI_RATE                               (0.9f)
+
 /* 以下内容不可修改 */
 /* 每秒钟systick中断数 默认1ms */
 #define TICK_PER_SECONDS                                    (1000U)

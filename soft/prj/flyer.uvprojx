@@ -462,6 +462,11 @@
               <FileType>1</FileType>
               <FilePath>..\src\lib\filter.c</FilePath>
             </File>
+            <File>
+              <FileName>fusion.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\lib\fusion.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
