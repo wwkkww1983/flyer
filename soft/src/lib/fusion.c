@@ -31,9 +31,8 @@
 
 /********************************** 函数实现区 *********************************/
 /* 6轴(3陀螺,3加计)融合 无法融合偏航角 */
-void fusion_accel(f32_T *accel)
+void fusion_accel(void)
 {
-
     f32_T theta_r = 0.0f;   /* 融合 俯仰角 */
     f32_T phi_r = 0.0f;     /* 融合 横滚角 */
 
@@ -43,6 +42,7 @@ void fusion_accel(f32_T *accel)
     f32_T theta_g = 0.0f;   /* 陀螺 俯仰角 */
     f32_T phi_g = 0.0f;     /* 陀螺 横滚角 */
 
+    f32_T accel[3] = {0.0f};
     f32_T euler[3] = {0.0f};
     f32_T q[4] = {0.0f};
 
@@ -50,6 +50,9 @@ void fusion_accel(f32_T *accel)
     /* 加计姿态 */
     theta_a = atan2(accel[1], accel[2]);
     phi_a = atan2(accel[0], accel[2]);
+
+    /* 获取加计数据 */
+    mpu9250_get_accel(accel);
 
     /* 获取四元数姿态(陀螺) */
     mpu9250_get_quat(q);

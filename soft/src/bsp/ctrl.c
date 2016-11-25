@@ -76,12 +76,14 @@ void ctrl_update(void)
     int32_T pwm = 0;
 
     /* step1: 获取姿态 */
-    /* 无新四元数 故无需更新pwm */
-    if(!mpu9250_quat_arrived())
+    /* 无新姿态 故无需更新pwm */
+    if(!mpu9250_updated())
     {
         return;
     }
-    mpu9250_get_quat_with_clear(quat_measured); /* 获取且标记 */
+    mpu9250_get_quat(quat_measured); /* 获取且标记 */
+    mpu9250_clear(); /* 避免多次控制 */
+
     math_quaternion2euler(euler_measured, quat_measured);
 
     /* step2: pid算法计算校正值 */

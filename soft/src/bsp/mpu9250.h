@@ -78,6 +78,12 @@ void mpu9250_get_quat_interval_max(misc_time_T *interval);
 /* 获取加计采样最大间隔 */
 void mpu9250_get_accel_interval_max(misc_time_T *interval);
 
+/* 告诉控制模块新姿态生成,可以控制 */
+bool_T mpu9250_updated(void);
+
+/* 控制模块用完姿态,避免控制对同一个姿态值实施多次控制 */
+void mpu9250_clear(void);
+
 
 #endif /* _MPU9250_H_ */
 

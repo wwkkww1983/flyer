@@ -34,18 +34,18 @@
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/
+static bool_T s_quat_updated = FALSE; /* 姿态有更新 需要重新平衡 */
+
 static bool_T s_mpu9250_fifo_ready = FALSE; 
 static uint8_T s_int_status = 0;
 
 static const signed char s_orientation[9] = MPU9250_ORIENTATION;
 
 static f32_T s_quat[4] = {1.0f, 0.0f, 0.0f, 0.0f}; /* 最终的四元数(初始值必须为:1,0,0,0 表示无旋转) */
-static bool_T s_quat_arrived = FALSE; /* 是否生成新的四元数 */ 
 static misc_interval_max_T s_quat_interval_max = {0}; /* 四元数采样最大间隔 */
 
 static f32_T s_accel[3] = {0.0f, 0.0f, 1.0f}; /* 最终的加计数据(初始值必须为:0,0,1 表示无旋转) */
 static uint16_T s_accel_sens = 0; /* 加计灵敏度 */
-static bool_T s_accel_arrived = FALSE; /* 是否生成新的加计数据 */
 static misc_interval_max_T s_accel_interval_max = {0}; /* 加计采样最大间隔 */
 static f32_T s_filter_rate = FILTER_ACCEL_RATE; /* 加计滤波比例参数 */
 
@@ -53,7 +53,7 @@ static f32_T s_filter_rate = FILTER_ACCEL_RATE; /* 加计滤波比例参数 */
 static void run_self_test(void);
 static void int_callback(void *argv);
 static void mpu9250_set_accel(const f32_T *accel);
-static void mpu9250_dmp_read(f32_T *f32_quat, f32_T *f32_accel);
+static void mpu9250_dmp_update(void);
 
 #if 0
 static void tap_callback(unsigned char direction, unsigned char count);
@@ -173,50 +173,19 @@ static void mpu9250_test(void)
 /* 更新姿态 */
 void mpu9250_update(void)
 {
-    /* mpu9250_dmp_read并非每次更新 所以需要有记忆性 */
-    static f32_T quat[4] = {1.0f, 0.0f, 0.0f, 0.0f};
-    static f32_T accel[3] = {0.0f, 0.0f, 1.0f};
-    static f32_T accel_filtered[3] = {0.0f, 0.0f, 1.0f};
-
-    /* 已实现陀螺仪3轴姿态融合 */
-    mpu9250_dmp_read(quat, accel);
-
-    /* 保存姿态便于发送给上位机 */
-    if(mpu9250_quat_arrived())
-    { 
-        /* 获取quat采样最大间隔 */ 
-        misc_interval_max_update(&s_quat_interval_max); 
-
-        mpu9250_set_quat(quat);
-    }
-
-    /* 1. 保存加计数据便于发送给上位机
-     * 2. 6轴融合 */
-    if(mpu9250_accel_arrived())
-    {
-        /* 获取加计采样最大间隔 */
-        misc_interval_max_update(&s_accel_interval_max);
-
-        /* 加计数据滤波 */
-        filter_accel(accel_filtered, accel, s_filter_rate);
-        mpu9250_set_accel(accel_filtered); /* 发送滤波后的数据 */
-
-#if 1
-        s_accel_arrived = FALSE;
-#else
-        /* 6轴融合 */
-        fusion_accel();
-#endif
-
-    }
-    
+    mpu9250_dmp_update();
 }
 
-static void mpu9250_dmp_read(f32_T *f32_quat, f32_T *f32_accel)
+static void mpu9250_dmp_update()
 {
     int16_T gyro[3] = {0};
+
     int16_T accel_short[3] = {0};
+    f32_T accel_f32[3] = {0};
+    f32_T accel_filtered[3] = {0.0f};
+
     int32_T quat[4] = {0};
+    f32_T quat_f32[4] = {0.0f};
     uint32_T sensor_timestamp = 0;
     int16_T sensors = 0;
     uint8_T more = 0; 
@@ -237,19 +206,34 @@ static void mpu9250_dmp_read(f32_T *f32_quat, f32_T *f32_accel)
         }
         if (sensors & INV_XYZ_ACCEL) 
         {
-            f32_accel[0] = accel_short[0] / (f32_T)s_accel_sens;
-            f32_accel[1] = accel_short[1] / (f32_T)s_accel_sens;
-            f32_accel[2] = accel_short[2] / (f32_T)s_accel_sens;
-            s_accel_arrived = TRUE;
-        }
+            /* 获取加计采样最大间隔 */
+            misc_interval_max_update(&s_accel_interval_max);
 
-        if (sensors & INV_WXYZ_QUAT)
-        {
-            f32_quat[0] = (f32_T) quat[0] / ((f32_T)(1L << 30));
-            f32_quat[1] = (f32_T) quat[1] / ((f32_T)(1L << 30));
-            f32_quat[2] = (f32_T) quat[2] / ((f32_T)(1L << 30));
-            f32_quat[3] = (f32_T) quat[3] / ((f32_T)(1L << 30)); 
-            s_quat_arrived = TRUE;
+            /* mpu9250内部格式转为通用浮点格式 */
+            accel_f32[0] = accel_short[0] / (f32_T)s_accel_sens;
+            accel_f32[1] = accel_short[1] / (f32_T)s_accel_sens;
+            accel_f32[2] = accel_short[2] / (f32_T)s_accel_sens; 
+
+            /* 加计数据滤波 */
+            filter_accel(accel_filtered, accel_f32, s_filter_rate);
+            mpu9250_set_accel(accel_filtered); /* 发送滤波后的数据 */ 
+            
+            /* 6轴融合 */
+            //fusion_accel(); 
+        }
+        if (sensors & INV_WXYZ_QUAT) /* 陀螺仪3轴融合姿态 */
+        { 
+            /* 获取quat采样最大间隔 */ 
+            misc_interval_max_update(&s_quat_interval_max); 
+
+            /* mpu9250内部格式转为通用浮点格式 */
+            quat_f32[0] = (f32_T) quat[0] / ((f32_T)(1L << 30));
+            quat_f32[1] = (f32_T) quat[1] / ((f32_T)(1L << 30));
+            quat_f32[2] = (f32_T) quat[2] / ((f32_T)(1L << 30));
+            quat_f32[3] = (f32_T) quat[3] / ((f32_T)(1L << 30)); 
+
+            /* 更新姿态,便于发送给上位机 */
+            mpu9250_set_quat(quat_f32);
         }
     } 
 }
@@ -260,7 +244,9 @@ void mpu9250_set_quat(const f32_T *quat)
     s_quat[0] = quat[0];
     s_quat[1] = quat[1];
     s_quat[2] = quat[2];
-    s_quat[3] = quat[3];
+    s_quat[3] = quat[3]; 
+    
+    s_quat_updated = TRUE;
 } 
 
 /* TODO:设置和获取四元数 加锁 */
@@ -270,17 +256,6 @@ void mpu9250_get_quat(f32_T *quat)
     quat[1] = s_quat[1];
     quat[2] = s_quat[2];
     quat[3] = s_quat[3];
-}
-
-void mpu9250_get_quat_with_clear(f32_T *quat)
-{
-    mpu9250_get_quat(quat);
-    s_quat_arrived = FALSE;
-}
-
-bool_T mpu9250_quat_arrived(void)
-{
-    return s_quat_arrived;
 }
 
 void mpu9250_get_quat_interval_max(misc_time_T *interval)
@@ -311,15 +286,16 @@ void mpu9250_get_accel(f32_T *accel)
     accel[2] = s_accel[2];
 }
 
-void mpu9250_get_accel_with_clear(f32_T *accel)
+/* 可以控制浆 */
+bool_T mpu9250_updated(void)
 {
-    mpu9250_get_accel(accel);
-    s_accel_arrived = FALSE;
+    return s_quat_updated;
 }
 
-bool_T mpu9250_accel_arrived(void)
+/* 姿态已经使用 */
+void mpu9250_clear(void)
 {
-    return s_accel_arrived;
+    s_quat_updated = FALSE;
 }
 
 static void run_self_test(void)
