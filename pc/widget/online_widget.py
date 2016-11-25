@@ -108,12 +108,13 @@ class FCOnlineWidget(QWidget):
             self.mRunTimeLabel.setText(label_str)
 
             euler = frameDict['欧拉角']
-            label_str = '俯仰:%+6.1f' %  euler['俯仰角']
-            self.mThetaLabel.setText(label_str)
-            label_str = '横滚:%+6.1f' %  euler['横滚角']
-            self.mPhiLabel.setText(label_str)
-            label_str = '偏航:%+6.1f' %  euler['偏航角']
-            self.mPsiLabel.setText(label_str)
+            if euler:
+                label_str = '俯仰:%+6.1f' %  euler['俯仰角']
+                self.mThetaLabel.setText(label_str)
+                label_str = '横滚:%+6.1f' %  euler['横滚角']
+                self.mPhiLabel.setText(label_str)
+                label_str = '偏航:%+6.1f' %  euler['偏航角']
+                self.mPsiLabel.setText(label_str)
 
             # 将数据帧加入波形控件(波形控件自己会绘制)
             self.mWaveWidget.Append(tick, frameDict)

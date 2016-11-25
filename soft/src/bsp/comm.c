@@ -391,12 +391,7 @@ static void send_capture_data(void)
     static uint32_T last_ms = 0;
 
     /* 无帧可发 */
-    if(!(s_send_interval
-    || s_send_accelerator_flag
-    || s_send_dmp_quat_flag
-    || s_send_accel_flag
-    || s_send_euler_flag
-    || s_send_pid_flag))
+    if(0 == s_send_interval)
     {
         return;
     }
@@ -418,6 +413,7 @@ static void send_capture_data(void)
         frame_buf[len++] = (uint8_T)((now_ms >> 8));
         frame_buf[len++] = (uint8_T)(now_ms); 
 
+        /* 姿态四元数 */
         if(s_send_dmp_quat_flag)
         {
             mpu9250_get_quat(quat);
@@ -440,6 +436,7 @@ static void send_capture_data(void)
             type |= COMM_FRAME_DMP_QUAT_BIT;
         } 
 
+        /* 加计数据 */
         if(s_send_accel_flag)
         {
             mpu9250_get_accel(accel);
