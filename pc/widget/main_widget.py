@@ -38,7 +38,7 @@ class FCMainWidget(QTabWidget):
                 widget.sSendDownFrame.connect(self.mFrameManager.SendDownFrame)
 
         # 默认数据采集有效
-        self.setCurrentIndex(0)
+        self.setCurrentIndex(1)
 
         # 改变索引 需要 更换链接
         self.mFrameManager.sRecvNewUpFrame.connect(self.RecvNewUpFrame)

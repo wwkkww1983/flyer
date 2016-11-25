@@ -96,16 +96,16 @@ void ctrl_update(void)
 
     /* step3: 计算纠偏值 */
     /* 俯仰角平衡 */
-    s_ctrl[PWM_NE1].adj -= out[CTRL_THETA] / 4.0f;
-    s_ctrl[PWM_SE2].adj -= out[CTRL_THETA] / 4.0f;
-    s_ctrl[PWM_SW3].adj += out[CTRL_THETA] / 4.0f;
-    s_ctrl[PWM_NW4].adj += out[CTRL_THETA] / 4.0f;
+    s_ctrl[PWM_NE1].adj += out[CTRL_THETA];
+    s_ctrl[PWM_SE2].adj += out[CTRL_THETA];
+    s_ctrl[PWM_SW3].adj -= out[CTRL_THETA];
+    s_ctrl[PWM_NW4].adj -= out[CTRL_THETA];
 
     /* 横滚角平衡 */
-    s_ctrl[PWM_SE2].adj += out[CTRL_THETA] / 4.0f;
-    s_ctrl[PWM_SW3].adj += out[CTRL_THETA] / 4.0f;
-    s_ctrl[PWM_NE1].adj -= out[CTRL_THETA] / 4.0f;
-    s_ctrl[PWM_NW4].adj -= out[CTRL_THETA] / 4.0f;
+    s_ctrl[PWM_SE2].adj -= out[CTRL_PHI];
+    s_ctrl[PWM_SW3].adj -= out[CTRL_PHI];
+    s_ctrl[PWM_NE1].adj += out[CTRL_PHI];
+    s_ctrl[PWM_NW4].adj += out[CTRL_PHI];
 
     /* TODO:处理偏航 */
     /* 限幅 */
