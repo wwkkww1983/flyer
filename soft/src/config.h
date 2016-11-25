@@ -60,6 +60,9 @@
                                                               0, 1, 0, \
                                                               0, 0, 1}
 
+/* 初始油门 */
+#define CTRL_BASE_INIT_RATE              (0.0f)
+
 /* 弧度转角度 */
 #define MATH_ARC2ANGLE_RATE                                 (180/MATH_PI)
 

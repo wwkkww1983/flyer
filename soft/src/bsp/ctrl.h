@@ -20,8 +20,6 @@
 #include "pid.h"
 
 /************************************ 宏定义 ***********************************/
-#define CTRL_BASE_INIT_RATE              (0.1f)
-
 #define CTRL_THETA                       (0)
 #define CTRL_PHI                         (1)
 #define CTRL_PSI                         (2)
