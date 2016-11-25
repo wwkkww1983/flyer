@@ -108,6 +108,7 @@ void mpu9250_init(void)
         return;
     }
 
+    /* FIXME:为何无效 */
     if (mpu_set_lpf(MPU9250_ACCEL_LPF)!=0)
     {
         ERR_STR("设置加速度计低通滤波器失败.\r\n");
