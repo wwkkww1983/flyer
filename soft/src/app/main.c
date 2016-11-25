@@ -29,6 +29,7 @@
 #include "ctrl.h"
 #include "debug.h"
 #include "comm.h"
+#include "flash.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
 
@@ -155,6 +156,10 @@ static void init(void)
     debug_log("console初始化完成.\r\n");
     debug_log("esp8266 wifi模块初始化完成.\r\n");
     debug_log("交互模块初始化完成.\r\n");
+
+    /* flash初始化 */
+    flash_init();
+    debug_log("flash初始化完成.\r\n");
 
     /* led */
     led_init();

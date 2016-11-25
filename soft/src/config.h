@@ -67,6 +67,10 @@
 #define FUSION_ACCEL_THETA_RATE                             (0.9f)
 #define FUSION_ACCEL_PHI_RATE                               (0.9f)
 
+/* 存储算法参数的FLASH起始地址和大小(与单片机硬件相关),最后16k */
+#define FLASH_USER_START                                    ((uint32_T *)0x0801C000)
+#define FLASH_USER_END                                      ((uint32_T *)0x08020000)
+
 /* 以下内容不可修改 */
 /* 每秒钟systick中断数 默认1ms */
 #define TICK_PER_SECONDS                                    (1000U)
