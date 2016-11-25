@@ -146,6 +146,21 @@ void ctrl_update(void)
         pwm = (int32_T)(s_ctrl[i].base + s_ctrl[i].adj);
         pwm_set((PWM_NAME)i, pwm);
     }
+
+    /* TODO: 不翻跟头后删除 开始 */
+    if((euler_measured[0] < -45.0f)
+     ||(euler_measured[0] >  45.0f))
+    { 
+        ctrl_motor_off();
+    }
+
+    if((euler_measured[1] < -45.0f)
+     ||(euler_measured[1] >  45.0f))
+    { 
+        ctrl_motor_off();
+    }
+    /* TODO: 不翻跟头后删除 结束 */
+
 }
 
 void ctrl_set_pid(int32_T euler_index, const PID_T *pid)
