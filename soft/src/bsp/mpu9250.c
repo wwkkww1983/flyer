@@ -219,7 +219,7 @@ static void mpu9250_dmp_update()
             mpu9250_set_accel(accel_filtered); /* 发送滤波后的数据 */ 
             
             /* 6轴融合 */
-            //fusion_accel(); 
+            fusion_accel(); 
         }
         if (sensors & INV_WXYZ_QUAT) /* 陀螺仪3轴融合姿态 */
         { 

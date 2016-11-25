@@ -67,8 +67,8 @@
 #define FILTER_ACCEL_RATE                                   (0.995f)
 
 /* 融合算法参数 */
-#define FUSION_ACCEL_THETA_RATE                             (0.9f)
-#define FUSION_ACCEL_PHI_RATE                               (0.9f)
+#define FUSION_ACCEL_THETA_RATE                             (0.5f)
+#define FUSION_ACCEL_PHI_RATE                               (0.5f)
 
 /* 存储算法参数的FLASH起始地址和大小(与单片机硬件相关),最后16k */
 #define FLASH_USER_START                                    ((uint32_T *)0x0801C000)
