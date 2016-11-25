@@ -98,7 +98,7 @@ static void idle()
         misc_interval_max_update(&s_main_loop_interval_max);
 
         ms_now = HAL_GetTick();
-        if(ms_now - ms_start >= 10000) /* 已达10s 执行一次 */
+        if(ms_now - ms_start >= MAIN_LOOP_OUT_INTERVAL) /* 已达间隔时间 执行一次 */
         {
             /* 该处代码 每秒执行一次 */
             led_toggle(LED_MLED);

@@ -172,7 +172,7 @@ if __name__ == '__main__':
     flyer.SendPrintFrame('开始启动了.\r\n') 
     flyer.SendPrintFrame('初始化完成,进入主循环.\r\n') 
 
-    interval = 0.1 # 100ms
+    interval = 0.001 # 1ms
     timeMax = 60000 # 60s
     for t in range(0, timeMax): 
         euler_1arc = gRad2Arc * math.pi / 180
