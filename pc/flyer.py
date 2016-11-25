@@ -205,8 +205,7 @@ if __name__ == '__main__':
         accel = FCAccel(accel_x_rand, accel_y_rand, accel_z_rand)
 
 
-        #frameDict = {'DMP四元数': None, '加计': accel, '陀螺仪': None, '磁计': None, '压力': None, '油门': accelerator, 'PID': pid, '欧拉角': euler,}
-        frameDict = {'DMP四元数': None, '加计': None, '陀螺仪': None, '磁计': None, '压力': None, '油门': None, 'PID': None, '欧拉角': None,}
+        frameDict = {'DMP四元数': None, '加计': accel, '陀螺仪': None, '磁计': None, '压力': None, '油门': accelerator, 'PID': pid, '欧拉角': euler,}
         flyer.SendDataFrame(frameDict)
         time.sleep(interval) # 延迟不精确
 
