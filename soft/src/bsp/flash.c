@@ -26,14 +26,21 @@
 /********************************** 变量声明区 *********************************/
 
 /********************************** 函数声明区 *********************************/
+#if 0
 static void flash_test(void);
+#endif
 
 /********************************** 函数实现区 *********************************/
 void flash_init(void)
 {
+
+#if 0
     flash_test();
+#endif
+
 } 
 
+#if 0
 /* flash 测试 */
 static void flash_test(void)
 {
@@ -44,6 +51,13 @@ static void flash_test(void)
     for(ptr_data = FLASH_USER_START; ptr_data < FLASH_USER_END; ptr_data++) 
     {
         data = *ptr_data;
+
+        if(0xA5A5A5A5 == data)
+        {
+            debug_log("已经做过写入测试,验证成功.\r\n");
+            return;
+        }
+
         if(0xFFFFFFFF != data)
         {
             ERR_STR("flash测试step1失败.\r\n");
@@ -76,4 +90,5 @@ static void flash_test(void)
 
     debug_log("flash测试通过.\r\n");
 }
+#endif
 
