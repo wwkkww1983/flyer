@@ -25,36 +25,48 @@
 /********************************** 变量声明区 *********************************/
 
 /********************************** 函数声明区 *********************************/
-/********************************* 通用1维滤波 *********************************/
-/* 算术平均滤波 */
-void filter_average(f32_T *filtered_val, const f32_T *orig_val)
-{
-    //static int32_T sample_needed = 1;
-}
 
-/* 一阶滞后滤波 */
-void filter_1factorial(f32_T *filtered_val, const f32_T *orig_val)
+/********************************** 函数实现区 *********************************/
+/************************************* 滤波 ************************************/
+/* 均值滤波 */
+bool_T filter_average_3d(f32_T *filtered_val, const f32_T *orig_val)
 {
-}
+    static int32_T sample_needed = FILTER_ACCEL_AVERAGE_NUMS; /* 求均值需要的样点数 */
+    static f32_T orig_sum[3] = {0.0f};
 
-/*********************************** 多维滤波 **********************************/
-void filter_average_xd(f32_T *filtered_val, const f32_T *orig_val, int32_T d_nums)
-{
+    bool_T averaged_ok = FALSE;
     int32_T i = 0;
-    for(i = 0; i < 3; i++)
-    {
-        filter_average(&filtered_val[i], &orig_val[i]);
+
+    if(sample_needed > 0) /* 求和 */
+    { 
+        for(i = 0; i < 3; i++)
+        {
+            orig_sum[i] += orig_val[i];
+        }
+
+        sample_needed--;
+        averaged_ok = FALSE;
     }
+    else /* 可以求均值 */
+    {
+        /* 求均值 */
+        for(i = 0; i < 3; i++)
+        {
+            filtered_val[i] = orig_sum[i] / FILTER_ACCEL_AVERAGE_NUMS;
+            orig_sum[i] = 0.0f; /* 清零用于下轮求和 */
+        }
+
+        /* 准备下次求均值 */
+        sample_needed = FILTER_ACCEL_AVERAGE_NUMS;
+        averaged_ok = TRUE;
+    }
+
+    return averaged_ok;
 }
 
-void filter_1factorial_xd(f32_T *filtered_val, const f32_T *orig_val, int32_T d_nums)
+void filter_1factorial_3d(f32_T *filtered_val, const f32_T *orig_val)
 {
-    int32_T i = 0; 
-
-    for(i = 0; i < 3; i++)
-    {
-        filter_1factorial(&filtered_val[i], &orig_val[i]);
-    }
+    ;
 }
 
 /*********************************** 融合滤波 **********************************/

@@ -40,10 +40,10 @@ static uint8_T s_int_status = 0;
 
 static const signed char s_orientation[9] = MPU9250_ORIENTATION;
 
-static f32_T s_quat[4] = {1.0f, 0.0f, 0.0f, 0.0f}; /* 最终的四元数(初始值必须为:1,0,0,0 表示无旋转) */
+static f32_T s_quat[QUAT_NUM] = {1.0f, 0.0f, 0.0f, 0.0f}; /* 最终的四元数(初始值必须为:1,0,0,0 表示无旋转) */
 static misc_interval_max_T s_quat_interval_max = {0}; /* 四元数采样最大间隔 */
 
-static f32_T s_accel[3] = {0.0f, 0.0f, 1.0f}; /* 最终的加计数据(初始值必须为:0,0,1 表示无旋转) */
+static f32_T s_accel[AXES_NUM] = {0.0f, 0.0f, 1.0f}; /* 最终的加计数据(初始值必须为:0,0,1 表示无旋转) */
 static uint16_T s_accel_sens = 0; /* 加计灵敏度 */
 static misc_interval_max_T s_accel_interval_max = {0}; /* 加计采样最大间隔 */
 
@@ -176,14 +176,15 @@ void mpu9250_update(void)
 
 static void mpu9250_dmp_update()
 {
-    int16_T gyro[3] = {0};
+    int16_T gyro[AXES_NUM] = {0};
 
-    int16_T accel_short[3] = {0};
-    f32_T accel_f32[3] = {0};
-    f32_T accel_filtered[3] = {0.0f, 0.0f, 1.0f};
+    int16_T accel_short[AXES_NUM] = {0};
+    f32_T accel_f32[AXES_NUM] = {0};
+    f32_T accel_averaged[AXES_NUM] = {0.0f};
+    f32_T accel_filtered[AXES_NUM] = {0.0f};
 
-    int32_T quat[4] = {0};
-    f32_T quat_f32[4] = {0.0f};
+    int32_T quat[QUAT_NUM] = {0};
+    f32_T quat_f32[QUAT_NUM] = {0.0f};
     uint32_T sensor_timestamp = 0;
     int16_T sensors = 0;
     uint8_T more = 0; 
@@ -212,9 +213,22 @@ static void mpu9250_dmp_update()
             accel_f32[1] = accel_short[1] / (f32_T)s_accel_sens;
             accel_f32[2] = accel_short[2] / (f32_T)s_accel_sens; 
 
-            /* 加计数据滤波 */
-            //filter_1factorial_xd(accel_filtered, accel_f32, 3);
-            mpu9250_set_accel(accel_f32); /* 发送滤波后的数据 */ 
+            /* 2级加计数据滤波 */
+            /* 1级滤波: 使用均值滤波,消耗采样率 */
+            if(filter_average_3d(accel_averaged, accel_f32)) /* 多次调用仅有一次返回 true */
+            { 
+#if 0
+                /* 2级滤波: 使用一阶滞后滤波,消耗灵敏度 */
+                filter_1factorial_3d(accel_filtered, accel_averaged); 
+
+                /* 发送2级滤波后的数据 */ 
+                mpu9250_set_accel(accel_filtered);
+#else
+                /* 发送1级滤波后的数据 */ 
+                mpu9250_set_accel(accel_averaged);
+
+#endif
+            } 
             
             /* 6轴融合 */
             //fusion_accel(); 
@@ -299,8 +313,8 @@ void mpu9250_clear(void)
 static void run_self_test(void)
 {
     int result = 0;
-    long gyro[3] = {0};
-    long accel[3] = {0};
+    long gyro[AXES_NUM] = {0};
+    long accel[AXES_NUM] = {0};
 
     result = mpu_run_6500_self_test(gyro, accel, 0);
     if (result == 0x7)
@@ -348,6 +362,7 @@ static void run_self_test(void)
 
 static void int_callback(void *argv)
 {
+    /* FIXME: 注释 */
     /* 以下代码用于测试中断时间 */
 #if 1
     static int32_T times = 0;

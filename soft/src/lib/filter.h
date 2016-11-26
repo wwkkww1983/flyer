@@ -25,8 +25,8 @@
 /*********************************** 全局变量 **********************************/
 
 /*********************************** 接口函数 **********************************/ 
-void filter_average_xd(f32_T *filtered_val, const f32_T *orig_val, int32_T d_nums);
-void filter_1factorial_xd(f32_T *filtered_val, const f32_T *orig_val, int32_T d_nums);
+bool_T filter_average_3d(f32_T *filtered_val, const f32_T *orig_val);
+void filter_1factorial_3d(f32_T *filtered_val, const f32_T *orig_val);
 
 void filter_fusion_accel2gyro(f32_T *quat_fusioned, const f32_T *quat, const f32_T *accel);
 #endif
