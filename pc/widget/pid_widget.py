@@ -120,22 +120,14 @@ class FCPidWidget(FCOnlineWidget):
         key = keyEvent.key()
         if Qt.Key_1 == key:
             self._pidKeyChange(self.mThetaPLineEdit, '+')
+            self._pidKeyChange(self.mPhiPLineEdit, '+')
             self.PidThetaSet()
+            self.PidPhiSet()
         elif Qt.Key_2 == key:
             self._pidKeyChange(self.mThetaPLineEdit, '-')
+            self._pidKeyChange(self.mPhiPLineEdit, '-')
             self.PidThetaSet()
-        elif Qt.Key_3 == key:
-            self._pidKeyChange(self.mThetaILineEdit, '+')
-            self.PidThetaSet()
-        elif Qt.Key_4 == key:
-            self._pidKeyChange(self.mThetaILineEdit, '-')
-            self.PidThetaSet()
-        elif Qt.Key_5 == key:
-            self._pidKeyChange(self.mThetaDLineEdit, '+')
-            self.PidThetaSet()
-        elif Qt.Key_6 == key:
-            self._pidKeyChange(self.mThetaDLineEdit, '-')
-            self.PidThetaSet()
+            self.PidPhiSet()
         # 无用按键
         else:
             pass

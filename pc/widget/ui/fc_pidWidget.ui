@@ -263,7 +263,7 @@
               <item>
                <widget class="QLineEdit" name="phiPLineEdit">
                 <property name="text">
-                 <string>4444</string>
+                 <string>1</string>
                 </property>
                </widget>
               </item>
@@ -281,7 +281,7 @@
               <item>
                <widget class="QLineEdit" name="phiILineEdit">
                 <property name="text">
-                 <string>5555</string>
+                 <string>0</string>
                 </property>
                </widget>
               </item>
@@ -299,7 +299,7 @@
               <item>
                <widget class="QLineEdit" name="phiDLineEdit">
                 <property name="text">
-                 <string>6666</string>
+                 <string>0</string>
                 </property>
                </widget>
               </item>

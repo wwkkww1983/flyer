@@ -74,7 +74,7 @@ gWaveConfig = [
         ]
 
 # 按键自动设置的步长
-gKeyPidStep = 0.01 
+gKeyPidStep = 1 
 gKeyAcceletorPidStep = 50 
 
 # 下位机就绪打印
