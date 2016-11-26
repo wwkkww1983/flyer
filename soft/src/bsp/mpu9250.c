@@ -38,12 +38,12 @@ static bool_T s_quat_updated = FALSE; /* 姿态有更新 需要重新平衡 */
 static bool_T s_mpu9250_fifo_ready = FALSE; 
 static uint8_T s_int_status = 0;
 
-static const signed char s_orientation[9] = MPU9250_ORIENTATION;
+static const signed char s_orientation[] = MPU9250_ORIENTATION;
 
-static f32_T s_quat[QUAT_NUM] = {1.0f, 0.0f, 0.0f, 0.0f}; /* 最终的四元数(初始值必须为:1,0,0,0 表示无旋转) */
+static f32_T s_quat[] = FILTER_QUAT_INIT_VAL;
 static misc_interval_max_T s_quat_interval_max = {0}; /* 四元数采样最大间隔 */
 
-static f32_T s_accel[AXES_NUM] = {0.0f, 0.0f, 1.0f}; /* 最终的加计数据(初始值必须为:0,0,1 表示无旋转) */
+static f32_T s_accel[] = FILTER_ACCEL_INIT_VAL;
 static uint16_T s_accel_sens = 0; /* 加计灵敏度 */
 static misc_interval_max_T s_accel_interval_max = {0}; /* 加计采样最大间隔 */
 
@@ -217,17 +217,11 @@ static void mpu9250_dmp_update()
             /* 1级滤波: 使用均值滤波,消耗采样率 */
             if(filter_average_3d(accel_averaged, accel_f32)) /* 多次调用仅有一次返回 true */
             { 
-#if 0
                 /* 2级滤波: 使用一阶滞后滤波,消耗灵敏度 */
                 filter_1factorial_3d(accel_filtered, accel_averaged); 
 
                 /* 发送2级滤波后的数据 */ 
                 mpu9250_set_accel(accel_filtered);
-#else
-                /* 发送1级滤波后的数据 */ 
-                mpu9250_set_accel(accel_averaged);
-
-#endif
             } 
             
             /* 6轴融合 */

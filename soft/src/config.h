@@ -75,12 +75,16 @@
 #define CTRL_PSI_KD_INIT                                    (0.0f)
 #define CTRL_PSI_EXPECT_INIT                                (0.0f)
 /* 加计1阶滞后滤波比例参数 [0,1] 值增则平滑,灵敏度降 */
-#define FILTER_ACCEL_1FACTOR_LAST_RATE                      (0.995f)
+#define FILTER_ACCEL_1FACTOR_LAST_RATE                      (0.9f)
 /* 加计滤波比例参数 [2,无穷) 值增则平滑,采样率降 */
 #define FILTER_ACCEL_AVERAGE_NUMS                           (10)
 /* 融合算法参数 */
 #define FILTER_FUSION_ACCEL_THETA_RATE                      (0.5f)
 #define FILTER_FUSION_ACCEL_PHI_RATE                        (0.5f)
+/* 初始四元数(初始值必须为:1,0,0,0 表示无旋转) */
+#define FILTER_QUAT_INIT_VAL                                {1.0f, 0.0f, 0.0f, 0.0f}
+/* 初始加计数据(初始值必须为:0,0,1 表示无旋转) */
+#define FILTER_ACCEL_INIT_VAL                               {0.0f, 0.0f, 1.0f}
 
 /************************************* 常量 ************************************/
 /* 弧度转角度 */

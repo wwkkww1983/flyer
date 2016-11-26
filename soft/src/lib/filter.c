@@ -66,7 +66,33 @@ bool_T filter_average_3d(f32_T *filtered_val, const f32_T *orig_val)
 
 void filter_1factorial_3d(f32_T *filtered_val, const f32_T *orig_val)
 {
-    ;
+    int32_T i = 0;
+    static bool_T s_initted = FALSE;
+    static f32_T s_last_val[] = FILTER_ACCEL_INIT_VAL;
+
+    /* 初始化 */
+    if(s_initted) /* 滤波 */
+    {
+        for(i = 0; i < 3; i++)
+        {
+            /*
+             * s_last_val[i] = FILTER_ACCEL_1FACTOR_LAST_RATE * s_last_val[i] + (1.0f - FILTER_ACCEL_1FACTOR_LAST_RATE) * orig_val[i];
+             * 等效于下式:
+             * */
+            s_last_val[i] = FILTER_ACCEL_1FACTOR_LAST_RATE * (s_last_val[i] - orig_val[i]) + orig_val[i];
+        }
+    }
+    else /* 首次输出 {0,0,1}(s_last_val初值) */
+    {
+        s_initted = TRUE; 
+
+    } 
+    
+    /* 输出当前值 */
+    for(i = 0; i < 3; i++)
+    {
+        filtered_val[i] = s_last_val[i];
+    }
 }
 
 /*********************************** 融合滤波 **********************************/
@@ -122,44 +148,4 @@ void filter_fusion_accel2gyro(f32_T *quat_fusioned, const f32_T *quat, const f32
     /* 反推回四元数 */
     math_euler2quaternion(quat_fusioned, euler);
 }
-
-#if 0
-/* 一阶滞后滤波 */
-void filter_accel_1factorial(f32_T *accel_filtered, const f32_T *accel, f32_T rate)
-{
-    int32_T i = 0;
-    static bool_T s_initted = FALSE;
-    static f32_T s_accel_last_val[3] = {0.0f, 0.0f, 1.0f};
-
-    if((rate < 0) || (rate > 1.0f))
-    {
-        ERR_STR("filter_accel 参数错误");
-        return;
-    }
-
-    /* 初始化 */
-    if(s_initted) /* 滤波 */
-    {
-        for(i = 0; i < 3; i++)
-        {
-            /*
-             * s_accel_last_val[i] = rate * s_accel_last_val[i] + (1.0f - rate) * accel[i];
-             * 等效于下式:
-             * */
-            s_accel_last_val[i] = rate * (s_accel_last_val[i] - accel[i]) + accel[i];
-        }
-    }
-    else /* 首次输出 {0,0,1}(s_accel_last_val初值) */
-    {
-        s_initted = TRUE; 
-
-    } 
-    
-    /* 输出当前值 */
-    for(i = 0; i < 3; i++)
-    {
-        accel_filtered[i] = s_accel_last_val[i];
-    }
-}
-#endif
 
