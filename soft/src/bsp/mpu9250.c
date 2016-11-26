@@ -29,7 +29,6 @@
 #include "mpu9250.h"
 #include "lib_math.h"
 #include "filter.h"
-#include "fusion.h"
 
 /*----------------------------------- 声明区 ----------------------------------*/
 
@@ -47,7 +46,6 @@ static misc_interval_max_T s_quat_interval_max = {0}; /* 四元数采样最大�
 static f32_T s_accel[3] = {0.0f, 0.0f, 1.0f}; /* 最终的加计数据(初始值必须为:0,0,1 表示无旋转) */
 static uint16_T s_accel_sens = 0; /* 加计灵敏度 */
 static misc_interval_max_T s_accel_interval_max = {0}; /* 加计采样最大间隔 */
-static f32_T s_filter_rate = FILTER_ACCEL_RATE; /* 加计滤波比例参数 */
 
 /********************************** 函数声明区 *********************************/
 static void run_self_test(void);
@@ -182,7 +180,7 @@ static void mpu9250_dmp_update()
 
     int16_T accel_short[3] = {0};
     f32_T accel_f32[3] = {0};
-    f32_T accel_filtered[3] = {0.0f};
+    f32_T accel_filtered[3] = {0.0f, 0.0f, 1.0f};
 
     int32_T quat[4] = {0};
     f32_T quat_f32[4] = {0.0f};
@@ -215,11 +213,11 @@ static void mpu9250_dmp_update()
             accel_f32[2] = accel_short[2] / (f32_T)s_accel_sens; 
 
             /* 加计数据滤波 */
-            filter_accel(accel_filtered, accel_f32, s_filter_rate);
-            mpu9250_set_accel(accel_filtered); /* 发送滤波后的数据 */ 
+            //filter_1factorial_xd(accel_filtered, accel_f32, 3);
+            mpu9250_set_accel(accel_f32); /* 发送滤波后的数据 */ 
             
             /* 6轴融合 */
-            fusion_accel(); 
+            //fusion_accel(); 
         }
         if (sensors & INV_WXYZ_QUAT) /* 陀螺仪3轴融合姿态 */
         { 

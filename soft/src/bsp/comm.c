@@ -302,7 +302,7 @@ static bool_T parse(const uint8_T *buf)
         PID_T pid;
 
         /* 非法pid帧 */
-        if(!((CTRL_THETA == ctrl_type) || (CTRL_PHI == ctrl_type) || (CTRL_PSI == ctrl_type)))
+        if(!((EULER_THETA == ctrl_type) || (EULER_PHI == ctrl_type) || (EULER_PSI == ctrl_type)))
         {
             return FALSE;
         }
@@ -383,8 +383,8 @@ static void send_capture_data(void)
     uint32_T now_ms = 0;
     f32_T quat[4] = {0.0f}; 
     f32_T accel[3] = {0.0f}; 
-    f32_T euler[CTRL_EULER_MAX] = {0.0f}; 
-    f32_T pid_out[CTRL_EULER_MAX] = {0.0f}; 
+    f32_T euler[EULER_MAX] = {0.0f}; 
+    f32_T pid_out[EULER_MAX] = {0.0f}; 
     int32_T accelerator_max = 0;
     int32_T accelerator[PWM_MAX] = {0};
     uint32_T *p_ui32 = NULL;
@@ -481,7 +481,7 @@ static void send_capture_data(void)
             math_quaternion2euler(euler, quat);
 
             p_ui32 = (uint32_T *)euler;
-            for(i = 0; i < CTRL_EULER_MAX; i++) 
+            for(i = 0; i < EULER_MAX; i++) 
             {
                 frame_buf[len++] = (uint8_T)(p_ui32[i] >> 24);
                 frame_buf[len++] = (uint8_T)(p_ui32[i] >> 16);
@@ -497,7 +497,7 @@ static void send_capture_data(void)
         { 
             ctrl_get_pid_out(pid_out);
             p_ui32 = (uint32_T *)pid_out;
-            for(i = 0; i < CTRL_EULER_MAX; i++) 
+            for(i = 0; i < EULER_MAX; i++) 
             {
                 frame_buf[len++] = (uint8_T)(p_ui32[i] >> 24);
                 frame_buf[len++] = (uint8_T)(p_ui32[i] >> 16);

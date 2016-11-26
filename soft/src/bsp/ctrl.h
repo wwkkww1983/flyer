@@ -20,26 +20,6 @@
 #include "pid.h"
 
 /************************************ 宏定义 ***********************************/
-#define CTRL_THETA                       (0)
-#define CTRL_PHI                         (1)
-#define CTRL_PSI                         (2)
-#define CTRL_EULER_MAX                   (3)
-
-#define CTRL_THETA_KP_INIT               (3.0f)
-#define CTRL_THETA_KI_INIT               (0.0f)
-#define CTRL_THETA_KD_INIT               (0.0f)
-#define CTRL_THETA_EXPECT_INIT           (0.0f)
-
-#define CTRL_PHI_KP_INIT                 (3.0f)
-#define CTRL_PHI_KI_INIT                 (0.0f)
-#define CTRL_PHI_KD_INIT                 (0.0f)
-#define CTRL_PHI_EXPECT_INIT             (0.0f)
-
-#define CTRL_PSI_KP_INIT                 (3.0f)
-#define CTRL_PSI_KI_INIT                 (0.0f)
-#define CTRL_PSI_KD_INIT                 (0.0f)
-#define CTRL_PSI_EXPECT_INIT             (0.0f)
-
 /*--------------------------------- 接口声明区 --------------------------------*/
 typedef struct CTRL_T_tag{
     int32_T base;

@@ -27,8 +27,8 @@ gSaveDataFileFullName = os.path.join(_dataFileDir, _fileName)
 # X轴
 gWaveXUnit = '秒'
 gWaveXStep = 50
-# 每个像素表示200ms(0.2s)
-gXTimePerPixelRate = 0.2
+# 每个像素表示20ms(0.2s)
+gXTimePerPixelRate = 0.02
 _xPixelPerTimeRate = 1 / gXTimePerPixelRate
 gXPixelPerTimemsRate = _xPixelPerTimeRate / 1000
 # Y轴
@@ -56,20 +56,20 @@ gWaveAxesWidth = 1
 gWaveConfig = [
         #('加计X', Qt.red, 1),
         #('加计Y', Qt.green, 1),
-        #('加计Z', Qt.blue, 1),
+        ('加计Z', Qt.green, 1),
 
         ('俯仰角', Qt.red, 1),
         #('横滚角', Qt.green, 1),
         #('偏航角', Qt.blue, 1),
 
-        ('俯仰PID', Qt.green, 1),
+        #('俯仰PID', Qt.green, 1),
         #('横滚PID', Qt.green, 1),
         #('偏航PID', Qt.blue, 1),
 
         # 油门暂未实现
-        ('前', Qt.blue, 1),
+        #('前', Qt.blue, 1),
         #('右', Qt.green, 1),
-        ('后', Qt.yellow, 1),
+        #('后', Qt.yellow, 1),
         #('左', Qt.yellow, 1)
         ]
 

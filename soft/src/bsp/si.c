@@ -45,7 +45,7 @@ void si_init(void)
     }
 
     g_si_handle.Instance              = SENSOR_I2C;
-    g_si_handle.Init.ClockSpeed       = SENSOR_I2C_RATE;
+    g_si_handle.Init.ClockSpeed       = SI_RATE;
     g_si_handle.Init.DutyCycle        = I2C_DUTYCYCLE_2;
     g_si_handle.Init.OwnAddress1      = 0;
     g_si_handle.Init.AddressingMode   = I2C_ADDRESSINGMODE_7BIT;

@@ -22,7 +22,7 @@
 
 /********************************** 变量声明区 *********************************/
 /* 三个被调量:俯仰角 横滚角 偏航角 */
-static PID_T s_pid[CTRL_EULER_MAX];
+static PID_T s_pid[EULER_MAX];
 /* 电机油门 */
 static CTRL_T s_ctrl[PWM_MAX];
 
@@ -35,28 +35,28 @@ void ctrl_init(void)
 
     /* pid:俯仰角 横滚角 偏航角 依次初始化 */
     /* 俯仰角初始化 */
-    s_pid[CTRL_THETA].kp = CTRL_THETA_KP_INIT;
-    s_pid[CTRL_THETA].ki = CTRL_THETA_KI_INIT;
-    s_pid[CTRL_THETA].kd = CTRL_THETA_KD_INIT;
-    s_pid[CTRL_THETA].expect = CTRL_THETA_EXPECT_INIT;
-    s_pid[CTRL_THETA].acc = 0;
+    s_pid[EULER_THETA].kp = CTRL_THETA_KP_INIT;
+    s_pid[EULER_THETA].ki = CTRL_THETA_KI_INIT;
+    s_pid[EULER_THETA].kd = CTRL_THETA_KD_INIT;
+    s_pid[EULER_THETA].expect = CTRL_THETA_EXPECT_INIT;
+    s_pid[EULER_THETA].acc = 0;
 
     /* 横滚角初始化 */
-    s_pid[CTRL_PHI].kp = CTRL_PHI_KP_INIT;
-    s_pid[CTRL_PHI].ki = CTRL_PHI_KI_INIT;
-    s_pid[CTRL_PHI].kd = CTRL_PHI_KD_INIT;
-    s_pid[CTRL_PHI].expect = CTRL_PHI_EXPECT_INIT;
-    s_pid[CTRL_PHI].acc = 0;
+    s_pid[EULER_PHI].kp = CTRL_PHI_KP_INIT;
+    s_pid[EULER_PHI].ki = CTRL_PHI_KI_INIT;
+    s_pid[EULER_PHI].kd = CTRL_PHI_KD_INIT;
+    s_pid[EULER_PHI].expect = CTRL_PHI_EXPECT_INIT;
+    s_pid[EULER_PHI].acc = 0;
 
     /* 偏航角初始化 */
-    s_pid[CTRL_PSI].kp = CTRL_PSI_KP_INIT;
-    s_pid[CTRL_PSI].ki = CTRL_PSI_KI_INIT;
-    s_pid[CTRL_PSI].kd = CTRL_PSI_KD_INIT;
-    s_pid[CTRL_PSI].expect = CTRL_PSI_EXPECT_INIT;
-    s_pid[CTRL_PSI].acc = 0; 
+    s_pid[EULER_PSI].kp = CTRL_PSI_KP_INIT;
+    s_pid[EULER_PSI].ki = CTRL_PSI_KI_INIT;
+    s_pid[EULER_PSI].kd = CTRL_PSI_KD_INIT;
+    s_pid[EULER_PSI].expect = CTRL_PSI_EXPECT_INIT;
+    s_pid[EULER_PSI].acc = 0; 
     
     /* 初始化油门为0 */
-    for(i = 0; i < CTRL_EULER_MAX; i++)
+    for(i = 0; i < EULER_MAX; i++)
     {
         s_ctrl[i].base = (int32_T)(pwm_get_period() * CTRL_BASE_INIT_RATE);
         s_ctrl[i].adj  = 0;
@@ -65,9 +65,9 @@ void ctrl_init(void)
 
 void ctrl_update(void)
 {
-    f32_T quat_measured[4] = {0.0f}; 
-    f32_T euler_measured[CTRL_EULER_MAX] = {0.0f};
-    f32_T out[CTRL_EULER_MAX] =  {0.0f};
+    f32_T quat_measured[QUAT_NUM] = {0.0f}; 
+    f32_T euler_measured[EULER_MAX] = {0.0f};
+    f32_T out[EULER_MAX] =  {0.0f};
 
     int32_T i = 0;
     int32_T pwm_val_max = 0;
@@ -87,7 +87,7 @@ void ctrl_update(void)
     math_quaternion2euler(euler_measured, quat_measured);
 
     /* step2: pid算法计算校正值 */
-    for(i = 0; i < CTRL_EULER_MAX; i++)
+    for(i = 0; i < EULER_MAX; i++)
     {
         pid_update(&s_pid[i], euler_measured[i]); 
     } 
@@ -96,16 +96,16 @@ void ctrl_update(void)
 
     /* step3: 计算纠偏值 */
     /* 俯仰角平衡 */
-    s_ctrl[PWM_NE1].adj += out[CTRL_THETA];
-    s_ctrl[PWM_SE2].adj += out[CTRL_THETA];
-    s_ctrl[PWM_SW3].adj -= out[CTRL_THETA];
-    s_ctrl[PWM_NW4].adj -= out[CTRL_THETA];
+    s_ctrl[PWM_NE1].adj += out[EULER_THETA];
+    s_ctrl[PWM_SE2].adj += out[EULER_THETA];
+    s_ctrl[PWM_SW3].adj -= out[EULER_THETA];
+    s_ctrl[PWM_NW4].adj -= out[EULER_THETA];
 
     /* 横滚角平衡 */
-    s_ctrl[PWM_SE2].adj -= out[CTRL_PHI];
-    s_ctrl[PWM_SW3].adj -= out[CTRL_PHI];
-    s_ctrl[PWM_NE1].adj += out[CTRL_PHI];
-    s_ctrl[PWM_NW4].adj += out[CTRL_PHI];
+    s_ctrl[PWM_SE2].adj -= out[EULER_PHI];
+    s_ctrl[PWM_SW3].adj -= out[EULER_PHI];
+    s_ctrl[PWM_NE1].adj += out[EULER_PHI];
+    s_ctrl[PWM_NW4].adj += out[EULER_PHI];
 
     /* TODO:处理偏航 */
     /* 限幅 */
@@ -167,7 +167,7 @@ void ctrl_set_pid(int32_T euler_index, const PID_T *pid)
 {
     /* 参数检查 */
     if((NULL == pid)
-    || !((CTRL_THETA == euler_index) || (CTRL_PHI == euler_index) || (CTRL_PSI == euler_index)))
+    || !((EULER_THETA == euler_index) || (EULER_PHI == euler_index) || (EULER_PSI == euler_index)))
     { 
         ERR_STR("参数错误");
     } 
@@ -180,7 +180,7 @@ void ctrl_set_pid(int32_T euler_index, const PID_T *pid)
 void ctrl_set_expect(int32_T euler_index, f32_T expect)
 {
     /* 参数检查 */
-    if(!((CTRL_THETA == euler_index) || (CTRL_PHI == euler_index) || (CTRL_PSI == euler_index)))
+    if(!((EULER_THETA == euler_index) || (EULER_PHI == euler_index) || (EULER_PSI == euler_index)))
     { 
         ERR_STR("参数错误");
     } 
@@ -198,7 +198,7 @@ void ctrl_get_pid_out(f32_T *out)
         ERR_STR("参数错误");
     }
 
-    for(i = 0; i < CTRL_EULER_MAX; i++)
+    for(i = 0; i < EULER_MAX; i++)
     {
         out[i] = s_pid[i].out;
     } 
