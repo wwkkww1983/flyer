@@ -206,7 +206,7 @@ inline bool_T uart_frame_ready(const drv_uart_T *uart)
     return !uart_rx_locked(uart);
 }
 
-/* FIXME: 新增串口 家分支 */
+/* FIXME: 新增串口 加分支 */
 /* 参考手册中 UART DMA TX章节中描述 TC中断标志本次传输完成 */
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {

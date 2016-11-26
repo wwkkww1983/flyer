@@ -185,6 +185,8 @@ static void mpu9250_dmp_update()
 
     int32_T quat[QUAT_NUM] = {0};
     f32_T quat_f32[QUAT_NUM] = {0.0f};
+    f32_T quat_fusioned[QUAT_NUM] = {0.0f};
+
     uint32_T sensor_timestamp = 0;
     int16_T sensors = 0;
     uint8_T more = 0; 
@@ -221,11 +223,15 @@ static void mpu9250_dmp_update()
                 filter_1factorial_3d(accel_filtered, accel_averaged); 
 
                 /* 发送2级滤波后的数据 */ 
-                mpu9250_set_accel(accel_filtered);
+                mpu9250_set_accel(accel_filtered); 
+
+                /* 6轴融合 */
+                /* 更新姿态,便于发送给上位机 */
+                mpu9250_get_quat(quat_f32);
+                filter_fusion_accel2gyro(quat_fusioned, quat_f32, accel_filtered); 
+                /* 更新姿态,便于发送给上位机 */
+                mpu9250_set_quat(quat_fusioned);
             } 
-            
-            /* 6轴融合 */
-            //fusion_accel(); 
         }
         if (sensors & INV_WXYZ_QUAT) /* 陀螺仪3轴融合姿态 */
         { 
@@ -356,9 +362,8 @@ static void run_self_test(void)
 
 static void int_callback(void *argv)
 {
-    /* FIXME: 注释 */
     /* 以下代码用于测试中断时间 */
-#if 1
+#if 0
     static int32_T times = 0;
     static misc_time_T last_time;
     misc_time_T now;
