@@ -253,7 +253,7 @@ void ctrl_get_acceleralor(int32_T *val, int32_T *val_max)
         ERR_STR("参数错误");
     }
 
-    for(i = 0; i < CTRL_EULER_MAX; i++) 
+    for(i = 0; i < PWM_MAX; i++) 
     {
         val[i] = (int32_T)(s_ctrl[i].base + s_ctrl[i].adj);
     }

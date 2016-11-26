@@ -724,7 +724,7 @@
               <item>
                <widget class="QLabel" name="label_9">
                 <property name="text">
-                 <string>前</string>
+                 <string> 1</string>
                 </property>
                </widget>
               </item>
@@ -755,7 +755,7 @@
               <item>
                <widget class="QLabel" name="label_11">
                 <property name="text">
-                 <string>右</string>
+                 <string> 2</string>
                 </property>
                </widget>
               </item>
@@ -786,7 +786,7 @@
               <item>
                <widget class="QLabel" name="label_12">
                 <property name="text">
-                 <string>后</string>
+                 <string> 3</string>
                 </property>
                </widget>
               </item>
@@ -817,7 +817,7 @@
               <item>
                <widget class="QLabel" name="label_14">
                 <property name="text">
-                 <string>左</string>
+                 <string> 4</string>
                 </property>
                </widget>
               </item>
