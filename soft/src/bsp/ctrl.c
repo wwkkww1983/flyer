@@ -148,14 +148,14 @@ void ctrl_update(void)
     }
 
     /* TODO: 不翻跟头后删除 开始 */
-    if((euler_measured[0] < -45.0f)
-     ||(euler_measured[0] >  45.0f))
+    if((euler_measured[0] < -60.0f)
+     ||(euler_measured[0] >  60.0f))
     { 
         ctrl_motor_off();
     }
 
-    if((euler_measured[1] < -45.0f)
-     ||(euler_measured[1] >  45.0f))
+    if((euler_measured[1] < -60.0f)
+     ||(euler_measured[1] >  60.0f))
     { 
         ctrl_motor_off();
     }
