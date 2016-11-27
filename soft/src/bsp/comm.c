@@ -12,6 +12,8 @@
  *******************************************************************************/
 
 /*---------------------------------- 预处理区 ---------------------------------*/
+/* 消除中文打印警告 */
+#pragma  diag_suppress 870
 
 /************************************ 头文件 ***********************************/
 #include "config.h"
@@ -366,15 +368,16 @@ static bool_T parse(const uint8_T *buf)
     }
 
     return FALSE;
-}
+} 
+
+/* 避免函数退出 栈内存被破坏(DMA传输 要求内存数据保持) */
+static uint8_T s_frame_buf[COMM_FRAME_CAPTURE_FRAME_MAX_SIZE] = {0};
 
 /* 发送采样数据 */
 static void send_capture_data(void)
 {
     uint32_T type = 0;
 
-    /* 避免函数退出 栈内存被破坏(DMA传输 要求内存数据保持) */
-    static uint8_T frame_buf[COMM_FRAME_CAPTURE_FRAME_MAX_SIZE] = {0};
     uint32_T len = 0;
 
     uint32_T i = 0;
@@ -408,10 +411,10 @@ static void send_capture_data(void)
         len += 8;
 
         /* 填充时间 */
-        frame_buf[len++] = (uint8_T)(now_ms >> 24);
-        frame_buf[len++] = (uint8_T)((now_ms >> 16));
-        frame_buf[len++] = (uint8_T)((now_ms >> 8));
-        frame_buf[len++] = (uint8_T)(now_ms); 
+        s_frame_buf[len++] = (uint8_T)(now_ms >> 24);
+        s_frame_buf[len++] = (uint8_T)((now_ms >> 16));
+        s_frame_buf[len++] = (uint8_T)((now_ms >> 8));
+        s_frame_buf[len++] = (uint8_T)(now_ms); 
 
         /* 姿态四元数 */
         if(s_send_dmp_quat_flag)
@@ -427,10 +430,10 @@ static void send_capture_data(void)
             p_ui32 = (uint32_T *)quat;
             for(i = 0; i < 4; i++) 
             {
-                frame_buf[len++] = (uint8_T)( (uint32_T)p_ui32[i] >> 24);
-                frame_buf[len++] = (uint8_T)(((uint32_T)p_ui32[i] >> 16));
-                frame_buf[len++] = (uint8_T)(((uint32_T)p_ui32[i] >> 8));
-                frame_buf[len++] = (uint8_T)( (uint32_T)p_ui32[i]);
+                s_frame_buf[len++] = (uint8_T)( (uint32_T)p_ui32[i] >> 24);
+                s_frame_buf[len++] = (uint8_T)(((uint32_T)p_ui32[i] >> 16));
+                s_frame_buf[len++] = (uint8_T)(((uint32_T)p_ui32[i] >> 8));
+                s_frame_buf[len++] = (uint8_T)( (uint32_T)p_ui32[i]);
             }
 
             type |= COMM_FRAME_DMP_QUAT_BIT;
@@ -444,10 +447,10 @@ static void send_capture_data(void)
             p_ui32 = (uint32_T *)accel;
             for(i = 0; i < 3; i++) 
             {
-                frame_buf[len++] = (uint8_T)( (uint32_T)p_ui32[i] >> 24);
-                frame_buf[len++] = (uint8_T)(((uint32_T)p_ui32[i] >> 16));
-                frame_buf[len++] = (uint8_T)(((uint32_T)p_ui32[i] >> 8));
-                frame_buf[len++] = (uint8_T)( (uint32_T)p_ui32[i]);
+                s_frame_buf[len++] = (uint8_T)( (uint32_T)p_ui32[i] >> 24);
+                s_frame_buf[len++] = (uint8_T)(((uint32_T)p_ui32[i] >> 16));
+                s_frame_buf[len++] = (uint8_T)(((uint32_T)p_ui32[i] >> 8));
+                s_frame_buf[len++] = (uint8_T)( (uint32_T)p_ui32[i]);
             }
 
             type |= COMM_FRAME_ACCEL_DATA_BIT;
@@ -460,16 +463,16 @@ static void send_capture_data(void)
 
             for(i = 0; i < PWM_MAX; i++) 
             { 
-                frame_buf[len++] = (uint8_T)(accelerator[i] >> 24);
-                frame_buf[len++] = (uint8_T)(accelerator[i] >> 16);
-                frame_buf[len++] = (uint8_T)(accelerator[i] >> 8);
-                frame_buf[len++] = (uint8_T)(accelerator[i]);
+                s_frame_buf[len++] = (uint8_T)(accelerator[i] >> 24);
+                s_frame_buf[len++] = (uint8_T)(accelerator[i] >> 16);
+                s_frame_buf[len++] = (uint8_T)(accelerator[i] >> 8);
+                s_frame_buf[len++] = (uint8_T)(accelerator[i]);
             } 
             
-            frame_buf[len++] = (uint8_T)(accelerator_max >> 24);
-            frame_buf[len++] = (uint8_T)(accelerator_max >> 16);
-            frame_buf[len++] = (uint8_T)(accelerator_max >> 8);
-            frame_buf[len++] = (uint8_T)(accelerator_max);
+            s_frame_buf[len++] = (uint8_T)(accelerator_max >> 24);
+            s_frame_buf[len++] = (uint8_T)(accelerator_max >> 16);
+            s_frame_buf[len++] = (uint8_T)(accelerator_max >> 8);
+            s_frame_buf[len++] = (uint8_T)(accelerator_max);
 
             type |= COMM_FRAME_ACCELERATOR_DATA_BIT;
         }
@@ -483,10 +486,10 @@ static void send_capture_data(void)
             p_ui32 = (uint32_T *)euler;
             for(i = 0; i < EULER_MAX; i++) 
             {
-                frame_buf[len++] = (uint8_T)(p_ui32[i] >> 24);
-                frame_buf[len++] = (uint8_T)(p_ui32[i] >> 16);
-                frame_buf[len++] = (uint8_T)(p_ui32[i] >> 8);
-                frame_buf[len++] = (uint8_T)(p_ui32[i]);
+                s_frame_buf[len++] = (uint8_T)(p_ui32[i] >> 24);
+                s_frame_buf[len++] = (uint8_T)(p_ui32[i] >> 16);
+                s_frame_buf[len++] = (uint8_T)(p_ui32[i] >> 8);
+                s_frame_buf[len++] = (uint8_T)(p_ui32[i]);
             }
 
             type |= COMM_FRAME_EULER_DATA_BIT;
@@ -499,10 +502,10 @@ static void send_capture_data(void)
             p_ui32 = (uint32_T *)pid_out;
             for(i = 0; i < EULER_MAX; i++) 
             {
-                frame_buf[len++] = (uint8_T)(p_ui32[i] >> 24);
-                frame_buf[len++] = (uint8_T)(p_ui32[i] >> 16);
-                frame_buf[len++] = (uint8_T)(p_ui32[i] >> 8);
-                frame_buf[len++] = (uint8_T)(p_ui32[i]);
+                s_frame_buf[len++] = (uint8_T)(p_ui32[i] >> 24);
+                s_frame_buf[len++] = (uint8_T)(p_ui32[i] >> 16);
+                s_frame_buf[len++] = (uint8_T)(p_ui32[i] >> 8);
+                s_frame_buf[len++] = (uint8_T)(p_ui32[i]);
             }
 
             type |= COMM_FRAME_PID_DATA_BIT;
@@ -512,45 +515,50 @@ static void send_capture_data(void)
         fill_bytes_count = len & 0x03;
         for(i = 0; i < fill_bytes_count; i++)
         {
-            frame_buf[len++] = COMM_FRAME_FILLED_VAL;
+            s_frame_buf[len++] = COMM_FRAME_FILLED_VAL;
         }
 
         /* 填写type域 */
-        frame_buf[0] = (uint8_T)(type >> 24);
-        frame_buf[1] = (uint8_T)(type >> 16);
-        frame_buf[2] = (uint8_T)(type >> 8);
-        frame_buf[3] = (uint8_T)(type);
+        s_frame_buf[0] = (uint8_T)(type >> 24);
+        s_frame_buf[1] = (uint8_T)(type >> 16);
+        s_frame_buf[2] = (uint8_T)(type >> 8);
+        s_frame_buf[3] = (uint8_T)(type);
 
         /* 计入crc长度 */
         len += 4;
 				len -= 8; /* len中长度值不包括type+len */
         /* 填写len域 */
-        frame_buf[4] = (uint8_T)(len >> 24);
-        frame_buf[5] = (uint8_T)(len >> 16);
-        frame_buf[6] = (uint8_T)(len >> 8);
-        frame_buf[7] = (uint8_T)(len);
+        s_frame_buf[4] = (uint8_T)(len >> 24);
+        s_frame_buf[5] = (uint8_T)(len >> 16);
+        s_frame_buf[6] = (uint8_T)(len >> 8);
+        s_frame_buf[7] = (uint8_T)(len);
         
         /* len偏移到crc位置 */
         len += 4;
         /* 计算校验 */
-        crc32_calculated = HAL_CRC_Calculate(&s_crc, (uint32_T *)frame_buf, len / 4); 
-        frame_buf[len++] = (uint8_T)(crc32_calculated >> 24);
-        frame_buf[len++] = (uint8_T)(crc32_calculated >> 16);
-        frame_buf[len++] = (uint8_T)(crc32_calculated >> 8);
-        frame_buf[len++] = (uint8_T)(crc32_calculated);
+        crc32_calculated = HAL_CRC_Calculate(&s_crc, (uint32_T *)s_frame_buf, len / 4); 
+        s_frame_buf[len++] = (uint8_T)(crc32_calculated >> 24);
+        s_frame_buf[len++] = (uint8_T)(crc32_calculated >> 16);
+        s_frame_buf[len++] = (uint8_T)(crc32_calculated >> 8);
+        s_frame_buf[len++] = (uint8_T)(crc32_calculated);
 
-        /* 发帧 */
-        if(len > COMM_FRAME_SENDED_MIN)
+        /* 发帧 帧长合法 */
+        if( (len > COMM_FRAME_SENDED_MIN)
+         || (len < COMM_FRAME_CAPTURE_FRAME_MAX_SIZE))
         {
 #if 0
             /* 出错 用于检查 crc是否为0 */
-            if(0 == frame_buf[n-1])
+            if(0 == s_frame_buf[n-1])
             {
                 ERR_STR("crc错误.");
             }
 #endif
-            uart_send_bytes((drv_uart_T *)s_comm_uart, frame_buf, len);
+            uart_send_bytes((drv_uart_T *)s_comm_uart, s_frame_buf, len);
             last_ms = now_ms;
+        }
+        else
+        {
+            ERR_STR("帧长不合法.\r\n");
         }
     }
 
