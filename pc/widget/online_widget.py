@@ -67,6 +67,9 @@ class FCOnlineWidget(QWidget):
         # 为按键事件准备焦点策略
         self.setFocusPolicy(Qt.StrongFocus)
 
+        # 记录采样帧数
+        self.frame_count = 0
+
     def closeEvent(self, event):
         super(FCOnlineWidget, self).closeEvent(event)
 
@@ -104,6 +107,9 @@ class FCOnlineWidget(QWidget):
             if gFlyerInitDoneStr in text:
                 self.Capture()
         else:
+            print("采样帧数:%d" % self.frame_count)
+            self.frame_count += 1
+
             label_str = '运行:% 6.1fs' %  (1.0 * tick / 1000)
             self.mRunTimeLabel.setText(label_str)
 

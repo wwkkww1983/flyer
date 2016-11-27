@@ -30,6 +30,7 @@ class FCFusionWidget(FCOnlineWidget):
 
         # 非文本帧 更新加计数据
         if not frameDict['文本']: 
+
             accel = frameDict['加计']
             if accel:
                 label_str = 'x:%+6.2f' %  accel['加计X']
