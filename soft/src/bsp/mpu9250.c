@@ -50,10 +50,10 @@ static misc_interval_max_T s_accel_interval_max = {0}; /* 加计采样最大间�
 /********************************** 函数声明区 *********************************/
 static void run_self_test(void);
 static void int_callback(void *argv);
-static void mpu9250_set_accel(const f32_T *accel);
 static void mpu9250_dmp_update(void);
 
 #if 0
+static void mpu9250_set_accel(const f32_T *accel);
 static void tap_callback(unsigned char direction, unsigned char count);
 static void android_orient_callback(unsigned char orientation);
 #endif
@@ -136,11 +136,11 @@ void mpu9250_init(void)
     dmp_set_orientation(inv_orientation_matrix_to_scalar(s_orientation));
     //dmp_register_tap_cb(tap_callback);
     //dmp_register_android_orient_cb(android_orient_callback);
-    dmp_features = DMP_FEATURE_LP_QUAT
+    dmp_features = DMP_FEATURE_6X_LP_QUAT
         | DMP_FEATURE_TAP
         //| DMP_FEATURE_ANDROID_ORIENT
         /* 发送原始数据是否会改变 中断频率 */
-        | DMP_FEATURE_SEND_RAW_ACCEL
+        //| DMP_FEATURE_SEND_RAW_ACCEL
         //| DMP_FEATURE_SEND_RAW_GYRO
         | DMP_FEATURE_GYRO_CAL;
     dmp_enable_feature(dmp_features);
@@ -172,13 +172,14 @@ static void mpu9250_dmp_update()
     int16_T gyro[AXES_NUM] = {0};
 
     int16_T accel_short[AXES_NUM] = {0};
+    int32_T quat[QUAT_NUM] = {0};
+    f32_T quat_f32[QUAT_NUM] = {0.0f};
+#if 0
     f32_T accel_f32[AXES_NUM] = {0};
     f32_T accel_averaged[AXES_NUM] = {0.0f};
     f32_T accel_filtered[AXES_NUM] = {0.0f};
-
-    int32_T quat[QUAT_NUM] = {0};
-    f32_T quat_f32[QUAT_NUM] = {0.0f};
     f32_T quat_fusioned[QUAT_NUM] = {0.0f};
+#endif
 
     uint32_T sensor_timestamp = 0;
     int16_T sensors = 0;
@@ -200,6 +201,8 @@ static void mpu9250_dmp_update()
         }
         if (sensors & INV_XYZ_ACCEL) 
         {
+            ERR_STR("异常的加计输出.");
+#if 0
             /* 获取加计采样最大间隔 */
             misc_interval_max_update(&s_accel_interval_max);
 
@@ -207,7 +210,6 @@ static void mpu9250_dmp_update()
             accel_f32[0] = accel_short[0] / (f32_T)s_accel_sens;
             accel_f32[1] = accel_short[1] / (f32_T)s_accel_sens;
             accel_f32[2] = accel_short[2] / (f32_T)s_accel_sens; 
-
 #if 0
             /* 2级加计数据滤波 */
             /* 1级滤波: 使用均值滤波,消耗采样率 */
@@ -229,6 +231,7 @@ static void mpu9250_dmp_update()
 #else
             /* 原始数据 */
             mpu9250_set_accel(accel_f32);
+#endif
 #endif
         }
         if (sensors & INV_WXYZ_QUAT) /* 陀螺仪3轴融合姿态 */
@@ -280,6 +283,7 @@ void mpu9250_get_accel_interval_max(misc_time_T *interval)
     interval->clk = s_accel_interval_max.interval_max.clk;
 }
 
+#if 0
 /* TODO:设置和获取加计数据 加锁 */
 static void mpu9250_set_accel(const f32_T *accel)
 { 
@@ -287,6 +291,7 @@ static void mpu9250_set_accel(const f32_T *accel)
     s_accel[1] = accel[1];
     s_accel[2] = accel[2];
 } 
+#endif
 
 /* TODO:设置和获取加计数据 加锁 */
 void mpu9250_get_accel(f32_T *accel)
