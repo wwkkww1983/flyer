@@ -419,7 +419,7 @@ static void send_capture_data(void)
         /* 姿态四元数 */
         if(s_send_dmp_quat_flag)
         {
-            mpu9250_get_quat(quat);
+            mpu9250_get_dmp_quat(quat);
 #if 0
             /* 调试上位机绘图基准 */
             quat[0] = 1.0f;
@@ -480,8 +480,7 @@ static void send_capture_data(void)
         /* 欧拉角 */
         if(s_send_euler_flag)
         { 
-            mpu9250_get_quat(quat);
-            math_quaternion2euler(euler, quat);
+            mpu9250_get_euler(quat);
 
             p_ui32 = (uint32_T *)euler;
             for(i = 0; i < EULER_MAX; i++) 

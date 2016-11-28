@@ -35,55 +35,56 @@
 
 /*--------------------------------- 接口声明区 --------------------------------*/
 typedef struct{ 
-    uint32_T type;
-    f32_T accel[3];
-    f32_T gyro[3];
-    f32_T quat[4];
-}mpu9250_val_T;
+    misc_time_T time;       /* 采样时刻 */
+    uint16_T x;             /* x数据值 */
+    uint16_T y;             /* y数据值 */
+    uint16_T z;             /* z数据值 */
+    uint16_T sens;          /* 灵敏度 */ 
+}MPU9250_ACCEL_T;
+
+typedef struct{ 
+    misc_time_T time;       /* 采样时刻 */
+    uint16_T x;             /* x数据值 */
+    uint16_T y;             /* y数据值 */
+    uint16_T z;             /* z数据值 */
+    uint16_T sens;          /* 灵敏度 */ 
+}MPU9250_GYRO_T;
+
+typedef struct{ 
+    misc_time_T time;       /* 采样时刻 */
+    int32_T quat[QUAT_NUM]; /* DMP四元数数据 */
+}MPU9250_QUAT_T;
+
+/* 联合节约空间 */
+typedef union{
+    uint8_T         type;   /* 数据类型 */
+    MPU9250_ACCEL_T accel;  /* 加计 */
+    MPU9250_GYRO_T  gyro;   /* 陀螺 */
+    MPU9250_QUAT_T  quat;   /* DMP四元数 */
+}MPU9250_T;
 
 /*********************************** 全局变量 **********************************/
 
 /*********************************** 接口函数 **********************************/
 /* 初始化 */
 void mpu9250_init(void);
-/* 测试 */
-void mpu9250_test(void);
 /* 更新姿态 */
-void mpu9250_update(void);
+void mpu9250_update(void); 
+/* 获取姿态(欧拉角) */
+void mpu9250_get_euler(f32_T *euler);
+/* 获取姿态(欧拉角) */
+bool_T mpu9250_euler_updated(void);
+/* 清理上次姿态(欧拉角已经被控制模块使用) */
+void mpu9250_clear_euler(void);
 
-/* 判断有效四元数是否到达 */
-bool_T mpu9250_quat_arrived(void);
-
-/* 设置四元数 */
-void mpu9250_set_quat(const f32_T *quat);
-
-/* 获取四元数 */
-void mpu9250_get_quat(f32_T *quat);
-
-/* 获取四元数 且 标记四元数(已经使用) */
-void mpu9250_get_quat_with_clear(f32_T *quat);
-
-/* 判断有效加计数据是否到达 */
-bool_T mpu9250_accel_arrived(void);
-
+/* 获取dmp四元数 */
+void mpu9250_get_dmp_quat(f32_T *dmp_quat);
 /* 获取加计数据 */
 void mpu9250_get_accel(f32_T *accel);
-
-/* 获取加计数据 且 标记加计数据(已经使用) */
-void mpu9250_get_accel_with_clear(f32_T *accel);
-
-/* 获取四元数采样最大间隔 */
-void mpu9250_get_quat_interval_max(misc_time_T *interval);
-
+/* 获取陀螺采样最大间隔 */
+void mpu9250_get_gyro_interval_max(misc_time_T *interval);
 /* 获取加计采样最大间隔 */
 void mpu9250_get_accel_interval_max(misc_time_T *interval);
-
-/* 告诉控制模块新姿态生成,可以控制 */
-bool_T mpu9250_updated(void);
-
-/* 控制模块用完姿态,避免控制对同一个姿态值实施多次控制 */
-void mpu9250_clear(void);
-
 
 #endif /* _MPU9250_H_ */
 

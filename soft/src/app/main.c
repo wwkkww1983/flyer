@@ -104,9 +104,9 @@ static void idle()
             led_toggle(LED_MLED);
             ms_start = HAL_GetTick();
 
-            mpu9250_get_quat_interval_max(&quat_interval);
+            mpu9250_get_gyro_interval_max(&quat_interval);
             mpu9250_get_accel_interval_max(&accel_interval);
-            debug_log("%4.1fs;m:%dm,%5.2fu;q:%dm,%5.2fu;a:%dm,%5.2fu.\r\n",
+            debug_log("%4.1fs;m:%dm,%5.2fu;g:%dm,%5.2fu;a:%dm,%5.2fu.\r\n",
                     ms_start / 1000.0f,
                     (s_main_loop_interval_max.interval_max).ms,
                     (s_main_loop_interval_max.interval_max).clk / 84.0f,

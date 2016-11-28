@@ -33,37 +33,17 @@
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/
-static bool_T s_quat_updated = FALSE; /* 姿态有更新 需要重新平衡 */
-
-static bool_T s_mpu9250_fifo_ready = FALSE; 
-static uint8_T s_int_status = 0;
-
-static const signed char s_orientation[] = MPU9250_ORIENTATION;
-
-static f32_T s_quat[] = FILTER_QUAT_INIT_VAL;
-static misc_interval_max_T s_quat_interval_max = {0}; /* 四元数采样最大间隔 */
-
-static f32_T s_accel[] = FILTER_ACCEL_INIT_VAL;
-static uint16_T s_accel_sens = 0; /* 加计灵敏度 */
-static misc_interval_max_T s_accel_interval_max = {0}; /* 加计采样最大间隔 */
+static bool_T s_mpu9250_euler_updated = FALSE; /* 姿态有更新 可以且需要重新平衡 */
 
 /********************************** 函数声明区 *********************************/
+static void mpu9250_test(void);
 static void run_self_test(void);
-static void int_callback(void *argv);
-static void mpu9250_set_accel(const f32_T *accel);
-static void mpu9250_dmp_update(void);
-
-#if 0
-static void tap_callback(unsigned char direction, unsigned char count);
-static void android_orient_callback(unsigned char orientation);
-#endif
 
 /********************************** 函数实现区 *********************************/
 /* 初始化 */
 void mpu9250_init(void)
 {
     uint8_T who_am_i = 0;
-    uint16_T dmp_features = 0;
 
     /* 测试i2c是否正常工作 */
     si_read_poll(MPU9250_DEV_ADDR, MPU9250_WHO_AM_I_REG_ADDR, &who_am_i, 1); 
@@ -78,9 +58,6 @@ void mpu9250_init(void)
         ERR_STR("初始化MPU失败!\r\n");
         return;
     }
-
-    /* 开启DMP中断 */
-    exti_set_callback(int_callback, NULL);
 
     if (mpu_set_sensors(INV_XYZ_GYRO|INV_XYZ_ACCEL)!=0)
     {
@@ -107,205 +84,57 @@ void mpu9250_init(void)
     }
 
     run_self_test(); 
-    
-    /*
-     * 初始化 DMP:
-     * 1. 注册回调函数
-     * 2. 调用dmp_load_motion_driver_firmware().加载inv_mpu_dmp_motion_driver.h的
-     *    DMP程序.
-     * 3. 加方向矩阵加入DMP.
-     * 4. 注册姿态回调函数
-     * 5. 调用dmp_enable_feature()使能特性
-     * 6. 调用mpu_set_dmp_state(1)启动dmp
-     *
-     * 不能使用的特性组合:
-     * 1. DMP_FEATURE_6X_LP_QUAT < == > DMP_FEATURE_LP_QUAT
-     * 2. DMP_FEATURE_SEND_CAL_GYRO < == > DMP_FEATURE_SEND_RAW_GYRO.
-     *
-     * 已知问题:
-     * 如果没有使能DMP_FEATURE_TAP,无论使用dmp_set_fifo_rate设置的中断
-     * 频率为多少,dmp生成中断的频率都为200Hz.
-     * 为了避免这个问题,需要使能DMP_FEATURE_TAP
-     *
-     * DMP融合工作于:
-     * gyro +-2000dps
-     * accel +-2G
-     *
-     */
-    dmp_load_motion_driver_firmware();
-    dmp_set_orientation(inv_orientation_matrix_to_scalar(s_orientation));
-    //dmp_register_tap_cb(tap_callback);
-    //dmp_register_android_orient_cb(android_orient_callback);
-    dmp_features = DMP_FEATURE_LP_QUAT
-        | DMP_FEATURE_TAP
-        //| DMP_FEATURE_ANDROID_ORIENT
-        /* 发送原始数据是否会改变 中断频率 */
-        | DMP_FEATURE_SEND_RAW_ACCEL
-        //| DMP_FEATURE_SEND_RAW_GYRO
-        | DMP_FEATURE_GYRO_CAL;
-    dmp_enable_feature(dmp_features);
-    dmp_set_fifo_rate(MPU9250_DMP_SAMPLE_RATE);
-    dmp_set_interrupt_mode(DMP_INT_CONTINUOUS);
-    /* 该函数会关闭bypass模式 */
-    mpu_set_dmp_state(1);
-
     mpu9250_test();
-
-    mpu_get_accel_sens(&s_accel_sens);
 
     return;
 }
 
-static void mpu9250_test(void)
-{ 
-    ;
-} 
-
 /* 更新姿态 */
 void mpu9250_update(void)
 {
-    mpu9250_dmp_update();
+    ;
 }
 
-static void mpu9250_dmp_update()
+/* 获取姿态(欧拉角) */
+void mpu9250_get_euler(f32_T *euler)
 {
-    int16_T gyro[AXES_NUM] = {0};
-
-    int16_T accel_short[AXES_NUM] = {0};
-    f32_T accel_f32[AXES_NUM] = {0};
-    f32_T accel_averaged[AXES_NUM] = {0.0f};
-    f32_T accel_filtered[AXES_NUM] = {0.0f};
-
-    int32_T quat[QUAT_NUM] = {0};
-    f32_T quat_f32[QUAT_NUM] = {0.0f};
-    f32_T quat_fusioned[QUAT_NUM] = {0.0f};
-
-    uint32_T sensor_timestamp = 0;
-    int16_T sensors = 0;
-    uint8_T more = 0; 
-    
-    if(s_mpu9250_fifo_ready) /* 四元数 就绪 */
-    { 
-        while(si_rx_locked()); /* 自旋等待i2c空闲 */
-        s_mpu9250_fifo_ready = FALSE;
-        dmp_read_fifo(gyro, accel_short, (long *)quat, (unsigned long *)&sensor_timestamp, &sensors, &more);
-        if (more)
-        {
-            debug_log("有溢出:%u\r\n", more);
-        }
-
-        if (sensors & INV_XYZ_GYRO)
-        {
-            ERR_STR("异常的陀螺仪输出.");
-        }
-        if (sensors & INV_XYZ_ACCEL) 
-        {
-            /* 获取加计采样最大间隔 */
-            misc_interval_max_update(&s_accel_interval_max);
-
-            /* mpu9250内部格式转为通用浮点格式 */
-            accel_f32[0] = accel_short[0] / (f32_T)s_accel_sens;
-            accel_f32[1] = accel_short[1] / (f32_T)s_accel_sens;
-            accel_f32[2] = accel_short[2] / (f32_T)s_accel_sens; 
-
-#if 0
-            /* 2级加计数据滤波 */
-            /* 1级滤波: 使用均值滤波,消耗采样率 */
-            if(filter_average_3d(accel_averaged, accel_f32)) /* 多次调用仅有一次返回 true */
-            { 
-                /* 2级滤波: 使用一阶滞后滤波,消耗灵敏度 */
-                filter_1factorial_3d(accel_filtered, accel_averaged); 
-
-                /* 发送2级滤波后的数据 */ 
-                mpu9250_set_accel(accel_filtered); 
-
-                /* 6轴融合 */
-                /* 更新姿态,便于发送给上位机 */
-                mpu9250_get_quat(quat_f32);
-                filter_fusion_accel2gyro(quat_fusioned, quat_f32, accel_filtered); 
-                /* 更新姿态,便于发送给上位机 */
-                mpu9250_set_quat(quat_fusioned);
-            } 
-#else
-            /* 原始数据 */
-            mpu9250_set_accel(accel_f32);
-#endif
-        }
-        if (sensors & INV_WXYZ_QUAT) /* 陀螺仪3轴融合姿态 */
-        { 
-            /* 获取quat采样最大间隔 */ 
-            misc_interval_max_update(&s_quat_interval_max); 
-
-            /* mpu9250内部格式转为通用浮点格式 */
-            quat_f32[0] = (f32_T) quat[0] / ((f32_T)(1L << 30));
-            quat_f32[1] = (f32_T) quat[1] / ((f32_T)(1L << 30));
-            quat_f32[2] = (f32_T) quat[2] / ((f32_T)(1L << 30));
-            quat_f32[3] = (f32_T) quat[3] / ((f32_T)(1L << 30)); 
-
-            /* 更新姿态,便于发送给上位机 */
-            mpu9250_set_quat(quat_f32);
-        }
-    } 
+    ;
 }
 
-/* TODO:设置和获取四元数 加锁 */
-void mpu9250_set_quat(const f32_T *quat)
-{ 
-    s_quat[0] = quat[0];
-    s_quat[1] = quat[1];
-    s_quat[2] = quat[2];
-    s_quat[3] = quat[3]; 
-    
-    s_quat_updated = TRUE;
-} 
-
-/* TODO:设置和获取四元数 加锁 */
-void mpu9250_get_quat(f32_T *quat)
-{ 
-    quat[0] = s_quat[0];
-    quat[1] = s_quat[1];
-    quat[2] = s_quat[2];
-    quat[3] = s_quat[3];
-}
-
-void mpu9250_get_quat_interval_max(misc_time_T *interval)
+/* 获取姿态(欧拉角) */
+bool_T mpu9250_euler_updated(void)
 {
-    interval->ms = s_quat_interval_max.interval_max.ms;
-    interval->clk = s_quat_interval_max.interval_max.clk;
+    ;
 }
 
+/* 清理上次姿态(欧拉角已经被控制模块使用) */
+void mpu9250_clear_euler(void)
+{
+    ;
+}
+
+/* 获取dmp四元数 */
+void mpu9250_get_dmp_quat(f32_T *dmp_quat)
+{
+    ;
+}
+
+/* 获取加计数据 */
+void mpu9250_get_accel(f32_T *accel)
+{
+    ;
+}
+
+/* 获取陀螺采样最大间隔 */
+void mpu9250_get_gyro_interval_max(misc_time_T *interval)
+{
+    ;
+}
+
+/* 获取加计采样最大间隔 */
 void mpu9250_get_accel_interval_max(misc_time_T *interval)
 {
-    interval->ms = s_accel_interval_max.interval_max.ms;
-    interval->clk = s_accel_interval_max.interval_max.clk;
-}
-
-/* TODO:设置和获取加计数据 加锁 */
-static void mpu9250_set_accel(const f32_T *accel)
-{ 
-    s_accel[0] = accel[0];
-    s_accel[1] = accel[1];
-    s_accel[2] = accel[2];
-} 
-
-/* TODO:设置和获取加计数据 加锁 */
-void mpu9250_get_accel(f32_T *accel)
-{ 
-    accel[0] = s_accel[0];
-    accel[1] = s_accel[1];
-    accel[2] = s_accel[2];
-}
-
-/* 可以控制浆 */
-bool_T mpu9250_updated(void)
-{
-    return s_quat_updated;
-}
-
-/* 姿态已经使用 */
-void mpu9250_clear(void)
-{
-    s_quat_updated = FALSE;
+    ;
 }
 
 static void run_self_test(void)
@@ -358,92 +187,8 @@ static void run_self_test(void)
     return;
 }
 
-static void int_callback(void *argv)
-{
-    /* 以下代码用于测试中断时间 */
-#if 0
-    static int32_T times = 0;
-    static misc_time_T last_time;
-    misc_time_T now;
-    misc_time_T diff; 
+static void mpu9250_test(void)
+{ 
+    ;
+} 
 
-    /* 计算中断间隔 200Hz 5ms左右 */
-    if(0 == times)
-    {
-        get_now(&last_time);
-    }
-    else
-    {
-        get_now(&now);
-        diff_clk(&diff, &last_time, &now);
-
-        last_time.ms = now.ms;
-        last_time.clk = now.clk;
-    }
-    times++;
-#endif
-
-    /* FIXME: 中断中自旋 性能较差 */
-    while(si_rx_locked()); /* 自旋等待i2c空闲 */
-    /* 读取中断状态寄存器(用于清中断) */
-    si_read_dma(MPU9250_DEV_ADDR, MPU9250_INT_STATUS_REG_ADDR, &s_int_status, 1);
-
-    s_mpu9250_fifo_ready = TRUE;
-}
-
-#if 0
-/* 关闭回调功能 避免震动影响性能测试 */
-static void tap_callback(unsigned char direction, unsigned char count)
-{
-    switch (direction)
-    {
-        case TAP_X_UP:
-            debug_log("X上.\r\n");
-            break;
-        case TAP_X_DOWN:
-            debug_log("X下.\r\n");
-            break;
-        case TAP_Y_UP:
-            debug_log("Y上.\r\n");
-            break;
-        case TAP_Y_DOWN:
-            debug_log("Y下.\r\n");
-            break;
-        case TAP_Z_UP:
-            debug_log("Z上.\r\n");
-            break;
-        case TAP_Z_DOWN:
-            debug_log("Z下.\r\n");
-            break;
-        default:
-            err_log("tap_callback error.\r\n");
-            return;
-    }
-
-    debug_log("tap:%d\n", count);
-    return;
-}
-
-static void android_orient_callback(unsigned char orientation)
-{
-
-    switch (orientation)
-    {
-        case ANDROID_ORIENT_PORTRAIT:
-            debug_log("竖屏\r\n");
-            break;
-        case ANDROID_ORIENT_LANDSCAPE:
-            debug_log("横屏\r\n");
-            break;
-        case ANDROID_ORIENT_REVERSE_PORTRAIT:
-            debug_log("反竖屏\r\n");
-            break;
-        case ANDROID_ORIENT_REVERSE_LANDSCAPE:
-            debug_log("反横屏\r\n");
-            break;
-        default:
-            return;
-    }
-    return;
-}
-#endif

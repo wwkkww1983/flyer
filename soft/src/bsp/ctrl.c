@@ -65,7 +65,6 @@ void ctrl_init(void)
 
 void ctrl_update(void)
 {
-    f32_T quat_measured[QUAT_NUM] = {0.0f}; 
     f32_T euler_measured[EULER_MAX] = {0.0f};
     f32_T out[EULER_MAX] =  {0.0f};
 
@@ -77,14 +76,12 @@ void ctrl_update(void)
 
     /* step1: 获取姿态 */
     /* 无新姿态 故无需更新pwm */
-    if(!mpu9250_updated())
+    if(!mpu9250_euler_updated())
     {
         return;
     }
-    mpu9250_get_quat(quat_measured); /* 获取且标记 */
-    mpu9250_clear(); /* 避免多次控制 */
-
-    math_quaternion2euler(euler_measured, quat_measured);
+    mpu9250_get_euler(euler_measured); /* 获取且标记 */
+    mpu9250_clear_euler(); /* 避免多次控制 */
 
     /* step2: pid算法计算校正值 */
     for(i = 0; i < EULER_MAX; i++)
