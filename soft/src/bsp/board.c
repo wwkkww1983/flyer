@@ -234,33 +234,33 @@ void HAL_MspInit()
     GPIO_InitStruct_Pwm.Pin = PWM_TIM_GPIO_PIN_CHANNEL4;
     HAL_GPIO_Init(PWM_TIM_GPIO_PORT_CHANNEL4, &GPIO_InitStruct_Pwm);
 
-    /************************* SENSOR I2C初始化 *****************************/
-    SENSOR_I2C_SDA_GPIO_CLK_ENABLE();
-    SENSOR_I2C_SCL_GPIO_CLK_ENABLE();
+    /************************* MSI I2C初始化 *****************************/
+    MSI_I2C_SDA_GPIO_CLK_ENABLE();
+    MSI_I2C_SCL_GPIO_CLK_ENABLE();
 		
     /* 配置管脚 */
     GPIO_InitStruct_Sensor.Mode      = GPIO_MODE_AF_OD;
     GPIO_InitStruct_Sensor.Pull      = GPIO_NOPULL;
     GPIO_InitStruct_Sensor.Speed     = GPIO_SPEED_FAST;
-    GPIO_InitStruct_Sensor.Pin       = SENSOR_I2C_SCL_PIN;
-    GPIO_InitStruct_Sensor.Alternate = SENSOR_I2C_SCL_AF;
-    HAL_GPIO_Init(SENSOR_I2C_SCL_GPIO_PORT, &GPIO_InitStruct_Sensor);
-    GPIO_InitStruct_Sensor.Pin       = SENSOR_I2C_SDA_PIN;
-    GPIO_InitStruct_Sensor.Alternate = SENSOR_I2C_SDA_AF;
-    HAL_GPIO_Init(SENSOR_I2C_SDA_GPIO_PORT, &GPIO_InitStruct_Sensor);
+    GPIO_InitStruct_Sensor.Pin       = MSI_I2C_SCL_PIN;
+    GPIO_InitStruct_Sensor.Alternate = MSI_I2C_SCL_AF;
+    HAL_GPIO_Init(MSI_I2C_SCL_GPIO_PORT, &GPIO_InitStruct_Sensor);
+    GPIO_InitStruct_Sensor.Pin       = MSI_I2C_SDA_PIN;
+    GPIO_InitStruct_Sensor.Alternate = MSI_I2C_SDA_AF;
+    HAL_GPIO_Init(MSI_I2C_SDA_GPIO_PORT, &GPIO_InitStruct_Sensor);
     /* 使能时钟 */
-    SENSOR_I2C_CLOCK_ENABLE();
-    SENSOR_I2C_FORCE_RESET();
-    SENSOR_I2C_RELEASE_RESET(); 
-    SENSOR_I2C_DMA_CLK_ENABLE();
+    MSI_I2C_CLOCK_ENABLE();
+    MSI_I2C_FORCE_RESET();
+    MSI_I2C_RELEASE_RESET(); 
+    MSI_I2C_DMA_CLK_ENABLE();
     /* 设置I2C中断优先级, I2C目前使用DMA和轮询方式 中断实际并未使用 */
-    HAL_NVIC_SetPriority(SENSOR_I2C_EV_IRQn, PER_INT_PRIORITY, 0);
-    HAL_NVIC_EnableIRQ(SENSOR_I2C_EV_IRQn);
-    HAL_NVIC_SetPriority(SENSOR_I2C_ER_IRQn, PER_INT_PRIORITY, 0);
-    HAL_NVIC_EnableIRQ(SENSOR_I2C_ER_IRQn); 
+    HAL_NVIC_SetPriority(MSI_I2C_EV_IRQn, PER_INT_PRIORITY, 0);
+    HAL_NVIC_EnableIRQ(MSI_I2C_EV_IRQn);
+    HAL_NVIC_SetPriority(MSI_I2C_ER_IRQn, PER_INT_PRIORITY, 0);
+    HAL_NVIC_EnableIRQ(MSI_I2C_ER_IRQn); 
     /* 配置DMA(仅RX) */
-    sensor_hdma_rx.Instance                    = SENSOR_I2C_RX_DMA_STREAM; 
-    sensor_hdma_rx.Init.Channel                = SENSOR_I2C_RX_DMA_CHANNEL;
+    sensor_hdma_rx.Instance                    = MSI_I2C_RX_DMA_STREAM; 
+    sensor_hdma_rx.Init.Channel                = MSI_I2C_RX_DMA_CHANNEL;
     sensor_hdma_rx.Init.Direction              = DMA_PERIPH_TO_MEMORY;
     sensor_hdma_rx.Init.PeriphInc              = DMA_PINC_DISABLE;
     sensor_hdma_rx.Init.MemInc                 = DMA_MINC_ENABLE;
@@ -276,20 +276,20 @@ void HAL_MspInit()
     /* 关联DMA与I2C */
     __HAL_LINKDMA(&g_si_handle, hdmarx, sensor_hdma_rx); 
     /* INT */
-    HAL_NVIC_SetPriority(SENSOR_I2C_DMA_RX_IRQn, PER_SI_RX_DMA_PRIORITY, 0);
-    HAL_NVIC_EnableIRQ(SENSOR_I2C_DMA_RX_IRQn);
+    HAL_NVIC_SetPriority(MSI_I2C_DMA_RX_IRQn, PER_SI_RX_DMA_PRIORITY, 0);
+    HAL_NVIC_EnableIRQ(MSI_I2C_DMA_RX_IRQn);
 
-    /************************* SENSOR 中断初始化 ****************************/
-    SENSOR_INT_CLK_ENABLE();
-    GPIO_InitStruct_Int.Pin   = SENSOR_INT_PIN;
+    /************************* MSI 中断初始化 ****************************/
+    MSI_INT_CLK_ENABLE();
+    GPIO_InitStruct_Int.Pin   = MSI_INT_PIN;
     GPIO_InitStruct_Int.Pull  = GPIO_PULLUP;
     GPIO_InitStruct_Int.Speed = GPIO_SPEED_HIGH;
-    GPIO_InitStruct_Int.Mode  = SENSOR_INT_MODE;
-    HAL_GPIO_Init(SENSOR_INT_GPIO_PORT, &GPIO_InitStruct_Int);
+    GPIO_InitStruct_Int.Mode  = MSI_INT_MODE;
+    HAL_GPIO_Init(MSI_INT_GPIO_PORT, &GPIO_InitStruct_Int);
 
     /* 设置中断优先级 */
-    HAL_NVIC_SetPriority(SENSOR_INT_EXTI, PER_INT_PRIORITY, 0);
-    HAL_NVIC_EnableIRQ(SENSOR_INT_EXTI);
+    HAL_NVIC_SetPriority(MSI_INT_EXTI, PER_INT_PRIORITY, 0);
+    HAL_NVIC_EnableIRQ(MSI_INT_EXTI);
 }
 
 /*******************************************************************************

@@ -41,7 +41,6 @@ static void led_test(void);
 void led_init(void)
 {
     /* 基本初始化位于 board.c Msp_Init */ 
-    
     led_test();
 }
 

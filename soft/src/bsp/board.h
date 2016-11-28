@@ -130,46 +130,46 @@
 #define ESP8266_PWR_PORT_CLK_ENABLE()           __HAL_RCC_GPIOC_CLK_ENABLE()
 #define ESP8266_PWR_GPIO_PIN                    GPIO_PIN_9
 
-/********************************** SENSOR I2C 定义 ****************************/
+/************************************ MSI I2C 定义 *****************************/
 /*
- * I2C1
+ * 主传感器用I2C1(main sensor i2c):MPU9250(gyro+accel)
  * SCL:PC6
  * SDA:PC7
  * */
-#define SENSOR_I2C                              I2C1
-#define SENSOR_I2C_CLOCK_ENABLE()               __I2C1_CLK_ENABLE()
-#define SENSOR_I2C_FORCE_RESET()                __I2C1_FORCE_RESET()
-#define SENSOR_I2C_RELEASE_RESET()              __I2C1_RELEASE_RESET()
-#define SENSOR_I2C_SDA_GPIO_CLK_ENABLE()        __GPIOB_CLK_ENABLE()
-#define SENSOR_I2C_SCL_GPIO_CLK_ENABLE()        __GPIOB_CLK_ENABLE() 
-#define SENSOR_I2C_SDA_GPIO_CLK_DISABLE()       __GPIOB_CLK_DISABLE()
-#define SENSOR_I2C_SCL_GPIO_CLK_DISABLE()       __GPIOB_CLK_DISABLE() 
-#define SENSOR_I2C_SCL_GPIO_PORT                GPIOB
-#define SENSOR_I2C_SCL_PIN                      GPIO_PIN_8
-#define SENSOR_I2C_SCL_AF                       GPIO_AF4_I2C1
-#define SENSOR_I2C_SDA_GPIO_PORT                GPIOB
-#define SENSOR_I2C_SDA_PIN                      GPIO_PIN_9
-#define SENSOR_I2C_SDA_AF                       GPIO_AF4_I2C1
-#define SENSOR_I2C_EV_IRQn                      I2C1_EV_IRQn
-#define SENSOR_I2C_EV_IRQHandler                I2C1_EV_IRQHandler                                            
-#define SENSOR_I2C_ER_IRQn                      I2C1_ER_IRQn
-#define SENSOR_I2C_ER_IRQHandler                I2C1_ER_IRQHandler
-#define SENSOR_I2C_DMA_CLK_ENABLE()             __HAL_RCC_DMA1_CLK_ENABLE()
-#define SENSOR_I2C_RX_DMA_CHANNEL               DMA_CHANNEL_1
-#define SENSOR_I2C_RX_DMA_STREAM                DMA1_Stream5
-#define SENSOR_I2C_DMA_RX_IRQn                  DMA1_Stream5_IRQn
-#define SENSOR_I2C_DMA_RX_IRQHandler            DMA1_Stream5_IRQHandler
+#define MSI_I2C                                 I2C1
+#define MSI_I2C_CLOCK_ENABLE()                  __I2C1_CLK_ENABLE()
+#define MSI_I2C_FORCE_RESET()                   __I2C1_FORCE_RESET()
+#define MSI_I2C_RELEASE_RESET()                 __I2C1_RELEASE_RESET()
+#define MSI_I2C_SDA_GPIO_CLK_ENABLE()           __GPIOB_CLK_ENABLE()
+#define MSI_I2C_SCL_GPIO_CLK_ENABLE()           __GPIOB_CLK_ENABLE() 
+#define MSI_I2C_SDA_GPIO_CLK_DISABLE()          __GPIOB_CLK_DISABLE()
+#define MSI_I2C_SCL_GPIO_CLK_DISABLE()          __GPIOB_CLK_DISABLE() 
+#define MSI_I2C_SCL_GPIO_PORT                   GPIOB
+#define MSI_I2C_SCL_PIN                         GPIO_PIN_8
+#define MSI_I2C_SCL_AF                          GPIO_AF4_I2C1
+#define MSI_I2C_SDA_GPIO_PORT                   GPIOB
+#define MSI_I2C_SDA_PIN                         GPIO_PIN_9
+#define MSI_I2C_SDA_AF                          GPIO_AF4_I2C1
+#define MSI_I2C_EV_IRQn                         I2C1_EV_IRQn
+#define MSI_I2C_EV_IRQHandler                   I2C1_EV_IRQHandler                                            
+#define MSI_I2C_ER_IRQn                         I2C1_ER_IRQn
+#define MSI_I2C_ER_IRQHandler                   I2C1_ER_IRQHandler
+#define MSI_I2C_DMA_CLK_ENABLE()                __HAL_RCC_DMA1_CLK_ENABLE()
+#define MSI_I2C_RX_DMA_CHANNEL                  DMA_CHANNEL_1
+#define MSI_I2C_RX_DMA_STREAM                   DMA1_Stream5
+#define MSI_I2C_DMA_RX_IRQn                     DMA1_Stream5_IRQn
+#define MSI_I2C_DMA_RX_IRQHandler               DMA1_Stream5_IRQHandler
 
 /*
  * EXIT13
  * PC13
  * */
-#define SENSOR_INT_PIN                          GPIO_PIN_13
-#define SENSOR_INT_GPIO_PORT                    GPIOC
-#define SENSOR_INT_MODE                         GPIO_MODE_IT_FALLING
-#define SENSOR_INT_CLK_ENABLE()                 __GPIOC_CLK_ENABLE()
-#define SENSOR_INT_EXTI                         EXTI15_10_IRQn
-#define SENSOR_INT_EXTI_IRQHandler              EXTI15_10_IRQHandler
+#define MSI_INT_PIN                             GPIO_PIN_13
+#define MSI_INT_GPIO_PORT                       GPIOC
+#define MSI_INT_MODE                            GPIO_MODE_IT_FALLING
+#define MSI_INT_CLK_ENABLE()                    __GPIOC_CLK_ENABLE()
+#define MSI_INT_EXTI                            EXTI15_10_IRQn
+#define MSI_INT_EXTI_IRQHandler                 EXTI15_10_IRQHandler
 
 /*--------------------------------- 接口声明区 --------------------------------*/
 

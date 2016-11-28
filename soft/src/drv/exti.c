@@ -41,13 +41,13 @@ void exti_set_callback(func_T callback, void *argv)
 }
 
 /* 覆盖stm32f4xx.s中弱符号 */
-void SENSOR_INT_EXTI_IRQHandler(void)
+void MSI_INT_EXTI_IRQHandler(void)
 {
     /* 判断中断 */
-    if(__HAL_GPIO_EXTI_GET_IT(SENSOR_INT_PIN) != RESET)
+    if(__HAL_GPIO_EXTI_GET_IT(MSI_INT_PIN) != RESET)
     {
         /* 清中断 */
-        __HAL_GPIO_EXTI_CLEAR_IT(SENSOR_INT_PIN); 
+        __HAL_GPIO_EXTI_CLEAR_IT(MSI_INT_PIN); 
         
         /* 回调 */
         if(NULL != s_callback)

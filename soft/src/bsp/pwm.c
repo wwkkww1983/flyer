@@ -176,7 +176,7 @@ static void pwm_test(void)
 {
     int32_T period = 0;
     int32_T accelerator_rate = 5;
-    int32_T delay = 1000;
+    int32_T delay = 250;
 
     debug_log("前右后左分别%d%%油门运动%dms.\r\n", accelerator_rate, delay);
 

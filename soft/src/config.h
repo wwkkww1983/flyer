@@ -49,7 +49,7 @@
 
 /*********************************** 硬件配置 **********************************/
 /* 传感i2c速度 */
-#define SI_RATE                                             (400000U)
+#define MSI_RATE                                            (400000U)
 /* MPU9250配置 */
 #define MPU9250_ACCEL_FSR                                   (16U)
 #define MPU9250_ACCEL_LPF                                   (10U)

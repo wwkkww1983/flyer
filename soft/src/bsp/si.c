@@ -44,8 +44,8 @@ void si_init(void)
         assert_failed(__FILE__, __LINE__);
     }
 
-    g_si_handle.Instance              = SENSOR_I2C;
-    g_si_handle.Init.ClockSpeed       = SI_RATE;
+    g_si_handle.Instance              = MSI_I2C;
+    g_si_handle.Init.ClockSpeed       = MSI_RATE;
     g_si_handle.Init.DutyCycle        = I2C_DUTYCYCLE_2;
     g_si_handle.Init.OwnAddress1      = 0;
     g_si_handle.Init.AddressingMode   = I2C_ADDRESSINGMODE_7BIT;
@@ -124,15 +124,15 @@ inline static void si_tc_unlock(void)
     s_rx_lock = FALSE;
 }
 
-/* SENSOR_I2C_EV_IRQHandler & SENSOR_I2C_ER_IRQHandler 未使用 使用DMA提高效率 */
+/* MSI_I2C_EV_IRQHandler & MSI_I2C_ER_IRQHandler 未使用 使用DMA提高效率 */
 /* 发生EV ER中断表示出错 */
-void SENSOR_I2C_EV_IRQHandler(void)
+void MSI_I2C_EV_IRQHandler(void)
 {
     ERR_STR("中断失败.");
     /* HAL_I2C_EV_IRQHandler(&g_si_handle); */
 }
 
-void SENSOR_I2C_ER_IRQHandler(void)
+void MSI_I2C_ER_IRQHandler(void)
 {
     ERR_STR("中断失败.");
     /* HAL_I2C_ER_IRQHandler(&g_si_handle); */
@@ -143,7 +143,7 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
     si_tc_unlock();
 }
 
-void SENSOR_I2C_DMA_RX_IRQHandler(void)
+void MSI_I2C_DMA_RX_IRQHandler(void)
 {
     HAL_DMA_IRQHandler(g_si_handle.hdmarx);
 }

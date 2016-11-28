@@ -145,8 +145,6 @@ static void init(void)
     HAL_NVIC_SetPriority(SysTick_IRQn, TICK_INT_PRIORITY, 0);
 
     /* 逐个初始化硬件,串口最先初始化保证打印 */
-    /* 控制台串口 */
-    console_init(); /* 此后可以开始打印 */
     /* wifi 模块串口 */
     esp8266_init();
     /* 配置交互协议模块(必须等待console和esp8266初始化完成) */
