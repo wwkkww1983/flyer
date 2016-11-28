@@ -90,7 +90,7 @@ void mpu9250_init(void)
 
     if(mpu_set_sample_rate(MPU9250_SAMPLE_RATE) !=0)
     {
-        debug_log("设置accel+gyro主采样率(%d)失败.\r\n", MPU9250_SAMPLE_RATE);
+        debug_log("设置主采样率(%d)失败.\r\n", MPU9250_SAMPLE_RATE);
         return;
     }
 
@@ -103,13 +103,6 @@ void mpu9250_init(void)
     if (mpu_set_accel_fsr(MPU9250_ACCEL_FSR)!=0)
     {
         ERR_STR("设置加速度计量程失败.\r\n");
-        return;
-    }
-
-    /* FIXME:为何无效 */
-    if (mpu_set_lpf(MPU9250_ACCEL_LPF)!=0)
-    {
-        ERR_STR("设置加速度计低通滤波器失败.\r\n");
         return;
     }
 
@@ -215,6 +208,7 @@ static void mpu9250_dmp_update()
             accel_f32[1] = accel_short[1] / (f32_T)s_accel_sens;
             accel_f32[2] = accel_short[2] / (f32_T)s_accel_sens; 
 
+#if 0
             /* 2级加计数据滤波 */
             /* 1级滤波: 使用均值滤波,消耗采样率 */
             if(filter_average_3d(accel_averaged, accel_f32)) /* 多次调用仅有一次返回 true */
@@ -232,6 +226,10 @@ static void mpu9250_dmp_update()
                 /* 更新姿态,便于发送给上位机 */
                 mpu9250_set_quat(quat_fusioned);
             } 
+#else
+            /* 原始数据 */
+            mpu9250_set_accel(accel_f32);
+#endif
         }
         if (sensors & INV_WXYZ_QUAT) /* 陀螺仪3轴融合姿态 */
         { 

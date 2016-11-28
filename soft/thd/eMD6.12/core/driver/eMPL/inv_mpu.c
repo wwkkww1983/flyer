@@ -376,6 +376,15 @@ enum lp_accel_rate_e {
 #endif
 };
 
+#define PP_ACCEL_DLPF1130   (8)
+#define PP_ACCEL_DLPF460    (0)
+#define PP_ACCEL_DLPF184    (1)
+#define PP_ACCEL_DLPF92     (2)
+#define PP_ACCEL_DLPF41     (3)
+#define PP_ACCEL_DLPF20     (4)
+#define PP_ACCEL_DLPF10     (5)
+#define PP_ACCEL_DLPF5      (6)
+
 #define BIT_I2C_MST_VDDIO   (0x80)
 #define BIT_FIFO_EN         (0x40)
 #define BIT_DMP_EN          (0x80)
@@ -730,7 +739,15 @@ int mpu_init(struct int_param_s *int_param)
     /* MPU6500 shares 4kB of memory between the DMP and the FIFO. Since the
      * first 3kB are needed by the DMP, we'll use the last 1kB for the FIFO.
      */
+
+   /* pp changed begin */
+#if 0
     data[0] = BIT_FIFO_SIZE_1024 | 0x8;
+#else
+    data[0] = BIT_FIFO_SIZE_1024 | PP_ACCEL_DLPF5;
+#endif
+   /* pp changed end */
+
     if (i2c_write(st.hw->addr, st.reg->accel_cfg2, 1, data))
         return -1;
 #endif
