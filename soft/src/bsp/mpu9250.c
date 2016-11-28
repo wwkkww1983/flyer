@@ -33,7 +33,11 @@
 /*----------------------------------- 声明区 ----------------------------------*/
 
 /********************************** 变量声明区 *********************************/
-static bool_T s_mpu9250_euler_updated = FALSE; /* 姿态有更新 可以且需要重新平衡 */
+static bool_T s_mpu9250_euler_updated = FALSE;      /* 姿态有更新 可以且需要重新平衡 */
+MPU9250_ACCEL_T s_accel = {0};                      /* 最新加计数据 */
+MPU9250_GYRO_T  s_gyro = {0};                       /* 最新陀螺数据 */
+f32_T s_euler[EULER_MAX] = {0};                     /* 最新姿态,mpu9250模块使用欧拉角,融合算法使用四元数 */
+misc_interval_max_T s_mpu9250_interval_max = {0};   /* 采样间隔 */
 
 /********************************** 函数声明区 *********************************/
 static void mpu9250_test(void);
@@ -44,6 +48,7 @@ static void run_self_test(void);
 void mpu9250_init(void)
 {
     uint8_T who_am_i = 0;
+    int32_T i = 0;
 
     /* 测试i2c是否正常工作 */
     si_read_poll(MPU9250_DEV_ADDR, MPU9250_WHO_AM_I_REG_ADDR, &who_am_i, 1); 
@@ -86,55 +91,124 @@ void mpu9250_init(void)
     run_self_test(); 
     mpu9250_test();
 
+    /* 内部数据结构初始化(初始化为无旋转) */
+    s_mpu9250_euler_updated = FALSE;
+    for(i = 0; i< EULER_MAX; i++)
+    {
+        s_euler[i] = 0.0f;
+    } 
+    s_accel.data[AXES_X] = 0.0f;
+    s_accel.data[AXES_Y] = 0.0f;
+    s_accel.data[AXES_Z] = 1.0f;
+    if(0 != mpu_get_accel_sens(&s_accel.sens))
+    {
+        ERR_STR("获取加计灵敏度失败.\r\n");
+        return;
+    }
+    s_gyro.data[EULER_THETA] = 0.0f;
+    s_gyro.data[EULER_PHI] = 0.0f;
+    s_gyro.data[EULER_PSI] = 0.0f;
+    if(0 != mpu_get_gyro_sens(&s_gyro.sens))
+    {
+        ERR_STR("获取陀螺灵敏度失败.\r\n");
+        return;
+    }
+
     return;
 }
 
 /* 更新姿态 */
 void mpu9250_update(void)
 {
-    ;
+    static bool_T first_run = TRUE;
+    static uint8_T s_buf[MPU9250_ATG_LENGTH] = {0};     /* dma读取缓冲 */
+    uint8_T buf[MPU9250_ATG_LENGTH] = {0};              /* dma读取缓冲的备份 用于提高并行度 */
+    int16_T buf_i16[AXES_NUM] = {0};                    /* 数据处理的临时变量 */
+    int32_T i = 0;
+
+    /* 首次 启动采样 */
+    if(first_run)
+    {
+        si_read_dma(MPU9250_DEV_ADDR, MPU9250_ATG_REG_ADDR, s_buf, MPU9250_ATG_LENGTH);
+        first_run = FALSE;
+        return;
+    }
+
+    /* 其他 保存数据 后 启动采样 */
+    if(!si_rx_locked()) /* 上一帧数据已达 */
+    { 
+        /* step1: 备份数据用于尽快启动采样提高并行度 */
+        for(i = 0; i < MPU9250_ATG_LENGTH; i++)
+        {
+            buf[i] = s_buf[i];
+        }
+
+        /* step2: 开始采样 */
+        si_read_dma(MPU9250_DEV_ADDR, MPU9250_ATG_REG_ADDR, s_buf, MPU9250_ATG_LENGTH);
+        misc_interval_max_update(&s_mpu9250_interval_max);
+
+        /* step3: 数据处理 */
+        /* 加计 */
+        buf_i16[AXES_X] = ((buf[0]) << 8) | buf[1];
+        buf_i16[AXES_Y] = ((buf[2]) << 8) | buf[3];
+        buf_i16[AXES_Z] = ((buf[4]) << 8) | buf[5];
+        s_accel.data[AXES_X] = buf_i16[AXES_X] / (f32_T)(s_accel.sens);
+        s_accel.data[AXES_Y] = buf_i16[AXES_Y] / (f32_T)(s_accel.sens);
+        s_accel.data[AXES_Z] = buf_i16[AXES_Z] / (f32_T)(s_accel.sens);
+        /* 陀螺仪 */
+        buf_i16[EULER_THETA] = ((buf[8])  << 8) | buf[9];
+        buf_i16[EULER_PHI]   = ((buf[10]) << 8) | buf[11];
+        buf_i16[EULER_PSI]   = ((buf[12]) << 8) | buf[13];
+        s_gyro.data[EULER_THETA] = buf_i16[EULER_THETA] / (f32_T)(s_gyro.sens);
+        s_gyro.data[EULER_PHI] = buf_i16[EULER_PHI] / (f32_T)(s_gyro.sens);
+        s_gyro.data[EULER_PSI] = buf_i16[EULER_PSI] / (f32_T)(s_gyro.sens);
+
+        /* step4: 滤波 + 融合 */
+        /* filter_fusion(s_euler, s_gyro, s_accel); */
+
+        s_mpu9250_euler_updated = TRUE;
+    }
 }
 
 /* 获取姿态(欧拉角) */
 void mpu9250_get_euler(f32_T *euler)
 {
-    ;
+    euler[EULER_THETA] = s_euler[EULER_THETA];
+    euler[EULER_PHI] = s_euler[EULER_PHI];
+    euler[EULER_PSI] = s_euler[EULER_PSI];
 }
 
 /* 获取姿态(欧拉角) */
 bool_T mpu9250_euler_updated(void)
 {
-    ;
+    return s_mpu9250_euler_updated;
 }
 
 /* 清理上次姿态(欧拉角已经被控制模块使用) */
 void mpu9250_clear_euler(void)
 {
-    ;
+    s_mpu9250_euler_updated = FALSE;
 }
 
-/* 获取dmp四元数 */
+/* 获取dmp四元数 mpu9250硬dmp融合算法不便于加计滤波 不使用 */
 void mpu9250_get_dmp_quat(f32_T *dmp_quat)
 {
-    ;
+    ERR_STR("mpu9250_get_dmp_quat 未实现.\r\n")
 }
 
 /* 获取加计数据 */
 void mpu9250_get_accel(f32_T *accel)
 {
-    ;
+    accel[AXES_X] = s_accel.data[AXES_X];
+    accel[AXES_Y] = s_accel.data[AXES_Y];
+    accel[AXES_Z] = s_accel.data[AXES_Z];
 }
 
 /* 获取陀螺采样最大间隔 */
-void mpu9250_get_gyro_interval_max(misc_time_T *interval)
+void mpu9250_get_interval_max(misc_time_T *interval)
 {
-    ;
-}
-
-/* 获取加计采样最大间隔 */
-void mpu9250_get_accel_interval_max(misc_time_T *interval)
-{
-    ;
+    interval->ms = s_mpu9250_interval_max.interval_max.ms;
+    interval->clk = s_mpu9250_interval_max.interval_max.clk;
 }
 
 static void run_self_test(void)

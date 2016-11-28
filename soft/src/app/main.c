@@ -84,8 +84,7 @@ static void idle()
     static uint32_T ms_start = 0; /* 首次运行ms数*/
     uint32_T ms_now = 0;
 
-    misc_time_T quat_interval = {0}; /* 用于保存quat采样间隔 */
-    misc_time_T accel_interval = {0}; /* 用于保存accel采样间隔 */
+    misc_time_T sample_interval = {0}; /* 用于保存mpu9250采样间隔 */
 
     if(TRUE == first_run) /* 获取起始时间 仅运行一次 */
     {
@@ -104,14 +103,12 @@ static void idle()
             led_toggle(LED_MLED);
             ms_start = HAL_GetTick();
 
-            mpu9250_get_gyro_interval_max(&quat_interval);
-            mpu9250_get_accel_interval_max(&accel_interval);
-            debug_log("%4.1fs;m:%dm,%5.2fu;g:%dm,%5.2fu;a:%dm,%5.2fu.\r\n",
+            mpu9250_get_interval_max(&sample_interval);
+            debug_log("%4.1fs;m:%dm,%5.2fu;a:%dm,%5.2fu.\r\n",
                     ms_start / 1000.0f,
                     (s_main_loop_interval_max.interval_max).ms,
                     (s_main_loop_interval_max.interval_max).clk / 84.0f,
-                    quat_interval.ms, quat_interval.clk / 84.0f,
-                    accel_interval.ms, accel_interval.clk / 84.0f);
+                    sample_interval.ms, sample_interval.clk / 84.0f);
         }
     }
 }

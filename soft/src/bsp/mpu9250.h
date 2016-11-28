@@ -35,26 +35,16 @@
 
 /*--------------------------------- 接口声明区 --------------------------------*/
 typedef struct{ 
-    misc_time_T time;       /* 采样时刻 */
-    uint16_T x;             /* x数据值 */
-    uint16_T y;             /* y数据值 */
-    uint16_T z;             /* z数据值 */
+    f32_T data[AXES_NUM];   /* 数据 */
     uint16_T sens;          /* 灵敏度 */ 
 }MPU9250_ACCEL_T;
 
 typedef struct{ 
-    misc_time_T time;       /* 采样时刻 */
-    uint16_T x;             /* x数据值 */
-    uint16_T y;             /* y数据值 */
-    uint16_T z;             /* z数据值 */
-    uint16_T sens;          /* 灵敏度 */ 
+    f32_T data[AXES_NUM];   /* 数据 */
+    f32_T sens;             /* 灵敏度 */ 
 }MPU9250_GYRO_T;
 
-typedef struct{ 
-    misc_time_T time;       /* 采样时刻 */
-    int32_T quat[QUAT_NUM]; /* DMP四元数数据 */
-}MPU9250_QUAT_T;
-
+#if 0
 /* 联合节约空间 */
 typedef union{
     uint8_T         type;   /* 数据类型 */
@@ -62,6 +52,7 @@ typedef union{
     MPU9250_GYRO_T  gyro;   /* 陀螺 */
     MPU9250_QUAT_T  quat;   /* DMP四元数 */
 }MPU9250_T;
+#endif
 
 /*********************************** 全局变量 **********************************/
 
@@ -81,10 +72,8 @@ void mpu9250_clear_euler(void);
 void mpu9250_get_dmp_quat(f32_T *dmp_quat);
 /* 获取加计数据 */
 void mpu9250_get_accel(f32_T *accel);
-/* 获取陀螺采样最大间隔 */
-void mpu9250_get_gyro_interval_max(misc_time_T *interval);
-/* 获取加计采样最大间隔 */
-void mpu9250_get_accel_interval_max(misc_time_T *interval);
+/* 获取采样最大间隔 */
+void mpu9250_get_interval_max(misc_time_T *interval);
 
 #endif /* _MPU9250_H_ */
 

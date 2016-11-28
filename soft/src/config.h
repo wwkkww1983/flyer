@@ -97,6 +97,9 @@
 /* 欧拉角 */
 #define QUAT_NUM                                            (4)
 /* 坐标轴 */
+#define AXES_X                                              (0)
+#define AXES_Y                                              (1)
+#define AXES_Z                                              (2)
 #define AXES_NUM                                            (3)
 
 /*********************************** 系统配置 **********************************/
